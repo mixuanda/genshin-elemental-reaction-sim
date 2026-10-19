@@ -38,7 +38,9 @@
     "source:build": "node packages/source-host/scripts/build-source-host.mjs",
     "source:prepare": "node packages/source-host/scripts/prepare-source.mjs",
     "source:build:stellar": "node packages/source-host/stellar-overlay/build.mjs",
-    "source:talent-registry": "node packages/source-host/scripts/generate-talent-registry.mjs"
+    "source:talent-registry": "node packages/source-host/scripts/generate-talent-registry.mjs",
+    "dev:local": "npm run dev --workspace @genshin-dps-lab/web -- --host 127.0.0.1 --port 4179 --strictPort",
+    "test:e2e:cloud": "node scripts/check-cloud-browser.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0",

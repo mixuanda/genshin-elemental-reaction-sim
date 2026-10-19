@@ -1,3 +1,5 @@
+import { gameDataCatalog } from "../../../packages/game-data/src/catalog";
+import { getCharacterBuildPreset } from "../../../packages/game-data/src/character-build-presets";
 import type { SourceHostResult } from "../../../packages/sim-core/src/source-host-wire";
 import { captureSourceHostHit, type SourceHostHitCapture } from "../../../packages/sim-core/src/source-host-capture";
 import { calculateSourceHostActionCollection, type SourceHostActionCollection } from "../../../packages/sim-core/src/source-host-action-collection";
@@ -185,7 +187,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     if (!inventory) return;
     try {
       const member = createSourceSingleSkillPreset(inventory, characterKey, tierSelect.value as "starter" | "developed");
-      const preset = getCharacterBuildPreset(member.characterId, tierSelect.value as "starter" | "developed");
+      const preset = getCharacterBuildPreset(gameDataCatalog.characters.find(row => row.avatarId === inventory!.characters.find(item => item.key === member.characterKey)?.sourceGameId)?.id ?? "", tierSelect.value as "starter" | "developed");
       const roleSpecific = preset?.coverage === "role-specific";
       tierSelect.options[0]!.textContent = roleSpecific ? "小毕业 · 角色模板" : "基础投入 · 通用占位";
       tierSelect.options[1]!.textContent = roleSpecific ? "大毕业 · 角色模板" : "进阶投入 · 通用占位";
