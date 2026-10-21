@@ -56,3 +56,6 @@ npm run preview --workspace @genshin-dps-lab/web -- --host 127.0.0.1 --port 4173
 最终完整回归：2907 pass / 86 fail / 2993 tests / 381 files，666.63秒；相对2872/86/2958/380，新增35项全部通过，0新增失败、0删除、0原失败改判通过。原失败身份集合完全一致：消费者8、历史兼容45、Golden24、旧EC9。不是“全部通过”。
 
 整批全量只运行一次。其后仅收尾浏览器副本恢复与能量/暴击/种子/迭代/检查点等控件状态保存：`document-final.json` 10/0、`browser-controls.log` 对应1项、`build-controls.log`。没有因此重复全量。旧记录显式运行选项与新输入文档控件状态都保存；编辑不生成任何新结果证据。
+
+
+后续补充：EC＋执行延迟与完成运行后的导入路由已在后续小块修复并针对性验收，见 [EC-DELAY-AND-IMPORT-20261021.zh-CN.md](EC-DELAY-AND-IMPORT-20261021.zh-CN.md)。上文组合未验收说明记录的是本阶段交付时状态；历史完整回归数字保持原样，不更新为推算值。

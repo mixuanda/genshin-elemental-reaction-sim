@@ -3526,7 +3526,10 @@ function initEvents(): void {
       const input = event.currentTarget as HTMLInputElement;
       const file = input.files?.[0];
       if (!file) return;
-      pendingSimulation?.abort();
+      const previousRun=pendingSimulation;
+      pendingSimulation=null;
+      previousRun?.abort();
+      byId<HTMLButtonElement>('cancelRunButton').hidden=true;
       try {
         const text=await file.text();
         openedDocument=openProjectDocument(text,file.name);
@@ -3704,7 +3707,7 @@ async function renderProductRoute(): Promise<void> {
   for (const id of ["calculatorHost", "exampleHost", "workspacePanel"]) byId<HTMLElement>(id).hidden = true;
   if (simulation) {
     lunarPanel?.resume();
-    if (!lastResult && !pendingSimulation) void runSimulation();
+    if (!lastResult && !pendingSimulation && !openedDocument) void runSimulation();
     else if (!lunarPanel) void mountLunarPanel();
     return;
   }

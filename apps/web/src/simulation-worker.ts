@@ -1,4 +1,4 @@
-import {simulateEventStepResult,type EventStepResult} from '../../../packages/sim-core/src/event-step-result';
+import {simulateEventStepResult,applyEventStepExecutionProfile,type EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { batchSeed, batchStatistics } from "./batch-statistics";
 import { simulate, applyExecutionProfile, FAVONIUS_PROFILE, SACRIFICIAL_PROFILE } from "@genshin-dps-lab/sim-core";
 import { NORMAL_HIT_ENERGY_PROFILE } from "../../../packages/sim-core/src/normal-hit-energy";
@@ -16,7 +16,7 @@ scope.onmessage = (event): void => {
   try {
     if (request.type === "prepare") {
       scope.postMessage({type: "progress", completed: 0, total: 1});
-      const appliedProfile = request.executionProfile ? applyExecutionProfile(request.config, request.executionProfile, request.options) : null;
+      const appliedProfile = request.executionProfile ? (request.config.electroChargedPropagationModel?.mode==='nearby-wet-radius-v1' ? applyEventStepExecutionProfile : applyExecutionProfile)(request.config, request.executionProfile, request.options) : null;
       const config = appliedProfile?.config ?? request.config;
       const timelineExecution = request.resolveTimeline ? (config.electroChargedPropagationModel?.mode==='nearby-wet-radius-v1' ? simulateEventStepResult(config,request.options).result : simulate(config, request.options)).timelineExecution : undefined;
       scope.postMessage({type: "progress", completed: 1, total: 1});
@@ -30,7 +30,7 @@ scope.onmessage = (event): void => {
     if (!Number.isSafeInteger(start) || start < 0 || !Number.isSafeInteger(total) || total > 10000 || start + request.iterations > total) throw new RangeError("批量采样区间无效。");
     const started = performance.now();
     scope.postMessage({ type: "progress", completed: 0, total: request.iterations });
-    const appliedProfile = request.executionProfile ? applyExecutionProfile(request.config, request.executionProfile, request.options) : undefined;
+    const appliedProfile = request.executionProfile ? (request.config.electroChargedPropagationModel?.mode==='nearby-wet-radius-v1' ? applyEventStepExecutionProfile : applyExecutionProfile)(request.config, request.executionProfile, request.options) : undefined;
     const config = appliedProfile?.config ?? request.config;
     const randomWeaponProcs = hasRandomWeaponProc(config.weaponProcModel);
     const seed = request.options.randomSeed ?? config.randomSeed;

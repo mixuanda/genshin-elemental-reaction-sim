@@ -1,0 +1,74 @@
+import {Buffer} from 'node:buffer';
+import {readFile} from 'node:fs/promises';
+import {test,expect,type Page} from '@playwright/test';
+import type {SimConfig} from '@genshin-dps-lab/schemas';
+async function download(page:Page,selector:string):Promise<string>{
+ const pending=page.waitForEvent('download');await page.locator(selector).click();const file=await pending;
+ const stream=await file.createReadStream();const chunks:Buffer[]=[];for await(const chunk of stream!)chunks.push(Buffer.from(chunk));return Buffer.concat(chunks).toString();
+}
+test('EC delay preview and actual run preserve strict evidence through save, reopen and explicit rerun',async({page})=>{
+ test.setTimeout(120000);
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{
+  const NativeWorker=window.Worker;let starts=0;
+  Object.defineProperty(window,'__gidpsWorkerStarts',{get:()=>starts});
+  window.Worker=class extends NativeWorker {constructor(...args:ConstructorParameters<typeof Worker>){super(...args);starts++;}};
+ });
+ const config=JSON.parse(await readFile(new URL('../../../docs/fixtures/ec-event-steps.synthetic.json',import.meta.url),'utf8')) as SimConfig;
+ config.duration=2;config.cycleLength=2;
+ await page.goto('/results');
+ await page.locator('#importInput').setInputFiles({name:'ec-delay.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(config))});
+ await expect(page.locator('#documentNotice')).toContainText('打开不会运行模拟');
+ await page.locator('.product-nav a[href="/rotation"]').click();
+ await page.locator('#rotation-advanced-controls > summary').click();
+ await page.locator('#execution-profile').selectOption('practical-assumed-input');
+ await page.locator('#execution-preview').click();
+ await expect(page.locator('[data-execution-command="0"]')).toContainText('2',{timeout:30000});
+ await page.locator('#rotation-save').click();
+ await expect.poll(()=>page.evaluate(()=>window.GenshinDpsLab.getLastResult()?.timelineExecution?.commandResults[0]?.startFrame),{timeout:30000}).toBe(2);
+ const text=await download(page,'#exportRunButton');const record=JSON.parse(text);
+ expect(record.validation).toBe('event-steps-v1');
+ expect(record.sourceConfig.timeline.commands[0].atFrame).toBeUndefined();
+ expect(record.result.result.config.timeline.commands[0].atFrame).toBe(2);
+ expect(record.executionBaseline.changes[0].requestedTick).toBe(2);
+ const startsBeforeImport=await page.evaluate(()=>Reflect.get(window,'__gidpsWorkerStarts'));
+ await page.locator('#importInput').setInputFiles({name:'saved-run.json',mimeType:'application/json',buffer:Buffer.from(text)});
+ await expect(page.locator('#simulationProgress')).toContainText('未重新模拟');
+ expect(await download(page,'#exportRunButton')).toBe(text);
+ expect(await page.evaluate(()=>Reflect.get(window,'__gidpsWorkerStarts'))).toBe(startsBeforeImport);
+ await page.locator('#runButton').click();
+ await expect(page.locator('#cancelRunButton')).toBeHidden({timeout:30000});
+ await expect(page.locator('#jsonError')).toBeHidden();
+ expect(await page.evaluate(()=>Reflect.get(window,'__gidpsWorkerStarts'))).toBeGreaterThan(startsBeforeImport);
+ const replayed=JSON.parse(await download(page,'#exportRunButton'));
+ expect(replayed.result).toEqual(record.result);
+ expect(replayed.sourceConfig).toEqual(record.sourceConfig);
+ expect(errors).toEqual([]);
+});
+
+test('real Noelle clicked inputs and numerical result survive copy export, reopen and explicit recalculation',async({page})=>{
+ test.setTimeout(120000);
+ const config=JSON.parse(await readFile(new URL('../../../docs/fixtures/noelle-q-normal-reference.json',import.meta.url),'utf8')) as SimConfig;
+ config.timeline!.commands=[];
+ await page.goto('/results');
+ await page.locator('#importInput').setInputFiles({name:'noelle-original.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(config))});
+ await expect(page.locator('#documentNotice')).toContainText('打开不会运行模拟');
+ await page.locator('.product-nav a[href="/rotation"]').click();
+ await page.locator('#padDuration').selectOption('120');
+ await expect(page.locator('[data-pad-ability="noelle-burst"]')).toBeEnabled({timeout:30000});await page.locator('[data-pad-ability="noelle-burst"]').click();
+ await expect(page.locator('[data-pad-ability="noelle-normal-1"]')).toBeEnabled({timeout:30000});await page.locator('[data-pad-ability="noelle-normal-1"]').click();
+ await page.locator('#rotation-save').click();
+ await expect.poll(()=>page.evaluate(()=>window.GenshinDpsLab.getLastResult()?.damageEvents.length),{timeout:30000}).toBe(3);
+ const before=await page.evaluate(()=>window.GenshinDpsLab.getLastResult()!);
+ expect(before.totalDamage).toBeCloseTo(49.33812386350516,9);
+ const text=await download(page,'#exportButton');const copy=JSON.parse(text);
+ expect(copy.format).toBe('gidps-document-v1');expect(copy.verification).toBe('not-recomputed');
+ expect(copy.config.timeline.commands).toHaveLength(2);expect(JSON.parse(copy.original.text).timeline.commands).toEqual([]);
+ await page.locator('#importInput').setInputFiles({name:'noelle-copy.gidps.json',mimeType:'application/json',buffer:Buffer.from(text)});
+ await expect(page.locator('#simulationProgress')).toContainText('未重新模拟');
+ expect(await page.evaluate(()=>window.GenshinDpsLab.getLastResult())).toBeNull();
+ await page.locator('#runButton').click();
+ await expect.poll(()=>page.evaluate(()=>window.GenshinDpsLab.getLastResult()?.damageEvents.length),{timeout:30000}).toBe(3);
+ const after=await page.evaluate(()=>window.GenshinDpsLab.getLastResult()!);
+ expect(after.damageEvents).toEqual(before.damageEvents);expect(after.totalDamage).toBe(before.totalDamage);expect(after.dps).toBe(before.dps);
+});

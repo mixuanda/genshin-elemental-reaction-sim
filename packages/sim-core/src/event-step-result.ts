@@ -54,3 +54,10 @@ export function simulateEventStepResult(config:unknown,options:SimulationRuntime
  const wire=createEventStepResult({...observation,result});
  return {result,wire};
 }
+
+import {applyExecutionProfile,type ExecutionProfile} from './execution-profiles';
+import type {SimConfig} from '@genshin-dps-lab/schemas';
+/** Explicit new-protocol baseline; frozen/default profile interpretation stays intact. */
+export function applyEventStepExecutionProfile(config:SimConfig,profile:ExecutionProfile,options:SimulationRuntimeOptions={}) {
+ return applyExecutionProfile(config,profile,{...options,[eventStepProtocol]:true});
+}
