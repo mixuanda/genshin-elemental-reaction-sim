@@ -31,7 +31,7 @@ import { resolveSourceHostPlayerDrainRequest, resolveSourceHostPlayerShieldMinim
 import { resolveSourceHostSpecialRequest } from "./source-host-special-formula";
 import { resolveSourceHostStellarRequest } from "./source-host-stellar-formula";
 import {
-  SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT, SOURCE_HOST_PROTOCOL, sourceHostCalculationRequestSchema,
+  SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT, SOURCE_HOST_PROTOCOL, sourceHostCalculationRequestSchema, sourceHostCalculationRecordSchema,
   type SourceHostCalculationRecord, type SourceHostCalculationRequest, type SourceHostDamageRequest, type SourceHostSpecialRequest,
   type SourceHostCharacterFlatRequest, type SourceHostCharacterMultiplierRequest, type SourceHostTargetApplicationRequest,
   isSourceHostOutgoingRequest,
@@ -367,14 +367,45 @@ function runDamage(request: SourceHostDamageRequest, components: SourceHostCalcu
 }
 
 /** Pure arithmetic, with the actual source RNG outcome and no native fallback. */
-// Only the append-only, private lookup owned by a live resolver is memoized.
-// Public replay/edit lookups remain uncached and continue validating mutations.
+// Live evaluation memoizes its append-only private lookup.
+// Public mutable replay/edit lookups remain uncached and continue validating mutations.
+// Whole-run validation may explicitly own a fresh, isolated immutable snapshot.
 const liveResolverMemos = new WeakMap<SourceHostCalculationLookup, WeakMap<object, SourceHostCalculation>>();
+const validationMemos = new WeakMap<SourceHostCalculationLookup, { owned: WeakSet<object>; memo: WeakMap<object, SourceHostCalculation> }>();
+function freezeValidationValue(value: unknown, seen = new WeakSet<object>()): void {
+  if (value === null || typeof value !== "object" || seen.has(value) || isImmutableTraceNode(value)) return;
+  seen.add(value);
+  for (const child of Object.values(value)) freezeValidationValue(child, seen);
+  Object.freeze(value);
+}
+/** A per-validation snapshot; callers never receive the mutable backing Map. */
+export function createSourceHostValidationLookup(records: SourceHostCalculationLookup): SourceHostCalculationLookup {
+  const copy = new Map<number, SourceHostCalculationRecord>(), owned = new WeakSet<object>();
+  for (const [id, raw] of records) {
+    const row = sourceHostCalculationRecordSchema.parse(structuredClone(raw));
+    if (id !== row.request.id || copy.has(id)) throw new Error("校验索引与公式身份不一致。");
+    freezeValidationValue(row);
+    owned.add(row.request);
+    copy.set(id, row);
+  }
+  const view: SourceHostCalculationLookup = Object.freeze({
+    get size() { return copy.size; }, get: (id: number) => copy.get(id), has: (id: number) => copy.has(id),
+    entries: () => copy.entries(), keys: () => copy.keys(), values: () => copy.values(),
+    [Symbol.iterator]: () => copy[Symbol.iterator](),
+    forEach: (fn: (value: SourceHostCalculationRecord, key: number, map: SourceHostCalculationLookup) => void, thisArg?: unknown) => copy.forEach((value,key)=>fn.call(thisArg,value,key,view)),
+  });
+  validationMemos.set(view, { owned, memo: new WeakMap() });
+  return view;
+}
 export function resolveSourceHostRequest(raw: unknown, components: SourceHostCalculationLookup = new Map(), options: { explicitFinalScaling?: boolean; weaponEdit?: SourceHostWeaponEditOverride; artifactEdit?: SourceHostWeaponEditOverride; drainMemo?: Map<number, SourceHostCalculation> } = {}): SourceHostCalculation {
   if (!options.explicitFinalScaling && !options.weaponEdit && !options.artifactEdit && typeof raw === "object" && raw !== null && Object.isFrozen(raw)) {
     const prior = liveResolverMemos.get(components)?.get(raw);
     if (prior) return prior;
   }
+  const validation = !options.explicitFinalScaling && !options.weaponEdit && !options.artifactEdit && !options.drainMemo
+    && typeof raw === "object" && raw !== null ? validationMemos.get(components) : undefined;
+  const cacheable = validation && typeof raw === "object" && raw !== null && validation.owned.has(raw);
+  if (cacheable) { const prior = validation.memo.get(raw); if (prior) return prior; }
   const request = sourceHostCalculationRequestSchema.parse(raw);
   const drainMemo = options.drainMemo ?? new Map<number, SourceHostCalculation>();
   if (request.kind === "character-drain") {
@@ -1192,6 +1223,7 @@ export function resolveSourceHostRequest(raw: unknown, components: SourceHostCal
   const result: SourceHostCalculation = { request, ...calculated, trace,
     explanationGaps: [...new Set(calculated.explanationGaps)], verification: "provisional", explanationStatus: "partial" };
   if (request.kind === "character-drain") drainMemo.set(request.id, result);
+  if (cacheable) { freezeValidationValue(result);validation.memo.set(raw as object,result); }
   return result;
 }
 

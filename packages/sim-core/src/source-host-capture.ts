@@ -16,7 +16,7 @@ import { verifySourceHostHealingApplication } from "./source-host-healing-captur
 import { verifySourceHostEnergyApplication } from "./source-host-energy-capture";
 import { sourceHostStatProvenanceSchema } from "./source-host-stat-provenance";
 import { expr, TraceBuilder, traceInput, type CalculationTraceNode } from "./calculation-trace";
-import { resolveSourceHostRequest, SOURCE_HOST_EXPLANATION_GAPS, SOURCE_HOST_FORMULA_SOURCES, type SourceHostCalculation } from "./source-host-formula";
+import { createSourceHostValidationLookup, resolveSourceHostRequest, SOURCE_HOST_EXPLANATION_GAPS, SOURCE_HOST_FORMULA_SOURCES, type SourceHostCalculation } from "./source-host-formula";
 import {
   SOURCE_HOST_COMMIT, SOURCE_HOST_FORMULA_VERSION, SOURCE_HOST_RESULT_VERSION,
   assertSourceHostStartupState, sourceHostInitialEnergySchema, sourceHostStartupStateSchema,
@@ -171,8 +171,9 @@ export function createSourceHostResult(rawNative: unknown, executed?: readonly S
     exact(record.request.input.maxHp, application.maxHp, `drain max HP #${application.id}`);
     exact(record.value, application.resultRatio, `drain ratio #${application.id}`);
   }
-  for (const application of native.energyApplications ?? []) verifySourceHostEnergyApplication(application, map);
-  for (const application of native.healingApplications ?? []) verifySourceHostHealingApplication(application, map);
+  const verificationRecords = (native.energyApplications?.length || native.healingApplications?.length) ? createSourceHostValidationLookup(map) : map;
+  for (const application of native.energyApplications ?? []) verifySourceHostEnergyApplication(application, verificationRecords);
+  for (const application of native.healingApplications ?? []) verifySourceHostHealingApplication(application, verificationRecords);
   return { ...native, ...resultMetadataSchema.parse({
     executionArtifact: native.executionArtifact,
     schemaVersion: SOURCE_HOST_RESULT_VERSION, formulaVersion: SOURCE_HOST_FORMULA_VERSION,
