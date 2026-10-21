@@ -47,7 +47,7 @@ E→Q 总伤害：种子 12021 为 24402.05230057188，12022 为 22398.302302977
 
 ## 检查与剩余项
 
-既有那维莱特核心 9/9、新增 Stellar 核心 8/8 通过；构建、类型检查、数据检查通过。完整回归使用原口径，仅排除 performance.test.ts，原会话 20924 运行中，完成后补精确差集。
+既有那维莱特核心 9/9、新增 Stellar 核心 8/8 通过；构建、类型检查、数据检查通过。完整回归使用原口径，仅排除 performance.test.ts，原会话 20924 已结束（退出码 1）：**2852 pass / 86 fail / 2938 tests / 379 files**，628.87 秒。相比 c0cb731 的 2844/86，新增 8 项全部通过，新增失败 0、删除测试 0、原失败转通过 0；浏览器修复前后变化单独统计为 0/5→5/0。剩余消费者 8、历史格式 45、Golden 24、EC 9，不称全绿。
 
 证据目录 `/workspace/GIDPS-cloud/stellar-a4-fix-20261021`：native-build.log、build-comparison.json、official-toolchain-proof.json、source-review.json、browser-before.log、browser-before/、browser-after-run.log、browser-after/、stellar-parity.json、extract-fixture.py、public-artifact-check.json。
 
