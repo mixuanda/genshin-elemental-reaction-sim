@@ -1,0 +1,22 @@
+options iteration=1 duration=120;
+bennett char lvl=90/90 cons=0 talent=1,1,1;
+bennett add weapon="skyridersword" refine=1 lvl=90/90;
+kaeya char lvl=90/90 cons=0 talent=1,1,1;
+kaeya add weapon="skyridersword" refine=1 lvl=90/90;
+xiangling char lvl=90/90 cons=0 talent=1,1,1;
+xiangling add weapon="prototypestarglitter" refine=1 lvl=90/90;
+sucrose char lvl=90/90 cons=0 talent=1,1,1 +params=[hexerei=0];
+sucrose add weapon="magicguide" refine=1 lvl=90/90;
+target lvl=90 resist=0.1 radius=2 pos=0,2.4;
+active bennett;
+while 1 {
+ bennett skill;
+ if .bennett.burst.ready { bennett burst; }
+ if .sucrose.skill.ready { sucrose skill; }
+ if .sucrose.burst.ready { sucrose burst; }
+ if .xiangling.skill.ready { xiangling skill; }
+ if .xiangling.burst.ready { xiangling burst; }
+ kaeya skill;
+ if .kaeya.burst.ready { kaeya burst; }
+ wait(360);
+}

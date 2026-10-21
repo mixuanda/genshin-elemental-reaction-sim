@@ -7,7 +7,7 @@ import { resolveSourceHostTargetApplication } from "./source-host-target-applica
 /** The source runtime supplies state and one actual CRIT outcome; this core supplies damage. */
 import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, reactionLevelBaseDamage } from "./calculator-formula";
 import { expr, TraceBuilder, traceInput, traceText, type CalculationTraceNode } from "./calculation-trace";
-import { executeSourceHostNestedStatRead, executeSourceHostStatProvenance } from "./source-host-stat-provenance";
+import { assertSourceHostSnapshotTiming, executeSourceHostNestedStatRead, executeSourceHostStatProvenance } from "./source-host-stat-provenance";
 import { linkSourceHostDamageStatInputs } from "./source-host-damage-stat-links";
 import { executeSourceHostScalarProvenance, type SourceHostScalarKind } from "./source-host-scalar-provenance";
 import { resolveSourceHostArtifactScalarInput } from "./source-host-artifact-formula";
@@ -220,6 +220,8 @@ function resolveCharacterMultiplierDependencies(request: SourceHostCharacterMult
   return { trace: [...unique.values()], links, gaps };
 }
 function runDamage(request: SourceHostDamageRequest, components: SourceHostCalculationLookup, explicitFinalScaling = false, weaponEdit?: SourceHostWeaponEditOverride, artifactEdit?: SourceHostWeaponEditOverride): Omit<SourceHostCalculation, "request" | "verification" | "explanationStatus"> {
+  if (request.snapshot.statProvenance)
+    assertSourceHostSnapshotTiming(request.snapshot.statProvenance, request.snapshotFrame, request.frame);
   const input = request.input;
   assertSupportedRanges(input);
   const prefix = new TraceBuilder(sourceFormulaRefs(request.sourceCommit));

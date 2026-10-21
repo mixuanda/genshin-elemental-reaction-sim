@@ -125,6 +125,7 @@ export function createSourceHostResult(rawNative: unknown, executed?: readonly S
   for (const application of native.applications) {
     const record = map.get(application.calculationId);
     if (!record || !isSourceHostOutgoingRequest(record.request)) throw new Error("来源实际伤害没有对应的共享公式回调。");
+    if (application.frame !== record.request.frame) throw new Error("来源实际伤害应用帧与共享公式计算帧不一致。");
     exact(application.rawDamage, record.value, `application #${application.id}`);
     const matchedPhase = sourceHostTargetPhaseAt(native.targetPhases, application.targetKey, application.frame);
     if (JSON.stringify(matchedPhase ?? null) !== JSON.stringify(application.targetPhase ?? null))
@@ -228,7 +229,7 @@ export function replaySourceHostHit(raw: unknown): SourceHostHitReplay {
   const { application, calculation } = captured;
   const request = calculation.request;
   if ([request, ...(captured.applicationCalculation ? [captured.applicationCalculation.request] : []), ...captured.components.map(row => row.request), ...(captured.supportingCalculations ?? []).map(row => row.request)].some(row => (row.sourceCommit ?? SOURCE_HOST_COMMIT) !== captured.sourceCommit)) throw new Error("捕获中的计算来自不同源码版本。");
-  if (application.calculationId !== request.id || application.attackId !== request.attackId || application.targetKey !== request.targetKey || application.isCrit !== request.input.isCrit) throw new Error("来源实际应用记录与捕获的命中身份不一致。");
+  if (application.calculationId !== request.id || application.attackId !== request.attackId || application.targetKey !== request.targetKey || application.isCrit !== request.input.isCrit || application.frame !== request.frame) throw new Error("来源实际应用记录与捕获的命中身份或帧不一致。");
   if ((application.applicationCalculationId === undefined) !== (captured.applicationCalculation === undefined) ||
     (application.targetPhase === undefined) !== (captured.applicationCalculation === undefined))
     throw new Error("来源命中的目标阶段与共享目标应用计算记录不完整或不一致。");
