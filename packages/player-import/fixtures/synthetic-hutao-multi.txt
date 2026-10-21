@@ -1,0 +1,57 @@
+// GIDPS SYNTHETIC FIXTURE - NOT A PLAYER ACCOUNT
+// =====================
+// Kamisato Ayaka [Lv.90, ☆5, C6] [Lv.10, Lv.13 (10 +3), Lv.13 (10 +3)]
+// ---------------------
+// Mistsplitter Reforged [Lv.90, ☆5, R1]
+// [Base ATK: 500] [CRIT DMG: 20.0%]
+// ---------------------
+// [HP: 15000]
+// [ATK: 1200]
+// [DEF: 700]
+// [Elemental Mastery: 0]
+// [CRIT Rate: 25.0%]
+// [CRIT DMG: 150.0%]
+// [Healing Bonus: 0.0%]
+// [Incoming Healing Bonus: 0.0%]
+// [Energy Recharge: 110.0%]
+// [Cryo DMG Bonus: 40.0%]
+// ---------------------
+// 🌷 HP: 4000 [☆5 +20 Blizzard Strayer]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// 🪶 ATK: 300 [☆5 +20 Blizzard Strayer]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// ⏳ ATK: 40.0% [☆5 +20 Blizzard Strayer]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// 🍷 Cryo DMG Bonus: 40.0% [☆5 +20 Blizzard Strayer]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// 👑 CRIT DMG: 60.0% [☆5 +20 Blizzard Strayer]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// =====================
+// =====================
+// 刻晴 [Lv.80, ☆5, C0] [Lv.8, Lv.8, Lv.8]
+// ---------------------
+// 雾切之回光 [Lv.90, ☆5, R1]
+// [Base ATK: 500] [CRIT DMG: 20.0%]
+// ---------------------
+// [HP: 15000]
+// [ATK: 1200]
+// [DEF: 700]
+// [Elemental Mastery: 0]
+// [CRIT Rate: 25.0%]
+// [CRIT DMG: 150.0%]
+// [Healing Bonus: 0.0%]
+// [Incoming Healing Bonus: 0.0%]
+// [Energy Recharge: 110.0%]
+// [Cryo DMG Bonus: 40.0%]
+// ---------------------
+// 🌷 HP: 4100 [☆5 +20 冰风迷途的勇士]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// 🪶 ATK: 310 [☆5 +20 冰风迷途的勇士]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// ⏳ ATK: 41.0% [☆5 +20 冰风迷途的勇士]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// 🍷 Cryo DMG Bonus: 41.0% [☆5 +20 冰风迷途的勇士]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// 👑 CRIT DMG: 61.0% [☆5 +20 冰风迷途的勇士]
+// [Elemental Mastery: 0][CRIT Rate: 10.0%][DEF: 20][HP: 5.0%]
+// =====================
