@@ -1,3 +1,4 @@
+import type { CatalogResolvedShowcaseCharacter } from '@genshin-dps-lab/schemas';
 import { mountPlayerImportPreview } from './player-import-preview';
 import { resolveCalculatorBuildTrace } from "@genshin-dps-lab/sim-core";
 import { renderTraceHtml } from "./calculator-trace-view";
@@ -14,6 +15,7 @@ const esc = (value: unknown): string => String(value ?? '').replace(/[&<>"']/g, 
 export interface BuildHandoffMetadata { constellation: number; baseTalentLevels: { auto: number; skill: number; burst: number }; label?: string; favoniusParticleDelayFrames?: number; noblesseSelfDelayFrames?: 0 | 1 }
 interface SavedBuild { version: 'editable-build-v1'; name: string; input: EquipmentBuildInput; metadata: BuildHandoffMetadata }
 interface WorkshopOptions {
+  openImportedPanel(character: CatalogResolvedShowcaseCharacter, source: string): Promise<void>;
   openCalculator(input: EquipmentBuildInput, metadata: BuildHandoffMetadata): Promise<void>;
   addToTeam(input: EquipmentBuildInput, metadata: BuildHandoffMetadata, source: { hostVariant: SourceHostVariant; characterKey: string }): Promise<void>;
   addRosterToTeam(entries: ImportedRosterEntry[], source: { hostVariant: SourceHostVariant; revision: string }, mode: 'merge' | 'replace'): Promise<void>;
@@ -31,7 +33,7 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
   const playerImportHost = document.createElement('section');
   playerImportHost.dataset.playerImport = '';
   root.prepend(playerImportHost);
-  mountPlayerImportPreview(playerImportHost, options.openCalculator);
+  mountPlayerImportPreview(playerImportHost, options.openCalculator, options.openImportedPanel);
   const query = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
   const status = (message: string) => { query('#build-status').textContent = message; };
   const field = (selector: string) => query<HTMLInputElement>(selector);

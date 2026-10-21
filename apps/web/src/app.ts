@@ -3751,6 +3751,11 @@ async function renderProductRoute(): Promise<void> {
       const { renderBuildWorkshop } = await import("./build-workshop");
       if (generation !== routeGeneration) return;
       renderBuildWorkshop(panel, {
+        openImportedPanel: async (character, source) => {
+          const controller = await ensureCalculator();
+          await controller.loadImportedCharacter(character, source);
+          navigateProduct('/calculator');
+        },
         openCalculator: async (input, metadata) => {
           const controller = await ensureCalculator();
           await controller.loadEquipmentBuild(input, metadata);

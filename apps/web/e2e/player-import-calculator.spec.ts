@@ -50,3 +50,20 @@ test('missing data and failed parsing preserve prior complete preview; Enka/text
   if(name.endsWith('.txt'))await expect(page.locator('[data-player-builds]')).toContainText('暂不可计算');
  }
 });
+
+test('Enka panel without equipment computes Kaeya E13 using unchanged final stats',async({page})=>{
+ await page.goto('/builds');await page.locator('[data-player-fixture]').check();
+ await page.locator('[data-player-file]').setInputFiles(new URL('./fixtures/player-import/kaeya-enka-panel.json',import.meta.url).pathname);
+ await expect(page.locator('[data-player-calculate]')).toBeDisabled();
+ await expect(page.locator('[data-player-panel]')).toBeEnabled();
+ await page.locator('[data-player-panel]').click();
+ const actual=await frost(page);
+ expect(actual.document.build.mode).toBe('imported-final');expect(actual.document.build.stats.atk).toBe(1700);
+ expect(actual.document.gameContext.constellation).toBe(3);expect(actual.document.gameContext.effectiveTalentLevel).toBe(13);
+ expect(actual.document.assumptions.join(' ')).toContain('条件增益');expect(actual.result.status).toBe('calculated');
+ // Lv90 vs Lv90, 10% resistance, E13 multiplier 4.063: shared formula independently hand-checked.
+ const expected=1700*4.063*1.616*0.5*0.9*(1+0.4*1);
+ expect(actual.result.totals.expected).toBeCloseTo(expected,6);
+ await mkdir(evidence,{recursive:true});await writeFile(`${evidence}/enka-panel.json`,JSON.stringify({expected,actual},null,2));
+ await page.locator('#calc-results').screenshot({path:`${evidence}/enka-panel.png`});
+});

@@ -91,10 +91,10 @@ describe("credential-free player equipment import contract (synthetic fixtures o
     expect(zero.ascension).toMatchObject({ state: "known", value: 0 });
     expect(zero.artifacts[0]!.level.value).toBe(0);
   });
-  it("does not infer C0 or talent bonus from absent Enka maps", () => {
+  it("uses documented Enka absent constellation C0 but does not guess missing talent bonus", () => {
     const { talentIdList: _c, proudSkillExtraLevelMap: _b, ...avatar } = enka.avatarInfoList[0]!;
     const b = build({ ...enka, avatarInfoList: [avatar] });
-    expect(b.constellation).toMatchObject({ state: "missing", value: null });
+    expect(b.constellation).toMatchObject({ state: "known", value: 0 });
     expect(b.talents.skill.bonus).toMatchObject({ state: "missing", value: null });
     expect(b.talents.skill.effective.value).toBeNull();
     expect(b.completeness.state).toBe("partial");

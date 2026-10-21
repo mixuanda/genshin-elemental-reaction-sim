@@ -135,8 +135,9 @@ function normalizeBuild(raw: unknown, root: Row, index: number, good: boolean): 
   const level = good ? num(c.level, `${path}.level`, 1, 100) : num(own(lp, "val") ? lp.val : lp.ival, `${path}.propMap.4001.${own(lp, "val") ? "val" : "ival"}`, 1, 100, "level", true);
   if (!good && !own(lp, "val") && level.state === "known") level.note = "旧导出明确提供的 ival；无 val，不使用展柜摘要或等级 1 默认值";
   const constellation = good ? num(c.constellation, `${path}.constellation`, 0, 6, "count")
-    : Array.isArray(c.talentIdList) ? num(c.talentIdList.length, `${path}.talentIdList`, 0, 6, "count") : field<number>(null, `${path}.talentIdList`, "count");
+    : Array.isArray(c.talentIdList) ? num(c.talentIdList.length, `${path}.talentIdList`, 0, 6, "count") : !own(c, "talentIdList") ? num(0, `${path}.talentIdList`, 0, 6, "count") : field<number>(null, `${path}.talentIdList`, "count", "invalid", "命座列表格式非法");
   if (!good && constellation.state === "known") constellation.note = "源命座列表的条目数；不以此重复增加天赋等级，不解释单项命座效果";
+  if (!good && !own(c, "talentIdList")) constellation.note = "Enka 官方协议：省略 talentIdList 表示 C0；不推广到 GOOD 或文本缺项";
   if (!good && Array.isArray(c.talentIdList) && (new Set(c.talentIdList).size !== c.talentIdList.length || c.talentIdList.some(id => typeof id !== "number" || !Number.isInteger(id) || id <= 0))) Object.assign(constellation, { state: "invalid", value: null, note: "命座列表无效或重复" });
   const skillMap = row(c.skillLevelMap);
   const mappings = catalog.mappings.filter(m => m.avatarId === avatarId && m.skillOrder.every(id => own(skillMap, String(id))));

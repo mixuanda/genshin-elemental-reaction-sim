@@ -1,16 +1,17 @@
 import { importPlayerInput, applyPreview, type ImportSnapshot } from '../../../packages/player-import/src/index';
-import { preparePlayerEquipment } from './player-import-handoff';
+import { preparePlayerEquipment, preparePlayerPanel } from './player-import-handoff';
 
-export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (input: ReturnType<typeof preparePlayerEquipment>['input'], metadata: ReturnType<typeof preparePlayerEquipment>['metadata']) => Promise<void>): void {
-  root.innerHTML = `<details open><summary>玩家配装预览 → 单技能计算</summary><p>本地解析 GOOD / Enka JSON / 配装纯文本。仅采用装备推导，不叠加导出最终面板；装备条件效果关闭。未知机制仍由计算器提示。这里不提供账号登录。</p><label>本地配装文件<input data-player-file type="file" accept=".json,.txt,application/json,text/plain"></label><label>或粘贴配装文本<textarea data-player-input rows="5"></textarea></label><label><input data-player-fixture type="checkbox">这是合成测试数据</label><button data-player-preview>预览导入</button><button data-player-restore hidden>返回上次完整预览</button><p data-player-status role="status" aria-live="polite"></p><div data-player-builds></div></details>`;
+export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (input: ReturnType<typeof preparePlayerEquipment>['input'], metadata: ReturnType<typeof preparePlayerEquipment>['metadata']) => Promise<void>, openPanel: (character: ReturnType<typeof preparePlayerPanel>['character'], source: string) => Promise<void>): void {
+  root.innerHTML = `<details open><summary>玩家配装预览 → 单技能计算</summary><p>本地解析 GOOD / Enka JSON / 配装纯文本。装备推导与 Enka 最终面板是互斥路线；不会重复叠加装备。公开展柜不能还原条件增益、附着或历史快照，所选技能仍需满足计算器条件。装备路线的条件效果关闭。未知机制仍由计算器提示。这里不提供账号登录。</p><label>本地配装文件<input data-player-file type="file" accept=".json,.txt,application/json,text/plain"></label><label>或粘贴配装文本<textarea data-player-input rows="5"></textarea></label><label><input data-player-fixture type="checkbox">这是合成测试数据</label><button data-player-preview>预览导入</button><button data-player-restore hidden>返回上次完整预览</button><p data-player-status role="status" aria-live="polite"></p><div data-player-builds></div></details>`;
   const text = root.querySelector<HTMLTextAreaElement>('[data-player-input]')!;
   const status = root.querySelector<HTMLElement>('[data-player-status]')!;
   const list = root.querySelector<HTMLElement>('[data-player-builds]')!;
   const restore = root.querySelector<HTMLButtonElement>('[data-player-restore]')!;
   let accepted: ImportSnapshot | null = null;
+  let acceptedRaw = '';
   let busy = false;
   let revision = 0;
-  function render(snapshot: ImportSnapshot, allowed: boolean) {
+  function render(snapshot: ImportSnapshot, allowed: boolean, raw: string) {
     list.replaceChildren();
     const source = document.createElement('p');
     source.dataset.playerSource = '';
@@ -32,21 +33,34 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
         catch (error) { status.textContent = `计算未载入：${error instanceof Error ? error.message : String(error)}。预览保留，可修正后重试。`; }
         finally { busy = false;button.disabled = !allowed || !prepared; }
       };
-      box.append(title, detail, button);list.append(box);
+      const panelButton = document.createElement('button'), panelNote = document.createElement('p');
+      panelButton.textContent = '用最终面板计算单技能';panelButton.dataset.playerPanel = build.key;
+      let panelReady = false;
+      try { preparePlayerPanel(raw, build, snapshot.source);panelReady = true;panelNote.textContent = '最终面板独立可用；不要求装备路线完整。不自动还原条件增益；未提供的元素加成会阻断对应动作。'; }
+      catch(error) { panelNote.textContent = `面板路线不可用：${error instanceof Error ? error.message : String(error)}`; }
+      panelButton.disabled = !panelReady;
+      panelButton.onclick = async () => {
+        if (busy || !panelReady) return;
+        busy = true;panelButton.disabled = true;
+        try { const checked = preparePlayerPanel(raw, build, snapshot.source);await openPanel(checked.character, checked.source); }
+        catch(error) { status.textContent = `面板未载入：${error instanceof Error ? error.message : String(error)}。原预览保留。`; }
+        finally { busy = false;panelButton.disabled = !panelReady; }
+      };
+      box.append(title, detail, button, panelNote, panelButton);list.append(box);
     }
   }
   function preview() {
     revision++;
     const result = importPlayerInput(text.value, { fixture: root.querySelector<HTMLInputElement>('[data-player-fixture]')!.checked });
     const applied = applyPreview(accepted, result);
-    if (applied.applied) accepted = applied.current;
+    if (applied.applied) { accepted = applied.current;acceptedRaw = text.value; }
     status.textContent = applied.message;
-    if (result.ok) render(result.snapshot, applied.applied);
+    if (result.ok) render(result.snapshot, applied.applied, text.value);
     // A rejected parse never clears the last visible successful preview.
     restore.hidden = !accepted || applied.applied;
   }
   root.querySelector<HTMLButtonElement>('[data-player-preview]')!.onclick = preview;
-  restore.onclick = () => { if (accepted) { render(accepted, true);restore.hidden = true;status.textContent = '已恢复上次完整预览；不是本次失败导入的结果。'; } };
+  restore.onclick = () => { if (accepted) { render(accepted, true, acceptedRaw);restore.hidden = true;status.textContent = '已恢复上次完整预览；不是本次失败导入的结果。'; } };
   root.querySelector<HTMLInputElement>('[data-player-file]')!.onchange = async event => {
     const input = event.target as HTMLInputElement, file = input.files?.[0];input.value = '';if (!file) return;
     const request = ++revision;
