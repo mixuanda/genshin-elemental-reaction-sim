@@ -139,21 +139,21 @@ export interface ImportedWeapon {
 
 export interface ImportedShowcaseCharacter {
   avatarId: number;
-  level: number;
+  level: number | null;
   /** Explicit propMap[1002].val; missing data is not inferred from character level. */
   ascension?: number | null;
   constellation: number;
   skillLevels: Record<string, number>;
   skillLevelBonuses: Record<string, number>;
   stats: {
-    maxHp: number;
-    attack: number;
-    defense: number;
-    elementalMastery: number;
-    critRate: number;
-    critDamage: number;
-    energyRecharge: number;
-    damageBonuses: Record<string, number>;
+    maxHp: number | null;
+    attack: number | null;
+    defense: number | null;
+    elementalMastery: number | null;
+    critRate: number | null;
+    critDamage: number | null;
+    energyRecharge: number | null;
+    damageBonuses: Record<string, number | null>;
   };
   weapon: ImportedWeapon | null;
   artifacts: ImportedArtifact[];
@@ -219,7 +219,7 @@ export interface CatalogResolvedShowcase
 export interface GraduationBuildPlaceholder {
   status: "graduation-target-placeholder";
   avatarId: number;
-  sourceLevel: number;
+  sourceLevel: number | null;
   retainedWeapon: ImportedWeapon | null;
   retainedSkillLevels: Record<string, number>;
   artifactTarget: null;

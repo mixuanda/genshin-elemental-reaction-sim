@@ -35,7 +35,7 @@ type EnkaAvatar = NonNullable<
 >[number];
 
 function numericValue(value: string | number | undefined): number | null {
-  if (value === undefined) return null;
+  if (value === undefined || (typeof value === "string" && !value.trim())) return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -43,20 +43,21 @@ function numericValue(value: string | number | undefined): number | null {
 function fightProp(
   avatar: EnkaAvatar,
   key: string
-): number {
-  return avatar.fightPropMap[key] ?? 0;
+): number | null {
+  return avatar.fightPropMap[key] ?? null;
 }
 
 function characterLevel(
   response: EnkaShowcaseResponse,
   avatar: EnkaAvatar
-): number {
+): number | null {
   const fromProp = numericValue(avatar.propMap?.["4001"]?.ival);
-  if (fromProp && fromProp >= 1) return Math.trunc(fromProp);
+  if (fromProp !== null && Number.isInteger(fromProp) && fromProp >= 1 && fromProp <= 100) return fromProp;
+  if (avatar.propMap?.["4001"] !== undefined) return null;
   return (
     response.playerInfo.showAvatarInfoList?.find(
       (entry) => entry.avatarId === avatar.avatarId
-    )?.level ?? 1
+    )?.level ?? null
   );
 }
 

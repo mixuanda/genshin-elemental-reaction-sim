@@ -43,3 +43,11 @@ describe("real equipment imports", () => {
     expect(parseEnkaBuilds({ playerInfo: {}, avatarInfoList: [missingAffix] }, { uid: "800000001" }).builds[0]!.diagnostics.some(item => item.code === "refinement-missing")).toBe(true);
   });
 });
+
+it('keeps base talents separate from proud-skill bonuses and constellation in the engine route', () => {
+ const avatar={avatarId:10000075,skillLevelMap:{'10751':10,'10752':9,'10755':8},proudSkillExtraLevelMap:{'7532':3},talentIdList:[751,752,753],fightPropMap:{}};
+ const entry=parseEnkaBuilds({playerInfo:{},avatarInfoList:[avatar]},{uid:'900000003'}).builds[0]!;
+ expect(entry.baseTalentLevels).toEqual({auto:10,skill:9,burst:8});
+ expect(entry.constellation).toBe(3);
+ expect(entry.equipmentInput).toBeNull();
+});

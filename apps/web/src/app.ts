@@ -146,7 +146,8 @@ function numericInput(id: string, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function formatNumber(value: number, digits = 1): string {
+function formatNumber(value: number | null, digits = 1): string {
+  if (value === null) return "未知";
   return new Intl.NumberFormat("zh-CN", {
     maximumFractionDigits: digits
   }).format(value || 0);
@@ -3250,7 +3251,7 @@ function renderShowcase(): void {
           )
           .join(" · ") || "未返回天赋";
       const bonuses = Object.entries(character.stats.damageBonuses)
-        .filter(([, value]) => value > 0)
+        .filter((entry): entry is [string, number] => entry[1] !== null && entry[1] > 0)
         .map(([element, value]) => `${ELEMENT_LABELS[element] ?? element}伤 ${(value * 100).toFixed(1)}%`)
         .join(" · ");
       const artifactLevels = character.artifacts.length
@@ -3262,13 +3263,13 @@ function renderShowcase(): void {
         `<span class="badge ${character.catalog.matchStatus === "matched" ? "good" : "warn"}">${character.catalog.matchStatus === "matched" ? "目录已匹配" : "目录未匹配"}</span>` +
         `<h3>${escapeHtml(character.catalog.name ?? `avatarId ${character.avatarId}`)}</h3>` +
         `<span class="muted">avatarId ${character.avatarId}</span></div>` +
-        `<strong>Lv.${character.level} · C${character.constellation}</strong></div>` +
+        `<strong>Lv.${character.level ?? "未知"} · C${character.constellation}</strong></div>` +
         `<p><span class="badge warn">${escapeHtml(character.catalog.simulationStatus ?? "unmapped")}</span> ` +
         `${character.catalog.simulationStatus === "mechanics-mapped" ? "机制可执行" : "仅数据目录，不自动进入模拟"}</p>` +
         `<p>${escapeHtml(weapon)}</p>` +
         `<dl><dt>面板</dt><dd>HP ${formatNumber(character.stats.maxHp, 0)} · ATK ${formatNumber(character.stats.attack, 0)} · DEF ${formatNumber(character.stats.defense, 0)} · EM ${formatNumber(character.stats.elementalMastery, 0)}</dd>` +
-        `<dt>暴击 / 充能</dt><dd>${(character.stats.critRate * 100).toFixed(1)}% / ${(character.stats.critDamage * 100).toFixed(1)}% · ER ${(character.stats.energyRecharge * 100).toFixed(1)}%</dd>` +
-        `<dt>伤害加成</dt><dd>${escapeHtml(bonuses || "无")}</dd>` +
+        `<dt>暴击 / 充能</dt><dd>${(character.stats.critRate === null ? "未知" : (character.stats.critRate * 100).toFixed(1))}% / ${(character.stats.critDamage === null ? "未知" : (character.stats.critDamage * 100).toFixed(1))}% · ER ${(character.stats.energyRecharge === null ? "未知" : (character.stats.energyRecharge * 100).toFixed(1))}%</dd>` +
+        `<dt>伤害加成</dt><dd>${escapeHtml(bonuses || "无已知正加成") + (Object.values(character.stats.damageBonuses).some(v => v === null) ? " · 部分元素加成未知" : "")}</dd>` +
         `<dt>技能等级</dt><dd>${escapeHtml(skills)}</dd>` +
         `<dt>圣遗物</dt><dd>${character.artifacts.length} 件 · ${escapeHtml(artifactLevels)}</dd></dl>` +
         `<button data-graduation-avatar="${character.avatarId}">设为毕业站位占位</button>` +
@@ -3318,7 +3319,7 @@ function renderGraduationPlaceholder(): void {
   container.innerHTML =
     `<strong>站位角色 ${escapeHtml(characterName)} · avatarId ${graduationBuild.avatarId}</strong>` +
     `<span class="badge warn">${graduationBuild.status}</span>` +
-    `<p>来源等级 Lv.${graduationBuild.sourceLevel} · ${escapeHtml(weapon)}</p>` +
+    `<p>来源等级 Lv.${graduationBuild.sourceLevel ?? "未知"} · ${escapeHtml(weapon)}</p>` +
     `<p>${escapeHtml(graduationBuild.note)}</p>`;
 }
 

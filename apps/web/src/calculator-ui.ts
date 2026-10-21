@@ -105,7 +105,7 @@ import { renderTravelerCrossEntityControls, applyTravelerCrossEntityDraft, captu
 import { renderZibaiFiniteControls, applyZibaiFiniteDraft, captureZibaiFiniteDraft, ZIBAI_FINITE_DRAFT_FIELD, editZibaiFiniteDraft, hasZibaiFiniteDraft, renderZibaiFiniteDraft, resetZibaiFiniteDraft } from "./calculator-zibai-finite-controls";
 
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-const number = (value: number | undefined): string => value === undefined ? "不适用" : value.toLocaleString("zh-CN", { maximumFractionDigits: 6 });
+const number = (value: number | null | undefined): string => value === null ? "未知" : value === undefined ? "不适用" : value.toLocaleString("zh-CN", { maximumFractionDigits: 6 });
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const CHARACTER_RESOURCE_DRAFT_FIELD = "observed-character-resource-draft";
 const statLabels: Record<string, string> = { atk: "攻击力", hp: "生命值", def: "防御力", em: "元素精通", critRate: "暴击率（小数）", critDamage: "暴击伤害（小数）", energyRecharge: "元素充能效率（1 = 100%）" };
@@ -425,7 +425,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (!current?.gameContext?.noelleBurst) return;
     current = applyNoelleBurstContext(current, current.gameContext.noelleBurst, workspace);
     if (current.build.mode === "imported-final" && importedCharacter) {
-      for (const hit of current.hits) if (hit.kind === "ordinary") hit.damageBonus = importedCharacter.stats.damageBonuses[hit.element] ?? 0;
+      for (const hit of current.hits) if (hit.kind === "ordinary") {
+        const bonus = importedCharacter.stats.damageBonuses[hit.element];
+        if (bonus === null || bonus === undefined) { blockCharacter(`导入缺少 ${hit.element} 伤害加成；不能假定为 0。请补齐后重新导入。`); return; }
+        hit.damageBonus = bonus;
+      }
     }
     if (current.gameContext?.skillId === "noelle-burst-cast") get<HTMLInputElement>("#calc-talent-level").value = String(current.gameContext.effectiveTalentLevel);
     // Keep the edited input mounted when focus moves to the next condition.
@@ -441,7 +445,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (!current?.gameContext?.ittoCharged) return;
     current = applyIttoChargedContext(current, current.gameContext.ittoCharged, workspace);
     if (current.build.mode === "imported-final" && importedCharacter) {
-      for (const hit of current.hits) if (hit.kind === "ordinary") hit.damageBonus = importedCharacter.stats.damageBonuses[hit.element] ?? 0;
+      for (const hit of current.hits) if (hit.kind === "ordinary") {
+        const bonus = importedCharacter.stats.damageBonuses[hit.element];
+        if (bonus === null || bonus === undefined) { blockCharacter(`导入缺少 ${hit.element} 伤害加成；不能假定为 0。请补齐后重新导入。`); return; }
+        hit.damageBonus = bonus;
+      }
     }
     for (const input of root.querySelectorAll<HTMLInputElement>('[data-hit-editor] input[readonly][data-field], [data-ttds-controls] input[readonly][data-field]')) {
       let value: unknown = current;
@@ -1232,7 +1240,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (!response.ok || envelope.data === undefined) throw new Error(envelope.error ?? `HTTP ${response.status}`);
       const showcase = resolveShowcaseCatalog(parseEnkaShowcase(envelope.data, { uid, ...(envelope.fetchedAt ? { fetchedAt: envelope.fetchedAt } : {}) }));
       status.textContent = `已读取 ${showcase.characters.length} 名公开角色；${envelope.cache === "hit" ? "使用 TTL 缓存" : "刚刚刷新"}。${showcase.visibility === "closed-or-empty" ? "展示柜关闭或为空。" : ""}`;
-      get("#calc-showcase-characters").innerHTML = showcase.characters.map((c, index) => `<button class="calculator-showcase-select" type="button" data-showcase-index="${index}">${esc(c.catalog.name ?? `未匹配角色 ${c.avatarId}`)} · Lv.${c.level} · C${c.constellation} · 导入面板</button>`).join("");
+      get("#calc-showcase-characters").innerHTML = showcase.characters.map((c, index) => `<button class="calculator-showcase-select" type="button" data-showcase-index="${index}">${esc(c.catalog.name ?? `未匹配角色 ${c.avatarId}`)} · Lv.${c.level ?? "未知"} · C${c.constellation} · 导入面板</button>`).join("");
       get("#calc-showcase-characters").querySelectorAll<HTMLButtonElement>("[data-showcase-index]").forEach(button => button.addEventListener("click", () => {
         const selected = showcase.characters[Number(button.dataset.showcaseIndex)];
         if (selected) void loadImportedCharacter(selected, `Enka 公开展示柜 ${showcase.fetchedAt}，目录 ${showcase.catalogVersion}`);

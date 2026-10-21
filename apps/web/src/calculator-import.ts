@@ -6,6 +6,11 @@ import { resetCharlottePanelAccounting } from "./collei-charlotte-calculation-co
 import { resetBaizhuPanelAccounting } from "./baizhu-calculation-context";
 import { applyCharacterConstellationScope, resetKeqingPanelAccounting, resetKukiPanelAccounting } from "./character-calculations";
 
+export function requireImportedNumber(value: number | null | undefined, field: string): number {
+  if (value === null || value === undefined || !Number.isFinite(value)) throw new Error(`导入缺少 ${field}；请补齐原始数据或重新导入，不能以 0 / 默认等级代替。`);
+  return value;
+}
+
 /** Final showcase stats are already aggregated. No equipment contribution is added here. */
 export function applyImportedCalculatorPanel(
   document: CalculatorDocument,
@@ -22,14 +27,23 @@ export function applyImportedCalculatorPanel(
     const skill = character.resolvedSkills.find(candidate => candidate.abilityId === context.abilityId);
     if (!skill || skill.effectiveLevel !== context.effectiveTalentLevel) throw new Error("当前动作未匹配导入的有效天赋等级；不会再次加算命座天赋等级或使用默认值。");
   }
-  doc.characterLevel = character.level;
+  const required: Array<[string, number | null | undefined]> = [
+    ["角色等级", character.level], ["攻击力（2001）", character.stats.attack],
+    ["生命值（2000）", character.stats.maxHp], ["防御力（2002）", character.stats.defense],
+    ["元素精通（28）", character.stats.elementalMastery], ["暴击率（20）", character.stats.critRate],
+    ["暴击伤害（22）", character.stats.critDamage],
+    ...doc.hits.filter(h => h.kind === "ordinary").map(h => [`${h.element} 伤害加成`, character.stats.damageBonuses[h.element]] as [string, number | null | undefined]),
+  ];
+  const missing = [...new Set(required.filter(([, value]) => value === null || value === undefined || !Number.isFinite(value)).map(([name]) => name))];
+  if (missing.length) throw new Error(`导入缺少：${missing.join("、")}。原始未知状态已保留；请补齐数据后重新导入，不以 0 或等级 1 代替。`);
+  doc.characterLevel = requireImportedNumber(character.level, "角色等级 propMap[4001] / 展柜等级");
   context.constellation = character.constellation;
   if (character.ascension === undefined || character.ascension === null) delete context.ascension;
   else context.ascension = character.ascension;
   doc.build = {
     mode: "imported-final", source,
     ...(character.ascension === undefined || character.ascension === null ? {} : { ascension: character.ascension }),
-    stats: { atk: character.stats.attack, hp: character.stats.maxHp, def: character.stats.defense, em: character.stats.elementalMastery, critRate: character.stats.critRate, critDamage: character.stats.critDamage, energyRecharge: character.stats.energyRecharge },
+    stats: { atk: requireImportedNumber(character.stats.attack, "attack"), hp: requireImportedNumber(character.stats.maxHp, "maxHp"), def: requireImportedNumber(character.stats.defense, "defense"), em: requireImportedNumber(character.stats.elementalMastery, "elementalMastery"), critRate: requireImportedNumber(character.stats.critRate, "critRate"), critDamage: requireImportedNumber(character.stats.critDamage, "critDamage"), ...(character.stats.energyRecharge === null ? {} : { energyRecharge: character.stats.energyRecharge }) },
   };
   if (context.noelleBurst) {
     context.noelleBurst.accounting = "already-in-final-panel";
@@ -59,12 +73,13 @@ export function applyImportedCalculatorPanel(
   doc.hits = doc.hits.map(original => {
     if (original.kind !== "ordinary") return original;
     const hit = restoreCalculatorHitEquipmentInputs(original);
-    hit.damageBonus = character.stats.damageBonuses[hit.element] ?? 0;
+    hit.damageBonus = requireImportedNumber(character.stats.damageBonuses[hit.element], `${hit.element} 伤害加成`);
     if (hit.elementalMasteryAdjustment) hit.elementalMasteryAdjustment.accounting = "already-in-final-panel";
     if (hit.attackAdjustment) hit.attackAdjustment.accounting = "already-in-final-panel";
     return hit;
   });
   doc.assumptions = [
+    "公开展柜不是战斗状态快照：条件增益、附着与历史快照不能自动还原。本次仅计算明确给定条件；未提供条件不代表已验证实战。",
     ...doc.assumptions.filter(assumption => assumption !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。"),
     `使用公开展示柜的 C${character.constellation} 和最终面板，装备词条不再次加算。命座和突破相关公式按每个所选命中的依赖判断。`,
     "来源精通状态可保留为明确条件审计，但展示柜最终精通已是入口数值；重新导入时设为已计入面板，不继承旧草稿的额外加算策略。",

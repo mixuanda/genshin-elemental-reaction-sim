@@ -257,3 +257,17 @@ describe("Enka showcase adapter", () => {
     expect(result.characters).toEqual([]);
   });
 });
+
+it('preserves absent panel fields and level as unknown, distinct from legitimate zero', () => {
+  const missing = parseEnkaShowcase({playerInfo:{},avatarInfoList:[{avatarId:10000075,fightPropMap:{'28':0,'20':0,'30':0}}]}, {uid:'900000003'}).characters[0]!;
+  expect(missing.level).toBeNull();
+  expect(missing.stats.attack).toBeNull();
+  expect(missing.stats.critDamage).toBeNull();
+  expect(missing.stats.elementalMastery).toBe(0);
+  expect(missing.stats.critRate).toBe(0);
+  expect(missing.stats.damageBonuses.physical).toBe(0);
+  expect(missing.stats.damageBonuses.anemo).toBeNull();
+  for(const value of ['', '90.5', '0']) {
+    expect(parseEnkaShowcase({playerInfo:{showAvatarInfoList:[{avatarId:10000075,level:90}]},avatarInfoList:[{avatarId:10000075,propMap:{'4001':{ival:value}},fightPropMap:{}}]}, {uid:'900000003'}).characters[0]!.level).toBeNull();
+  }
+});
