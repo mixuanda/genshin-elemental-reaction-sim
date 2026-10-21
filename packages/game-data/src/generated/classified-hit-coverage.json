@@ -3,9 +3,9 @@
   "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
   "scope": "pinned-source-provisional-conditioned-hit-fields",
   "charactersWithHits": 124,
-  "classifiedHits": 1274,
+  "classifiedHits": 1277,
   "completeActions": 713,
-  "partialActions": 27,
+  "partialActions": 30,
   "blockedMappings": 0,
   "standaloneSpecialComponents": {
     "count": 8,
@@ -258,9 +258,9 @@
       "name": "菲谢尔",
       "slug": "fischl",
       "releasePatch": "1.0",
-      "hits": 4,
+      "hits": 5,
       "completeActions": 2,
-      "partialActions": 0,
+      "partialActions": 1,
       "blockedMappings": 0
     },
     {
@@ -718,9 +718,9 @@
       "name": "艾尔海森",
       "slug": "alhaitham",
       "releasePatch": "3.4",
-      "hits": 11,
+      "hits": 12,
       "completeActions": 9,
-      "partialActions": 0,
+      "partialActions": 1,
       "blockedMappings": 0
     },
     {
@@ -878,9 +878,9 @@
       "name": "千织",
       "slug": "chiori",
       "releasePatch": "4.5",
-      "hits": 3,
+      "hits": 4,
       "completeActions": 2,
-      "partialActions": 0,
+      "partialActions": 1,
       "blockedMappings": 0
     },
     {

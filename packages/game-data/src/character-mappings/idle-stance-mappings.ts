@@ -104,9 +104,9 @@ export const replacedIdleStancePartialMappingIds = new Set([
   "ayato-skill-hit",
   "nilou-skill-hit",
   "wanderer-skill-hit",
-  "alhaitham-skill-rushatk-hit",
+  // Independently selected ATK+EM / ATK+DEF contacts remain available.
   "mika-skill-skillhold-hit",
   "kaveh-burst-burst-hit",
   "gaming-burst-burst-hit",
-  "chiori-skill-thrustatkscaling-hit",
+
 ]);
