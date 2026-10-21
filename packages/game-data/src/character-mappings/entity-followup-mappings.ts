@@ -26,5 +26,5 @@ export const entityFollowupMappings: SourceHitMapping[] = entityFollowupTemplate
 })));
 export const replacedEntityFollowupPartialMappingIds = new Set([
   "jahoda-burst-burst-hit", "nicole-burst-burstinitial-hit", "odette-skill-skill-hit",
-  "odette-burst-burst-hit", "odette-burst-burstfinal-hit",
+  // Retain the four direct C0 Cryo contacts independently of the dance-double lifecycle.
 ]);
