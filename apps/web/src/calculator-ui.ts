@@ -167,6 +167,7 @@ function equipmentTalentLevels(characterId: string, meta: CalculatorEquipmentBui
   }
   if (!levels.size) throw new Error("此角色尚无可映射的普攻、战技或爆发天赋定义。");
   assumptions.unshift(`配装天赋绑定：普攻基础 ${meta.baseTalentLevels.auto}、战技基础 ${meta.baseTalentLevels.skill}、爆发基础 ${meta.baseTalentLevels.burst}；命座 C${meta.constellation}。每种动作独立选择有效来源等级。`);
+  if (meta.label) assumptions.unshift(`配装来源：${meta.label}`);
   return { meta: clone(meta), levels, assumptions };
 }
 
@@ -681,7 +682,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         if (context.ittoCharged) context.ittoCharged.burst.effectiveTalentLevel = burstLevel;
         if (context.yanfeiCharged) context.yanfeiCharged.brilliance.effectiveTalentLevel = burstLevel;
       }
-      next.assumptions = [...next.assumptions.filter(value => !value.startsWith("配装天赋绑定：") && value !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。"), ...equipmentTalentBinding.assumptions];
+      next.assumptions = [...next.assumptions.filter(value => !value.startsWith("配装天赋绑定：") && !value.startsWith("配装来源：") && value !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。").map(value => value.startsWith("C0；只使用列出的伤害表达式。") ? value.replace("C0；", `C${context.constellation} 配装；`) : value), ...equipmentTalentBinding.assumptions];
       if (equipmentTalentBinding.meta.label) next.label = `${equipmentTalentBinding.meta.label} · ${context.skillName} · 有效天赋等级 ${context.effectiveTalentLevel}`;
     }
     next = applyCharacterConstellationScope(next, workspace);
