@@ -1,3 +1,4 @@
+import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { batchPartitions, batchStatistics } from "./batch-statistics";
 import type { SimConfig, SimulationOptions, SimulationResult, TimelineExecution } from "@genshin-dps-lab/schemas";
 import type { AppliedExecutionProfile, ExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
@@ -76,7 +77,7 @@ export interface PreparedSimulation {
 
 export type WorkerResponse =
   | { type: "progress"; completed: number; total: number }
-  | { type: "result"; result: SimulationResult; summary: SimulationBatchSummary; samples?: number[]; appliedProfile?: AppliedExecutionProfile }
+  | { type: "result"; eventStepResult?: EventStepResult; result: SimulationResult; summary: SimulationBatchSummary; samples?: number[]; appliedProfile?: AppliedExecutionProfile }
   | ({ type: "prepared" } & PreparedSimulation)
   | { type: "error"; message: string };
 
@@ -138,7 +139,7 @@ export async function runSimulationBatchInWorker(
   options: SimulationOptions = {},
   iterations = 1,
   controls: WorkerRunControls = {}
-): Promise<{result: SimulationResult; summary: SimulationBatchSummary; appliedProfile?: AppliedExecutionProfile}> {
+): Promise<{eventStepResult?: EventStepResult; result: SimulationResult; summary: SimulationBatchSummary; appliedProfile?: AppliedExecutionProfile}> {
   const partitions = batchPartitions(iterations, controls.concurrency ?? 1);
   if (controls.signal?.aborted) throw new DOMException("模拟已取消。", "AbortError");
   const controller = new AbortController();
@@ -166,7 +167,7 @@ export async function runSimulationBatchInWorker(
         return response.samples;
       })), elapsedMilliseconds: performance.now() - started,
     };
-    return { result: first.result, summary,
+    return { result: first.result, summary, ...(first.eventStepResult ? {eventStepResult:first.eventStepResult} : {}),
       ...(first.appliedProfile === undefined ? {} : { appliedProfile: first.appliedProfile }) };
   } finally {
     controller.abort(); // Any worker failure terminates its still-running siblings.

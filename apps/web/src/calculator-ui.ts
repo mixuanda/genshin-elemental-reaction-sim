@@ -1447,7 +1447,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         else if (identity.schemaVersion === "source-host-character-shield-calculator-v1") loadSourceHostCapture(sourceHostCharacterShieldEditableSchema.parse(JSON.parse(text)));
         else if (identity.schemaVersion === "source-host-drain-v1") loadSourceHostCapture(sourceHostDrainCaptureSchema.parse(JSON.parse(text)));
         else if (identity.schemaVersion === "source-host-drain-calculator-v1") loadSourceHostCapture(sourceHostDrainEditableSchema.parse(JSON.parse(text)));
-        else if (identity.schemaVersion === "calculator-event-v1") loadSimulationCapture(parseSimulationHit(text));
+        else if (identity.schemaVersion === "calculator-event-v1" || identity.schemaVersion === "calculator-event-v2") loadSimulationCapture(parseSimulationHit(text));
         else { const doc = parseCalculatorDocument(text);
           if (doc.dataIdentity.releaseStatus === "preview") {
             if (availablePreviewDatasets.some(data => data.snapshotId === doc.dataIdentity.datasetId))

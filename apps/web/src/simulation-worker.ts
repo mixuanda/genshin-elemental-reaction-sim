@@ -1,3 +1,4 @@
+import {simulateEventStepResult,type EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { batchSeed, batchStatistics } from "./batch-statistics";
 import { simulate, applyExecutionProfile, FAVONIUS_PROFILE, SACRIFICIAL_PROFILE } from "@genshin-dps-lab/sim-core";
 import { NORMAL_HIT_ENERGY_PROFILE } from "../../../packages/sim-core/src/normal-hit-energy";
@@ -17,7 +18,7 @@ scope.onmessage = (event): void => {
       scope.postMessage({type: "progress", completed: 0, total: 1});
       const appliedProfile = request.executionProfile ? applyExecutionProfile(request.config, request.executionProfile, request.options) : null;
       const config = appliedProfile?.config ?? request.config;
-      const timelineExecution = request.resolveTimeline ? simulate(config, request.options).timelineExecution : undefined;
+      const timelineExecution = request.resolveTimeline ? (config.electroChargedPropagationModel?.mode==='nearby-wet-radius-v1' ? simulateEventStepResult(config,request.options).result : simulate(config, request.options)).timelineExecution : undefined;
       scope.postMessage({type: "progress", completed: 1, total: 1});
       scope.postMessage({type: "prepared", config, appliedProfile, ...(timelineExecution === undefined ? {} : {timelineExecution})});
       return;
@@ -35,12 +36,16 @@ scope.onmessage = (event): void => {
     const seed = request.options.randomSeed ?? config.randomSeed;
     const values: number[] = [];
     let result: ReturnType<typeof simulate> | undefined;
+    let eventStepResult: EventStepResult | undefined;
     for (let index = 0; index < request.iterations; index += 1) {
-      const current = simulate(config, {
+      const trialOptions = {
         ...request.options,
         execution: { captureHits: true, ...request.options.execution },
         randomSeed: batchSeed(seed, start + index, total)
-      });
+      };
+      const witnessed=config.electroChargedPropagationModel?.mode==='nearby-wet-radius-v1' ? simulateEventStepResult(config,trialOptions) : undefined;
+      const current=witnessed?.result ?? simulate(config,trialOptions);
+      if(index===0&&witnessed)eventStepResult=witnessed.wire;
       if (current.mechanicsStatus !== "complete") throw new Error("模拟含未完成机制，不能汇总为完整批量结果。");
       result ??= current;
       values.push(current.totalDamage);
@@ -90,7 +95,7 @@ scope.onmessage = (event): void => {
         "result 是第一轮完整轨迹；summary 汇总全部轮次。"
       ]
     };
-    scope.postMessage({ type: "result", result, summary, samples: values, ...(appliedProfile === undefined ? {} : {appliedProfile}) });
+    scope.postMessage({ type: "result", result, summary, samples: values, ...(eventStepResult ? {eventStepResult} : {}), ...(appliedProfile === undefined ? {} : {appliedProfile}) });
   } catch (error) {
     scope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) });
   }

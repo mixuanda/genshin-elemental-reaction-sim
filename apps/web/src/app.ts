@@ -1,3 +1,5 @@
+import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
+import { openProjectDocument, saveEditedDocument, type OpenDocument, type ProjectDocument, type DocumentControls } from './project-document';
 import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster } from "./source-host-panel";
 import { renderEnemyShieldLedger } from "./enemy-shield-panel";
 import { renderWeaponHitStackLedger } from "./weapon-hit-stack-panel";
@@ -44,7 +46,7 @@ import { renderArtifactDamageLedger } from "./artifact-damage-panel";
 import { renderArtifactBuffLedger } from "./artifact-buff-panel";
 import { renderPlayerShieldLedger } from "./player-shield-panel";
 import type { ExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
-import { restoreSimulationInputs, type SimulationRecord } from "./simulation-record";
+import { restoreSimulationInputs, exportSimulationRecord, readSimulationRecordV2, type SimulationRecord } from "./simulation-record";
 import type { LunarSimulationPanelController } from "./lunar-simulation-panel";
 
 const ELEMENT_LABELS: Record<string, string> = {
@@ -260,6 +262,46 @@ let lastResult: SimulationResult | null = null;
 let executionProfile: ExecutionProfile | null = null;
 let benchmarkRecord: SimulationRecord["benchmark"] = null;
 let lastSimulationRecord: SimulationRecord | null = null;
+let lastEventStepResult: EventStepResult | null = null;
+let importedRecordText: string | null = null;
+let openedDocument: OpenDocument | null = null;
+let editedDocument: ProjectDocument | null = null;
+let documentCopyId = crypto.randomUUID();
+let editorDraftDirty = false;
+function downloadText(text:string,name:string):void {
+  const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download=name;link.click();URL.revokeObjectURL(url);
+}
+function documentNotice(message:string):void {
+  let host=document.getElementById('documentNotice');
+  if(!host){host=document.createElement('section');host.id='documentNotice';host.className='card';document.querySelector('header')!.after(host);}
+  host.replaceChildren();
+  const status=document.createElement('p');status.setAttribute('role','status');status.textContent=message;host.append(status);
+  if(openedDocument){
+    const button=document.createElement('button');button.textContent='下载未修改原件';button.id='downloadOriginalDocument';
+    button.onclick=()=>downloadText(openedDocument!.original.text,openedDocument!.original.name);host.append(button);
+    const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='只读查看原文件与原结果（未重新验证）';
+    const pre=document.createElement('pre');pre.style.maxHeight='320px';pre.style.overflow='auto';pre.textContent=openedDocument.original.text;details.append(summary,pre);host.append(details);
+  }
+}
+function saveDocumentEdit(edited:unknown):boolean {
+  if(openedDocument?.config===null){documentNotice(openedDocument.reason+' 当前旧文件仅可读；不会把页面上的其他配置填入副本。请选择新预设开始独立配置。');return false;}
+  try {
+    const prior=openedDocument?.runInputs;
+    const runInputs=prior?{...prior,options:{...prior.options,...currentRuntimeOptions()},iterations:Number(byId<HTMLInputElement>('iterationInput').value),executionProfile,benchmark:benchmarkRecord}:null;
+    editedDocument=saveEditedDocument(openedDocument,edited,localStorage,documentCopyId,runInputs,{
+      randomSeed:byId<HTMLInputElement>('randomSeedInput').value,iterations:Number(byId<HTMLInputElement>('iterationInput').value),
+      energyMode:byId<HTMLSelectElement>('energyModeInput').value as DocumentControls['energyMode'],critMode:byId<HTMLSelectElement>('critModeInput').value as DocumentControls['critMode'],
+      checkpoint:byId<HTMLInputElement>('checkpointInput').checked,detailedTraces:byId<HTMLInputElement>('detailedTraceInput').checked
+    });
+    documentNotice('编辑已自动保存为浏览器本地新格式副本；原件保留。输入编辑不代表结果重新验证。可用“导出 JSON”下载副本。');
+    return true;
+  }catch(error){
+    documentNotice(`副本保存失败，当前编辑仍保留，请勿关闭页面，可复制编辑内容：${error instanceof Error?error.message:String(error)}`);
+    return false;
+  }
+}
+
 let restoredRunOptions: ResolvedSimulationRuntimeOptions | null = null;
 let lunarPanel: LunarSimulationPanelController | null = null;
 let lunarMountGeneration = 0;
@@ -279,6 +321,7 @@ function populatePresetSelect(): void {
 }
 
 function syncControlsFromConfig(): void {
+  editorDraftDirty = false;
   byId<HTMLInputElement>("randomSeedInput").value = currentConfig.randomSeed;
   byId<HTMLInputElement>("durationInput").value = String(
     currentConfig.duration
@@ -410,6 +453,7 @@ async function mountLunarPanel(): Promise<void> {
 }
 
 async function runSimulation(): Promise<void> {
+  if(openedDocument?.config===null){documentNotice(openedDocument.reason);return;}
   pendingSimulation?.abort();
   const controller = new AbortController();
   pendingSimulation = controller;
@@ -427,11 +471,13 @@ async function runSimulation(): Promise<void> {
     const runExecutionProfile = executionProfile ? deepClone(executionProfile) : null;
     const runBenchmark = benchmarkRecord ? deepClone(benchmarkRecord) : null;
     const runOptions = currentRuntimeOptions();
-    const { result, summary, appliedProfile } = await runSimulationBatchInWorker(sourceConfig, runOptions, iterations, { concurrency: Number(byId<HTMLSelectElement>("threadInput").value), ...(runExecutionProfile ? { executionProfile: runExecutionProfile } : {}), signal: controller.signal, onProgress: ({ completed, total }) => {
+    const { result, summary, appliedProfile, eventStepResult } = await runSimulationBatchInWorker(sourceConfig, runOptions, iterations, { concurrency: Number(byId<HTMLSelectElement>("threadInput").value), ...(runExecutionProfile ? { executionProfile: runExecutionProfile } : {}), signal: controller.signal, onProgress: ({ completed, total }) => {
       if (pendingSimulation === controller) byId<HTMLElement>("simulationProgress").textContent = `已完成 ${completed} / ${total}`;
     }});
     if (pendingSimulation !== controller) return;
+    importedRecordText = null;
     lastResult = result;
+    lastEventStepResult = eventStepResult ?? null;
     lastSimulationRecord = { format: "simulation-record-v1", sourceConfig, options: { ...result.resolvedRuntimeOptions, randomSeed: summary.seed }, iterations, executionProfile: runExecutionProfile, benchmark: runBenchmark, result, batchSummary: summary, rotationSummary: summarizeRotationExecution(result),
       ...(appliedProfile?.baselineRuntimeOptions ? { executionBaseline: { policy: "fixed-reference-v1" as const, options: appliedProfile.baselineRuntimeOptions, changes: appliedProfile.changes, baselineExecutableTicks: appliedProfile.baselineExecutableTicks } } : {}) };
     byId<HTMLButtonElement>("exportRunButton").disabled = false;
@@ -455,6 +501,7 @@ async function runSimulation(): Promise<void> {
 
 function renderAll(): void {
   if (!lastResult) return;
+  document.querySelectorAll<HTMLButtonElement>('.tab[data-tab="overview"],.tab[data-tab="timeline"],.tab[data-tab="hits"]').forEach(b=>b.disabled=false);
   renderMetrics();
   renderCharacterBreakdown();
   renderSkillTable();
@@ -1521,7 +1568,7 @@ async function renderSharedHitTrace(result: SimulationResult, hitId: number): Pr
       import("../../../packages/sim-core/src/calculator-bridge"), import("./calculator-ui")
     ]);
     if (selectedHitId !== hitId || lastResult !== result) return;
-    const replay = replaySimulationHit(captureSimulationHit(result, hitId));
+    const replay = replaySimulationHit(captureSimulationHit(lastEventStepResult ?? result, hitId));
     host.innerHTML = `<h3>共享计算执行轨迹</h3><p>原事件 ${formatNumber(replay.originalDamage, 6)} · 还原 ${formatNumber(replay.reproducedDamage, 6)} · 差值 ${replay.difference}</p>${renderTraceHtml(replay.trace)}`;
     byId<HTMLButtonElement>("openHitCalculator").disabled = false;
   } catch (error) {
@@ -3345,12 +3392,16 @@ function activateTab(tabName: string): void {
 
 function downloadJson(): void {
   syncConfigFromControls();
-  const blob = new Blob([JSON.stringify(currentConfig, null, 2)], {
+  try {
+    if(!saveDocumentEdit(editorDraftDirty ? JSON.parse(byId<HTMLTextAreaElement>('jsonEditor').value) : currentConfig))return;
+  }catch(error){documentNotice(`副本导出失败；编辑内容仍在编辑器中：${String(error)}`);return;}
+  if (!editedDocument) return;
+  const blob = new Blob([JSON.stringify(editedDocument, null, 2)], {
     type: "application/json"
   });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${(currentConfig.meta.name || "genshin-sim").replace(/[^\w\u4e00-\u9fa5-]+/g, "-")}.json`;
+  link.download = `${(currentConfig.meta.name || "genshin-sim").replace(/[^\w\u4e00-\u9fa5-]+/g, "-")}-edited.gidps.json`;
   link.click();
   URL.revokeObjectURL(link.href);
 }
@@ -3377,6 +3428,7 @@ function applyEditorJson(): void {
     benchmarkRecord = null;
     restoredRunOptions = null;
     byId<HTMLElement>("jsonError").hidden = true;
+    saveDocumentEdit(currentConfig);
     syncControlsFromConfig();
     runSimulation();
   } catch (error) {
@@ -3385,8 +3437,31 @@ function applyEditorJson(): void {
 }
 
 function initEvents(): void {
-  document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(".control-grid input, .control-grid select").forEach((control) => control.addEventListener("change", () => { restoredRunOptions = null; }));
-  byId<HTMLTextAreaElement>("jsonEditor").addEventListener("input", () => pendingSimulation?.abort());
+  const localCopies=document.createElement('button');localCopies.id='localCopiesButton';localCopies.textContent='本地副本';
+  byId('exportButton').after(localCopies);
+  localCopies.onclick=()=>{
+    documentNotice('自动保存的副本仅保存在此浏览器。下载后可用“导入 JSON”重新打开；副本内保留原件。');
+    const host=byId<HTMLElement>('documentNotice');
+    const keys=Object.keys(localStorage).filter(k=>k.startsWith('gidps:document:'));
+    if(!keys.length){const empty=document.createElement('p');empty.textContent='当前浏览器还没有自动保存的副本。';host.append(empty);}
+    for(const key of keys){
+      const text=localStorage.getItem(key);if(!text)continue;
+      const row=document.createElement('p');const download=document.createElement('button');
+      let name=key.slice('gidps:document:'.length);
+      try {const raw=JSON.parse(text);name=typeof raw.config?.meta?.name==='string'?raw.config.meta.name:name;}catch{/* Preserve downloadable recovery bytes even if parsing fails. */}
+      download.textContent=`下载副本：${name}`;download.dataset.localCopy=key;
+      download.onclick=()=>downloadText(text,`${key.slice('gidps:document:'.length)}.gidps.json`);row.append(download);host.append(row);
+    }
+  };
+
+  document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(".control-grid input, .control-grid select").forEach((control) => control.addEventListener("change", () => { restoredRunOptions = null; syncConfigFromControls(); saveDocumentEdit(currentConfig); }));
+  byId<HTMLTextAreaElement>("jsonEditor").addEventListener("input", () => {
+    pendingSimulation?.abort();
+    editorDraftDirty = true;
+    const text=byId<HTMLTextAreaElement>('jsonEditor').value;
+    try { saveDocumentEdit(JSON.parse(text)); }
+    catch { documentNotice('JSON 尚未完整；编辑内容保留在编辑器中，不替换已保存副本或原件。'); }
+  });
   byId<HTMLSelectElement>("benchmarkSelect").addEventListener("change", () => {
     const profile=BENCHMARK_PROFILES.find((p) => p.id === byId<HTMLSelectElement>("benchmarkSelect").value);
     const notice=byId<HTMLElement>("benchmarkAssumptions");
@@ -3406,7 +3481,7 @@ function initEvents(): void {
     if (!lastResult || selectedHitId === null) return;
     try {
       const { captureSimulationHit } = await import("../../../packages/sim-core/src/calculator-bridge");
-      const capture = captureSimulationHit(lastResult, selectedHitId);
+      const capture = captureSimulationHit(lastEventStepResult ?? lastResult, selectedHitId);
       const controller = await ensureCalculator();
       controller.loadSimulationCapture(capture);
       navigateProduct("/calculator");
@@ -3423,6 +3498,7 @@ function initEvents(): void {
       const selected = Number((event.currentTarget as HTMLSelectElement).value);
       const preset = availablePresets[selected];
       if (!preset) return;
+      openedDocument=null;editedDocument=null;documentCopyId=crypto.randomUUID();
       currentConfig = migrateConfig(deepClone(preset));
       executionProfile = null;
       benchmarkRecord = null;
@@ -3440,8 +3516,8 @@ function initEvents(): void {
     downloadJson
   );
   byId<HTMLButtonElement>("exportRunButton").addEventListener("click", () => {
-    if (!lastSimulationRecord) return;
-    const url = URL.createObjectURL(new Blob([JSON.stringify(lastSimulationRecord, null, 2)], { type: "application/json" }));
+    if (!lastSimulationRecord) {if(importedRecordText)downloadText(importedRecordText,'simulation-record-copy.json');return;}
+    const url = URL.createObjectURL(new Blob([JSON.stringify(exportSimulationRecord(lastSimulationRecord,lastEventStepResult), null, 2)], { type: "application/json" }));
     const link = document.createElement("a"); link.href = url; link.download = "simulation-record.json"; link.click(); URL.revokeObjectURL(url);
   });
   byId<HTMLInputElement>("importInput").addEventListener(
@@ -3452,29 +3528,52 @@ function initEvents(): void {
       if (!file) return;
       pendingSimulation?.abort();
       try {
-        const raw = JSON.parse(await file.text()) as unknown;
-        if (raw && typeof raw === "object" && "format" in raw && raw.format === "simulation-record-v1") {
-          const restored = restoreSimulationInputs(raw);
-          currentConfig = restored.sourceConfig;
-          executionProfile = restored.executionProfile;
-          benchmarkRecord = restored.benchmark;
-          restoredRunOptions = restored.options;
-          syncControlsFromConfig();
-          byId<HTMLInputElement>("iterationInput").value = String(restored.iterations);
-          byId<HTMLInputElement>("randomSeedInput").value = restored.options.randomSeed;
-          byId<HTMLSelectElement>("energyModeInput").value = restored.options.energyMode;
-          byId<HTMLSelectElement>("critModeInput").value = restored.options.execution?.criticalSampling ?? restored.options.critMode;
-          byId<HTMLInputElement>("checkpointInput").checked = !!restored.options.execution?.checkpointFrames?.length;
-          byId<HTMLInputElement>("detailedTraceInput").checked = restored.options.execution?.detailedTraces ?? false;
-          const notice = byId<HTMLElement>("benchmarkAssumptions"); notice.hidden = !benchmarkRecord;
-          notice.textContent = benchmarkRecord ? `${benchmarkRecord.id}@${benchmarkRecord.version}：${benchmarkRecord.assumptions.join("；")}` : "";
-        } else {
-          currentConfig = migrateConfig(raw);
-          executionProfile = null; benchmarkRecord = null;
-          restoredRunOptions = null;
-          syncControlsFromConfig();
+        const text=await file.text();
+        openedDocument=openProjectDocument(text,file.name);
+        editedDocument=null;documentCopyId=crypto.randomUUID();
+        lastResult=null;lastSimulationRecord=null;lastEventStepResult=null;importedRecordText=null;
+        document.querySelectorAll<HTMLButtonElement>('.tab[data-tab="overview"],.tab[data-tab="timeline"],.tab[data-tab="hits"]').forEach(b=>b.disabled=true);
+        byId<HTMLElement>('notice').textContent='旧文件只读打开；原文件与原结果见上方详情。未重新模拟。';
+        byId<HTMLButtonElement>('exportRunButton').disabled=true;
+        executionProfile=null;benchmarkRecord=null;restoredRunOptions=null;
+        if(openedDocument.config){
+          currentConfig=deepClone(openedDocument.config);
+          const raw:unknown=JSON.parse(text);
+          if(raw&&typeof raw==='object'&&'format' in raw&&(raw.format==='simulation-record-v1'||raw.format==='gidps-simulation-record-v2')){
+            try {
+              const newRecord=raw.format==='gidps-simulation-record-v2' ? readSimulationRecordV2(raw) : null;
+              const restored=newRecord?.inputs??restoreSimulationInputs(raw);
+              if(newRecord){lastResult=newRecord.result;lastEventStepResult=newRecord.eventStepResult;importedRecordText=text;byId<HTMLButtonElement>('exportRunButton').disabled=false;renderAll();}
+              executionProfile=restored.executionProfile;benchmarkRecord=restored.benchmark;restoredRunOptions=restored.options;
+              syncControlsFromConfig();
+              byId<HTMLInputElement>('iterationInput').value=String(restored.iterations);
+              byId<HTMLInputElement>('randomSeedInput').value=restored.options.randomSeed;
+              byId<HTMLSelectElement>('energyModeInput').value=restored.options.energyMode;
+              byId<HTMLSelectElement>('critModeInput').value=restored.options.execution?.criticalSampling??restored.options.critMode;
+            }catch(error){openedDocument={...openedDocument,config:null,state:'missing-input',reason:`运行输入不完整：${String(error)}；保留旧结果，不猜测运行选项。`};}
+          }else {
+            syncControlsFromConfig();
+            if(openedDocument.runInputs){
+              const restored=openedDocument.runInputs;restoredRunOptions=restored.options;executionProfile=restored.executionProfile;benchmarkRecord=restored.benchmark;
+              byId<HTMLInputElement>('iterationInput').value=String(restored.iterations);
+              byId<HTMLInputElement>('randomSeedInput').value=restored.options.randomSeed;
+              byId<HTMLSelectElement>('energyModeInput').value=restored.options.energyMode;
+              byId<HTMLSelectElement>('critModeInput').value=restored.options.execution?.criticalSampling??restored.options.critMode;
+            }
+          }
         }
-        runSimulation();
+        const controls=openedDocument.document?.controls;
+        if(controls){
+          byId<HTMLInputElement>('randomSeedInput').value=controls.randomSeed;byId<HTMLInputElement>('iterationInput').value=String(controls.iterations);
+          byId<HTMLSelectElement>('energyModeInput').value=controls.energyMode;byId<HTMLSelectElement>('critModeInput').value=controls.critMode;
+          byId<HTMLInputElement>('checkpointInput').checked=controls.checkpoint;byId<HTMLInputElement>('detailedTraceInput').checked=controls.detailedTraces;
+        }
+        if(openedDocument.config===null)byId<HTMLTextAreaElement>('jsonEditor').value=text;
+        else if(!lastResult)byId<HTMLElement>('notice').textContent=currentConfig.meta.name+' · 只读打开，未重新模拟。';
+        documentNotice(openedDocument.reason+' 打开不会运行模拟。'+(lastEventStepResult?' 新结果的事件见证已严格校验；这不是重新模拟或官方机制验证。':''));
+        byId<HTMLElement>('simulationProgress').textContent='已只读打开文件；未重新模拟。';
+        navigateProduct('/results');activateTab('config');
+
       } catch (error) {
         showConfigError(error);
       } finally {
@@ -3630,6 +3729,7 @@ async function renderProductRoute(): Promise<void> {
         benchmarkRecord = null;
         byId<HTMLSelectElement>("benchmarkSelect").value = "";
         byId<HTMLElement>("benchmarkAssumptions").hidden = true;
+        saveDocumentEdit(currentConfig);
         syncControlsFromConfig();
       },
       getResult: () => lastResult,
