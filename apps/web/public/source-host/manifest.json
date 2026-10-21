@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-03T12:04:47.805Z",
+  "builtAt": "2026-10-21T11:38:50.251Z",
   "source": {
     "repository": "https://github.com/genshinsim/gcsim",
     "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
@@ -2850,8 +2850,8 @@
       "size": 370205
     },
     "host": {
-      "goos": "darwin",
-      "goarch": "arm64"
+      "goos": "linux",
+      "goarch": "amd64"
     }
   },
   "limitations": {
@@ -3616,6 +3616,11 @@
       "path": "131-raiden-owned-native.patch",
       "sha256": "3987d1d3fb9bc1ef95f338e22d63031e5303140ee89ee6e86be8cef49a1b19a2",
       "size": 8300
+    },
+    {
+      "path": "132-neuvillette-initial-hp-a4.patch",
+      "sha256": "452b8d17b5c3e5d185e58d358e9c49495c4ccfcedcfb7e57df6c4b8077d89a15",
+      "size": 479
     }
   ],
   "bridge": [
@@ -3968,8 +3973,8 @@
   "buildScripts": [
     {
       "path": "scripts/build-source-host.mjs",
-      "sha256": "3ab65ec20f8f13081a5a539946405fcb0dc13cd32ed2505e17ec008128d173c6",
-      "size": 15581
+      "sha256": "b78c3df110e877a765a7d39673bdec69e952d1f5b7851ce5df56fc4df166461a",
+      "size": 15602
     },
     {
       "path": "scripts/common.mjs",
@@ -3983,8 +3988,8 @@
     },
     {
       "path": "scripts/generate-source-inventory-metadata.mjs",
-      "sha256": "2b699d73bbd7c07a3d8f32b3300d79a83ad32f3b8997b6db774f80b6e7679b7f",
-      "size": 11770
+      "sha256": "f75b4aec6aea29ac92a2dc8d2736b65d57e0ff652c0c908244201781735771b8",
+      "size": 11893
     },
     {
       "path": "scripts/generate-talent-registry.mjs",
@@ -4018,16 +4023,16 @@
     }
   ],
   "toolchain": {
-    "version": "go version go1.25.0 darwin/arm64",
-    "host": "darwin-arm64",
-    "sourceUrl": "https://go.dev/dl/go1.25.0.darwin-arm64.tar.gz",
+    "version": "go version go1.25.0 linux/amd64",
+    "host": "linux-amd64",
+    "sourceUrl": "https://go.dev/dl/go1.25.0.linux-amd64.tar.gz",
     "releaseMetadataUrl": "https://go.dev/dl/?mode=json&include=all",
     "archive": {
-      "filename": "go1.25.0.darwin-arm64.tar.gz",
-      "sha256": "544932844156d8172f7a28f77f2ac9c15a23046698b6243f633b0a0b00c0749c",
-      "size": 57906112
+      "filename": "go1.25.0.linux-amd64.tar.gz",
+      "sha256": "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613",
+      "size": 59659213
     },
-    "executableSha256": "c812de5f1e8307431c5bce8ebc4887c180827abc5834a72cd640a8a14200a93b"
+    "executableSha256": "b93cdfdbc72f1afc3f21498c80bf3d155a44a9b95e2d690c940511051574bc25"
   },
   "build": {
     "target": "js/wasm",
@@ -4050,8 +4055,8 @@
   "artifacts": [
     {
       "path": "source-host.wasm",
-      "sha256": "e5fccf99fdf90f95689dab13f25b28597113073641f84a2d0f4ae4130be38c07",
-      "size": 47065221
+      "sha256": "8e159a65991824908ecfa1226ae18a18c87b1956f9458dc7257bd97b249322f6",
+      "size": 47066609
     },
     {
       "path": "wasm_exec.js",
@@ -4080,7 +4085,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "68a90de55cf4ba8a64f6596dd736ebebdb36e9af34e506280158613ac103525a",
+      "sha256": "820c7bad460e7bebbd4708e2cd725b7c43e7626432cd63ed15fabff33b1d4e59",
       "size": 1810182
     }
   ],
