@@ -10776,12 +10776,15 @@ const dendroCoreDamageEventReferenceSchema = z
     eventPriority: finiteNumber.nonnegative().optional(),
     eventSequence: z.number().int().nonnegative().optional(),
     parentDamageEventId: z.number().int().nonnegative().nullable(),
+    targetResolutionId: z.number().int().nonnegative().optional(),
     sourceActorId: wireNonEmptyStringSchema,
     scalingOwnerId: wireNonEmptyStringSchema,
     creditOwnerId: wireNonEmptyStringSchema,
     actionId: wireNonEmptyStringSchema.optional(),
     hitId: wireNonEmptyStringSchema.optional(),
     hitGroupId: wireNonEmptyStringSchema,
+    targetIndex: z.number().int().nonnegative().optional(),
+    targetCount: z.number().int().positive().optional(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema.optional(),
     frame: z.number().int().nonnegative(),
@@ -10840,6 +10843,8 @@ const dendroCoreHitResolutionReferenceSchema = z
     sourceActionId: wireNonEmptyStringSchema,
     hitId: wireNonEmptyStringSchema,
     hitGroupId: wireNonEmptyStringSchema,
+    targetIndex: z.number().int().nonnegative().optional(),
+    targetCount: z.number().int().positive().optional(),
     targetId: wireNonEmptyStringSchema,
     element: z.enum([
       "pyro",
@@ -12519,7 +12524,63 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       });
     }
 
+    // A direct attack is queued once per target, then contacts cores once
+    // after its last target completes. Reaction damage instead fans out inside
+    // one queue event. Index actual direct members independently of the contact
+    // IDs so dropping an otherwise valid member cannot forge a smaller attack.
+    const directHitsByGroup = new Map<string, typeof result.hitResolutionLog>();
+    for (const hit of result.hitResolutionLog) {
+      if (hit.resolutionKind !== "direct") continue;
+      const members = directHitsByGroup.get(hit.hitGroupId) ?? [];
+      members.push(hit);
+      directHitsByGroup.set(hit.hitGroupId, members);
+    }
+    const directDamageIdsByGroup = new Map<string, number[]>();
+    for (const damage of result.damageEvents) {
+      if (damage.kind !== "direct") continue;
+      const ids = directDamageIdsByGroup.get(damage.hitGroupId) ?? [];
+      ids.push(damage.id);
+      directDamageIdsByGroup.set(damage.hitGroupId, ids);
+    }
     result.dendroCoreContactLog.forEach((contact, index) => {
+      const currentDirect = current && contact.eventType === "hit";
+      const directMembers = currentDirect
+        ? directHitsByGroup.get(contact.hitGroupId) ?? []
+        : [];
+      // This reference facet also accepts historical partial single-hit
+      // fixtures. Multi-target provenance always requires the existing full
+      // targetIndex/targetCount fields; it cannot use that partial shape.
+      const hasTargetMetadata = directMembers.length > 1 || directMembers.some(
+        (hit) => hit.targetIndex !== undefined || hit.targetCount !== undefined
+      );
+      if (currentDirect) {
+        if (directMembers.length === 0 ||
+          directMembers.length !== contact.hitResolutionLogIds.length ||
+          directMembers.some((hit, position) => hit.id !== contact.hitResolutionLogIds[position])) {
+          addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "hitResolutionLogIds"],
+            "direct core contact requires the complete hit-group membership in target order");
+        }
+        const targetIds = new Set<string>();
+        directMembers.forEach((hit, position) => {
+          const previous = directMembers[position - 1];
+          if ((hasTargetMetadata && (hit.targetIndex !== position || hit.targetCount !== directMembers.length)) ||
+            targetIds.has(hit.targetId) || hit.eventSequence === undefined ||
+            (previous !== undefined && (previous.eventSequence === undefined || hit.eventSequence <= previous.eventSequence))) {
+            addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "hitResolutionLogIds", position],
+              "direct core contact requires complete unique targets and their ordered queue events");
+          }
+          targetIds.add(hit.targetId);
+        });
+        const lastMember = directMembers.at(-1);
+        if (lastMember === undefined || contact.eventPriority !== lastMember.eventPriority ||
+          contact.eventSequence !== lastMember.eventSequence) {
+          addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "eventSequence"],
+            "direct core contact completion must match the last target queue event");
+        }
+      }
+      const directMemberByDamageId = new Map(directMembers
+        .filter(hit => hit.damageEventId !== null)
+        .map(hit => [hit.damageEventId, hit]));
       const reactionDamageSuffix =
         contact.triggerReactionDamageLogId === null
           ? ""
@@ -12559,7 +12620,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
             hitResolution.element !== contact.triggerElement ||
             hitResolution.resolutionKind !==
               expectedResolutionKind ||
-            (current && (hitResolution.eventPriority !== contact.eventPriority || hitResolution.eventSequence !== contact.eventSequence))
+            (current && (hitResolution.eventPriority !== contact.eventPriority ||
+              ((!currentDirect || directMembers.length === 1) && hitResolution.eventSequence !== contact.eventSequence)))
           ) {
             addMissingReferenceIssue(
               context,
@@ -12598,6 +12660,14 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           "core-contact hit resolutions must reproduce triggerDamageEventIds in target order"
         );
       }
+      if (currentDirect) {
+        const groupDamageIds = directDamageIdsByGroup.get(contact.hitGroupId) ?? [];
+        if (groupDamageIds.length !== referencedDamageEventIds.length ||
+          groupDamageIds.some((id, position) => id !== referencedDamageEventIds[position])) {
+          addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "triggerDamageEventIds"],
+            "direct core contact must retain every produced target damage event");
+        }
+      }
       const triggeringReactionDamage =
         contact.triggerReactionDamageLogId === null
           ? undefined
@@ -12607,8 +12677,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       if (current) {
         let expectedPriority: number | undefined;
         if (contact.eventType === "hit") {
-          // Complete direct-hit source verification also runs in the shared
-          // delivery facet; this row must retain that exact resolved hit tuple.
+          // The contact retains the last target's completion tuple; every
+          // member still authenticates its own source and damage backlink.
           expectedPriority = result.hitResolutionLog.find(row => contact.hitResolutionLogIds.includes(row.id))?.eventPriority;
           if (expectedPriority !== 3 && expectedPriority !== 13) expectedPriority = undefined;
           if (expectedPriority === 13 && !hasAcceptedAfterFrameHitSource(result.config, result.actionLog ?? [], {
@@ -12673,6 +12743,16 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         (damageEventId, referenceIndex) => {
           const triggerDamageEvent =
             damageEventById.get(damageEventId);
+          const directMember = directMemberByDamageId.get(damageEventId);
+          const directDamageMatchesMember = !currentDirect || (directMember !== undefined && triggerDamageEvent !== undefined &&
+            triggerDamageEvent.targetId === directMember.targetId &&
+            triggerDamageEvent.element === directMember.element &&
+            triggerDamageEvent.eventPriority === directMember.eventPriority &&
+            triggerDamageEvent.eventSequence === directMember.eventSequence &&
+            ((!hasTargetMetadata && triggerDamageEvent.actionId === undefined) || triggerDamageEvent.actionId === directMember.sourceActionId) &&
+            ((!hasTargetMetadata && triggerDamageEvent.hitId === undefined) || triggerDamageEvent.hitId === directMember.hitId) &&
+            ((!hasTargetMetadata && triggerDamageEvent.targetResolutionId === undefined) || triggerDamageEvent.targetResolutionId === directMember.id) &&
+            (!hasTargetMetadata || (triggerDamageEvent.targetIndex === directMember.targetIndex && triggerDamageEvent.targetCount === directMember.targetCount)));
           const expectedHitGroupId =
             contact.eventType === "hit"
               ? triggerDamageEvent?.hitGroupId
@@ -12692,6 +12772,9 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
               `missing damage event ${damageEventId}`
             );
           } else if (
+            // For direct fanout, each damage event belongs to its own target
+            // queue event, not necessarily the final contact queue event.
+            !directDamageMatchesMember ||
             triggerDamageEvent.frame !== contact.frame ||
             triggerDamageEvent.sourceActorId !==
               contact.sourceActorId ||
@@ -12700,7 +12783,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
               (contact.eventType === "hit"
                 ? "direct"
                 : "transformative-reaction") ||
-            (current && (triggerDamageEvent.eventPriority !== contact.eventPriority || triggerDamageEvent.eventSequence !== contact.eventSequence))
+            (current && (triggerDamageEvent.eventPriority !== contact.eventPriority ||
+              (!currentDirect && triggerDamageEvent.eventSequence !== contact.eventSequence)))
           ) {
             addMissingReferenceIssue(
               context,
@@ -18499,7 +18583,7 @@ const simConfigV153ValueSchema = z
         raw.buffs.forEach((buff, index) => {
           if (playerMaxHpModel?.success !== true && isRecord(buff) && (buff.stat === "hpPct" || buff.stat === "hpFlat")) context.addIssue({
             code: "custom", path: [...path, "buffs", index, "stat"],
-            message: "dynamic HP buffs with health state require explicit playerMaxHpModel source semantics"
+            message: "static max HP: dynamic HP buffs with health state require explicit playerMaxHpModel source semantics"
           });
         });
       };
@@ -31312,7 +31396,9 @@ export function validateReactionDeliveryResultReferences(
           parent?.kind === "direct" && parentId < event.id && tickIndex >= 0 && event.eventSequence > parent.eventSequence;
         if (!independentProc) issue(
           ["damageEvents", eventIndex, "parentDamageEventId"],
-          "direct damage requires a null parent or an exact current independent-weapon callback backlink"
+          result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION
+            ? "direct damage requires a null parent or an exact current independent-weapon callback backlink"
+            : "direct damage events must have a null parent"
         );
       }
       const parent = damageById.get(parentId);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createVersionedContentHash, simulationResultSchema } from "@genshin-dps-lab/schemas";
 import { simulate } from "../simulator";
+import { evaluateSimulationSteadyState } from "../simulation-analysis";
 import { captureSimulationHit, replaySimulationHit } from "../calculator-bridge";
 import { defineDamageModifierPlugin } from "../plugins";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -67,9 +68,16 @@ describe("resolved hit capture and critical sampling", () => {
 
   it("does not certify stochastic or unexported aura state as deterministic checkpoints", () => {
     const result = simulate(scenario(), { execution: { criticalSampling: "seeded-random-v1", checkpointFrames: [0] } });
-    expect(result.executionAudit?.checkpointCoverage.complete).toBe(false);
-    expect(result.executionAudit?.phaseCheckpoints).toEqual([]);
-    expect(result.executionAudit?.checkpointCoverage.reasons.join(" ")).toContain("随机暴击");
+    // Named RNG state is now exportable; capture is not a proof of random
+    // distribution convergence. Keep that certification boundary explicit.
+    expect(result.executionAudit?.checkpointCoverage).toEqual({ complete: true, missingDimensions: [], reasons: [] });
+    expect(result.executionAudit?.phaseCheckpoints).toHaveLength(1);
+    expect(result.executionAudit!.phaseCheckpoints[0]!.state.icdAndTriggerHistory).toMatchObject({
+      randomExecution: { version: "named-rng-state-v1", streams: { critical: { drawCount: 0 } } },
+    });
+    const steady = evaluateSimulationSteadyState(result);
+    expect(steady.status).toBe("not-established");
+    expect(steady.reasons.join(" ")).toContain("随机状态已捕获不等于分布收敛");
   });
 
   it("restores exact post-plugin levels, panel and critical-mode overrides", () => {

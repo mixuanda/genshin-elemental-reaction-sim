@@ -1,3 +1,4 @@
+import { CURRENT_OPTIONAL_RESULT_EXTENSIONS, CURRENT_RESULT_EXTENSIONS } from "../../../schemas/src/current-result-field-contract.test-helper";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import {
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
@@ -644,7 +645,12 @@ describe("exact current 1.53 SimulationResult schema", () => {
     const schemaKeys = Object.keys(
       simulationResultV153ValueSchema.shape,
     ).sort();
-    expect(schemaKeys).toHaveLength(73);
+    const optionalFields = new Set<string>(["timelineExecution", ...CURRENT_OPTIONAL_RESULT_EXTENSIONS]);
+    const requiredFields = schemaKeys.filter(key => !optionalFields.has(key));
+    expect(schemaKeys).toHaveLength(107);
+    expect(requiredFields).toHaveLength(71);
+    expect(schemaKeys.filter(key => simulationResultV153ValueSchema.shape[key as keyof typeof simulationResultV153ValueSchema.shape].isOptional()))
+      .toEqual([...optionalFields].sort());
     expect(
       Object.keys(simulationResultV153ValueSchema.shape).filter(
         (key) =>
@@ -653,18 +659,17 @@ describe("exact current 1.53 SimulationResult schema", () => {
             key,
           ),
       ),
-    ).toEqual(["executionAudit", "callbackRegistrationLog", "callbackDeliveryLog"]);
+    ).toEqual(CURRENT_RESULT_EXTENSIONS);
     expect(schemaKeys).toContain("callbackRegistrationLog");
     expect(schemaKeys).toContain("callbackDeliveryLog");
     expect(Object.keys(defaultResult).sort()).toEqual(
-      schemaKeys.filter((key) => key !== "timelineExecution" && key !== "executionAudit"),
+      requiredFields,
     );
-    expect(Object.keys(auraV9Result).sort()).toEqual(schemaKeys.filter((key) => key !== "executionAudit"));
+    expect(Object.keys(auraV9Result).sort()).toEqual([...requiredFields, "timelineExecution"].sort());
     expect(defaultResult.callbackRegistrationLog).toEqual([]);
     expect(defaultResult.callbackDeliveryLog).toEqual([]);
 
-    for (const key of schemaKeys) {
-      if (key === "timelineExecution" || key === "executionAudit") continue;
+    for (const key of requiredFields) {
       const missing = cloneResult(defaultResult) as unknown as Record<
         string,
         unknown
