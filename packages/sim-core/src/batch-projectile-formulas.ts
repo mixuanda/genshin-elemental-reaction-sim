@@ -16,6 +16,7 @@ const actionIds = new Set([
   "klee-skill-complete-cast-c0",
   "chevreuse-burst-complete-cast-c0",
   "neuvillette-skill-complete-cast-c0-arkhe-ready",
+  "neuvillette-skill", // Independent HP hit shares the same explicit A4 accounting.
   "freminet-skill-initial-complete-cast-c0-arkhe-ready",
   ...["press", "hold", "overcharged"].map(form => `chevreuse-skill-${form}-complete-cast-c0-arkhe-ready`),
 ]);

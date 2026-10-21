@@ -3,9 +3,9 @@
   "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
   "scope": "pinned-source-provisional-conditioned-hit-fields",
   "charactersWithHits": 124,
-  "classifiedHits": 1277,
+  "classifiedHits": 1278,
   "completeActions": 713,
-  "partialActions": 30,
+  "partialActions": 31,
   "blockedMappings": 0,
   "standaloneSpecialComponents": {
     "count": 8,
@@ -808,9 +808,9 @@
       "name": "那维莱特",
       "slug": "neuvillette",
       "releasePatch": "4.1",
-      "hits": 5,
+      "hits": 6,
       "completeActions": 4,
-      "partialActions": 0,
+      "partialActions": 1,
       "blockedMappings": 0
     },
     {
