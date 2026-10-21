@@ -37,7 +37,7 @@ export type SourceHostWorkerMessage =
   | { type: "monte-trial"; trial: import("./source-host-monte-carlo").SourceMonteTrial }
   | { type: "monte-done" }
   | { type: "progress"; message: string; stage?: SourceHostWorkerStage }
-  | { type: "result"; result: SourceHostResult; elapsedMs: number }
+  | { type: "result"; result: SourceHostResult; elapsedMs: number; timing?: { setupMs: number; nativeMs: number; parseMs: number; validateMs: number; postedAt: number; workerBootstrapMs?: number } }
   | { type: "reexecution-result"; receipt: SourceHostReexecutionReceipt; elapsedMs: number }
   | { type: "batch-result"; runs: SourceHostBatchRun[]; elapsedMs: number }
   | { type: "startup-result"; startupRuns: SourceHostStartupRun[]; elapsedMs: number }
@@ -141,6 +141,7 @@ export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers
   let worker: Worker | null = null;
   let cancelled = false;
   const startedAt = performance.now();
+  let firstMessageAt: number | undefined;
   let stage: SourceHostWorkerStage = "request", lastProgress: string | undefined, settled = false, timer: ReturnType<typeof setTimeout>;
   const clear = () => clearTimeout(timer);
   const terminate = () => { clear(); worker?.terminate(); };
@@ -161,6 +162,7 @@ export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers
   }
   worker.onmessage = event => {
     if (settled) return;
+    firstMessageAt ??= performance.now();
     const message = event.data as SourceHostWorkerMessage;
     if (message.type === "progress") {
       stage = message.stage ?? stage; lastProgress = message.message; armTimeout(); handlers.onProgress(message); return;
@@ -175,6 +177,7 @@ export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers
       return;
     }
     if (!finish()) return;
+    if (message.type === "result" && message.timing) message.timing.workerBootstrapMs = firstMessageAt - startedAt;
     handlers.onMessage(message);
   };
   worker.onerror = event => {

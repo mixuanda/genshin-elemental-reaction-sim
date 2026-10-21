@@ -458,6 +458,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
         },
         onMessage: message => {
           if (message.type === "monte-start" || message.type === "monte-trial" || message.type === "monte-done") return;
+          const handlerStarted = performance.now();
           activeWorkerRun = null; setBusy(false); diagnosticHost.hidden = true;
           if (message.type === "reexecution-result") {
             reexecutionReceipt = message.receipt; exportReexecution.disabled = false;
@@ -475,8 +476,12 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
             catch (error) { status.textContent = `起步对照分析失败：${error}`; }
             return;
           }
+          const receivedAt = performance.timeOrigin + performance.now();
           savedResult = message.result; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false;
+          const renderStarted = performance.now();
           renderResult(savedResult); status.textContent = `本次运行完成，耗时 ${message.elapsedMs.toFixed(1)} ms。`;
+          const timing = { ...message.timing, transferAndQueueMs: message.timing ? receivedAt - message.timing.postedAt : null, renderMs: performance.now() - renderStarted, preRenderMs: renderStarted - handlerStarted, elapsedMs: message.elapsedMs };
+          root.dispatchEvent(new CustomEvent("source-host-timing", { bubbles: true, detail: timing }));
         },
       });
     } catch (error) {

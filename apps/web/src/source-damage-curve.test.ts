@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import type {SourceHostResult} from '../../../packages/sim-core/src/source-host-wire';
-import {buildSourceDamageCurve,curveSeries} from './source-damage-curve';
+import {buildSourceDamageCurve,curveSeries,cumulativeFrameSteps} from './source-damage-curve';
 const fixture=(extra:Record<string,unknown>={})=>({observationWindow:{endReason:'duration',actualEndFrame:7200,configuredEndFrame:7200},targetScene:{targets:[{}]},applications:[0,59,60,7199,7200].map((frame,i)=>({id:i,calculationId:i,frame,appliedDamage:(i+1)*10})),calculations:[0,1,2,3,4].map(i=>({request:{id:i,kind:'damage',actorKey:i===3?'xiangling':'kaeya',ability:'actual',element:'cryo',attackTagName:i===1?'AttackTagElementalArtHold':'AttackTagNormal',damageCategory:'ordinary',rawAttack:{Catalyzed:false},input:{amped:i===2,amplifyingReaction:'melt'}}})),logs:[],abilityInvocations:[],...extra}) as unknown as SourceHostResult;
 describe('actual-event damage curves',()=>{
  it('conserves each dimension and cumulative total with half-open 120s endpoint and zero idle bins',()=>{
@@ -37,4 +37,12 @@ describe('actual-event damage curves',()=>{
 it('honors early deletion recorded on the original native modifier event',()=>{
  const r=fixture({logs:[{event:'status',msg:'stat mod added',frame:10,ended:80,char_index:0,logs:{key:'bennett-field',expiry:100}},{event:'status',msg:'stat mod refreshed',frame:40,ended:40,char_index:0,logs:{key:'bennett-field',expiry:130}}]});
  expect(buildSourceDamageCurve(r).buffs.map(b=>[b.startFrame,b.endFrame])).toEqual([[10,40],[40,80]]);
+});
+
+it('preserves separate same-frame hits and exact per-event staircase across idle frames',()=>{
+ const r=fixture({applications:[{id:1,calculationId:0,frame:1,appliedDamage:10},{id:2,calculationId:1,frame:59,appliedDamage:20},{id:3,calculationId:2,frame:59,appliedDamage:30},{id:4,calculationId:3,frame:7199,appliedDamage:40},{id:5,calculationId:4,frame:7200,appliedDamage:999}]});
+ const s=curveSeries(buildSourceDamageCurve(r));expect(s.events.map(h=>[h.id,h.frame])).toEqual([[1,1],[2,59],[3,59],[4,7199]]);expect(s.total).toBe(100);expect(s.points[0]!.damage).toBe(60);
+ expect(cumulativeFrameSteps(s.events,0,60)).toEqual([{frame:0,value:0},{frame:1,value:0},{frame:1,value:10},{frame:59,value:10},{frame:59,value:30},{frame:59,value:30},{frame:59,value:60},{frame:60,value:60}]);
+ expect(cumulativeFrameSteps(s.events,60,7199)).toEqual([{frame:60,value:60},{frame:7199,value:60}]);
+ expect(cumulativeFrameSteps(s.events,7199,7200)).toEqual([{frame:7199,value:60},{frame:7199,value:60},{frame:7199,value:100},{frame:7200,value:100}]);
 });

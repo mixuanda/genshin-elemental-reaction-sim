@@ -1,3 +1,4 @@
+import {newSimulationOptions} from './new-simulation-options';
 import {simulateEventStepResult,applyEventStepExecutionProfile,type EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { batchSeed, batchStatistics } from "./batch-statistics";
 import { simulate, applyExecutionProfile, FAVONIUS_PROFILE, SACRIFICIAL_PROFILE } from "@genshin-dps-lab/sim-core";
@@ -12,7 +13,7 @@ const scope = globalThis as unknown as {
 };
 
 scope.onmessage = (event): void => {
-  const request = event.data;
+  const request = { ...event.data, options: newSimulationOptions(event.data.options) };
   try {
     if (request.type === "prepare") {
       scope.postMessage({type: "progress", completed: 0, total: 1});

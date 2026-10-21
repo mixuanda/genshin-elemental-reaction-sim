@@ -87,6 +87,10 @@ function supportingMap(records: readonly SourceHostCalculationRecord[], sourceCo
   return map;
 }
 
+// Native fields were parsed above; validate only the additional result fields
+// when attaching metadata. Keep the saved-result parser strict on entry.
+const resultMetadataSchema = sourceHostResultSchema.pick({ executionArtifact: true, schemaVersion: true, formulaVersion: true, verification: true, explanationStatus: true, explanationGaps: true }).strip();
+
 /** Match the actual JS responses to Go's receipt without running the combat twice. */
 export function createSourceHostResult(rawNative: unknown, executed?: readonly SourceHostCalculation[]): SourceHostResult {
   if (typeof rawNative === "object" && rawNative !== null && "error" in rawNative) throw new Error(String(rawNative.error));
@@ -169,10 +173,11 @@ export function createSourceHostResult(rawNative: unknown, executed?: readonly S
   }
   for (const application of native.energyApplications ?? []) verifySourceHostEnergyApplication(application, map);
   for (const application of native.healingApplications ?? []) verifySourceHostHealingApplication(application, map);
-  return sourceHostResultSchema.parse({ ...native,
+  return { ...native, ...resultMetadataSchema.parse({
+    executionArtifact: native.executionArtifact,
     schemaVersion: SOURCE_HOST_RESULT_VERSION, formulaVersion: SOURCE_HOST_FORMULA_VERSION,
     verification: "provisional", explanationStatus: "partial", explanationGaps: [...explanationGaps],
-  });
+  }) };
 }
 
 /** Capture one actually applied hit and only the preceding calculations it used. */

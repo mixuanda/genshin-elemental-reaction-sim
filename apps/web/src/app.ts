@@ -416,14 +416,15 @@ function currentRuntimeOptions(): SimulationOptions {
     randomSeed: byId<HTMLInputElement>("randomSeedInput").value,
     energyMode: byId<HTMLSelectElement>("energyModeInput").value as "configured" | "zero" | "full",
     critMode: (criticalSelection === "seeded-random-v1" ? "average" : criticalSelection) as "average" | "allCrit" | "noCrit",
-    compatibilityMode: currentConfig.timeline ? "legal-frame-v1" : "legacy-v0.1",
     execution: {
       captureHits: true,
       detailedTraces: byId<HTMLInputElement>("detailedTraceInput").checked,
       ...(criticalSelection === "seeded-random-v1" ? { criticalSampling: "seeded-random-v1" as const } : {}),
       ...(byId<HTMLInputElement>("checkpointInput").checked ? { checkpointFrames: Array.from({ length: Math.floor(durationFrames / cycleFrames) + 1 }, (_, i) => i * cycleFrames) } : {})
     },
-    ...(restoredRunOptions ?? {})
+    ...(restoredRunOptions ?? {}),
+    // A new calculation uses frames; stored historical results remain untouched.
+    compatibilityMode: "legal-frame-v1"
   };
 }
 

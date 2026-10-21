@@ -255,3 +255,11 @@ it('indexed trace IDs retain failed-add and child-order validation with identica
  }
  expect(Object.isFrozen(b.nodes[0])).toBe(true);
 });
+
+it('trusts recursively owned trace children but never external shallow-frozen objects',async()=>{
+ const {isImmutableTraceNode}=await import('../calculation-trace');
+ const input=traceInput('atk',12);const b=new TraceBuilder();b.add('hit','hit',expr.input('atk'),[input]);
+ const node=b.nodes[0]!;expect(isImmutableTraceNode(node)).toBe(true);expect(isImmutableTraceNode(node.inputs)).toBe(true);expect(isImmutableTraceNode(node.inputs[0]!)).toBe(true);
+ expect(isImmutableTraceNode(input)).toBe(false);expect(isImmutableTraceNode(Object.freeze({nested:{value:1}}))).toBe(false);
+ expect(()=>{(node.inputs[0] as any).value=99;}).toThrow();expect(node.inputs[0]!.value).toBe(12);
+});

@@ -460,7 +460,7 @@ function stringList(values: unknown, label: string): asserts values is string[] 
 }
 
 const immutableTraceNodes = new WeakSet<object>();
-/** Recognizes only roots cloned and recursively frozen by this module, not arbitrary frozen inputs. */
+/** Recognizes only objects cloned and recursively frozen by this module, including their children; never arbitrary frozen inputs. */
 export function isImmutableTraceNode(value: object): boolean { return immutableTraceNodes.has(value); }
 
 function immutableClone<T>(value: T): T {
@@ -469,10 +469,10 @@ function immutableClone<T>(value: T): T {
     if (object !== null && typeof object === "object") {
       for (const child of Object.values(object)) freeze(child);
       Object.freeze(object);
+      immutableTraceNodes.add(object);
     }
   };
   freeze(copy);
-  if (copy !== null && typeof copy === "object") immutableTraceNodes.add(copy);
   return copy;
 }
 

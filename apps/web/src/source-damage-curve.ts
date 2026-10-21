@@ -1,4 +1,5 @@
 import type {SourceHostResult} from '../../../packages/sim-core/src/source-host-wire';
+export const SOURCE_CURVE_FPS = 60; // Fixed gcsim time unit, not the game display/server frame rate.
 export type DamageDimension='actor'|'source'|'element'|'reaction';
 export interface CurveHit {id:number;calculationId:number;frame:number;damage:number;actor:string;source:string;element:string;reaction:string;ability:string}
 export interface CurveBuff {key:string;actorIndex:number;startFrame:number;endFrame:number;logIndices:number[];label:string}
@@ -8,7 +9,7 @@ const elements:Record<string,string>={pyro:'火',hydro:'水',cryo:'冰',electro:
 const reactions:Record<string,string>={melt:'融化（整次增幅命中）',vaporize:'蒸发（整次增幅命中）',aggravate:'超激化',spread:'蔓激化'};
 export function fixedDamageWindow(r:SourceHostResult){
  const w=r.observationWindow;
- return w&&w.endReason==='duration'&&w.actualEndFrame===w.configuredEndFrame&&w.configuredEndFrame>0&&r.applications.every(a=>Number.isFinite(a.frame))
+ return w&&w.endReason==='duration'&&w.actualEndFrame===w.configuredEndFrame&&w.configuredEndFrame>0&&r.applications.every(a=>Number.isInteger(a.frame))
   ?{endFrame:w.configuredEndFrame,applications:r.applications.filter(a=>a.frame>=0&&a.frame<w.configuredEndFrame)}:null;
 }
 export function buildSourceDamageCurve(r:SourceHostResult):CurveModel {
@@ -61,5 +62,14 @@ export function curveSeries(model:CurveModel,filters:Partial<Record<DamageDimens
  // Canonical window total retains original event accumulation order; avoid regrouping roundoff at the endpoint.
  if(points.length)points[points.length-1]!.cumulative=total;
  const breakdown=(dimension:DamageDimension)=>{const groups=new Map<string,{key:string;damage:number;hits:number}>();for(const h of selected){const k=h[dimension],g=groups.get(k)??{key:k,damage:0,hits:0};g.damage+=h.damage;g.hits++;groups.set(k,g);}return [...groups.values()].sort((a,b)=>b.damage-a.damage).map(g=>({...g,share:total===0?0:g.damage/total}));};
- return {total,selectedHits:selected.length,points,breakdown:{actor:breakdown('actor'),source:breakdown('source'),element:breakdown('element'),reaction:breakdown('reaction')}};
+ const events = selected.map((hit,index)=>({hit,index})).sort((a,b)=>a.hit.frame-b.hit.frame||a.index-b.index).map(({hit})=>hit);
+ return {total,events,selectedHits:selected.length,points,breakdown:{actor:breakdown('actor'),source:breakdown('source'),element:breakdown('element'),reaction:breakdown('reaction')}};
+}
+
+/** Event-driven staircase: two points at a hit frame, no interpolation across idle time. */
+export function cumulativeFrameSteps(events: readonly CurveHit[],startFrame:number,endFrame:number){
+ let value=events.filter(h=>h.frame<startFrame).reduce((sum,h)=>sum+h.damage,0);
+ const points=[{frame:startFrame,value}];
+ for(const h of events){if(h.frame<startFrame||h.frame>=endFrame)continue;points.push({frame:h.frame,value});value+=h.damage;points.push({frame:h.frame,value});}
+ points.push({frame:endFrame,value});return points;
 }
