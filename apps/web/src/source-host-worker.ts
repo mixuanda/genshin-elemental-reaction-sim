@@ -1,3 +1,4 @@
+import { summarizeSourceMonteTrial } from "./source-host-monte-carlo";
 import { createSourceHostFormulaResolver } from "../../../packages/sim-core/src/source-host-formula";
 import { createSourceHostResult } from "../../../packages/sim-core/src/source-host-capture";
 import { sourceHostReexecutionRequest, assertSourceHostReexecutionArtifact, verifySourceHostReexecution, type SourceHostReexecutionReceipt } from "../../../packages/sim-core/src/source-host-reexecution";
@@ -62,7 +63,7 @@ scope.onmessage = event => { void (async () => {
     progress("execute", "正在运行角色、装备与反应事件；伤害由共享公式结算…");
     const started = performance.now();
     const execute = (request: SourceHostRunRequest): SourceHostResult => {
-      stage = event.data.jobs || event.data.startupJobs ? "batch" : target ? "reexecution" : "execute";
+      stage = event.data.jobs || event.data.startupJobs || event.data.monteCarloJobs ? "batch" : target ? "reexecution" : "execute";
       if ((request.hostVariant === "stellar") !== stellar) throw new Error("一次对照必须使用同一来源执行器。");
       const resolver = createSourceHostFormulaResolver();
       const native = JSON.parse(runtime.gidpsSourceHostRun(JSON.stringify(request), resolver.resolve)) as unknown;
@@ -90,6 +91,20 @@ scope.onmessage = event => { void (async () => {
       const receipt = verifySourceHostReexecution(target, result);
       stage = "response";
       scope.postMessage({ type: "reexecution-result", receipt, elapsedMs: performance.now() - started });
+    } else if (event.data.monteCarloJobs) {
+      const { monteCarloJobs, ...baseRequest } = event.data;
+      for (const job of monteCarloJobs) {
+        scope.postMessage({ type: "monte-start", ...job });
+        await new Promise(resolve => setTimeout(resolve, 0));
+        const begin = performance.now();
+        const result = execute({ ...baseRequest, seed: job.seed });
+        const summary = summarizeSourceMonteTrial(result, job, performance.now() - begin);
+        const evidence = JSON.stringify({ applications: result.applications, energy: result.energyApplications, actions: result.abilityInvocations, randomness: result.randomness });
+        const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(evidence));
+        const eventSha256 = [...new Uint8Array(digest)].map(v => v.toString(16).padStart(2, "0")).join("");
+        scope.postMessage({ type: "monte-trial", trial: { ...summary, eventSha256 } });
+      }
+      scope.postMessage({ type: "monte-done" });
     } else if (event.data.startupJobs) {
       const startupRuns: SourceHostStartupRun[] = [];
       const labels = { zero: "零能", full: "满能", custom: "自定义能量" };

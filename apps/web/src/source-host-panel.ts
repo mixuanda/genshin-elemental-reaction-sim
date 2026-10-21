@@ -1,3 +1,4 @@
+import { renderSourceMonteCarloPanel } from "./source-host-monte-carlo-panel";
 import { renderSourceHostTargetSummaryPanel } from "./source-host-target-summary-panel";
 import { renderSourceHostResultOverview } from "./source-host-result-overview";
 import { renderSourceHostTargetPhasePanel } from "./source-host-target-phase-panel";
@@ -108,6 +109,7 @@ let savedStopAtDuration = false;
 let savedPrimaryTargetIndex = 0;
 let savedTargetPhasesText = "";
 let activeWorkerRun: SourceHostWorkerRunHandle | null = null;
+let montePanel: ReturnType<typeof renderSourceMonteCarloPanel> | undefined;
 let disposeInventory: (() => void) | undefined;
 const teamDrafts: Partial<Record<SourceHostVariant, SourceTeamDraft>> = {};
 let teamBuilder: ReturnType<typeof import("./source-team-builder").renderSourceTeamBuilder> | undefined;
@@ -121,10 +123,11 @@ export async function addSourceTeamRoster(members: SourceTeamMember[], inventory
   savedHostVariant = variant;
 }
 
-export function stopSourceHostRun(): void { activeWorkerRun?.cancel(); activeWorkerRun = null; }
+export function stopSourceHostRun(): void { montePanel?.cancel(); activeWorkerRun?.cancel(); activeWorkerRun = null; }
 export function disposeSourceHostPanel(): void { stopSourceHostRun(); disposeInventory?.(); disposeInventory = undefined; builderGeneration++; teamBuilder?.dispose(); teamBuilder = undefined; }
 
 export function renderSourceHostPanel(root: HTMLElement, openCalculator: (capture: SourceHostHitCapture | SourceHostPlayerIncomingCapture | SourceHostEnergyCapture | SourceHostCooldownCapture | SourceHostHealingCapture | SourceHostCharacterShieldCapture | SourceHostDrainCapture | SourceHostActionCollection | SourceHostEventCollection) => void): void {
+  montePanel?.cancel(); montePanel = undefined;
   disposeInventory?.();
   teamBuilder?.dispose(); teamBuilder = undefined;
   const mountedGeneration = ++builderGeneration;
@@ -154,7 +157,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     <p id="source-host-reexecution-status" role="status">当前结果尚未在本页面完成从头复跑核对。</p>
     </details>
     <details><summary>来源与能力边界</summary><p>源码注册不等于通过游戏验证。源内 TODO、缺失人物及各机制限制仍保留。共享公式返回玩家受击、护盾消耗、穿透最小值与生命比例；来源运行时保留事件、护盾顺序与生命上下限处理。</p><a href="/source-host/manifest.json" target="_blank" rel="noopener">b4ae769 源码、构建哈希、名册及许可</a> · <a href="/source-host-stellar/manifest.json" target="_blank" rel="noopener">a7dc4bf 独立源码、哈希及许可</a></details></article>
-    <div id="source-host-batch"></div><div id="source-host-startup"></div><div id="source-host-result"></div><div id="source-host-inventory"></div>`;
+    <div id="source-host-monte"></div><div id="source-host-batch"></div><div id="source-host-startup"></div><div id="source-host-result"></div><div id="source-host-inventory"></div>`;
   const config = root.querySelector<HTMLTextAreaElement>("#source-host-config")!, seed = root.querySelector<HTMLInputElement>("#source-host-seed")!;
   const hostVariant = root.querySelector<HTMLSelectElement>("#source-host-variant")!;
   const executionMode = root.querySelector<HTMLSelectElement>("#source-host-execution-mode")!;
@@ -234,6 +237,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     onRun: startupJobs => startRun({ ...getRequest(), startupJobs }),
     onOpenResult: result => { savedResult = result; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false; renderResult(result); status.textContent = `已打开起步对照结果：种子 ${result.seed}；实际起步能量保存在本条结果中。`; },
   });
+  montePanel = renderSourceMonteCarloPanel(root.querySelector<HTMLElement>("#source-host-monte")!, { getRequest, onBusy: busy => setBusy(busy) });
   let builderMount = 0;
   function mountBuilder(): void {
     const attempt = ++builderMount, variant = savedHostVariant;
@@ -291,7 +295,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   });
   }
   mountInventory();
-  const setBusy = (busy: boolean) => { sourceRunBusy = busy; run.disabled = busy || swapBlocked; cancel.disabled = !busy; batch.setBusy(busy); startup.setBusy(busy); reexecuteButton.disabled = busy || !savedResult; importInput.disabled = busy; };
+  const setBusy = (busy: boolean) => { sourceRunBusy = busy; run.disabled = busy || swapBlocked; cancel.disabled = !busy; batch.setBusy(busy); startup.setBusy(busy); montePanel?.setBusy(busy); reexecuteButton.disabled = busy || !savedResult; importInput.disabled = busy; };
   const renderResult = (result: SourceHostResult): void => {
     teamBuilder?.renderExecutionLogs((result.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === savedHostVariant ? result.logs : undefined,
       (result.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === savedHostVariant ? result.statusInstances : undefined,
@@ -428,6 +432,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
           }
         },
         onMessage: message => {
+          if (message.type === "monte-start" || message.type === "monte-trial" || message.type === "monte-done") return;
           activeWorkerRun = null; setBusy(false); diagnosticHost.hidden = true;
           if (message.type === "reexecution-result") {
             reexecutionReceipt = message.receipt; exportReexecution.disabled = false;

@@ -367,7 +367,14 @@ function runDamage(request: SourceHostDamageRequest, components: SourceHostCalcu
 }
 
 /** Pure arithmetic, with the actual source RNG outcome and no native fallback. */
+// Only the append-only, private lookup owned by a live resolver is memoized.
+// Public replay/edit lookups remain uncached and continue validating mutations.
+const liveResolverMemos = new WeakMap<SourceHostCalculationLookup, WeakMap<object, SourceHostCalculation>>();
 export function resolveSourceHostRequest(raw: unknown, components: SourceHostCalculationLookup = new Map(), options: { explicitFinalScaling?: boolean; weaponEdit?: SourceHostWeaponEditOverride; artifactEdit?: SourceHostWeaponEditOverride; drainMemo?: Map<number, SourceHostCalculation> } = {}): SourceHostCalculation {
+  if (!options.explicitFinalScaling && !options.weaponEdit && !options.artifactEdit && typeof raw === "object" && raw !== null && Object.isFrozen(raw)) {
+    const prior = liveResolverMemos.get(components)?.get(raw);
+    if (prior) return prior;
+  }
   const request = sourceHostCalculationRequestSchema.parse(raw);
   const drainMemo = options.drainMemo ?? new Map<number, SourceHostCalculation>();
   if (request.kind === "character-drain") {
@@ -1189,10 +1196,19 @@ export function resolveSourceHostRequest(raw: unknown, components: SourceHostCal
 }
 
 /** One resolver per run. The returned number is used by Go for actual callbacks/HP. */
-export function createSourceHostFormulaResolver() {
+export function createSourceHostFormulaResolver(options: { memoize?: boolean } = {}) {
   const calculations: SourceHostCalculation[] = [];
   const records = new Map<number, SourceHostCalculationRecord>();
   const drainMemo = new Map<number, SourceHostCalculation>();
+  const memo = new WeakMap<object, SourceHostCalculation>();
+  const frozen = new WeakSet<object>();
+  const freeze = (value: unknown): void => {
+    if (value === null || typeof value !== "object" || frozen.has(value)) return;
+    frozen.add(value);
+    for (const child of Object.values(value)) freeze(child);
+    Object.freeze(value);
+  };
+  if (options.memoize !== false) liveResolverMemos.set(records, memo);
   return {
     calculations,
     resolve(requestJson: string): string {
@@ -1202,6 +1218,10 @@ export function createSourceHostFormulaResolver() {
         if (typeof request === "object" && request !== null && "id" in request && typeof request.id === "number") id = request.id;
         const result = resolveSourceHostRequest(request, records, { drainMemo });
         if (records.has(result.request.id)) throw new Error(`重复来源计算 ID ${result.request.id}`);
+        if (options.memoize !== false) {
+          freeze(result);
+          memo.set(result.request, result);
+        }
         calculations.push(result);
         records.set(result.request.id, result);
         return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });

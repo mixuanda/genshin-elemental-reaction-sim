@@ -17,7 +17,7 @@ export interface SourceHostDiagnosticReceipt {
   failure: { kind: SourceHostFailureKind; stage: SourceHostWorkerStage; code: string; name?: string; message: string; stack?: string | undefined };
   worker: { timeoutMs: number; elapsedMs: number; lastProgress?: string };
   input: {
-    requestKind: "single" | "batch" | "startup" | "reexecution";
+    requestKind: "single" | "batch" | "startup" | "reexecution" | "monte-carlo";
     seed?: string;
     configSha256?: string;
     configBytes?: number;
@@ -33,6 +33,9 @@ export interface SourceHostDiagnosticReceipt {
 }
 
 export type SourceHostWorkerMessage =
+  | { type: "monte-start"; index: number; seed: string }
+  | { type: "monte-trial"; trial: import("./source-host-monte-carlo").SourceMonteTrial }
+  | { type: "monte-done" }
   | { type: "progress"; message: string; stage?: SourceHostWorkerStage }
   | { type: "result"; result: SourceHostResult; elapsedMs: number }
   | { type: "reexecution-result"; receipt: SourceHostReexecutionReceipt; elapsedMs: number }
@@ -86,7 +89,7 @@ export async function createSourceHostDiagnostic(input: {
   const variant = request.hostVariant === "stellar" ? "stellar" : "classic";
   const config = configText(request);
   const configHash = config ? await hashText(config) : undefined;
-  const operationKind = request.reexecutionTarget ? "reexecution" : request.startupJobs ? "startup" : request.jobs ? "batch" : "single";
+  const operationKind = request.reexecutionTarget ? "reexecution" : request.startupJobs ? "startup" : request.jobs ? "batch" : request.monteCarloJobs ? "monte-carlo" : "single";
   const durationMatch = config.match(/\bduration\s*=\s*([0-9]+(?:\.[0-9]+)?)/i);
   const jobs = request.jobs ? await Promise.all(request.jobs.slice(0, 256).map(async job => {
     const jobHash = await hashText(job.request.config);
