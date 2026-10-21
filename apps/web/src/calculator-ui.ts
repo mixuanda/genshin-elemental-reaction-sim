@@ -204,6 +204,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   const invalidFields = new Set<string>();
   const characterDrafts = new Map<string, CalculatorDocument>();
   const actionDrafts = new Map<string, CalculatorDocument>();
+  // A temporary action without Q context must not erase explicitly entered Noelle history.
+  const noelleContextDrafts = new Map<string, NonNullable<NonNullable<CalculatorDocument["gameContext"]>["noelleBurst"]>>();
   let selectedForm = "";
   let equipmentControls: { refreshCharacter(): void; getInput(): EquipmentBuildInput; setInput(input: EquipmentBuildInput): void } | null = null;
 
@@ -392,7 +394,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       ++selectionRequest;
       current = null; currentResult = null; capturedHit = null; characterId = ""; candidateDocuments = [];
       importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
-      characterDrafts.clear(); actionDrafts.clear(); equipmentDrafts.clear(); invalidFields.clear();
+      characterDrafts.clear(); actionDrafts.clear(); noelleContextDrafts.clear(); equipmentDrafts.clear(); invalidFields.clear();
       equipmentControls = null;
       get("#calc-equipment-controls").innerHTML = "<legend>装备基础推导</legend>";
       get<HTMLSelectElement>("#calc-character").innerHTML = '<option value="">选择当前工作区角色</option>' + workspace.index.characters.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
@@ -588,6 +590,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (!current || !characterId || current.dataIdentity.releaseStatus === "synthetic" || [...invalidFields].some(field => field !== CHARACTER_RESOURCE_DRAFT_FIELD && field !== COORDINATED_SCHEDULE_DRAFT_FIELD && field !== HELD_LIFECYCLE_DRAFT_FIELD && !sourceDraftHandlers.some(handler => handler.field === field))) return;
     rememberEquipment(current);
     characterDrafts.set(characterId, clone(current));
+    if (current.gameContext?.noelleBurst) noelleContextDrafts.set(characterId, clone(current.gameContext.noelleBurst));
     actionDrafts.set(actionKey(current), clone(current));
   }
 
@@ -611,7 +614,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     else if (buildDraft?.incomingThrillingTales) next.incomingThrillingTales = { ...clone(buildDraft.incomingThrillingTales), hitStates: {} };
     next = prepareIncomingThrillingTales(next);
     if (next.gameContext?.noelleBurst) {
-      const previous = actionDraft?.gameContext?.noelleBurst ?? buildDraft?.gameContext?.noelleBurst;
+      const previous = actionDraft?.gameContext?.noelleBurst ?? buildDraft?.gameContext?.noelleBurst ?? noelleContextDrafts.get(characterId);
       if (previous) next.gameContext.noelleBurst = clone(previous);
       if (next.gameContext.skillId === "noelle-burst-cast") next.gameContext.noelleBurst.active = true;
       if (next.build.mode === "equipment-derived" && !previous) next.gameContext.noelleBurst.accounting = "add-to-panel";

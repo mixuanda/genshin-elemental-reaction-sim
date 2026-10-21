@@ -125,8 +125,10 @@ test("Noelle sourced Q to N rotation records actual conversion, delayed energy a
     energyEvents: { frame: number; logs: { pre_drain?: number; post_drain?: number; max_energy: number } }[];
   };
   await page.goto("/rotation");
+  await page.locator("#rotation-source-examples > summary").click();
   await page.locator("#rotation-source-noelle-burst-normal > summary").click();
   await page.locator("#rotation-load-source-noelle-burst-normal").click();
+  await page.locator("#rotation-advanced-controls > summary").click();
   await expect(page.locator("[data-noelle-active-assumptions]")).toBeVisible();
   await expect(page.locator("[data-noelle-active-assumptions]")).toContainText("TODO");
   await expect(page.locator("#rotation-list li")).toHaveCount(5);
