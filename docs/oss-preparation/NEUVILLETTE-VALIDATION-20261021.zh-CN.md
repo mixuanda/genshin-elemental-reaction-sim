@@ -28,4 +28,8 @@ node node_modules/vitest/vitest.mjs run --exclude packages/sim-core/src/__tests_
 
 `before.json`、`targeted.json` 保留原失败与修复后断言；`browser.log`/`browser-output` 保留原生失败捕获，`browser-independent-verified.log` 是独立入口最终通过结果。早期浏览器尝试包含折叠详情未展开、默认天赋 10 的测试配置错误，未修改产品数值来适配它们。构建首次发现新测试缺少非空类型断言，修复后构建及最终类型检查通过。完整单测差集见 `regression-comparison.json`，浏览器新发现的原生失败单独计数，不能混成全绿。
 
-历史结果保留可读/导出，不改变 schema 身份，不静默重算；旧 Golden、EC 契约和历史格式失败未删断言。没有推送、合并、部署或更改根许可证。
+本轮不更改历史读取/导出代码、不覆盖旧数据、不改变 schema 身份、不静默重算；保留旧结果可读/可导出仍是兼容原则，并不表示现有历史格式测试已全部通过。旧 Golden、EC 契约和历史格式失败未删断言。没有推送、合并、部署或更改根许可证。
+
+## 最终同口径回归
+
+`2834 pass / 89 fail / 2923 tests / 375 files`，耗时 622.79 秒。对比 `85d1a5a` 的 2828/90：修复旧 HP/DEF/混合属性保留测试 1 项，新增 5 项全部通过；新增单测失败 0、删除测试 0。剩余消费者 11、历史格式 45、Golden 身份/顺序 24、EC 来源契约 9。排除项仍只有 performance.test.ts，与基线一致。原生 120 秒浏览器新失败另计 1 项，独立入口浏览器最终通过 1 项。完整回归命令退出码 1，不能称全通过。
