@@ -3362,10 +3362,9 @@ async function importShowcase(): Promise<void> {
       "请选择一名展示角色建立毕业站位占位。占位不会自动编造圣遗物词条。";
     renderShowcase();
   } catch (error) {
-    importedShowcase = null;
-    renderShowcase();
     status.textContent =
-      error instanceof Error ? `导入失败：${error.message}` : "导入失败。";
+      (error instanceof Error ? `导入失败：${error.message}` : "导入失败。") +
+      (importedShowcase ? " 已保留上次成功导入的展示柜与选择；它不是本次刷新结果。" : "");
   } finally {
     button.disabled = false;
   }
