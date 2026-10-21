@@ -117,7 +117,7 @@ function makePropagationConfig({
 
 
 import { ARTIFACT_BUFF_SOURCE } from '@genshin-dps-lab/reaction-formulas';
-import { directHitStepWitnessSink, verifyDirectHitStepWitness, type DirectHitStepObservation } from '../direct-hit-step-witness';
+import { directHitStepWitnessSink, verifyDirectHitStepWitness, verifyPropagationStepWitness, type DirectHitStepObservation } from '../direct-hit-step-witness';
 const observations:DirectHitStepObservation[]=[];
 beforeAll(()=>{
  for(const [artifact,hitlag] of [[false,false],[true,false],[false,true],[true,true]]){
@@ -167,4 +167,46 @@ it('keeps diagnostic observers detached from production numbers and JSON',()=>{
  }});
  expect(called).toBe(true);expect(observed).toEqual(baseline);
  expect(JSON.stringify(observed)).toBe(JSON.stringify(baseline));
+});
+
+it.each([0,1,2,3])('validates actual P5 candidate, application and non-allocating hit operations %i',i=>{
+ const o=observations[i]!;
+ expect(o.propagationEvents.length).toBeGreaterThan(0);
+ verifyPropagationStepWitness(o);
+ const operations=o.propagationEvents[0]!.operations;
+ expect(operations.some((op,index)=>op.operation==='observe-hit'&&operations[index+1]?.sequence===op.sequence)).toBe(true);
+});
+it.each([
+ ['missing event',(o:DirectHitStepObservation)=>{o.propagationEvents.pop();}],
+ ['duplicate event',(o:DirectHitStepObservation)=>{o.propagationEvents.push(o.propagationEvents[0]!);}],
+ ['wrong source actor',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.sourceActorId='other';}],
+ ['wrong source target',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.sourceTargetId='other';}],
+ ['wrong trigger',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.triggerDamageEventId=9999;}],
+ ['wrong event queue',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.eventSequence++;}],
+ ['missing candidate',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.operations.shift();}],
+ ['reordered operations',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.operations.reverse();}],
+ ['invented cursor offset',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.operations.find(op=>op.operation==='observe-hit')!.sequence++;}],
+ ['cross-target hit',(o:DirectHitStepObservation)=>{const op=o.propagationEvents[0]!.operations.find(op=>op.operation==='observe-hit')!;if(op.operation==='observe-hit')op.targetId='other';}],
+ ['unknown allocation',(o:DirectHitStepObservation)=>{const op=o.propagationEvents[0]!.operations[0]!;if(op.operation==='allocate')op.site={kind:'unclassified'};}],
+ ['missing hit observation',(o:DirectHitStepObservation)=>{const e=o.propagationEvents[0]!;e.operations=e.operations.filter(op=>op.operation!=='observe-hit');}],
+ ['wrong allocation count',(o:DirectHitStepObservation)=>{o.propagationEvents[0]!.allocationCount++;}],
+] as const)('rejects P5 %s',(_,mutate)=>{
+ const o=structuredClone(observations[3]!);mutate(o);
+ expect(()=>verifyPropagationStepWitness(o)).toThrow('Propagation step witness');
+});
+
+it.each([6,32])('witnesses every candidate and selected delivery for %i registered targets',count=>{
+ const targets:EnemyTargetProfile[]=Array.from({length:count},(_,i)=>({id:i===0?SOURCE_ID:`target-${i}`,name:`Target ${i}`,position:{x:i===0?0:i===2?10:1,y:0},resistance:.1,...(i===1?{}:{initialAura:[{element:'hydro' as const,gaugeUnits:1}]})}));
+ const config=makePropagationConfig({targets});
+ let observation:DirectHitStepObservation|undefined;
+ expect(()=>simulate(config,{critMode:'noCrit',[directHitStepWitnessSink]:o=>{observation=o;}})).toThrow('Trusted reaction-delivery');
+ const o=observation!;
+ verifyPropagationStepWitness(o);
+ const parent=o.result.reactionDamageLog.find(r=>r.electroChargedPropagation)!;
+ expect(parent.electroChargedPropagation!.candidates).toHaveLength(count);
+ expect(parent.electroChargedPropagation!.candidates[1]!.reason).toBe('NO_HYDRO_AURA');
+ expect(parent.electroChargedPropagation!.candidates[2]!.reason).toBe('OUT_OF_RANGE');
+ expect(parent.electroChargedPropagation!.candidates.filter(c=>c.selected)).toHaveLength(count-2);
+ const changed=structuredClone(o);changed.propagationEvents[0]!.operations.splice(2,1);
+ expect(()=>verifyPropagationStepWitness(changed)).toThrow('Propagation step witness');
 });

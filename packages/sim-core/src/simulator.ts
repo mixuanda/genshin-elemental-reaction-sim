@@ -1,4 +1,4 @@
-import { directHitStepWitnessSink, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
+import { directHitStepWitnessSink, type PropagationStepEvent, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
 import { EnemyShieldHost, type EnemyShieldPhaseTask } from "./enemy-shield-host";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { WeaponHitStackRuntime, type WeaponHitStackRuntimeDecision } from "./weapon-hit-stack-runtime";
@@ -2961,6 +2961,7 @@ function simulateConfig(
   let sequence = 0;
   let executingEvent: Pick<InternalEvent, "frame" | "priority" | "sequence"> | undefined;
   const directHitStepEvents: DirectHitStepEvent[] = [];
+  const propagationStepEvents: PropagationStepEvent[] = [];
   let nextExecutionIntraSequence = (_site?: DirectHitStepSite): number => 0;
   let freezeBrokenCallbackTaskSequence = 1_000_000_000;
   const freezeBrokenCallbackCountByTriggerSequence = new Map<number, number>();
@@ -10095,11 +10096,13 @@ function simulateConfig(
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
     let intraEventSequence = 0;
+    let observedPropagation: PropagationStepEvent | undefined;
     const observedSteps: DirectHitStepEvent | undefined = runtimeOptions[directHitStepWitnessSink] !== undefined && event.type === "hit"
       ? {frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,allocationCount:0,steps:[]} : undefined;
     if (observedSteps) directHitStepEvents.push(observedSteps);
     const nextIntraEventSequence = (site?: DirectHitStepSite): number => {
       const allocated = intraEventSequence++;
+      if(observedPropagation) { observedPropagation.operations.push({operation:'allocate',sequence:allocated,site:site ?? {kind:'unclassified'}}); observedPropagation.allocationCount=intraEventSequence; }
       if (observedSteps) { if(site?.kind==='hit-resolution') observedSteps.hitResolutionLogId=site.id; observedSteps.steps.push({sequence:allocated,site:site ?? {kind:'unclassified'}}); observedSteps.allocationCount=intraEventSequence; }
       return allocated;
     };
@@ -13998,6 +14001,12 @@ function simulateConfig(
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
       if (!sourceActor || !reactionLog) continue;
+      if(runtimeOptions[directHitStepWitnessSink] !== undefined && targetingMode === 'electro-charged-nearby-wet') {
+        observedPropagation={frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,
+          reactionDamageLogId,sourceActorId:actorId,sourceTargetId,triggerDamageEventId,
+          allocationCount:intraEventSequence,operations:[]};
+        propagationStepEvents.push(observedPropagation);
+      }
       const burningRootInlineDeliveryState =
         burningRootInlineDeliveryByReactionDamageLogId.get(
           reactionDamageLogId
@@ -14138,7 +14147,7 @@ function simulateConfig(
                 eventPriority: event.priority,
                 eventSequence: event.sequence,
                 intraEventSequence:
-                  nextIntraEventSequence(),
+                  nextIntraEventSequence({kind:'propagation-candidate',reactionDamageLogId,targetId:target.id}),
                 reaction: "electroCharged",
                 reactions: ["electroCharged"],
                 primaryDamageEventId: null,
@@ -14588,6 +14597,7 @@ function simulateConfig(
                         action.sourceAbilityId
                     })
               };
+            if(observedPropagation) observedPropagation.operations.push({operation:'observe-hit',sequence:intraEventSequence,hitResolutionLogId:targetResolutionId,targetId:plan.targetId});
             hitResolutionLog.push(targetResolution);
             reactionHitResolutionLogIds.push(targetResolutionId);
             reactionLog.hitResolutionLogIds.push(targetResolutionId);
@@ -14835,7 +14845,7 @@ function simulateConfig(
                 eventType: event.type,
                 eventPriority: event.priority,
                 eventSequence: event.sequence,
-                intraEventSequence: nextIntraEventSequence(),
+                intraEventSequence: nextIntraEventSequence(electroChargedPropagationAudit !== null ? {kind:'propagation-application',reactionDamageLogId,targetId:plan.targetId,damageEventId:pendingReactionDamageEventId} : undefined),
                 reaction:
                   electroChargedPropagationAudit !== null
                     ? "electroCharged"
@@ -18804,7 +18814,7 @@ function simulateConfig(
   }
   // Diagnostic observer receives detached values before the unchanged public gate.
   // It cannot mutate the result, bypass validation or add fields to persisted output.
-  runtimeOptions[directHitStepWitnessSink]?.({events:deepClone(directHitStepEvents.filter(e=>e.allocationCount>0)),result:deepClone(simulationResult)});
+  runtimeOptions[directHitStepWitnessSink]?.({events:deepClone(directHitStepEvents.filter(e=>e.allocationCount>0)),propagationEvents:deepClone(propagationStepEvents),result:deepClone(simulationResult)});
   assertTrustedReactionDeliveryResultReferences({
     schemaVersion: simulationResult.schemaVersion,
     engineVersion: simulationResult.engineVersion,
