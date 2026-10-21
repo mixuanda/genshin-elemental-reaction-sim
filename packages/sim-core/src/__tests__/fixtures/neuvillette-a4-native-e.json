@@ -1,0 +1,58 @@
+{
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "wasmSha256": "8e159a65991824908ecfa1226ae18a18c87b1956f9458dc7257bd97b249322f6",
+  "cases": [
+    {
+      "captureSha256": "97a2110edfef0263ec35c2df9d7dc829f8ce46d72d3ecfdda19ca55c8c299cb2",
+      "seed": "12021",
+      "frame": 24,
+      "calculationId": 5,
+      "actualHpRatio": 1,
+      "maxHp": 14695.093175999998,
+      "critRate": 0.05,
+      "critDamage": 0.884,
+      "isCrit": false,
+      "damageBonus": 0.3,
+      "rawDamage": 1105.8704199039744
+    },
+    {
+      "captureSha256": "97a2110edfef0263ec35c2df9d7dc829f8ce46d72d3ecfdda19ca55c8c299cb2",
+      "seed": "12021",
+      "frame": 848,
+      "calculationId": 82,
+      "actualHpRatio": 0.6,
+      "maxHp": 14695.093175999998,
+      "critRate": 0.05,
+      "critDamage": 0.884,
+      "isCrit": false,
+      "damageBonus": 0.18,
+      "rawDamage": 1003.7900734512997
+    },
+    {
+      "captureSha256": "38e5d59c95c6150d93bd4bd1faf39093d0116e687e290f20780e436632390496",
+      "seed": "12021",
+      "frame": 24,
+      "calculationId": 5,
+      "actualHpRatio": 0.20414977734878162,
+      "maxHp": 14695.093175999998,
+      "critRate": 0.05,
+      "critDamage": 0.884,
+      "isCrit": false,
+      "damageBonus": 0,
+      "rawDamage": 850.6695537722879
+    },
+    {
+      "captureSha256": "38e5d59c95c6150d93bd4bd1faf39093d0116e687e290f20780e436632390496",
+      "seed": "12021",
+      "frame": 848,
+      "calculationId": 77,
+      "actualHpRatio": 0.44414977734878164,
+      "maxHp": 14695.093175999998,
+      "critRate": 0.05,
+      "critDamage": 0.884,
+      "isCrit": false,
+      "damageBonus": 0.08648986640926899,
+      "rawDamage": 924.2438498364857
+    }
+  ]
+}
