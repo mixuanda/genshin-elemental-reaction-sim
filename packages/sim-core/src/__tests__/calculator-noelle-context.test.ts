@@ -15,6 +15,22 @@ const hit = (document: CalculatorDocument, index = 0): Extract<CalculatorHit, { 
 const node = (document: CalculatorDocument, id: string) => calculateDocument(document).hits[0]!.trace.find(entry => entry.id === id);
 
 describe("Noelle conditioned Q historical DEF conversion and infusion", () => {
+  it("retains independent charged and collision inputs without inventing an observed full action", () => {
+    for (const skillId of ["noelle-charged-cycle", "noelle-charged-finisher", "noelle-plunge-collision"]) {
+      const document = get(skillId);
+      expect(document.hits).toHaveLength(1);
+      expect(document.gameContext!.scopeCoverage).toBe("selected-components");
+      expect(calculateDocument(document).status).toBe("calculated");
+      expect(hit(document).heldLifecycleEvent).toBeUndefined();
+      expect(hit(document).noellePlungeEvent).toBeUndefined();
+    }
+    for (const skillId of ["held-noelle-charged-c0", "noelle-plunge-low-observed-c0"]) {
+      const unobserved = get(skillId);
+      expect(calculateDocument(unobserved).status).toBe("blocked");
+      expect(calculateDocument(unobserved).totals).toBeUndefined();
+    }
+  });
+
   it("keeps Q talent independent, applies C6 flat ATK from non-Extra history and never resamples current DEF", () => {
     let document = get("noelle-normal-1");
     const normalCoefficient = hit(document).terms[0]!.coefficient;

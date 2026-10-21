@@ -106,6 +106,6 @@ export const replacedHeldLifecyclePartialMappingIds = new Set([
   "lumine-pyro-skill-hold-initial-holdDMG",
   "aether-pyro-skill-scorching-trigger-scorchingThreshold",
   "lumine-pyro-skill-scorching-trigger-scorchingThreshold",
-  "noelle-charged-cycle-hit",
-  "noelle-charged-finisher-hit",
+  // Noelle single-hit components remain selectable alongside the observed full hold.
+  // They keep completeAction=false and never infer hold duration or hit count.
 ]);
