@@ -52,3 +52,7 @@
 证据目录：`/workspace/GIDPS-cloud/consumer-batch-20261021`。`before.json` 是修改前完整结果，`after.json` 是修改后完整结果，`a4-full-comparison.json` 与 `regression-comparison.json` 保存逐项差集。`targeted.json` 保留中间失败（包括复合测试暴露下一条旧契约），`explanations.json` 是最终说明用例结果，`browser.log` 为 3/3 入口通过。
 
 固定 b4 草旅行者源码与固定 a7 奥黛塔源码分别保留哈希和原 MIT/AGPL 许可。源码子集仅用于这次审查，不称整仓许可已解决。Classic WASM 未再次变更；Stellar 仍未重建。仅 Linux Chromium，未实测 Windows。没有 push、合并、生产发布或新增凭据。
+
+## 最终回归差集
+
+**2844 pass / 86 fail / 2930 tests / 378 files**，618.36 秒，退出码 1。相对本轮 2838/89 基线，三项旧失败转为通过（三种说明/映射综合测试），新增三项独立入口核心用例全部通过；新增失败 0、删除测试 0。剩余消费者 8、历史格式 45、Golden 24、EC 来源契约 9。奥黛塔四段入口修复后原复合用例继续在伊安珊旧身份处失败，未计为整项通过。构建（含类型检查）、数据检查及浏览器 3/3 均通过。两次完整回归均只排除原有 performance.test.ts，未改变口径。
