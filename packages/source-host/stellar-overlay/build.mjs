@@ -509,7 +509,7 @@ manifest.files.push(record(join(staged, 'inventory-metadata.json'), 'inventory-m
 writeFileSync(join(staged, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 for (const destination of [outputDir, publicDir]) {
   mkdirSync(destination, { recursive: true });
-  for (const name of ['source-host.wasm', 'wasm_exec.js', 'manifest.json', 'inventory-metadata.json', 'talent-table-registry.json', 'talent-read-instrumentation.json']) {
+  for (const name of ['source-host.wasm', 'wasm_exec.js', 'go-build-info.txt', 'manifest.json', 'inventory-metadata.json', 'talent-table-registry.json', 'talent-read-instrumentation.json']) {
     const target = join(destination, name);
     if (existsSync(target)) chmodSync(target, 0o644);
     copyFileSync(join(staged, name), target);
@@ -521,5 +521,4 @@ for (const destination of [outputDir, publicDir]) {
     copyFileSync(join(licenses, name), target);
   }
 }
-copyFileSync(join(staged, 'go-build-info.txt'), join(outputDir, 'go-build-info.txt'));
 console.log(JSON.stringify({ sourceCommit: pins.sourceRevision, verifiedBlobCount, wasm: manifest.files[0], manifest: join(outputDir, 'manifest.json') }, null, 2));
