@@ -3,9 +3,9 @@
   "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
   "scope": "pinned-source-provisional-conditioned-hit-fields",
   "charactersWithHits": 124,
-  "classifiedHits": 1271,
+  "classifiedHits": 1274,
   "completeActions": 713,
-  "partialActions": 24,
+  "partialActions": 27,
   "blockedMappings": 0,
   "standaloneSpecialComponents": {
     "count": 8,
@@ -288,9 +288,9 @@
       "name": "诺艾尔",
       "slug": "noelle",
       "releasePatch": "1.0",
-      "hits": 15,
+      "hits": 18,
       "completeActions": 11,
-      "partialActions": 0,
+      "partialActions": 3,
       "blockedMappings": 0
     },
     {
