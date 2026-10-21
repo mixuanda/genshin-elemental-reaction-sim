@@ -227,7 +227,7 @@ for (const name of filesBelow(stagedOutput)) {
   copyFileSync(join(stagedOutput, name), destination);
   chmodSync(destination, 0o644);
 }
-const publicNames = filesBelow(stagedOutput).filter((name) => ['source-host.wasm', 'wasm_exec.js', 'manifest.json', 'inventory-metadata.json', 'talent-table-registry.json', 'talent-read-instrumentation.json'].includes(name) || name.startsWith('licenses/'));
+const publicNames = filesBelow(stagedOutput).filter((name) => ['source-host.wasm', 'wasm_exec.js', 'go-build-info.txt', 'manifest.json', 'inventory-metadata.json', 'talent-table-registry.json', 'talent-read-instrumentation.json'].includes(name) || name.startsWith('licenses/'));
 for (const name of publicNames) {
   const destination = join(publicDir, name);
   mkdirSync(dirname(destination), { recursive: true });
