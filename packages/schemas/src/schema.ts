@@ -26707,9 +26707,18 @@ export function hasAcceptedAfterFrameHitSource(
   return !summonOwners.some(summon => summon.spawnFrame + summon.lifetimeFrames + summon.expiryAttackDelayFrames !== 0);
 }
 
+/** Internal cross-facet positions, built only after full event-witness replay.
+ * Never deserialize these maps or use them as evidence on their own. */
+export interface ReactionStepPositions {
+  hit:ReadonlyMap<number,number>;
+  application:ReadonlyMap<number,number>;
+  hitlag:ReadonlyMap<number,number>;
+}
+
 export function validateReactionDeliveryResultReferences(
   result: ReactionDeliveryResultReferencesValue,
-  context: z.RefinementCtx<ReactionDeliveryResultReferencesValue>
+  context: z.RefinementCtx<ReactionDeliveryResultReferencesValue>,
+  stepPositions?: ReactionStepPositions
 ): void {
     const issue = (
       path: Array<string | number>,
@@ -27646,8 +27655,8 @@ export function validateReactionDeliveryResultReferences(
             hit.eventSequence !== hitlag.eventSequence ||
             hit.intraEventSequence === undefined ||
             hitlag.intraEventSequence !==
-              hit.intraEventSequence +
-                (hit.landed ? 1 : 0) ||
+              (stepPositions ? stepPositions.hitlag.get(hit.id) : hit.intraEventSequence +
+                (hit.landed ? 1 : 0)) ||
             hit.targetId !== hitlag.targetId ||
             hit.targetName !== hitlag.targetName ||
             hit.sourceActorId !== hitlag.sourceActorId ||
@@ -28682,7 +28691,7 @@ export function validateReactionDeliveryResultReferences(
           triggerApplicationPoint.eventSequence !==
             triggerHitResolution?.eventSequence ||
           triggerApplicationPoint.intraEventSequence !==
-            triggerHitResolution?.intraEventSequence ||
+            (stepPositions ? stepPositions.application.get(triggerDamageEvent?.id ?? -1) : triggerHitResolution?.intraEventSequence) ||
           triggerApplicationPoint.reaction !==
             "electroCharged" ||
           triggerApplicationPoint.reactions.length !== 1 ||
@@ -28911,9 +28920,12 @@ export function validateReactionDeliveryResultReferences(
                 undefined &&
               hitResolution.sourceActorFacingDegrees ===
                 triggerHitResolution.sourceActorFacingDegrees;
-            const expectedApplicationIntraEventSequence =
-              propagationAudit.candidates.length +
-              selectedIndex;
+            const expectedApplicationIntraEventSequence = stepPositions
+              ? stepPositions.application.get(damageEventId ?? -1)
+              : propagationAudit.candidates.length + selectedIndex;
+            const expectedHitIntraEventSequence = stepPositions
+              ? stepPositions.hit.get(hitResolutionLogId ?? -1)
+              : expectedApplicationIntraEventSequence! + 1;
             if (
               hitResolution === undefined ||
               hitResolution.id !== hitResolutionLogId ||
@@ -28923,7 +28935,7 @@ export function validateReactionDeliveryResultReferences(
               hitResolution.timeSeconds !==
                 entry.damageFrame / 60 ||
               hitResolution.intraEventSequence !==
-                expectedApplicationIntraEventSequence + 1 ||
+                expectedHitIntraEventSequence ||
               hitResolution.sourceActorId !==
                 entry.sourceActorId ||
               triggerDamageEvent === undefined ||
@@ -29196,7 +29208,7 @@ export function validateReactionDeliveryResultReferences(
               applicationPoint.intraEventSequence !==
                 expectedApplicationIntraEventSequence ||
               hitResolution?.intraEventSequence !==
-                expectedApplicationIntraEventSequence + 1 ||
+                expectedHitIntraEventSequence ||
               applicationPoint.reaction !==
                 "electroCharged" ||
               applicationPoint.reactions.length !== 1 ||
@@ -31557,7 +31569,8 @@ export function validateReactionDeliveryResultReferences(
  * before invoking this exact same cross-log refinement.
  */
 export function assertTrustedReactionDeliveryResultReferences<T>(
-  result: T
+  result: T,
+  stepPositions?: ReactionStepPositions
 ): T {
   const trustedResult =
     result as unknown as ReactionDeliveryResultReferencesValue;
@@ -31581,7 +31594,8 @@ export function assertTrustedReactionDeliveryResultReferences<T>(
 
   validateReactionDeliveryResultReferences(
     trustedResult,
-    context
+    context,
+    stepPositions
   );
   if (issues.length !== 0) {
     throw new Error(
@@ -31594,6 +31608,10 @@ export function assertTrustedReactionDeliveryResultReferences<T>(
     );
   }
   return result;
+}
+
+export function reactionDeliveryReferencesWithSteps(stepPositions:ReactionStepPositions) {
+  return reactionDeliveryResultReferencesValueSchema.superRefine((result,context)=>validateReactionDeliveryResultReferences(result,context,stepPositions));
 }
 
 const reactionDeliveryResultReferencesRefinedValueSchema =

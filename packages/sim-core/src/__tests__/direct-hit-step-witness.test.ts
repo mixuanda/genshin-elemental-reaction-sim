@@ -210,3 +210,38 @@ it.each([6,32])('witnesses every candidate and selected delivery for %i register
  const changed=structuredClone(o);changed.propagationEvents[0]!.operations.splice(2,1);
  expect(()=>verifyPropagationStepWitness(changed)).toThrow('Propagation step witness');
 });
+
+import {createEventStepResult,parseEventStepResult} from '../event-step-result';
+import {eventStepProtocol} from '../direct-hit-step-witness';
+it.each([0,1,2,3])('new public envelope strictly parses and preserves each damage value %i',i=>{
+ const wire=createEventStepResult(observations[i]!);
+ const reopened=parseEventStepResult(JSON.parse(JSON.stringify(wire)));
+ expect(reopened.result).toEqual(observations[i]!.result);
+ expect(reopened.wire.result.schemaVersion).toBe('1.54.0-event-steps');
+ const forged=structuredClone(wire);forged.evidence.events[0]!.steps.splice(1,1);
+ expect(()=>parseEventStepResult(forged)).toThrow();
+ const wrongDamage=structuredClone(wire);wrongDamage.result.damageEvents[0]!.finalDamage+=1;
+ expect(()=>parseEventStepResult(wrongDamage)).toThrow();
+});
+it('runs the new event contract through production gates without changing historical gates',()=>{
+ const config=observations[3]!.result.config;
+ const result=simulate(config,{critMode:'noCrit',[eventStepProtocol]:true});
+ expect(result.damageEvents).toEqual(observations[3]!.result.damageEvents);
+ expect(()=>simulate(config,{critMode:'noCrit'})).toThrow('Trusted reaction-delivery');
+});
+
+import {captureSimulationHit,serializeSimulationHit,parseSimulationHit,replaySimulationHit} from '../calculator-bridge';
+it('replays every witnessed hit through independent calculation and a serialized v2 capture',()=>{
+ const wire=createEventStepResult(observations[3]!);
+ for(const event of wire.result.damageEvents){
+  const capture=captureSimulationHit(wire,event.id);
+  expect(capture.schemaVersion).toBe('calculator-event-v2');
+  const imported=parseSimulationHit(serializeSimulationHit(capture));
+  const replay=replaySimulationHit(imported);
+  expect(replay.originalDamage).toBe(event.finalDamage);
+  expect(replay.difference).toBeCloseTo(0,10);
+ }
+ const crossed=captureSimulationHit(wire,wire.result.damageEvents[0]!.id);
+ crossed.sourceResult.damageEvents[0]!.finalDamage+=1;
+ expect(()=>replaySimulationHit(crossed)).toThrow();
+});

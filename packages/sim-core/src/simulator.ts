@@ -1,4 +1,4 @@
-import { directHitStepWitnessSink, type PropagationStepEvent, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
+import { eventStepProtocol, verifiedStepPositions, directHitStepWitnessSink, type PropagationStepEvent, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
 import { EnemyShieldHost, type EnemyShieldPhaseTask } from "./enemy-shield-host";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { WeaponHitStackRuntime, type WeaponHitStackRuntimeDecision } from "./weapon-hit-stack-runtime";
@@ -10097,7 +10097,7 @@ function simulateConfig(
     if (timeSeconds > config.duration + 1e-9) break;
     let intraEventSequence = 0;
     let observedPropagation: PropagationStepEvent | undefined;
-    const observedSteps: DirectHitStepEvent | undefined = runtimeOptions[directHitStepWitnessSink] !== undefined && event.type === "hit"
+    const observedSteps: DirectHitStepEvent | undefined = (runtimeOptions[directHitStepWitnessSink] !== undefined || runtimeOptions[eventStepProtocol]) && event.type === "hit"
       ? {frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,allocationCount:0,steps:[]} : undefined;
     if (observedSteps) directHitStepEvents.push(observedSteps);
     const nextIntraEventSequence = (site?: DirectHitStepSite): number => {
@@ -14001,7 +14001,7 @@ function simulateConfig(
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
       if (!sourceActor || !reactionLog) continue;
-      if(runtimeOptions[directHitStepWitnessSink] !== undefined && targetingMode === 'electro-charged-nearby-wet') {
+      if((runtimeOptions[directHitStepWitnessSink] !== undefined || runtimeOptions[eventStepProtocol]) && targetingMode === 'electro-charged-nearby-wet') {
         observedPropagation={frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,
           reactionDamageLogId,sourceActorId:actorId,sourceTargetId,triggerDamageEventId,
           allocationCount:intraEventSequence,operations:[]};
@@ -18812,9 +18812,13 @@ function simulateConfig(
       "single-target-v1 cannot emit Electro-Charged propagation candidate observations."
     );
   }
-  // Diagnostic observer receives detached values before the unchanged public gate.
-  // It cannot mutate the result, bypass validation or add fields to persisted output.
+  // Diagnostic observers receive detached values and cannot change production output.
+  // The explicit new protocol replays all witnesses before supplying exact positions;
+  // default and historical calls retain their original reference rules.
   runtimeOptions[directHitStepWitnessSink]?.({events:deepClone(directHitStepEvents.filter(e=>e.allocationCount>0)),propagationEvents:deepClone(propagationStepEvents),result:deepClone(simulationResult)});
+  const eventStepPositions = runtimeOptions[eventStepProtocol]
+    ? verifiedStepPositions({events:directHitStepEvents.filter(e=>e.allocationCount>0),propagationEvents:propagationStepEvents,result:simulationResult})
+    : undefined;
   assertTrustedReactionDeliveryResultReferences({
     schemaVersion: simulationResult.schemaVersion,
     engineVersion: simulationResult.engineVersion,
@@ -18939,7 +18943,7 @@ function simulateConfig(
             simulationResult.targetStateTimeline
         }
       : {})
-  });
+  }, eventStepPositions);
   const hasElectroChargedCleanupAudit =
     simulationResult.reactionTaskLog.some(
       (task) => task.electroChargedCleanup !== null

@@ -1,3 +1,4 @@
+import { reactionDeliveryReferencesWithSteps, type ReactionStepPositions } from './schema';
 import { weaponHitStackLogEntrySchema, weaponHitStackCapturedStateSchema } from "./weapon-hit-stack-model";
 import { sourceNormalChainLogEntrySchema, sourceNormalChainStateSchema } from "./source-normal-chain";
 import { playerShieldLogEntrySchema, playerShieldStateSchema } from "./player-shield-schema";
@@ -7255,7 +7256,7 @@ export const timelineExecutionV153Schema = timelineExecutionV142Schema.extend({
   }))
 });
 
-export const simulationResultV153ValueSchema = z
+const simulationResultV153LeafSchema = z
   .object({
     ...simulationResultV152ValueSchema.shape,
     schemaVersion: z.literal(CALLBACK_BUS_SCHEMA_VERSION),
@@ -7332,8 +7333,11 @@ export const simulationResultV153ValueSchema = z
     ),
     callbackDeliveryLog: z.array(callbackDeliveryLogEntryV153Schema)
   })
-  .strict()
-  .superRefine((result, context) => {
+  .strict();
+
+/** New envelope parser supplies positions only after strict witness replay. */
+export function resultValueSchemaWithSteps(stepPositions?:ReactionStepPositions) {
+ return simulationResultV153LeafSchema.superRefine((result, context) => {
     const frozenReferenceView =
       projectV150ResultForFrozenReferenceFacets(
         result as unknown as SimulationResultForV150
@@ -7359,7 +7363,7 @@ export const simulationResultV153ValueSchema = z
     );
     validateFacet(
       "reaction delivery references",
-      reactionDeliveryResultReferencesSchema,
+      stepPositions ? reactionDeliveryReferencesWithSteps(stepPositions) : reactionDeliveryResultReferencesSchema,
       result
     );
     validateFacet(
@@ -7414,6 +7418,10 @@ export const simulationResultV153ValueSchema = z
       context
     );
   });
+}
+export const simulationResultV153ValueSchema = resultValueSchemaWithSteps();
+/** Leaf validation precedes witness replay; not a complete result validator. */
+export const simulationResultEventStepLeaves = simulationResultV153LeafSchema;
 
 export const simulationResultV153Schema = z.preprocess(
   rejectNonPlainJsonWire("SimulationResult 1.53"),

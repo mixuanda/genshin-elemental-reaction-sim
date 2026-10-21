@@ -1,8 +1,9 @@
 import type { HitDefinition, SimulationResult } from '@genshin-dps-lab/schemas';
 import { replayArtifactBuffs } from '../../schemas/src/artifact-buff-integrity';
 
-/** Internal diagnostic only. No wire identity or import/export contract is assigned. */
+/** Detached diagnostic sink. The event-step-result module owns the new wire boundary. */
 export const directHitStepWitnessSink = Symbol('internal-direct-hit-step-witness');
+export const eventStepProtocol = Symbol('event-step-result-v1');
 export type DirectHitStepSite =
  | {kind:'hit-resolution'; id:number}
  | {kind:'artifact-buff'; id:number}
@@ -27,6 +28,7 @@ export interface PropagationStepEvent {
 }
 export interface DirectHitStepObservation { events:DirectHitStepEvent[]; propagationEvents:PropagationStepEvent[]; result:SimulationResult; }
 export interface DirectHitStepObserverOptions {
+ [eventStepProtocol]?: true;
  [directHitStepWitnessSink]?: (observation:DirectHitStepObservation)=>void;
 }
 
@@ -151,4 +153,20 @@ export function verifyPropagationStepWitness({result,propagationEvents}:DirectHi
   if(cursor!==event.allocationCount||candidateIndex!==candidates.length||selectedIndex!==selected.length||application)fail('incomplete operation stream');
   if(row.hitResolutionLogIds.length!==selected.length||selected.some(c=>!row.hitResolutionLogIds.includes(c.hitResolutionLogId!)))fail('unwitnessed hit');
  }
+}
+
+/** Construct positions only after replaying the entire bounded witness stream. */
+export function verifiedStepPositions(observation:DirectHitStepObservation) {
+ verifyDirectHitStepWitness(observation);verifyPropagationStepWitness(observation);
+ const hit=new Map<number,number>(),application=new Map<number,number>(),hitlag=new Map<number,number>();
+ for(const event of observation.events)for(const step of event.steps){
+  if(step.site.kind==='hit-resolution')hit.set(step.site.id,step.sequence);
+  if(step.site.kind==='aura-application')application.set(step.site.damageEventId,step.sequence);
+  if(step.site.kind==='hitlag')hitlag.set(step.site.hitResolutionLogId,step.sequence);
+ }
+ for(const event of observation.propagationEvents)for(const op of event.operations){
+  if(op.operation==='observe-hit')hit.set(op.hitResolutionLogId,op.sequence);
+  else if(op.site.kind==='propagation-application')application.set(op.site.damageEventId,op.sequence);
+ }
+ return {hit,application,hitlag};
 }
