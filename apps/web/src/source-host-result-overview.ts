@@ -1,3 +1,4 @@
+import {fixedDamageWindow} from "./source-damage-curve";
 import type { SourceHostResult } from '../../../packages/sim-core/src/source-host-wire';
 import './source-host-result-overview.css';
 
@@ -69,6 +70,8 @@ function actionRejections(result: SourceHostResult, actorLabel: ActorLabel): { h
 
 /** First-view summary from actual source applications and action rejection records. */
 export function renderSourceHostResultOverview(result: SourceHostResult, actorLabel: ActorLabel = () => undefined): string {
+  const bounded = fixedDamageWindow(result);
+  if (bounded) result = { ...result, applications: bounded.applications };
   const totalDamage = result.applications.reduce((sum, application) => sum + application.appliedDamage, 0);
   const native = asRecord(result.result);
   const endFrame = result.observationWindow?.actualEndFrame ?? asNumber(native?.duration);
@@ -98,7 +101,7 @@ export function renderSourceHostResultOverview(result: SourceHostResult, actorLa
       <div><span>本次 DPS</span><strong data-source-host-overview-dps>${dps === undefined ? '未知（没有有效时长）' : format(dps)}</strong></div>
       <div><span>已结算命中</span><strong>${hitLabel}</strong></div>
     </div>
-    <p class=\"source-host-result-overview__note\">总伤害按来源实际结算命中求和；DPS = 总伤害 ÷ 本次实际模拟时长。${endReasonLabel}这不是稳态 DPS。</p>
+    <p class=\"source-host-result-overview__note\">${bounded ? "总伤害按完整半开观察窗 [0,截止帧) 内实际结算命中求和" : "总伤害按来源全部实际结算命中求和（未取得完整定时窗）"}；DPS = 总伤害 ÷ 本次实际模拟时长。${endReasonLabel}这不是稳态 DPS。</p>
     <section aria-label=\"各角色伤害贡献\"><h4>各角色伤害贡献</h4><p class=\"source-host-result-overview__note\">按每条实际伤害记录对应的来源角色归属；无法关联的记录单列为未知，合计仍包含在总伤害中。</p>
       ${rows ? `<div class=\"source-host-result-overview__table-wrap\"><table data-source-host-character-contributions><thead><tr><th>角色</th><th>伤害</th><th>占总伤害</th><th>命中</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p>本次没有已结算伤害记录。</p>'}
     </section>

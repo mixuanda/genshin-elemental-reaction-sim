@@ -309,19 +309,39 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
       : `<p data-source-host-randomness>随机性回执：旧记录未提供原生 RNG 回执；种子 ${esc(result.seed)} 的初始化映射采用 ${SOURCE_HOST_SEED_NORMALIZATION}，算法为 ${SOURCE_HOST_RNG_ALGORITHM}。实际暴击触发效果及其他随机事件来源采样情况未知。</p>`;
     const window = result.observationWindow;
     const windowDetails = window ? `<p data-source-host-observation-window>终止政策：${window.policy === "duration-or-native" ? "配置时长上限与来源原生条件共同生效" : "来源原生条件"}；配置截止帧 ${window.configuredEndFrame}，实际结束帧 ${window.actualEndFrame}；结束原因：${{ duration: "达到配置时长", "targets-dead": "目标已全部死亡", "actions-exhausted": "击杀模式动作流已结束" }[window.endReason]}。${window.endReason === "duration" ? "" : "本次提前结束，伤害率使用实际时间，不称为完整固定窗口 DPS。"}</p>` : "<p>此旧结果没有终止条件回执，不从伤害或脚本推断结束原因。</p>";
-    resultHost.innerHTML = `<article class="card"><h3>本次来源队伍模拟</h3>${overview}<details data-source-host-run-info><summary>高级：来源与运行信息</summary><p>固定源码：<code>${esc(result.sourceCommit)}</code>；本次执行政策：${result.executionMode === "strict" ? "严格" : "自动等待"}${result.executionMode === undefined ? "（旧版本默认）" : ""}。</p>${randomnessDetails}${windowDetails}<p>记录 ${result.applications.length} 次已结算命中、${incoming.length} 次玩家受击、${result.calculations.length} 次共享核心计算。固定时长与击杀模式的统计、目标剩余生命截断分别保留。</p><p>执行器 SHA-256：<code>${esc(result.executionArtifact?.wasmSha256 ?? "旧记录未保存产物身份")}</code></p><p>数值状态 provisional；前置解释 partial。保存脚本与种子可从头再运行，逐击恢复无需 WASM。</p>
+    resultHost.innerHTML = `<article class="card"><h3>本次来源队伍模拟</h3>${overview}<details data-source-curve><summary>伤害曲线与角色／来源贡献</summary><div data-source-curve-body>展开后按实际事件生成；不增加模拟计算。</div></details><details data-source-host-run-info><summary>高级：来源与运行信息</summary><p>固定源码：<code>${esc(result.sourceCommit)}</code>；本次执行政策：${result.executionMode === "strict" ? "严格" : "自动等待"}${result.executionMode === undefined ? "（旧版本默认）" : ""}。</p>${randomnessDetails}${windowDetails}<p>记录 ${result.applications.length} 次已结算命中、${incoming.length} 次玩家受击、${result.calculations.length} 次共享核心计算。固定时长与击杀模式的统计、目标剩余生命截断分别保留。</p><p>执行器 SHA-256：<code>${esc(result.executionArtifact?.wasmSha256 ?? "旧记录未保存产物身份")}</code></p><p>数值状态 provisional；前置解释 partial。保存脚本与种子可从头再运行，逐击恢复无需 WASM。</p>
       ${result.startupState ? `<p data-source-host-startup-state>本次初能政策：${{ zero: "零能", full: "满能", custom: "逐角色自定义" }[result.startupState.mode]}；原生初始化后实际能量：${result.startupState.actors.map(actor => `${esc(actor.actorKey)} ${actor.energy}/${actor.maxEnergy}`).join("；")}。此政策只作用于初始化。</p>` : ""}</details>
       <label>选择实际命中<input type="number" id="source-host-hit-index" min="0" max="${Math.max(0, result.applications.length - 1)}" step="1" value="0"></label><button id="source-host-open-calculator" ${result.applications.length ? "" : "disabled"}>在独立计算器中恢复并编辑</button><div id="source-host-hit"></div>
       <div id="source-host-target-summary"></div><div id="source-host-target-phase-result"></div><div id="source-host-action-origins"></div>
       <section data-source-host-incoming-ledger><h4>玩家实际受击账本</h4><p>${incoming.length ? `共 ${incoming.length} 次。原始伤害、护盾吸收与 Drain 返回量分别来自来源运行回执。` : "本次没有玩家受击记录；旧版结果也可能未提供此账本。"}</p>${incoming.length ? `<label>选择玩家受击<input type="number" id="source-host-incoming-index" min="0" max="${incoming.length - 1}" step="1" value="0"></label><button type="button" id="source-host-open-incoming-calculator">在独立计算器中恢复玩家受击</button><div id="source-host-incoming-hit"></div>` : ""}</section>
       <section data-source-host-drain-ledger><h4>角色生命扣除账本</h4><p>${drains.length ? `共 ${drains.length} 次原生 Drain 调用，含技能自耗、受击与可能的零值事件。每次记录本次要求扣除的 HP、扣除前生命和写回比例；生命门槛与上限由来源角色和模板执行。` : "本次没有 Drain 应用记录；旧版结果也可能未保存这条账本，不能据此断定没有扣血。"}</p>${drains.length ? `<label>选择扣血事件<input type="number" id="source-host-drain-index" min="0" max="${drains.length - 1}" step="1" value="0"></label><button type="button" id="source-host-open-drain-calculator">送到独立扣血计算器</button><div id="source-host-drain-hit" role="status"></div><div class="table-wrap"><table><thead><tr><th>编号</th><th>帧</th><th>角色</th><th>来源动作</th><th>请求扣血</th><th>写回生命比例</th></tr></thead><tbody>${drains.slice(0, 120).map((row, index) => `<tr data-source-host-drain-row="${index}"><td>${index}</td><td>${row.frame}</td><td>${esc(row.actorKey)}</td><td>${esc(row.ability)}</td><td>${row.amount}</td><td>${row.resultRatio}</td></tr>`).join("")}</tbody></table></div>` : ""}</section>
       <div id="source-host-phase-result"></div><div id="source-host-energy"></div><div id="source-host-helper-formulas"></div><details><summary>完整来源事件日志</summary><p>包括动作、能量、装备、反应和其他来源消息；日志保持原始字段，不能把调试文本当作已解释公式。</p><label>日志起始行<input type="number" id="source-host-log-offset" min="0" step="50" value="0"></label><pre id="source-host-log"></pre></details></article>`;
+    const curveDetails = resultHost.querySelector<HTMLDetailsElement>("[data-source-curve]")!;
+    let curveStarted = false;
+    curveDetails.ontoggle = () => { if (!curveDetails.open || curveStarted) return; curveStarted = true;
+      const body = curveDetails.querySelector<HTMLElement>("[data-source-curve-body]")!;
+      void import("./source-damage-curve-panel").then(({ renderSourceDamageCurve }) => { if (body.isConnected) renderSourceDamageCurve(body, result, key => teamBuilder?.getCharacterName(key)); }).catch(error => { body.textContent = String(error); });
+    };
     renderSourceHostTargetSummaryPanel(resultHost.querySelector<HTMLElement>("#source-host-target-summary")!, result, { showRates: true });
     renderSourceHostTargetPhasePanel(resultHost.querySelector<HTMLElement>("#source-host-target-phase-result")!, result);
     renderSourceHostPhasePanel(resultHost.querySelector<HTMLElement>("#source-host-phase-result")!, result);
-    renderSourceHostOriginPanel(resultHost.querySelector<HTMLElement>("#source-host-action-origins")!, result, openCalculator);
-    renderSourceHostEnergyPanel(resultHost.querySelector<HTMLElement>("#source-host-energy")!, result, openCalculator);
-    renderSourceHostHelperFormulaPanel(resultHost.querySelector<HTMLElement>("#source-host-helper-formulas")!, result, { openCooldown: openCalculator, openHealing: openCalculator, openShield: openCalculator });
+    // Capturing an explanation validates the complete saved result. Defer that
+    // work until requested; execution and result validation remain unchanged.
+    const deferredPanel = (selector: string, title: string, render: (body: HTMLElement) => void) => {
+      const host = resultHost.querySelector<HTMLElement>(selector)!;
+      host.innerHTML = `<details data-source-deferred="${esc(selector.slice(1))}"><summary>${esc(title)}</summary><div>展开后生成解释与核对。</div></details>`;
+      const details = host.querySelector<HTMLDetailsElement>("details")!;
+      let rendered = false;
+      details.addEventListener("toggle", () => {
+        if (!details.open || rendered) return;
+        rendered = true;
+        const body = details.querySelector<HTMLElement>("div")!;
+        try { render(body); } catch (error) { body.textContent = `详情生成失败：${String(error)}`; }
+      });
+    };
+    deferredPanel("#source-host-action-origins", "动作来源与逐击归属详情", body => renderSourceHostOriginPanel(body, result, openCalculator));
+    deferredPanel("#source-host-energy", "能量账本与公式详情", body => renderSourceHostEnergyPanel(body, result, openCalculator));
+    deferredPanel("#source-host-helper-formulas", "冷却、治疗与护盾公式详情", body => renderSourceHostHelperFormulaPanel(body, result, { openCooldown: openCalculator, openHealing: openCalculator, openShield: openCalculator }));
     resultHost.querySelector<HTMLElement>("[data-source-host-result-overview]")?.scrollIntoView({ block: "start", behavior: "smooth" });
     const select = resultHost.querySelector<HTMLInputElement>("#source-host-hit-index")!, hitHost = resultHost.querySelector<HTMLElement>("#source-host-hit")!;
     const chosen = () => result.applications[select.valueAsNumber];
@@ -332,7 +352,12 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
         hitHost.innerHTML = `<h4>${esc(replay.request.actorKey)} · ${esc(replay.request.ability)} · 第 ${replay.request.frame} 帧</h4><p>原始公式伤害 ${replay.originalRawDamage}；公式重放 ${replay.reproducedRawDamage}。来源实际记账 ${replay.originalDamage}；应用重放 ${replay.reproducedDamage}；记账差值 ${replay.difference}。目标 HP 损失 ${application.hpBefore - application.hpAfter}。</p><p>共享公式按此条保存输入重放；来源机制仍属暂定。本视图恢复单次命中，不支持任意帧状态断点。</p>${renderSourceHostBasePanelProvenance(replay.request.snapshot?.statProvenance?.snapshotRead)}${replay.warnings.map(warning => `<p class="calculator-hint">${esc(warning)}</p>`).join("")}${renderTraceHtml(replay.trace)}`;
       } catch (error) { hitHost.textContent = String(error); }
     };
-    select.oninput = showHit; showHit();
+    select.oninput = showHit;
+    hitHost.textContent = "逐击解释按需生成；选择命中或点击查看，不改变已结算伤害。";
+    const explainButton = document.createElement("button");
+    explainButton.type = "button"; explainButton.textContent = "查看本击公式";
+    explainButton.dataset.sourceExplainHit = "true"; explainButton.onclick = showHit;
+    hitHost.before(explainButton);
     resultHost.querySelector<HTMLButtonElement>("#source-host-open-calculator")!.onclick = () => { const row = chosen(); if (row) openCalculator(captureSourceHostHit(result, row.id)); };
     if (incoming.length) {
       const incomingSelect = resultHost.querySelector<HTMLInputElement>("#source-host-incoming-index")!;
