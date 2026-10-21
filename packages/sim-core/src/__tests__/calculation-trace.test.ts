@@ -243,3 +243,15 @@ describe("executed trace graphs", () => {
     expect(traceText("toString")).toBe("toString");
   });
 });
+
+it('indexed trace IDs retain failed-add and child-order validation with identical locale formatting',()=>{
+ const b=new TraceBuilder();
+ expect(()=>b.add('later','later',expr.value(1),[],{childIds:['missing']})).toThrow('Unknown');
+ b.add('later','later',expr.value(-0.000000125),[],{displayDigits:9});
+ expect(()=>b.add('later','duplicate',expr.value(2),[])).toThrow('Duplicate');
+ for(let digits=0;digits<=15;digits++){
+  b.add(`d${digits}`,'decimal',expr.value(12345.6789012345),[],{displayDigits:digits,childIds:['later']});
+  expect(b.nodes.at(-1)!.result!.display).toBe(new Intl.NumberFormat('zh-CN',{maximumFractionDigits:digits}).format(12345.6789012345));
+ }
+ expect(Object.isFrozen(b.nodes[0])).toBe(true);
+});

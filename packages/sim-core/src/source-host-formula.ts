@@ -6,7 +6,7 @@ import { sourceHostDrainSourceRuleDescriptor } from "./source-host-drain-source-
 import { resolveSourceHostTargetApplication } from "./source-host-target-application";
 /** The source runtime supplies state and one actual CRIT outcome; this core supplies damage. */
 import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, reactionLevelBaseDamage } from "./calculator-formula";
-import { expr, TraceBuilder, traceInput, traceText, type CalculationTraceNode } from "./calculation-trace";
+import { isImmutableTraceNode, expr, TraceBuilder, traceInput, traceText, type CalculationTraceNode } from "./calculation-trace";
 import { assertSourceHostSnapshotTiming, executeSourceHostNestedStatRead, executeSourceHostStatProvenance } from "./source-host-stat-provenance";
 import { linkSourceHostDamageStatInputs } from "./source-host-damage-stat-links";
 import { executeSourceHostScalarProvenance, type SourceHostScalarKind } from "./source-host-scalar-provenance";
@@ -1203,7 +1203,7 @@ export function createSourceHostFormulaResolver(options: { memoize?: boolean } =
   const memo = new WeakMap<object, SourceHostCalculation>();
   const frozen = new WeakSet<object>();
   const freeze = (value: unknown): void => {
-    if (value === null || typeof value !== "object" || frozen.has(value)) return;
+    if (value === null || typeof value !== "object" || frozen.has(value) || isImmutableTraceNode(value)) return;
     frozen.add(value);
     for (const child of Object.values(value)) freeze(child);
     Object.freeze(value);

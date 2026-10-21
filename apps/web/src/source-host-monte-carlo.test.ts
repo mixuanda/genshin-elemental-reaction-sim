@@ -70,3 +70,20 @@ it('does not fabricate a conditional expectation for clipped or noninvertible hi
  const zero=summaryFixture();zero.calculations[0]!.request.input.critDamage=-1;zero.applications[0]!.appliedDamage=zero.applications[0]!.rawDamage=0;
  expect(summarizeSourceMonteTrial(zero as any,{index:0,seed:'1'},1).conditionalHitExpectation).toBeNull();
 });
+
+it('resumes exact missing IDs rather than a suffix and preserves prior attempts',async()=>{
+ const workers:FakeWorker[]=[];
+ const first=startSourceMonteCarlo(request,{count:4,workers:2,baseSeed:'1',budgetMs:5000},()=>{},()=>{const w=new FakeWorker;workers.push(w);return w;});
+ workers[1]!.finish();first.cancel();const checkpoint=await first.done;
+ expect(checkpoint.trials.map(t=>t.index)).toEqual([1,3]);
+ const saved=JSON.stringify(checkpoint),w=new FakeWorker;
+ const next=startSourceMonteCarlo(request,{count:4,workers:1,baseSeed:'1',budgetMs:5000},()=>{},()=>w,checkpoint);
+ expect(w.jobs.map(j=>j.index)).toEqual([0,2]);w.finish();const final=await next.done;
+ expect(final.status).toBe('complete');expect(final.trials.map(t=>t.index)).toEqual([0,1,2,3]);expect(final.retainedSampleCount).toBe(2);expect(final.previousAttempts?.[0]?.status).toBe('cancelled');expect(JSON.stringify(checkpoint)).toBe(saved);
+ const same=startSourceMonteCarlo(request,final.options,()=>{},()=>{throw Error('complete checkpoint must not start a Worker');},final);
+ expect((await same.done).status).toBe('complete');
+ expect(()=>startSourceMonteCarlo({...request,config:'changed'},final.options,()=>{},()=>w,checkpoint)).toThrow('保留原始配置');
+ const corrupt=structuredClone(checkpoint);corrupt.trials[0]!.seed='99';expect(()=>startSourceMonteCarlo(request,final.options,()=>{},()=>w,corrupt)).toThrow();
+ const duplicate=structuredClone(checkpoint);duplicate.trials.push(duplicate.trials[0]!);expect(()=>startSourceMonteCarlo(request,final.options,()=>{},()=>w,duplicate)).toThrow('重复');
+ const wrong=structuredClone(checkpoint);wrong.statistics!.dps.meanDamage+=1;expect(()=>startSourceMonteCarlo(request,final.options,()=>{},()=>w,wrong)).toThrow('统计');
+});
