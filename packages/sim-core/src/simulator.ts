@@ -1,3 +1,4 @@
+import { directHitStepWitnessSink, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
 import { EnemyShieldHost, type EnemyShieldPhaseTask } from "./enemy-shield-host";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { WeaponHitStackRuntime, type WeaponHitStackRuntimeDecision } from "./weapon-hit-stack-runtime";
@@ -319,7 +320,7 @@ const stellarSwirlRuntimeSink = Symbol("stellar-swirl-runtime-sink");
 const lunarMixedRuntimeSink = Symbol("lunar-mixed-runtime-sink");
 const lunarMixedV2RuntimeSink = Symbol("lunar-mixed-v2-runtime-sink");
 
-export interface SimulationRuntimeOptions extends SimulationOptions {
+export interface SimulationRuntimeOptions extends SimulationOptions, DirectHitStepObserverOptions {
   plugins?: readonly SimulationRuntimePluginV153[];
 }
 
@@ -2959,7 +2960,8 @@ function simulateConfig(
   });
   let sequence = 0;
   let executingEvent: Pick<InternalEvent, "frame" | "priority" | "sequence"> | undefined;
-  let nextExecutionIntraSequence = (): number => 0;
+  const directHitStepEvents: DirectHitStepEvent[] = [];
+  let nextExecutionIntraSequence = (_site?: DirectHitStepSite): number => 0;
   let freezeBrokenCallbackTaskSequence = 1_000_000_000;
   const freezeBrokenCallbackCountByTriggerSequence = new Map<number, number>();
   const push = <TPayload>(
@@ -4793,7 +4795,7 @@ function simulateConfig(
         }
       }
       artifactBuffLog.push({ ...decision, id, frame: event.frame, timeSeconds: event.frame / 60,
-        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next(),
+        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next({kind:'artifact-buff',id}),
         actionLogIndex: null, parentDamageEventId: null, playerHealthEventId: null, reactionTaskLogId: null,
         parentArtifactBuffLogId: null, ...links });
       for (const task of decision.delayedApplications) push(task.applyFrame / 60, "artifactBuffApply", { task, parentArtifactBuffLogId: id });
@@ -9191,7 +9193,7 @@ function simulateConfig(
     resolvedGeometry: ResolvedWorldHitGeometry | null;
     eventPriority: number;
     eventSequence: number;
-    nextIntraEventSequence: () => number;
+    nextIntraEventSequence: (site?: DirectHitStepSite) => number;
   }): void => {
     if (hit.targetHitlag !== undefined) {
       applyConfiguredTargetHitlag({
@@ -9208,7 +9210,7 @@ function simulateConfig(
         landed,
         eventPriority,
         eventSequence,
-        intraEventSequence: nextIntraEventSequence()
+        intraEventSequence: nextIntraEventSequence({kind:'hitlag',hitResolutionLogId:targetResolutionId})
       });
     }
     const aggregate = hitCallbackAggregates.get(hitGroupId) ?? {
@@ -10093,8 +10095,14 @@ function simulateConfig(
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
     let intraEventSequence = 0;
-    const nextIntraEventSequence = (): number =>
-      intraEventSequence++;
+    const observedSteps: DirectHitStepEvent | undefined = runtimeOptions[directHitStepWitnessSink] !== undefined && event.type === "hit"
+      ? {frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,allocationCount:0,steps:[]} : undefined;
+    if (observedSteps) directHitStepEvents.push(observedSteps);
+    const nextIntraEventSequence = (site?: DirectHitStepSite): number => {
+      const allocated = intraEventSequence++;
+      if (observedSteps) { if(site?.kind==='hit-resolution') observedSteps.hitResolutionLogId=site.id; observedSteps.steps.push({sequence:allocated,site:site ?? {kind:'unclassified'}}); observedSteps.allocationCount=intraEventSequence; }
+      return allocated;
+    };
     nextExecutionIntraSequence = nextIntraEventSequence;
     if (event.type === "artifactBuffApply") {
       handleArtifactBuff({ kind: "delayed-buff", frame: event.frame, task: event.payload.task }, { parentArtifactBuffLogId: event.payload.parentArtifactBuffLogId });
@@ -16348,7 +16356,7 @@ function simulateConfig(
       timeSeconds,
       eventPriority: event.priority,
       eventSequence: event.sequence,
-      intraEventSequence: nextIntraEventSequence(),
+      intraEventSequence: nextIntraEventSequence({kind:'hit-resolution',id:targetResolutionId}),
       cycle,
       sourceActorId: actorId,
       sourceActionId: action.id,
@@ -16894,7 +16902,7 @@ function simulateConfig(
         eventType: event.type,
         eventPriority: event.priority,
         eventSequence: event.sequence,
-        intraEventSequence: nextIntraEventSequence(),
+        intraEventSequence: nextIntraEventSequence({kind:'aura-application',damageEventId:pendingDirectDamageEventId}),
         reaction: reactionAudit.reaction,
         reactions: reactionAudit.reactions,
         primaryDamageEventId: pendingDirectDamageEventId,
@@ -18794,6 +18802,9 @@ function simulateConfig(
       "single-target-v1 cannot emit Electro-Charged propagation candidate observations."
     );
   }
+  // Diagnostic observer receives detached values before the unchanged public gate.
+  // It cannot mutate the result, bypass validation or add fields to persisted output.
+  runtimeOptions[directHitStepWitnessSink]?.({events:deepClone(directHitStepEvents.filter(e=>e.allocationCount>0)),result:deepClone(simulationResult)});
   assertTrustedReactionDeliveryResultReferences({
     schemaVersion: simulationResult.schemaVersion,
     engineVersion: simulationResult.engineVersion,
