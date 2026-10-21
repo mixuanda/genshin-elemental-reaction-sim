@@ -1,3 +1,4 @@
+import { batchSeed, batchStatistics } from "./batch-statistics";
 import { simulate, applyExecutionProfile, FAVONIUS_PROFILE, SACRIFICIAL_PROFILE } from "@genshin-dps-lab/sim-core";
 import { NORMAL_HIT_ENERGY_PROFILE } from "../../../packages/sim-core/src/normal-hit-energy";
 import { hasRandomWeaponProc, WEAPON_PROC_RANDOM_PROFILE } from "../../../packages/sim-core/src/weapon-proc";
@@ -24,6 +25,8 @@ scope.onmessage = (event): void => {
     if (!Number.isInteger(request.iterations) || request.iterations < 1 || request.iterations > 10000) {
       throw new RangeError("迭代次数必须是 1 至 10000 的整数。");
     }
+    const start = request.sampleStart ?? 0, total = request.totalIterations ?? request.iterations;
+    if (!Number.isSafeInteger(start) || start < 0 || !Number.isSafeInteger(total) || total > 10000 || start + request.iterations > total) throw new RangeError("批量采样区间无效。");
     const started = performance.now();
     scope.postMessage({ type: "progress", completed: 0, total: request.iterations });
     const appliedProfile = request.executionProfile ? applyExecutionProfile(request.config, request.executionProfile, request.options) : undefined;
@@ -36,26 +39,14 @@ scope.onmessage = (event): void => {
       const current = simulate(config, {
         ...request.options,
         execution: { captureHits: true, ...request.options.execution },
-        randomSeed: request.iterations === 1 ? seed : `${seed}:iteration:${index}`
+        randomSeed: batchSeed(seed, start + index, total)
       });
+      if (current.mechanicsStatus !== "complete") throw new Error("模拟含未完成机制，不能汇总为完整批量结果。");
       result ??= current;
       values.push(current.totalDamage);
       scope.postMessage({ type: "progress", completed: index + 1, total: request.iterations });
     }
     if (!result) throw new Error("模拟没有生成结果。");
-    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
-    const variance = values.length > 1
-      ? values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (values.length - 1)
-      : 0;
-    const deviation = Math.sqrt(variance);
-    const halfInterval = 1.96 * deviation / Math.sqrt(values.length);
-    values.sort((a, b) => a - b);
-    const percentile = (p: number): number => {
-      const location = (values.length - 1) * p;
-      const lower = values[Math.floor(location)]!;
-      const upper = values[Math.ceil(location)]!;
-      return lower + (upper - lower) * (location - Math.floor(location));
-    };
     const summary: SimulationBatchSummary = {
       iterations: values.length,
       seed,
@@ -84,12 +75,7 @@ scope.onmessage = (event): void => {
       } } : {}),
       ...(randomWeaponProcs ? {weaponProcPolicy: WEAPON_PROC_RANDOM_PROFILE} : {}),
       criticalPolicy: request.options.execution?.criticalSampling ?? request.options.critMode ?? "average",
-      meanDamage: mean,
-      sampleStandardDeviation: deviation,
-      spreadPercentiles: { p05: percentile(0.05), p50: percentile(0.5), p95: percentile(0.95) },
-      meanConfidenceInterval: values.length >= 30
-        ? { method: "normal-approximation-95", low: mean - halfInterval, high: mean + halfInterval }
-        : null,
+      ...batchStatistics(values),
       elapsedMilliseconds: performance.now() - started,
       warnings: [
         ...(randomWeaponProcs ? ["武器随机追击按来源顺序处理实际普通伤害回调、门禁与抽样，使用独立 independent-weapon-proc-v1 流；吃虎鱼刀成功条件为 roll ≤ 0.5，试作古华与霜葬为严格小于概率。霜葬的冰／冻结倍率取触发目标实际状态，同次范围追击共用。采用无角色卡肉的来源参考时钟，不与 gcsim 同种子序列等同；当前完整检查点未覆盖这条随机流，本批次不认证随机稳态。"] : []),
@@ -104,7 +90,7 @@ scope.onmessage = (event): void => {
         "result 是第一轮完整轨迹；summary 汇总全部轮次。"
       ]
     };
-    scope.postMessage({ type: "result", result, summary, ...(appliedProfile === undefined ? {} : {appliedProfile}) });
+    scope.postMessage({ type: "result", result, summary, samples: values, ...(appliedProfile === undefined ? {} : {appliedProfile}) });
   } catch (error) {
     scope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) });
   }

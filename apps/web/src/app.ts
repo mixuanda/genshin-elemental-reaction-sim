@@ -427,7 +427,7 @@ async function runSimulation(): Promise<void> {
     const runExecutionProfile = executionProfile ? deepClone(executionProfile) : null;
     const runBenchmark = benchmarkRecord ? deepClone(benchmarkRecord) : null;
     const runOptions = currentRuntimeOptions();
-    const { result, summary, appliedProfile } = await runSimulationBatchInWorker(sourceConfig, runOptions, iterations, { ...(runExecutionProfile ? { executionProfile: runExecutionProfile } : {}), signal: controller.signal, onProgress: ({ completed, total }) => {
+    const { result, summary, appliedProfile } = await runSimulationBatchInWorker(sourceConfig, runOptions, iterations, { concurrency: Number(byId<HTMLSelectElement>("threadInput").value), ...(runExecutionProfile ? { executionProfile: runExecutionProfile } : {}), signal: controller.signal, onProgress: ({ completed, total }) => {
       if (pendingSimulation === controller) byId<HTMLElement>("simulationProgress").textContent = `已完成 ${completed} / ${total}`;
     }});
     if (pendingSimulation !== controller) return;
@@ -437,7 +437,7 @@ async function runSimulation(): Promise<void> {
     byId<HTMLButtonElement>("exportRunButton").disabled = false;
     const batch = byId<HTMLElement>("batchSummary");
     batch.hidden = iterations <= 1;
-    batch.textContent = `已完成 ${summary.iterations} 次；种子 ${summary.seed}；${summary.criticalPolicy === "seeded-random-v1" ? "逐击随机暴击；暴击使用独立随机流" : `暴击采用 ${summary.criticalPolicy} 规则`}。随机政策 ${summary.rngPolicy}。均值总伤 ${formatNumber(summary.meanDamage, 3)}；样本分布 P05/P50/P95：${formatNumber(summary.spreadPercentiles.p05, 3)} / ${formatNumber(summary.spreadPercentiles.p50, 3)} / ${formatNumber(summary.spreadPercentiles.p95, 3)}。均值95%置信区间${summary.meanConfidenceInterval ? ` [${formatNumber(summary.meanConfidenceInterval.low, 3)}, ${formatNumber(summary.meanConfidenceInterval.high, 3)}]（正态近似）` : "未估计"}。下方逐击为第一轮，非平均后的虚构轨迹。${appliedProfile?.baselineRuntimeOptions ? `执行请求表固定由参考种子 ${appliedProfile.baselineRuntimeOptions.randomSeed} 生成，不随各轮随机结果改写。` : ""}${summary.warnings.join("；")}`;
+    batch.textContent = `已完成 ${summary.iterations} 次；种子 ${summary.seed}；${summary.criticalPolicy === "seeded-random-v1" ? "逐击随机暴击；暴击使用独立随机流" : `暴击采用 ${summary.criticalPolicy} 规则`}。随机政策 ${summary.rngPolicy}。均值总伤 ${formatNumber(summary.meanDamage, 3)}；样本标准差 ${formatNumber(summary.sampleStandardDeviation, 3)}；样本分布 P05/P50/P95：${formatNumber(summary.spreadPercentiles.p05, 3)} / ${formatNumber(summary.spreadPercentiles.p50, 3)} / ${formatNumber(summary.spreadPercentiles.p95, 3)}。均值95%置信区间${summary.meanConfidenceInterval ? ` [${formatNumber(summary.meanConfidenceInterval.low, 3)}, ${formatNumber(summary.meanConfidenceInterval.high, 3)}]（正态近似）` : "未估计"}。下方逐击为第一轮，非平均后的虚构轨迹。${appliedProfile?.baselineRuntimeOptions ? `执行请求表固定由参考种子 ${appliedProfile.baselineRuntimeOptions.randomSeed} 生成，不随各轮随机结果改写。` : ""}${summary.warnings.join("；")}`;
     currentPage = 1;
     selectedHitId = null;
     timelineSecondFilter = null;

@@ -11,6 +11,7 @@ type RunLog = {
 };
 
 test('real source cooldown and effect countdowns follow the frame cursor; local team plans survive reload', async ({ page }) => {
+  test.setTimeout(90_000); // Real WASM run plus five playback rates and persistence reloads.
   const pageErrors: string[] = [];
   page.on('pageerror', error => pageErrors.push(error.message));
 
@@ -84,6 +85,21 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   await expect(statusLedger).toContainText(linkedStatus!.statusKey);
   await expect(statusLedger).toContainText('剩余');
   await expect(actionRowSummary).toContainText(linkedStatus!.statusKey);
+
+  // Playback consumes the stored result only; speed never starts another simulation.
+  for (const speed of ['1', '2', '4', '8', '16']) {
+    await builder.locator('[data-playback-speed]').selectOption(speed);
+    await moveCursor(0);
+    await builder.locator('[data-playback-toggle]').click();
+    await expect.poll(async () => Number(await slider.inputValue())).toBeGreaterThan(0);
+    await builder.locator('[data-playback-end]').click();
+    expect(Number(await slider.inputValue())).toBe(Number(await slider.getAttribute('max')));
+    await expect(builder.locator('[data-playback-toggle]')).toHaveText('播放回放');
+  }
+  const secondDownload = page.waitForEvent('download');
+  await page.locator('#source-host-export').click();
+  const secondFile = await (await secondDownload).path();
+  expect(JSON.parse(await readFile(secondFile!, 'utf8'))).toEqual(result);
 
   await page.goto('/team');
   const planName = `Codex 本机保存刷新验收 ${Date.now()}`;

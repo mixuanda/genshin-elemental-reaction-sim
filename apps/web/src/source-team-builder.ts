@@ -1,4 +1,5 @@
 import "./source-team-builder.css";
+import { TimelinePlayback, PLAYBACK_SPEEDS } from "./timeline-playback";
 import { gameDataCatalog } from "../../../packages/game-data/src/catalog";
 import { artifactSetCatalog } from "../../../packages/game-data/src/supplemental";
 import { resolveArtifactBuild } from "../../../packages/game-data/src/artifact-build";
@@ -294,6 +295,20 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
   let runtimeCharacterKeys = new Map<number, string>();
   let simulationEndFrame = 0;
   let simulationCursor = 0;
+  let playback = new TimelinePlayback(0);
+  let playbackRequest: number | undefined;
+  const stopPlayback = () => {
+    playback.pause(performance.now());
+    if (playbackRequest !== undefined) cancelAnimationFrame(playbackRequest);
+    playbackRequest = undefined;
+  };
+  const playbackTick = (now: number) => {
+    playbackRequest = undefined;
+    if (disposed) return;
+    simulationCursor = playback.advance(now);
+    updateRuntimeViews();
+    if (playback.playing) playbackRequest = requestAnimationFrame(playbackTick);
+  };
   let rawLogOffset = 0;
   let teamPresets: SourceTeamPreset[] = [];
   let selectedPresetId = "";
@@ -557,6 +572,9 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     simulationEndFrame = typeof endFrame === "number" && Number.isFinite(endFrame) && endFrame >= 0
       ? Math.floor(endFrame)
       : Math.max(0, ...rows.flatMap(row => typeof row.frame === "number" && Number.isFinite(row.frame) ? [Math.floor(row.frame)] : []));
+    stopPlayback();
+    playback = new TimelinePlayback(simulationEndFrame);
+    playback.seek(simulationEndFrame, performance.now());
     simulationCursor = simulationEndFrame;
   };
   const runtimeEffectRows = (): string => {
@@ -571,6 +589,10 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     return `<ul>${rows}</ul>${runtimeStatuses.length > 80 ? `<p>显示前 80 / ${runtimeStatuses.length} 条已记录状态。</p>` : ""}`;
   };
   const updateRuntimeViews = (): void => {
+    const slider = root.querySelector<HTMLInputElement>("[data-sim-time-cursor]");
+    if (slider) slider.value = String(simulationCursor);
+    const playButton = root.querySelector<HTMLButtonElement>("[data-playback-toggle]");
+    if (playButton) playButton.textContent = playback.playing ? "暂停" : "播放回放";
     const readout = root.querySelector<HTMLElement>("[data-sim-time-readout]");
     if (readout) readout.textContent = `第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧`;
     const effects = root.querySelector<HTMLElement>("[data-runtime-effects]");
@@ -588,7 +610,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       if (summary && action && action.kind !== "wait") summary.outerHTML = runtimeActionSummary(member, action.kind);
     });
   };
-  const renderRuntimePanel = (): string => `<section class="source-team-builder__runtime-panel" aria-label="技能冷却与状态剩余"><h4>技能冷却与关联状态剩余</h4><label>模拟时间（拖动到要查看的时刻）<input type="range" data-sim-time-cursor min="0" max="${simulationEndFrame}" step="1" value="${simulationCursor}"></label><output data-sim-time-readout>第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧</output><p class="source-team-builder__note">1 秒按 60 帧换算。E/Q 冷却只在来源日志记录就绪帧后显示倒计时；状态时间只对应本次来源记录并关联到动作的状态实例，不代表所有队伍增益。缺少就绪帧、固定期限或状态变更帧时显示“未知”。</p><div data-runtime-effects>${runtimeEffectRows()}</div></section>`;
+  const renderRuntimePanel = (): string => `<section class="source-team-builder__runtime-panel" aria-label="技能冷却与状态剩余"><h4>技能冷却与关联状态剩余</h4><div><button type="button" data-playback-toggle ${simulationEndFrame === 0 ? "disabled" : ""}>${playback.playing ? "暂停" : "播放回放"}</button><label>回放倍率<select data-playback-speed>${PLAYBACK_SPEEDS.map(speed => `<option value="${speed}" ${playback.speed === speed ? "selected" : ""}>${speed}x</option>`).join("")}</select></label><button type="button" data-playback-end>直接查看结果</button></div><p>计算完成后即可查看结果；回放只改变查看时刻，不改变伤害、随机种子或模拟时间轴。</p><label>模拟时间（拖动到要查看的时刻）<input type="range" data-sim-time-cursor min="0" max="${simulationEndFrame}" step="1" value="${simulationCursor}"></label><output data-sim-time-readout>第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧</output><p class="source-team-builder__note">1 秒按 60 帧换算。E/Q 冷却只在来源日志记录就绪帧后显示倒计时；状态时间只对应本次来源记录并关联到动作的状态实例，不代表所有队伍增益。缺少就绪帧、固定期限或状态变更帧时显示“未知”。</p><div data-runtime-effects>${runtimeEffectRows()}</div></section>`;
   const renderLogs = () => {
     const host = root.querySelector<HTMLElement>("[data-source-team-logs]");
     if (!host) return;
@@ -738,6 +760,15 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
   root.onclick = event => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
     if (!button || !root.contains(button)) return;
+    if (button.dataset.playbackToggle !== undefined) {
+      if (playback.playing) stopPlayback();
+      else { playback.play(performance.now()); playbackRequest = requestAnimationFrame(playbackTick); }
+      updateRuntimeViews(); return;
+    }
+    if (button.dataset.playbackEnd !== undefined) {
+      stopPlayback(); playback.seek(simulationEndFrame, performance.now());
+      simulationCursor = simulationEndFrame; updateRuntimeViews(); return;
+    }
     const selectedPreset = findSourceTeamPreset(teamPresets, selectedPresetId);
     try {
       if (button.dataset.targetSceneAction !== undefined) {
@@ -854,12 +885,17 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     if (target.dataset.simTimeCursor === undefined) return;
     const frame = Number(target.value);
     if (!Number.isInteger(frame)) return;
-    simulationCursor = Math.max(0, Math.min(simulationEndFrame, frame));
+    playback.seek(frame, performance.now());
+    simulationCursor = playback.frame;
     updateRuntimeViews();
   };
   root.onchange = event => {
     const target = event.target as HTMLInputElement | HTMLSelectElement;
     if (!root.contains(target)) return;
+    if (target.dataset.playbackSpeed !== undefined) {
+      playback.setSpeed(Number(target.value), performance.now());
+      simulationCursor = playback.frame; updateRuntimeViews(); return;
+    }
     try {
       if (target.dataset.tier !== undefined) { chosenTier = target.value as CharacterBuildPresetTier; status = "已切换预设等级；现有成员保持当前编辑。重新选择模板或角色可应用新等级。"; render(); return; }
       if (target.dataset.template !== undefined) { previewTemplateId = target.value; error = ""; render(); return; }
@@ -971,6 +1007,6 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     getDraft: () => structuredClone(draft),
     getCharacterName: characterKey => inventory?.characters.find(character => character.key === characterKey)?.name,
     renderExecutionLogs(logs, statusInstances, endFrame) { executionLogs = logs; setRuntimeState(logs, statusInstances, endFrame); rawLogOffset = 0; renderLogs(); updateRuntimeViews(); },
-    dispose() { disposed = true; root.onclick = null; root.onchange = null; root.oninput = null; root.replaceChildren(); }
+    dispose() { stopPlayback(); disposed = true; root.onclick = null; root.onchange = null; root.oninput = null; root.replaceChildren(); }
   };
 }
