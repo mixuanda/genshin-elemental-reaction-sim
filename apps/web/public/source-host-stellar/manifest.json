@@ -3401,14 +3401,14 @@
   },
   "goVersion": "go1.27.1",
   "goArchive": {
-    "filename": "go1.27.1.darwin-arm64.tar.gz",
-    "sha256": "ee215d57e0ec269c60cc9ceca68e6bda321ba9ee5afe24f4b0988703c2d87d12",
-    "bytes": 68100347
+    "filename": "go1.27.1.linux-amd64.tar.gz",
+    "sha256": "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445",
+    "bytes": 70553950
   },
   "goCompiler": {
     "path": "bin/go",
-    "sha256": "132b69336a1f809932a8a20b0201dbbb980e86e3a323ae32e893639d83d71598",
-    "bytes": 16071392
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "bytes": 17142188
   },
   "linkedModules": [
     {
@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "95e33baf8dfdb7264cea14d9b339724de41311d906df93f8d4c1f4e0c8131256",
-      "bytes": 71852581
+      "sha256": "a16817836d46ca096f24cf31e70e614002d4d443eae06c64ba5fe0ee8bc62744",
+      "bytes": 71853672
     },
     {
       "path": "wasm_exec.js",
@@ -3470,7 +3470,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "598f936917920b76b74899807e7ef434a818052b49734d650c8140760792952d",
+      "sha256": "9f777719496d249550ae77ae411881b6079fea5faaa556ef8b86659de7597ddf",
       "bytes": 1883017
     }
   ],
@@ -3491,8 +3491,8 @@
       "bytes": 393659
     },
     "host": {
-      "goos": "darwin",
-      "goarch": "arm64"
+      "goos": "linux",
+      "goarch": "amd64"
     }
   },
   "licenses": [
@@ -4259,6 +4259,11 @@
       "path": "131-raiden-owned-native.patch",
       "sha256": "cb78fba57b722a36d30c12cd4a89c747d2256b3e3791b6aedb691044645372da",
       "bytes": 8300
+    },
+    {
+      "path": "132-neuvillette-initial-hp-a4.patch",
+      "sha256": "452b8d17b5c3e5d185e58d358e9c49495c4ccfcedcfb7e57df6c4b8077d89a15",
+      "bytes": 479
     }
   ],
   "supportedFormulaFamilies": [

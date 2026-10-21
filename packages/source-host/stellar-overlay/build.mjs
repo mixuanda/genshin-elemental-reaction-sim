@@ -174,6 +174,9 @@ const phaseCompletionPatches = [
   'patches/130-animation-callback-core.patch',
   'patches/130-animation-callback-sites.patch',
   'patches/131-raiden-owned-native.patch',
+  // a7 also initializes character passives before InitializeTeam sets HP.
+  // Sample A4 on OnInitialize; preserve native heal/drain callbacks.
+  '../patches/132-neuvillette-initial-hp-a4.patch',
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');

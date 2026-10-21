@@ -1,0 +1,55 @@
+import {expect,test} from '@playwright/test';
+import {readFile,writeFile} from 'node:fs/promises';
+import {captureSourceHostHit,replaySourceHostHit} from '../../../packages/sim-core/src/source-host-capture';
+import type {SourceHostResult} from '../../../packages/sim-core/src/source-host-wire';
+
+for(const seed of [12021,12022]) for(const startHp of [undefined,3000])test(`Neuvillette A4 follows initialization, droplet healing and charge drain from ${startHp??'full'} HP seed ${seed}`,async({page},info)=>{
+ test.setTimeout(120_000);
+ const config=`options iteration=1 duration=120;
+neuvillette char lvl=90/90 cons=0 talent=1,1,1${startHp?' +params=[start_hp=3000]':''};
+neuvillette add weapon="pocketgrimoire" refine=1 lvl=70/70;
+target lvl=90 resist=0.1 radius=2 pos=0,2.4;
+active neuvillette;
+neuvillette skill;
+neuvillette charge;
+wait(800);
+neuvillette skill;
+neuvillette charge;
+wait(7200);`;
+ await page.goto('/source-simulation');
+ await page.locator('#source-host-variant').selectOption('stellar');
+ await page.locator('#source-host-config').evaluate(el=>{let d=el.closest('details');while(d){d.open=true;d=d.parentElement?.closest('details')??null;}});
+ await page.locator('#source-host-config').fill(config);
+ await page.locator('#source-host-seed').fill(String(seed));
+ await page.locator('#source-host-run').click();
+ await expect(page.locator('#source-host-status')).toContainText('本次运行完成',{timeout:60_000});
+ await page.locator('#source-host-export').evaluate(el=>{el.closest('details')!.open=true;});
+ const pending=page.waitForEvent('download');await page.locator('#source-host-export').click();
+ const r=JSON.parse(await readFile((await(await pending).path())!,'utf8')) as SourceHostResult;
+ await writeFile(info.outputPath('neuvillette-a4.capture.json'),JSON.stringify(r));
+ expect(r.sourceCommit).toBe('a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd');
+ expect(r.observationWindow?.actualEndFrame).toBe(7200);
+ const modifiers=r.calculations.map(row=>row.request).filter(q=>q.kind==='character-modifier'&&q.input.ruleId==='char-dyn-neuvillette-a4-hydrop');
+ const damage=r.calculations.map(row=>row.request).filter(q=>q.kind==='damage');
+ const first=damage[0]!;if(first.kind!=='damage'||!first.snapshot)throw Error('Missing actual snapshot');
+ const maxHp=first.snapshot.baseHp*(1+first.snapshot.hpPct)+first.snapshot.flatHp;
+ const ratios=modifiers.map(q=>{if(q.kind!=='character-modifier'||!('state' in q.input))throw Error();return Number(q.input.state.hpRatio);});
+ expect(ratios[0]).toBeCloseTo(startHp?startHp/maxHp:1,10);
+ expect(r.drainApplications!.length).toBeGreaterThan(0);
+ expect(r.healingApplications!.length).toBeGreaterThan(0);
+ for(const d of r.drainApplications!)expect(ratios.some(v=>Math.abs(v-d.resultRatio)<1e-10)).toBe(true);
+ for(const h of r.healingApplications!.filter(h=>h.currentHp>h.previousHp)??[])expect(ratios.some(v=>Math.abs(v-h.currentHp/maxHp)<1e-10)).toBe(true);
+ expect(new Set(ratios.map(v=>v.toFixed(6))).size).toBeGreaterThan(3);
+ const byId=new Map(damage.map(q=>[q.id,q]));
+ for(const hit of r.applications){
+  const q=byId.get(hit.calculationId)!;if(q.kind!=='damage')throw Error();
+  const prior=modifiers.filter(m=>m.id<q.id).at(-1)!;if(prior.kind!=='character-modifier'||!('state' in prior.input))throw Error();
+  const bonus=Math.max(0,Math.min(.3,(Number(prior.input.state.hpRatio)-.3)*.6));
+  expect(q.input.damageBonus).toBeCloseTo(bonus,10);
+  expect(q.input.amped).toBe(false);
+  const manual=(q.input.scalingValue*q.input.scaling+q.input.flatDamage)*.5*.9*(1+bonus)*(q.input.isCrit?1+q.input.critDamage:1);
+  expect(hit.rawDamage).toBeCloseTo(manual,8);
+  expect(replaySourceHostHit(captureSourceHostHit(r,hit.id)).difference).toBe(0);
+ }
+ console.log('NEUV_A4_DYNAMIC',JSON.stringify({startHp:startHp??'full',ratios,hits:r.applications.length,drains:r.drainApplications!.length,heals:r.healingApplications!.length}));
+});
