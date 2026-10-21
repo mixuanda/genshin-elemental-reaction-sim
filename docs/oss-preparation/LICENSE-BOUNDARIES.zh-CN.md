@@ -30,3 +30,5 @@ Stellar Worker下载WASM并把TypeScript resolver作为同步回调传给Go；�
 4. 在无私有缓存的干净环境重建，保存工具链/依赖解析及二进制差异报告；未完成前只称材料盘点/构建方案，不称可复现发布包。
 
 根许可证选择和实际源码公开发布仍待维护者决定；本轮没有删除功能、改变原许可或进行部署。
+
+2026-10-21后续事实修复：Classic与Stellar构建脚本的public复制名单均已补上真实staged产物go-build-info.txt，两个脚本通过node --check；未重建Go/WASM，未给现有二进制伪造build-info。现有public缺文件、完整修改源码获取入口和干净重建的缺口仍然存在。根许可证没有选择或变更。

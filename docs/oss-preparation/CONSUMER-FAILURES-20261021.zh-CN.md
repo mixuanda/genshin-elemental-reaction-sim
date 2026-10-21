@@ -13,7 +13,7 @@
 | classified-hits：持续tick不是完整技能 | 旧fischl-skill-birdatk被coordinated-fischl-skill-c0等替换；旧ID查找为undefined | 保留，后续需审计新入口是否完整保留独立单击与状态要求，不能只换期待 |
 | classified-hits：新来源固定tick计数 | 旧Prune/后续Odette动作入口与当前观测实体入口不一致 | 保留，当前动作清单/缺失上下文已导出，不把源码最大排程当实际全中 |
 | classified-hits：旅行者性别元素 | 旧aether-anemo-burst被traveler-cross-aether-anemo-burst-c0替换；旧冲突映射已移出 | 保留；当前要求剧情增益明确状态，不恢复旧冲突或猜测状态 |
-| classified-hits：HP/DEF混合项 | Chiori旧thrustatkscaling映射在idle-stance替换表中移除；旧字段查找失败 | 保留；不代表新入口已证明等价，需要独立单击回归 |
+| classified-hits：HP/DEF混合项 | 首个失败在第59行Neuvillette旧HP入口；其后Chiori旧thrustatkscaling与Alhaitham突进也在idle-stance替换表中移除。后续块已恢复后两者，Neuvillette仍待审计 | 保留；不代表新入口已证明等价，需要独立单击回归 |
 | classified-hits：草旅行者A4静态条数 | 新held/cross-source动作在实际命中上下文阶段生成A4，要求实时EM与已含份额，旧测试只数初始文档的静态damageBonusFormula | 保留，不能用快照EM或固定计数替代命中时状态 |
 | equipment-additional-effects：覆盖计数 | 旧期待4件44/公式42/反应5；实际48/46/6，独立verified仍0，统计明确countsPartialMappings=true | 保留旧失败，实际清单待逐项确认，不单纯改数字 |
 | update-pipeline：previewSnapshots=[] | 当前已有隔离预览快照；该断言与“activeVerifiedDataset=null”并不等价 | 保留，未激活预览或提升verified，不删除预览数据 |
