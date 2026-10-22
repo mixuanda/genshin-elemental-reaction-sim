@@ -40,5 +40,11 @@ it('does not label old Venti Q or an unverified source as the known E bug',()=>{
  const result=fixture({executionArtifact:{wasmSha256:'8e159a65991824908ecfa1226ae18a18c87b1956f9458dc7257bd97b249322f6',wasmBytes:1},abilityInvocations:[],
   calculations:[{request:{kind:'damage',actorKey:'venti',ability:"Wind's Grand Ode",input:{hitWeakPoint:false}}}]});
  expect(renderSourceResultModelLimits(result)).toBe('');
- result.sourceCommit='unknown';expect(renderSourceResultModelLimits(result)).toBe('');
+ // An untrusted record may carry an unknown revision. Construct it through the
+ // deliberately untyped fixture boundary instead of assigning it to the
+ // validated SourceHostResult revision union. Use an affected E request so
+ // this also proves an unknown revision cannot inherit the known-artifact bug.
+ const unknown=fixture({sourceCommit:'unknown',executionArtifact:result.executionArtifact,abilityInvocations:[],
+  calculations:[{request:{kind:'damage',actorKey:'venti',ability:'Skyward Sonnett (Press)',input:{hitWeakPoint:true}}}]});
+ expect(renderSourceResultModelLimits(unknown)).toBe('');
 });
