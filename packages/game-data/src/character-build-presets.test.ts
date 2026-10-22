@@ -111,6 +111,7 @@ describe("editable character build presets", () => {
       expect(hit.finalDamage).toBeCloseTo(factor * (1 + (resolved.damageBonuses.anemo ?? 0)) * 190 / 390 * 0.9, 8);
       expect(preset.artifactBalance!.energyConstraint.status).toBe("unspecified");
     }
-    expect(characterBuildPresets.filter(preset => preset.artifactBalance).every(preset => preset.characterSlug === "wanderer")).toBe(true);
+    expect([...new Set(characterBuildPresets.filter(preset => preset.artifactBalance).map(preset => preset.characterSlug))].sort())
+      .toEqual(["kukishinobu", "neuvillette", "noelle", "wanderer"]);
   });
 });

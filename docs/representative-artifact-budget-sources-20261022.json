@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-10-22T13:09:39.885270+00:00",
+  "baselineCommit": "d3821340ce2f5232674cb50f21c37f49c5318869",
+  "status": "source-backed-provisional; single-effect objectives, not full rotation DPS or graduation coverage",
+  "sources": [
+    {
+      "id": "kqm-neuvillette-quickguide",
+      "url": "https://keqingmains.com/q/neuvillette-quickguide/",
+      "readVia": "web open/find on 2026-10-22; no HTML hash asserted",
+      "pinKind": "public live community guide"
+    },
+    {
+      "id": "kqm-noelle-quickguide",
+      "url": "https://keqingmains.com/q/noelle-quickguide/",
+      "readVia": "web open/find on 2026-10-22; no HTML hash asserted",
+      "pinKind": "public live community guide"
+    },
+    {
+      "id": "kqm-kuki-quickguide",
+      "url": "https://keqingmains.com/q/shinobu-quickguide/",
+      "readVia": "web open/find on 2026-10-22; no HTML hash asserted",
+      "pinKind": "public live community guide"
+    },
+    {
+      "id": "kqm-transformative-reactions",
+      "url": "https://library.keqingmains.com/combat-mechanics/elemental-effects/transformative-reactions",
+      "readVia": "web open/find on 2026-10-22; no HTML hash asserted",
+      "pinKind": "public live community guide"
+    },
+    {
+      "id": "gcsim-neuvillette-charge",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/neuvillette/charge.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sha256": "ab71d925851aaaed07f3c1b082591ec6e8c19ea10d1a16ce3a5f4dc703e0d020",
+      "bytes": 10180,
+      "pinKind": "immutable commit"
+    },
+    {
+      "id": "gcsim-noelle-burst",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/burst.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d",
+      "bytes": 3922,
+      "pinKind": "immutable commit"
+    },
+    {
+      "id": "active-catalog",
+      "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+      "sha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+      "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+      "claimsUsed": [
+        "Neuvillette combat1 param5 Lv10 = 0.14467",
+        "Noelle combat1 param1 Lv9 = 1.4536; combat3 param3 effective Lv13 = 0.85; C6 +0.5",
+        "Lv90 character and weapon ordinary base/secondary stats; no passive assumed"
+      ]
+    }
+  ]
+}

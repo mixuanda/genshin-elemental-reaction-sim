@@ -81,4 +81,19 @@ describe("bounded artifact allocation under a fixed legal budget", () => {
     piece.observed = { source: "test-observed-panel", substats: [{ stat: "hp_", value: 0.2 }] };
     expect(() => balanceFiveStarArtifactRolls([piece], () => 1)).toThrow("不能猜测");
   });
+
+  it("rejects illegal budgets instead of repairing extra rolls, duplicate identities, main/sub overlap or imaginary tiers", () => {
+    const legal = flower([sub("eleMas", 5), sub("hp_", 1), sub("atk_", 1), sub("critDMG_", 1)]);
+    const extra = structuredClone(legal);
+    extra.substats[0]!.rolls.push(3); // Three-line +20 cannot have 9 rolls / 6 on one stat.
+    const duplicate = structuredClone(legal);
+    duplicate.substats[1]!.stat = "eleMas";
+    const overlap = structuredClone(legal);
+    overlap.substats[1]!.stat = "hp";
+    const imaginary = structuredClone(legal);
+    imaginary.substats[0]!.rolls[0] = 4;
+    for (const invalid of [extra, duplicate, overlap, imaginary]) {
+      expect(() => balanceFiveStarArtifactRolls([invalid], stats => stats.eleMas ?? 0)).toThrow();
+    }
+  });
 });
