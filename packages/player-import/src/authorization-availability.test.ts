@@ -18,6 +18,20 @@ describe("official account import availability boundary", () => {
     expect(getEquipmentAuthorizationAvailability("https://example.invalid/login" as EquipmentProvider)).toBeNull();
   });
 
+  it("distinguishes the source-backed normal login route from verified cloud account access", () => {
+    const cn = getEquipmentAuthorizationAvailability("miyoushe")!;
+    const os = getEquipmentAuthorizationAvailability("hoyolab")!;
+    expect(cn.status).toBe("normal-client-route-found-live-host-unverified");
+    expect(cn.normalClientRoute.authentication).toContain("国服扫码");
+    expect(os.normalClientRoute.authentication).toContain("不能把国服扫码方式套到海外");
+    expect(cn.normalClientRoute.scopeFact).toContain("权限超出装备只读");
+    expect(cn.normalClientRoute.cloudStatus).toContain("真实账号连通及完整配装尚未验证");
+    expect(cn.normalClientRoute.sources).toHaveLength(3);
+    expect(os.normalClientRoute.sources).toHaveLength(2);
+    expect(cn.missingRequirements[0]).toContain("用户可见");
+    expect(cn).toMatchObject({ realLogin: false, authorizedEquipmentRead: false });
+  });
+
   it("keeps provider links separate from an authorization grant and isolates caller edits", () => {
     const first = getEquipmentAuthorizationAvailability("miyoushe")!;
     expect(first.officialCommunityUrl).toBe("https://www.miyoushe.com/ys/");

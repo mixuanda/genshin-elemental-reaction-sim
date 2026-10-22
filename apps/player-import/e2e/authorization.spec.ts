@@ -19,7 +19,11 @@ test("account import states the exact unavailable route without account traffic 
   await page.getByText("读取范围、断开含义与当前缺口", { exact: true }).click();
   await expect(page.locator("[data-authorization-scope]")).toContainText("当前装备");
   await expect(page.locator("[data-authorization-exclusions]")).toContainText("未装备背包物品");
-  await expect(page.locator("[data-authorization-gaps]")).toContainText("官方明确允许第三方接入");
+  await expect(page.locator("[data-authorization-gaps]")).toContainText("用户可见");
+  await expect(page.locator("[data-normal-client-route]")).toContainText("不能把国服扫码方式套到海外");
+  await expect(page.locator("[data-normal-client-scope]")).toContainText("权限超出装备只读");
+  await expect(page.locator("[data-normal-client-cloud]")).toContainText("真实账号连通及完整配装尚未验证");
+  await expect(page.locator("[data-normal-client-sources] a")).toHaveCount(2);
   await page.locator("[data-clear-equipment-access]").click();
   await expect(page.locator("[data-authorization-status]")).toContainText("没有执行官方账号登出或撤权");
   await expect(page.locator("[data-authorization-availability]")).toHaveText("真实登录暂不可用");
