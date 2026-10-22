@@ -7,3 +7,5 @@ export type { TextImportOptions } from "./hutao-text";
 export { importPlayerInput } from "./import";
 export { createCoreHandoff } from "./core-handoff";
 export type { CoreImportHandoff, NullableCorePanel, DamageElement } from "./core-handoff";
+export { createOwnedEquipmentController, equipmentProviderInfo } from "./authorized-host";
+export type { BoundEquipmentRole, EquipmentProvider, EquipmentProblemCode, EquipmentProblem, FixtureEquipmentHost, HostProblemCode, OwnedEquipmentState } from "./authorized-host";
