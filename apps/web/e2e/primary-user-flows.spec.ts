@@ -29,17 +29,13 @@ test('home leads to a real single-skill formula and exact required-condition con
   await page.locator('#calc-skill').selectOption((await burst.getAttribute('value'))!);
   await page.locator('#calc-constellation').selectOption('4');
   await expect(page.getByTestId('calculator-required-inputs')).toBeVisible();
-  const prompt=page.locator('[data-calculator-requirement]').filter({hasText:'本击快照时 C4 有效'}).first();
-  await prompt.click();
-  const target=page.locator('select[data-keqing-state-field$=".c4Active"]').first();
-  await expect(target).toBeFocused();
-  // Follow each visible prompt; the product opens the exact existing condition control.
+  const target=page.locator('[data-calculator-inline-conditions] select[data-keqing-state-field$=".c4Active"]').first();
+  await expect(target).toBeVisible();await target.focus();await expect(target).toBeFocused();
+  // Use the actual in-place fields; the original input is moved, never copied.
   for(let i=0;i<20;i++) {
-    const next=page.locator('[data-calculator-requirement]').first();
+    const next=page.locator('[data-calculator-required-field="true"]').first();
     if(!await next.count()) break;
-    const selector=await next.getAttribute('data-calculator-requirement');
-    await next.click();
-    await page.locator(selector!).selectOption('0');
+    await next.locator('select').selectOption('0');
   }
   expect((await audit()).result.status).toBe('calculated');
 });

@@ -18,16 +18,15 @@ test('C6 Wanderer initial E links actual conditions and keeps the full stance un
     await page.locator(`[data-field="${key}"]`).fill(value);
     await page.locator(`[data-field="${key}"]`).blur();
   }
-  const requirements = page.locator('[data-calculator-requirement]');
+  const requirements = page.locator('[data-calculator-required-field="true"]');
   await expect(requirements).toHaveCount(2);
   await expect(page.locator('#calc-results')).not.toContainText('此有限姿态分支只支持 C0');
   const audit = async () => JSON.parse((await page.locator('#calc-results .calculator-audit pre').textContent())!);
   expect((await audit()).result.status).toBe('blocked');
   for (let i = 0; i < 2; i++) {
-    const selector = await requirements.first().getAttribute('data-calculator-requirement');
-    await requirements.first().click();
-    await expect(page.locator(selector!)).toBeFocused();
-    await page.locator(selector!).selectOption('1');
+    const control=requirements.first().locator('select');
+    await expect(control).toBeVisible();
+    await control.selectOption('1');
   }
   const actual = await audit();
   const expected = 2000 * 2.023 * (200 / 390) * 0.9 * 1.5;

@@ -76,6 +76,7 @@ import {
 } from "@genshin-dps-lab/sim-core";
 import "./calculator.css";
 import { createWorkspaceCalculatorTrust } from "./calculator-workspace-trust";
+import { createCalculatorRequiredControls } from "./calculator-required-controls";
 import { resolveEquipmentBuild } from "@genshin-dps-lab/game-data/equipment-build";
 import { renderTraceHtml } from "./calculator-trace-view";
 export { renderTraceHtml } from "./calculator-trace-view";
@@ -224,6 +225,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     `<fieldset id="calc-equipment-controls"><legend>装备基础推导</legend><p class="calculator-hint">选择正式角色后，可按精确等级、突破与合法武器查表。未选择真实角色时保持教学数值独立。</p></fieldset><div id="calc-document-controls" class="calculator-full"></div></div><div id="calc-results" aria-live="polite"></div></div><details><summary>圣遗物生存与探索工具</summary><section id="calc-artifact-utility" aria-label="圣遗物生存与探索计算"></section></details>`;
   renderArtifactUtilityCalculator(root.querySelector<HTMLElement>("#calc-artifact-utility")!);
   const get = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+  const inlineRequirements = createCalculatorRequiredControls(root);
   const message = (text: string, error = false): void => { get("#calc-message").textContent = text; get("#calc-message").className = error ? "calculator-error" : "calculator-hint"; };
   const sourceDraftHandlers: Array<{
     key: keyof NonNullable<CalculatorDocument["gameContext"]>; field: string; prefix: string; input: string; editor: string; status: string;
@@ -834,6 +836,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   }
 
   function renderControls(): void {
+    inlineRequirements.restore();
     get<HTMLButtonElement>('[data-action="export"]').disabled = !current;
     get("[data-calculator-example-mode]").hidden = activeExampleId === null;
     if (!current) { get("#calc-document-controls").innerHTML = ""; return; }
@@ -891,6 +894,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   }
 
   function renderResults(): void {
+    inlineRequirements.restore();
     if (!current) return;
     if (invalidFields.size) { currentResult = null; get("#calc-results").innerHTML = `<div class="calculator-status blocked">${invalidFields.has(CHARACTER_RESOURCE_DRAFT_FIELD) || invalidFields.has(COORDINATED_SCHEDULE_DRAFT_FIELD) || invalidFields.has(HELD_LIFECYCLE_DRAFT_FIELD) || sourceDraftHandlers.some(handler => invalidFields.has(handler.field)) || observedLedgerHandlers.some(handler => invalidFields.has(observedLedgerField(handler.key))) ? "请应用或放弃尚未应用的日程草稿；当前不保留旧结果。" : "请完整填写必需输入并修正非法数值；当前不保留旧结果。"}</div>`; return; }
     try {
@@ -907,10 +911,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const requiredFields = requirements.fields.filter(field => field.status !== "missing-control");
       const unsupportedIdleConstellation = current.gameContext?.idleStanceCast && current.gameContext.constellation !== 0
         && !(current.selectedHitIds.length === 1 && current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && isWandererInitialSingleHit(current!, hit)));
-      const conditionLinks = requiredFields.length ? `<p>请补齐以下实际条件：</p><div class="calculator-required-fields">${requiredFields.map(field => `<button type="button" data-calculator-requirement="${esc(field.controlSelector)}" title="${esc(field.explanation)}">填写：${esc(field.label)}</button>`).join("")}</div>` : "";
+      const inlineFields = inlineRequirements.fields(JSON.stringify([current.id,current.scope,current.selectedHitIds,current.gameContext?.constellation]),requiredFields);
+      const conditionLinks = inlineFields.length ? `<section class="calculator-inline-conditions" data-calculator-inline-conditions><h4>${requiredFields.length ? "补齐本次命中的条件" : "本次命中的条件"}</h4><p class="calculator-hint">填写后自动重算；已填写的选项可继续修改。</p>${inlineFields.map(({field,required},index)=>`<div class="calculator-inline-condition" data-calculator-required-field="${required}" data-calculator-condition-id="${esc(field.id)}"><span class="calculator-hint">${field.hitIds.length===1 ? esc(current!.hits.find(hit=>hit.id===field.hitIds[0])?.label??"") : "本次所选命中"}${required?" · 待填写":""}</span><div data-calculator-inline-control="${index}"></div><button type="button" data-calculator-requirement="${esc(field.controlSelector)}">填写：${esc(field.label)}</button><small>${esc(field.explanation)}</small></div>`).join("")}</section>` : "";
+      const unlinked = requirements.blockers.filter(blocker=>blocker.status!=="linked-controls");
+      const blockerPanel = result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>${requiredFields.length ? "请填写下方条件" : "此动作尚缺少以下支持或证据"}</strong>${unlinked.length ? `<p>${[...new Set(unlinked.map(blocker=>blocker.reason))].map(esc).join("；")}</p>` : ""}<details><summary>查看具体原因与支持范围</summary><ul>${result.blockers.map(b=>`<li>${esc(b)}</li>`).join("")}</ul></details>${unsupportedIdleConstellation ? '<p>此有限姿态分支只支持 C0。可选择已支持的单次命中，或使用动作执行器。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "";
       get("#calc-results").innerHTML = `<section class="card"><h3 class="calculator-result-header">${esc(current.label)}</h3><span class="calculator-badge ${esc(data.releaseStatus)}">${esc(releaseLabels[data.releaseStatus])}</span><span class="calculator-badge ${esc(result.verification)}">${esc(evidenceLabels[result.verification])}</span><p class="calculator-hint">数据集 ${esc(data.datasetId)} · 版本 ${esc(data.gameVersion)} · 公式 ${esc(current.ruleVersion)}</p>` +
-        documentIdentity(current, result) + '<div data-cast-aggregation-host></div>' +
-        (result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>尚需补充条件或更换受支持动作</strong>${conditionLinks}<ul>${result.blockers.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${unsupportedIdleConstellation ? '<p>此有限姿态分支只支持 C0，不能把当前命座改成 C0 代算。可打开动作执行器，另行选择明确配装与实际动作。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "") +
+        blockerPanel + conditionLinks + documentIdentity(current, result) + '<div data-cast-aggregation-host></div>' +
         `<p class="calculator-hint">${result.hits.some(hit => hit.nonCriticalComparisonOnly) ? "弱点来源保证暴击的命中，其期望等于暴击伤害；非暴击数值仅为移除该条件后的教学对照，本条件下不会发生。其他命中仍按各自概率计算。" : "期望值是概率加权的平均结果，不是保证出现的单次伤害数字。"}</p>` +
         (current.assumptions.length || distinctWarnings.length ? `<details class="calculator-status"><summary>计算条件与支持范围</summary><ul>${[...current.assumptions, ...distinctWarnings].map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>` : "") +
         `<p class="calculator-hint">纳入：${result.includedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}；排除：${result.excludedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}。</p>` +
@@ -918,6 +924,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         result.hits.map((hit, index) => `<details class="calculator-hit-card" data-detail-id="hit-card:${esc(hit.id)}"${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? " open" : ""}><summary>${esc(hit.label)} · ${hit.status === "blocked" ? "阻塞" : hit.status === "non-damaging" ? "非伤害状态" : hit.sampled ? `本次抽样 ${number(hit.sampled.damage)} · 解析期望 ${number(hit.expected)}` : ` ${hit.castContribution ? "本次施放期望贡献" : "期望"} ${number(hit.castContribution?.expected ?? hit.expected)}`}</summary>${hit.blockers.length ? `<p class="calculator-error">${hit.blockers.map(esc).join("；")}</p>` : ""}${hit.sampled ? `<section class="calculator-status" data-special-sampled><div class="calculator-summary"><div class="metric"><div class="label">本次抽样实际伤害</div><div class="value" data-testid="calc-sampled">${number(hit.sampled.damage)}</div></div><div class="metric"><div class="label">解析期望对照</div><div class="value" data-testid="calc-sampled-expected">${number(hit.expected)}</div></div></div><p class="calculator-hint">实际值来自本次记录的逐贡献者暴击结果，再经共享公式排序和加权；解析期望仍按原始面板计算所有暴击组合。${hit.sampled.displayedCritical === "ambiguous-tie" ? "最高贡献并列，暴击标记不唯一。" : hit.sampled.displayedCritical === "critical" ? "最高贡献显示暴击。" : "最高贡献显示非暴击。"}完整随机数、比较与排序见下方计算轨迹。</p></section>` : ""}${hit.nonCriticalComparisonOnly ? `<p class="calculator-hint" data-weak-point-comparison>本击按明确弱点来源规则必定暴击，实际期望 ${number(hit.expected)}；非暴击 ${number(hit.nonCritical)} 仅作教学对照，面板暴击率没有被改写。</p>` : ""}${hit.castContribution ? `<p class="calculator-hint">触发后实际一击：非暴击 ${number(hit.nonCritical)}，暴击 ${number(hit.critical)}，期望 ${number(hit.expected)}；主击暴击触发概率 ${number(hit.castContribution.triggerProbability)}，本次施放期望贡献 ${number(hit.castContribution.expected)}。计算过程见下方共享轨迹。</p>` : ""}<div data-hit-trace-index="${index}"${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? ' data-trace-mounted="true"' : ""}>${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? renderTraceHtml(hit.trace) : ""}</div></details>`).join("") +
         (result.counterexample ? `<aside class="calculator-counterexample"><h3>错误捷径对照 · 不计入正式总伤害</h3><p>${esc(result.counterexample.explanation)}</p><p>错误结果 <strong>${number(result.counterexample.incorrect)}</strong>；高估 <strong>${number(result.counterexample.overstatement)}</strong>。</p>${renderTraceHtml(result.counterexample.trace)}</aside>` : "") +
         `<details class="calculator-audit"><summary>来源、依赖与完整计算记录</summary><p class="calculator-hint">公式与代入来自同一个执行轨迹。下列审计包含未舍入数值、输入来源和规则版本。</p>${sourceLinks([...current.hits.flatMap(hit => hit.sourceRefs), ...current.dependencies.flatMap(dependency => dependency.sourceRefs), ...(current.build.mode === "equipment-derived" ? current.build.equipment?.sourceRefs ?? [] : [])])}<pre>${esc(JSON.stringify({ document: current, dataIdentity: data, gameContext: current.gameContext, ruleVersion: current.ruleVersion, dependencies: current.dependencies, hitSources: current.hits.map(h => ({ id: h.id, sourceRefs: h.sourceRefs })), result }, null, 2))}</pre><button type="button" data-action="export-report">导出完整计算报告</button></details></section>`;
+      inlineRequirements.mount(inlineFields);
       mountCalculatorAggregation(get("[data-cast-aggregation-host]"), result.aggregation, { nonCriticalComparisonOnly: result.hits.some(hit => hit.nonCriticalComparisonOnly) });
       get("#calc-results").querySelectorAll<HTMLDetailsElement>("details[data-detail-id]").forEach(d => { if (openDetails.includes(d.dataset.detailId)) d.open = true; });
       rememberCurrent();
