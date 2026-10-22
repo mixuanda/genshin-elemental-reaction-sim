@@ -77,6 +77,7 @@ import {
 import "./calculator.css";
 import { createWorkspaceCalculatorTrust } from "./calculator-workspace-trust";
 import { createCalculatorRequiredControls } from "./calculator-required-controls";
+import { buildCharacterOutputs, renderCharacterOutputs } from "./calculator-character-outputs";
 import { resolveEquipmentBuild } from "@genshin-dps-lab/game-data/equipment-build";
 import { renderTraceHtml } from "./calculator-trace-view";
 export { renderTraceHtml } from "./calculator-trace-view";
@@ -222,7 +223,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     `<details data-calculator-example-tools><summary>教学与来源示例（可选）</summary><p class="calculator-hint">仅在想查看算例时载入；示例不会作为默认角色或配装。</p><div class="calculator-preset-row"><label>例题与来源实例<select id="calc-example-select">${["synthetic", "source-backed-game", "verified-game"].map(category => `<optgroup label="${esc(exampleCategoryLabel(category))}">${WORKED_EXAMPLES.filter(e => e.category === category).map(e => `<option value="${esc(e.id)}">${esc(e.title)}</option>`).join("")}</optgroup>`).join("")}</select></label><button type="button" data-action="load-example">载入例题</button></div></details>` +
     `<details><summary>独立武器追击（可选）</summary><fieldset id="calc-weapon-proc-controls"><legend>武器独立追击</legend><div class="calculator-preset-row"><label>追击来源<select id="calc-proc-weapon">${weaponProcDefinitions.map(weapon => `<option value="${weapon.weaponId}">${esc(weapon.weaponName)} · ${weapon.scalingStat === "atk" ? "攻击力" : "最大生命"}缩放</option>`).join("")}</select></label><label>精炼<select id="calc-proc-refinement">${[1, 2, 3, 4, 5].map(refinement => `<option value="${refinement}">R${refinement}</option>`).join("")}</select></label><button type="button" data-action="load-weapon-proc">打开独立追击计算</button></div><label id="calc-proc-trigger-aura-control" hidden>原触发目标在回调时是否附着冰／冻结<select id="calc-proc-trigger-aura"><option value="">未知，请明确填写</option><option value="0">否，使用普通倍率</option><option value="1">是，使用冰／冻结条件倍率</option></select><small>整次范围追击共用原触发目标的这次状态，不取当前受击目标的附着；未知时不生成伤害。</small></label><p class="calculator-hint">计算一次已经触发并命中的武器追击，不需要创建队伍。首次载入为明确的可编辑教学面板，请替换为实际取样属性；改变武器或精炼时保留当前追击面板和目标。来源倍率固定，结果仍为条件计算。</p></fieldset></details>` +
     `<fieldset><legend>公开展示柜</legend><div class="calculator-import-row"><label>UID<input id="calc-showcase-uid" inputmode="numeric" autocomplete="off" placeholder="9–10 位 UID"></label><button type="button" data-action="showcase">读取公开数据</button></div><p class="calculator-hint">只读取 Enka 公开展示。导入最终面板不再次加上装备属性。</p><div id="calc-showcase-status" role="status" aria-live="polite"></div><div id="calc-showcase-characters"></div></fieldset>` +
-    `<fieldset id="calc-equipment-controls"><legend>装备基础推导</legend><p class="calculator-hint">选择正式角色后，可按精确等级、突破与合法武器查表。未选择真实角色时保持教学数值独立。</p></fieldset><div id="calc-document-controls" class="calculator-full"></div></div><div id="calc-results" aria-live="polite"></div></div><details><summary>圣遗物生存与探索工具</summary><section id="calc-artifact-utility" aria-label="圣遗物生存与探索计算"></section></details>`;
+    `<fieldset id="calc-equipment-controls"><legend>装备基础推导</legend><p class="calculator-hint">选择正式角色后，可按精确等级、突破与合法武器查表。未选择真实角色时保持教学数值独立。</p></fieldset><div id="calc-document-controls" class="calculator-full"></div></div><div class="calculator-results-column"><section id="calc-character-outputs" hidden></section><div id="calc-results" aria-live="polite"></div></div></div><details><summary>圣遗物生存与探索工具</summary><section id="calc-artifact-utility" aria-label="圣遗物生存与探索计算"></section></details>`;
   renderArtifactUtilityCalculator(root.querySelector<HTMLElement>("#calc-artifact-utility")!);
   const get = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
   const inlineRequirements = createCalculatorRequiredControls(root);
@@ -826,20 +827,33 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const entries = candidateDocuments.map((document, index) => ({ document, index })).filter(({ document }) => (document.gameContext?.variantId ?? "") === selectedForm);
     const groups = new Map<string, typeof entries>();
     for (const entry of entries) {
-      const ability = entry.document.gameContext?.abilityId;
-      const group = ability?.endsWith("combat1") ? "普通攻击 / 重击 / 下落" : ability?.endsWith("combat2") ? "元素战技" : ability?.endsWith("combat3") ? "元素爆发" : "已定义技能";
+      const abilityId = entry.document.gameContext?.abilityId;
+      const kind = workspace.catalog.talentSets.flatMap(set => set.abilities).find(ability => ability.id === abilityId)?.kind;
+      const group = kind === "normal" ? "普通攻击 / 重击 / 下落" : kind === "skill" ? "元素战技" : kind === "burst" ? "元素爆发" : "已定义技能";
       groups.set(group, [...(groups.get(group) ?? []), entry]);
     }
     get<HTMLSelectElement>("#calc-skill").innerHTML = [...groups].map(([group, documents]) => `<optgroup label="${esc(group)}">${documents.map(({document, index}) => `<option value="${index}">${esc(document.gameContext?.skillName ?? document.label)}${document.gameContext?.scopeCoverage === "selected-components" ? " · 已定义部分" : ""}</option>`).join("")}</optgroup>`).join("");
     const selected = entries.find(({ document }) => actionKey(document) === preferredKey) ?? entries[0];
+    renderCharacterOutputOverview();
     return selected?.index ?? 0;
+  }
+
+  function renderCharacterOutputOverview(): void {
+    const host = get("#calc-character-outputs");
+    const visible = current?.gameContext && candidateDocuments.length && activeExampleId === null;
+    host.hidden = !visible;
+    if (!visible || !current) { host.innerHTML = ""; return; }
+    const selectedCandidateIndex = candidateDocuments.findIndex(candidate => actionKey(candidate) === actionKey(current!));
+    host.innerHTML = `<h3>角色主要输出</h3>${renderCharacterOutputs(buildCharacterOutputs(candidateDocuments, workspace.catalog, {
+      selectedCandidateIndex, currentDocument: current, ...(currentResult ? {currentResult} : {}),
+    }))}`;
   }
 
   function renderControls(): void {
     inlineRequirements.restore();
     get<HTMLButtonElement>('[data-action="export"]').disabled = !current;
     get("[data-calculator-example-mode]").hidden = activeExampleId === null;
-    if (!current) { get("#calc-document-controls").innerHTML = ""; return; }
+    if (!current) { get("#calc-document-controls").innerHTML = ""; renderCharacterOutputOverview(); return; }
     const doc = current;
     const build = doc.build;
     const synthetic = doc.dataIdentity.releaseStatus === "synthetic";
@@ -896,11 +910,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   function renderResults(): void {
     inlineRequirements.restore();
     if (!current) return;
-    if (invalidFields.size) { currentResult = null; get("#calc-results").innerHTML = `<div class="calculator-status blocked">${invalidFields.has(CHARACTER_RESOURCE_DRAFT_FIELD) || invalidFields.has(COORDINATED_SCHEDULE_DRAFT_FIELD) || invalidFields.has(HELD_LIFECYCLE_DRAFT_FIELD) || sourceDraftHandlers.some(handler => invalidFields.has(handler.field)) || observedLedgerHandlers.some(handler => invalidFields.has(observedLedgerField(handler.key))) ? "请应用或放弃尚未应用的日程草稿；当前不保留旧结果。" : "请完整填写必需输入并修正非法数值；当前不保留旧结果。"}</div>`; return; }
+    if (invalidFields.size) { currentResult = null; renderCharacterOutputOverview(); get("#calc-results").innerHTML = `<div class="calculator-status blocked">${invalidFields.has(CHARACTER_RESOURCE_DRAFT_FIELD) || invalidFields.has(COORDINATED_SCHEDULE_DRAFT_FIELD) || invalidFields.has(HELD_LIFECYCLE_DRAFT_FIELD) || sourceDraftHandlers.some(handler => invalidFields.has(handler.field)) || observedLedgerHandlers.some(handler => invalidFields.has(observedLedgerField(handler.key))) ? "请应用或放弃尚未应用的日程草稿；当前不保留旧结果。" : "请完整填写必需输入并修正非法数值；当前不保留旧结果。"}</div>`; return; }
     try {
       const openDetails = Array.from(get("#calc-results").querySelectorAll<HTMLDetailsElement>("details[data-detail-id][open]")).map(d => d.dataset.detailId);
       const result = calculateDocument(current, currentTrust());
       currentResult = result;
+      renderCharacterOutputOverview();
       const usesBuild = Boolean(current.gameContext?.mixedSourceCast || current.gameContext?.travelerCryoStateCast || current.gameContext?.observedSpecialComponent || current.gameContext?.neferPhantasmCast || current.gameContext?.zibaiFiniteCast) || current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && (hit.kind === "ordinary" || hit.kind === "transformative"));
       const usesBuildCritical = current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && hit.kind === "resolved");
       const data = current.dataIdentity;
@@ -931,11 +946,22 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       options.onChange?.(clone(current), result);
     } catch (error) {
       currentResult = null;
+      renderCharacterOutputOverview();
       get("#calc-results").innerHTML = `<div class="calculator-status blocked" role="alert"><strong>输入未通过校验，当前不生成伤害</strong><p>${esc(error instanceof Error ? error.message : String(error))}</p></div>`;
     }
   }
 
   root.addEventListener("click", event => {
+    const output = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-character-output-index]") : null;
+    if (output) {
+      const index = Number(output.dataset.characterOutputIndex);
+      const candidate = candidateDocuments[index];
+      if (!candidate) return;
+      selectedForm = candidate.gameContext?.variantId ?? "";
+      renderCandidateSelectors(actionKey(candidate));
+      loadCandidate(index);
+      return;
+    }
     const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-calculator-requirement]") : null;
     if (!button) return;
     const control = root.querySelector<HTMLElement>(button.dataset.calculatorRequirement!);
