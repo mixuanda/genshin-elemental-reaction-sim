@@ -1,0 +1,1106 @@
+{
+  "directPhysical": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "dataVersion": "test-vector-1",
+    "randomSeed": "test-seed",
+    "meta": {
+      "name": "\u6d4b\u8bd5\u5411\u91cf",
+      "version": "1",
+      "verificationStatus": "verified"
+    },
+    "duration": 2,
+    "cycleLength": 2,
+    "enemy": {
+      "level": 90,
+      "resistance": 0.25,
+      "defReduction": 0,
+      "targets": [
+        {
+          "id": "enemy-0",
+          "name": "\u51bb\u7ed3\u76ee\u6807",
+          "initialAura": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    },
+    "characters": [
+      {
+        "id": "hydro",
+        "name": "Hydro",
+        "element": "hydro",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        }
+      },
+      {
+        "id": "crusher",
+        "name": "Crusher",
+        "element": "physical",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        }
+      }
+    ],
+    "rotation": [],
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "hydro",
+      "swapFrames": 1,
+      "abilities": [
+        {
+          "id": "hydro-freeze",
+          "actorId": "hydro",
+          "name": "Hydro Freeze",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "hydro-freeze-hit",
+              "scaling": 1,
+              "element": "hydro",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 0
+            }
+          ]
+        },
+        {
+          "id": "crusher-skill",
+          "actorId": "crusher",
+          "name": "Crusher Hit",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "crusher-hit",
+              "label": "\u788e\u51b0\u89e6\u53d1\u547d\u4e2d",
+              "scaling": 1,
+              "element": "physical",
+              "strikeType": "blunt",
+              "frame": 0
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "type": "skill",
+          "actorId": "hydro",
+          "abilityId": "hydro-freeze"
+        },
+        {
+          "type": "swap",
+          "characterId": "crusher"
+        },
+        {
+          "type": "skill",
+          "actorId": "crusher",
+          "abilityId": "crusher-skill"
+        }
+      ]
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "playerDamageModel": {
+      "mode": "disabled"
+    },
+    "targetClockModel": {
+      "mode": "disabled"
+    },
+    "targetTaskModel": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "reactionDeliveryModel": {
+      "mode": "shatter-recursive-zero-delay-v1"
+    },
+    "electroChargedPropagationModel": {
+      "mode": "single-target-v1"
+    },
+    "reactionFormulaModel": {
+      "mode": "classic-formula-profile-v1",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1"
+    },
+    "directDamageGroupModel": {
+      "mode": "fixed-gcsim-direct-damage-group-v1",
+      "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+    },
+    "elementalApplicationIcdModel": {
+      "mode": "fixed-gcsim-elemental-application-v1",
+      "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+    },
+    "reactionOwnedElementalApplicationModel": {
+      "mode": "fixed-gcsim-reaction-owned-application-v2",
+      "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+    },
+    "reactionDamageGroupModel": {
+      "mode": "legacy-reaction-damage-group-window-v1",
+      "policyId": "gcsim-b4ae769-reaction-damage-group-legacy-window-provisional-v1"
+    },
+    "basicReactionSchedulerModel": {
+      "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+      "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+    },
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+    },
+    "callbackBusModel": {
+      "mode": "legacy-no-versioned-callback-bus-v1",
+      "policyId": "legacy-no-versioned-callback-bus-v1"
+    }
+  },
+  "directGeo": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "dataVersion": "test-vector-1",
+    "randomSeed": "test-seed",
+    "meta": {
+      "name": "\u6d4b\u8bd5\u5411\u91cf",
+      "version": "1",
+      "verificationStatus": "verified"
+    },
+    "duration": 2,
+    "cycleLength": 2,
+    "enemy": {
+      "level": 90,
+      "resistance": 0.25,
+      "defReduction": 0,
+      "targets": [
+        {
+          "id": "enemy-0",
+          "name": "\u51bb\u7ed3\u76ee\u6807",
+          "initialAura": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    },
+    "characters": [
+      {
+        "id": "hydro",
+        "name": "Hydro",
+        "element": "hydro",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        }
+      },
+      {
+        "id": "crusher",
+        "name": "Crusher",
+        "element": "geo",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        }
+      }
+    ],
+    "rotation": [],
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "hydro",
+      "swapFrames": 1,
+      "abilities": [
+        {
+          "id": "hydro-freeze",
+          "actorId": "hydro",
+          "name": "Hydro Freeze",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "hydro-freeze-hit",
+              "scaling": 1,
+              "element": "hydro",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 0
+            }
+          ]
+        },
+        {
+          "id": "crusher-skill",
+          "actorId": "crusher",
+          "name": "Crusher Hit",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "crusher-hit",
+              "label": "\u788e\u51b0\u89e6\u53d1\u547d\u4e2d",
+              "scaling": 1,
+              "element": "geo",
+              "strikeType": "default",
+              "frame": 0
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "type": "skill",
+          "actorId": "hydro",
+          "abilityId": "hydro-freeze"
+        },
+        {
+          "type": "swap",
+          "characterId": "crusher"
+        },
+        {
+          "type": "skill",
+          "actorId": "crusher",
+          "abilityId": "crusher-skill"
+        }
+      ]
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "playerDamageModel": {
+      "mode": "disabled"
+    },
+    "targetClockModel": {
+      "mode": "disabled"
+    },
+    "targetTaskModel": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "reactionDeliveryModel": {
+      "mode": "shatter-recursive-zero-delay-v1"
+    },
+    "electroChargedPropagationModel": {
+      "mode": "single-target-v1"
+    },
+    "reactionFormulaModel": {
+      "mode": "classic-formula-profile-v1",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1"
+    },
+    "directDamageGroupModel": {
+      "mode": "fixed-gcsim-direct-damage-group-v1",
+      "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+    },
+    "elementalApplicationIcdModel": {
+      "mode": "fixed-gcsim-elemental-application-v1",
+      "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+    },
+    "reactionOwnedElementalApplicationModel": {
+      "mode": "fixed-gcsim-reaction-owned-application-v2",
+      "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+    },
+    "reactionDamageGroupModel": {
+      "mode": "legacy-reaction-damage-group-window-v1",
+      "policyId": "gcsim-b4ae769-reaction-damage-group-legacy-window-provisional-v1"
+    },
+    "basicReactionSchedulerModel": {
+      "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+      "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+    },
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+    },
+    "callbackBusModel": {
+      "mode": "legacy-no-versioned-callback-bus-v1",
+      "policyId": "legacy-no-versioned-callback-bus-v1"
+    }
+  },
+  "nestedOverload": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "dataVersion": "test-vector-1",
+    "randomSeed": "test-seed",
+    "meta": {
+      "name": "\u6d4b\u8bd5\u5411\u91cf",
+      "version": "1",
+      "verificationStatus": "verified"
+    },
+    "duration": 1,
+    "cycleLength": 1,
+    "enemy": {
+      "level": 90,
+      "resistance": 0.1,
+      "defReduction": 0,
+      "targets": [
+        {
+          "id": "enemy-0",
+          "name": "\u8d85\u8f7d\u89e6\u53d1\u76ee\u6807",
+          "initialAura": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "enemy-1",
+          "name": "\u90bb\u8fd1\u51bb\u7ed3\u76ee\u6807",
+          "initialAura": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ]
+    },
+    "characters": [
+      {
+        "id": "hydro",
+        "name": "Hydro",
+        "element": "hydro",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        }
+      },
+      {
+        "id": "pyro",
+        "name": "Pyro",
+        "element": "pyro",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        }
+      }
+    ],
+    "rotation": [],
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "hydro",
+      "swapFrames": 1,
+      "abilities": [
+        {
+          "id": "freeze-neighbor",
+          "actorId": "hydro",
+          "name": "Freeze Neighbor",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "freeze-neighbor-hit",
+              "scaling": 1,
+              "element": "hydro",
+              "targeting": {
+                "targetId": "enemy-1",
+                "outcome": "landed"
+              },
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 0
+            }
+          ]
+        },
+        {
+          "id": "trigger-overload",
+          "actorId": "pyro",
+          "name": "Trigger Overload",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "trigger-overload-hit",
+              "scaling": 1,
+              "element": "pyro",
+              "geometry": {
+                "kind": "circle",
+                "coordinateSpace": "world",
+                "origin": {
+                  "x": 0,
+                  "y": 0
+                },
+                "radius": 0.1
+              },
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 0
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "type": "skill",
+          "actorId": "hydro",
+          "abilityId": "freeze-neighbor"
+        },
+        {
+          "type": "swap",
+          "characterId": "pyro"
+        },
+        {
+          "type": "skill",
+          "actorId": "pyro",
+          "abilityId": "trigger-overload"
+        }
+      ]
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "playerDamageModel": {
+      "mode": "disabled"
+    },
+    "targetClockModel": {
+      "mode": "disabled"
+    },
+    "targetTaskModel": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "reactionDeliveryModel": {
+      "mode": "shatter-recursive-zero-delay-v1"
+    },
+    "electroChargedPropagationModel": {
+      "mode": "single-target-v1"
+    },
+    "reactionFormulaModel": {
+      "mode": "classic-formula-profile-v1",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1"
+    },
+    "directDamageGroupModel": {
+      "mode": "fixed-gcsim-direct-damage-group-v1",
+      "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+    },
+    "elementalApplicationIcdModel": {
+      "mode": "fixed-gcsim-elemental-application-v1",
+      "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+    },
+    "reactionOwnedElementalApplicationModel": {
+      "mode": "fixed-gcsim-reaction-owned-application-v2",
+      "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+    },
+    "reactionDamageGroupModel": {
+      "mode": "legacy-reaction-damage-group-window-v1",
+      "policyId": "gcsim-b4ae769-reaction-damage-group-legacy-window-provisional-v1"
+    },
+    "basicReactionSchedulerModel": {
+      "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+      "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+    },
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+    },
+    "callbackBusModel": {
+      "mode": "legacy-no-versioned-callback-bus-v1",
+      "policyId": "legacy-no-versioned-callback-bus-v1"
+    }
+  },
+  "gcdBlocked": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "dataVersion": "test-vector-1",
+    "randomSeed": "test-seed",
+    "meta": {
+      "name": "\u6d4b\u8bd5\u5411\u91cf",
+      "version": "1",
+      "verificationStatus": "verified"
+    },
+    "duration": 2,
+    "cycleLength": 2,
+    "enemy": {
+      "level": 90,
+      "resistance": 0.25,
+      "defReduction": 0,
+      "targets": [
+        {
+          "id": "enemy-0",
+          "name": "\u51bb\u7ed3\u76ee\u6807",
+          "initialAura": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    },
+    "characters": [
+      {
+        "id": "hydro",
+        "name": "Hydro",
+        "element": "hydro",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        }
+      },
+      {
+        "id": "crusher",
+        "name": "Crusher",
+        "element": "physical",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        }
+      }
+    ],
+    "rotation": [],
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "hydro",
+      "swapFrames": 1,
+      "abilities": [
+        {
+          "id": "hydro-freeze",
+          "actorId": "hydro",
+          "name": "Hydro Freeze",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "hydro-freeze-hit",
+              "scaling": 1,
+              "element": "hydro",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 0
+            }
+          ]
+        },
+        {
+          "id": "crusher-skill",
+          "actorId": "crusher",
+          "name": "Crusher Hit",
+          "kind": "skill",
+          "cancelFrame": 7,
+          "animationEndFrame": 7,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "crusher-hit",
+              "label": "\u788e\u51b0\u89e6\u53d1\u547d\u4e2d",
+              "scaling": 1,
+              "element": "physical",
+              "strikeType": "blunt",
+              "frame": 0
+            },
+            {
+              "id": "refreeze-cryo",
+              "scaling": 1,
+              "element": "cryo",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 3
+            },
+            {
+              "id": "refreeze-hydro",
+              "scaling": 1,
+              "element": "hydro",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 4
+            },
+            {
+              "id": "crusher-hit-gcd",
+              "label": "\u788e\u51b0\u89e6\u53d1\u547d\u4e2d",
+              "scaling": 1,
+              "element": "physical",
+              "strikeType": "blunt",
+              "frame": 6
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "type": "skill",
+          "actorId": "hydro",
+          "abilityId": "hydro-freeze"
+        },
+        {
+          "type": "swap",
+          "characterId": "crusher"
+        },
+        {
+          "type": "skill",
+          "actorId": "crusher",
+          "abilityId": "crusher-skill"
+        }
+      ]
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "playerDamageModel": {
+      "mode": "disabled"
+    },
+    "targetClockModel": {
+      "mode": "disabled"
+    },
+    "targetTaskModel": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "reactionDeliveryModel": {
+      "mode": "shatter-recursive-zero-delay-v1"
+    },
+    "electroChargedPropagationModel": {
+      "mode": "single-target-v1"
+    },
+    "reactionFormulaModel": {
+      "mode": "classic-formula-profile-v1",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1"
+    },
+    "directDamageGroupModel": {
+      "mode": "fixed-gcsim-direct-damage-group-v1",
+      "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+    },
+    "elementalApplicationIcdModel": {
+      "mode": "fixed-gcsim-elemental-application-v1",
+      "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+    },
+    "reactionOwnedElementalApplicationModel": {
+      "mode": "fixed-gcsim-reaction-owned-application-v2",
+      "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+    },
+    "reactionDamageGroupModel": {
+      "mode": "legacy-reaction-damage-group-window-v1",
+      "policyId": "gcsim-b4ae769-reaction-damage-group-legacy-window-provisional-v1"
+    },
+    "basicReactionSchedulerModel": {
+      "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+      "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+    },
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+    },
+    "callbackBusModel": {
+      "mode": "legacy-no-versioned-callback-bus-v1",
+      "policyId": "legacy-no-versioned-callback-bus-v1"
+    }
+  },
+  "poiseDepleted": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "dataVersion": "test-vector-1",
+    "randomSeed": "test-seed",
+    "meta": {
+      "name": "\u6d4b\u8bd5\u5411\u91cf",
+      "version": "1",
+      "verificationStatus": "verified"
+    },
+    "duration": 2,
+    "cycleLength": 2,
+    "enemy": {
+      "level": 90,
+      "resistance": 0.25,
+      "defReduction": 0,
+      "targets": [
+        {
+          "id": "enemy-0",
+          "name": "\u51bb\u7ed3\u76ee\u6807",
+          "initialAura": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    },
+    "characters": [
+      {
+        "id": "hydro",
+        "name": "Hydro",
+        "element": "hydro",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        }
+      },
+      {
+        "id": "crusher",
+        "name": "Crusher",
+        "element": "physical",
+        "color": "#ff0000",
+        "level": 90,
+        "energyMax": 60,
+        "initialEnergy": 0,
+        "stats": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        }
+      }
+    ],
+    "rotation": [],
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "hydro",
+      "swapFrames": 1,
+      "abilities": [
+        {
+          "id": "hydro-freeze",
+          "actorId": "hydro",
+          "name": "Hydro Freeze",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "hydro-freeze-hit",
+              "scaling": 1,
+              "element": "hydro",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              },
+              "frame": 0
+            }
+          ]
+        },
+        {
+          "id": "crusher-skill",
+          "actorId": "crusher",
+          "name": "Crusher Hit",
+          "kind": "skill",
+          "cancelFrame": 1,
+          "animationEndFrame": 1,
+          "cooldownFrames": 0,
+          "hits": [
+            {
+              "id": "crusher-hit",
+              "label": "\u788e\u51b0\u89e6\u53d1\u547d\u4e2d",
+              "scaling": 1,
+              "element": "physical",
+              "strikeType": "blunt",
+              "poiseDamage": 300,
+              "frame": 0
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "type": "skill",
+          "actorId": "hydro",
+          "abilityId": "hydro-freeze"
+        },
+        {
+          "type": "swap",
+          "characterId": "crusher"
+        },
+        {
+          "type": "skill",
+          "actorId": "crusher",
+          "abilityId": "crusher-skill"
+        }
+      ]
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "playerDamageModel": {
+      "mode": "disabled"
+    },
+    "targetClockModel": {
+      "mode": "disabled"
+    },
+    "targetTaskModel": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "reactionDeliveryModel": {
+      "mode": "shatter-recursive-zero-delay-v1"
+    },
+    "electroChargedPropagationModel": {
+      "mode": "single-target-v1"
+    },
+    "reactionFormulaModel": {
+      "mode": "classic-formula-profile-v1",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1"
+    },
+    "directDamageGroupModel": {
+      "mode": "fixed-gcsim-direct-damage-group-v1",
+      "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+    },
+    "elementalApplicationIcdModel": {
+      "mode": "fixed-gcsim-elemental-application-v1",
+      "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+    },
+    "reactionOwnedElementalApplicationModel": {
+      "mode": "fixed-gcsim-reaction-owned-application-v2",
+      "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+    },
+    "reactionDamageGroupModel": {
+      "mode": "legacy-reaction-damage-group-window-v1",
+      "policyId": "gcsim-b4ae769-reaction-damage-group-legacy-window-provisional-v1"
+    },
+    "basicReactionSchedulerModel": {
+      "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+      "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+    },
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+    },
+    "callbackBusModel": {
+      "mode": "legacy-no-versioned-callback-bus-v1",
+      "policyId": "legacy-no-versioned-callback-bus-v1"
+    }
+  }
+}
