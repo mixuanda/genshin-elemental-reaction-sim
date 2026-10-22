@@ -1,0 +1,1864 @@
+{
+  "title": "Classic specified four-character team: independent buff-generation and consumption replay",
+  "scope": "Offline audit only; no native execution, application edits, public-result replacement, build or deployment in this batch. Classic full 120s captures only; Stellar has only the separately retained short probes, not this result.",
+  "revisions": {
+    "old": {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "captureSha256": "e106f13f4e1f133438e1d75296b2c3299840616a7d7e847effc2a524e6649ea9",
+      "sourceProvenance": {
+        "sourceDirectory": "/workspace/GIDPS-cloud/source-build-cache/build-o5sjpN/source",
+        "treeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+        "manifestSha256": "b4ec16a9beaa82da0d6607b738d3f878468e75b0838a1fa7b1f14a83c9fbc7ac",
+        "wasmSha256": "ad7f559e40af4115fad996e52de258710c5849eb06be1e15e59c8be84d20a2b4",
+        "wasmBytes": 47066727,
+        "files": [
+          {
+            "path": "internal/characters/nicole/nicole.go",
+            "pinnedGitBlob": "399f0327bb618f965d0876613bb1c85d76989579",
+            "pinnedSha256": "a2eb948317a88d27579832a4e8f4ae3613811cd676f5fec92a33fc460acb9dde",
+            "executedSourceSha256": "1512ebb20b5b1c9df1bebb5a9b941fc5352693f5f00e85acc42c71e8bd5cf820",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/skill.go",
+            "pinnedGitBlob": "30937d393aa544ec7cbbbaec2db6e8dab7693a3b",
+            "pinnedSha256": "1d8a9dc47fa15ae4ca87e6f90c8cd3188d9c33684f5511c22570d3bfb0e91823",
+            "executedSourceSha256": "559004d99f628e7e9f4a51241fc92a027d539fd0ee3836e225ac7bfe478fcfa2",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/asc.go",
+            "pinnedGitBlob": "e08aab99b3b4cd6f61e523fb987f62b27a61c0ca",
+            "pinnedSha256": "addec82b9cf47764c411981e1d6798d63f891c5ddc025987173474d0a02faf2a",
+            "executedSourceSha256": "bc8ac462f3ea1dbbe14b34153305ae0b849a9bf24af206b8b5d8f727a65094c2",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/cons.go",
+            "pinnedGitBlob": "ae44f334a2bb1b7848b5ce314836f0a98a49c891",
+            "pinnedSha256": "b2e16ca7ada85446c2c37eead77aad0190a19e786302d5058a25366b576293ff",
+            "executedSourceSha256": "c2a5658b4f5cc43db492af0df4845be12581d7da1917d1baecfdd73a60c16444",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/burst.go",
+            "pinnedGitBlob": "6f27ad88ff02547334f7e550658d83d673b7ec62",
+            "pinnedSha256": "4c23d0f594b2309677629233fbe99ab1d3365899ba277aa472a2ef34fd67bf72",
+            "executedSourceSha256": "1a5a92a0c7a7dd82f7af56536325e0620c30f7bddc15523ff6a270034109980a",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/shield.go",
+            "pinnedGitBlob": "b51d9fe5c5a4919f74a52f39bdf6af8e07332689",
+            "pinnedSha256": "b3a23c733c677e729d1dc05d000392cffdfe061827eec881f7c508b1ba1bf3e6",
+            "executedSourceSha256": "736d5128039d861f5d02d8046dcf53d38f3dd19bb4ea3a2e7ed17f3c9f359036",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/zz_nicole.dm.go",
+            "pinnedGitBlob": "831580d8223431fb391ca85d17b55c2c518c67b1",
+            "pinnedSha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+            "executedSourceSha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/durin/durin.go",
+            "pinnedGitBlob": "1ded3df8c34a2c5d07ce92156d0553c0f1dcd4e4",
+            "pinnedSha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+            "executedSourceSha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/durin/burst.go",
+            "pinnedGitBlob": "fc86070225f212a346829ca24659ba24d8f0938f",
+            "pinnedSha256": "1677ee3803d7da93ce283a77188eff52c0bb755c8aa6ad1cb25514315a068516",
+            "executedSourceSha256": "ce9c4986c6d2acbac402dbf32b5884506e6a9576384557895e6f7a2bd07315c7",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/durin/asc.go",
+            "pinnedGitBlob": "78ea926df4db86c4ea9a7deed9e8fc8363a2f587",
+            "pinnedSha256": "8e7fd4a8022ce67b80955fa95ace832746e5ff9bb01a9320c5482c14b273d972",
+            "executedSourceSha256": "aab76718e1157ea5d42e09ccad4c3c1d2e10ff31f95ce9d8a390769f247ba5c0",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/durin/cons.go",
+            "pinnedGitBlob": "ca453ed612e19919e761e587da00b7590fde7a2a",
+            "pinnedSha256": "9c41cc8fef8675e31b508d789ddbe2c663ca8c2dbc80517285e2d01f0fbc8146",
+            "executedSourceSha256": "0518f4b34349b0593a9f1c6466df4b6bc18c492bc65b97bfacbb62123ab868cf",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/durin/zz_durin.dm.go",
+            "pinnedGitBlob": "946bff24f1b7d2dfa22c22da663ecae2b5a64558",
+            "pinnedSha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+            "executedSourceSha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/faruzan/faruzan.go",
+            "pinnedGitBlob": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+            "pinnedSha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+            "executedSourceSha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/faruzan/skill.go",
+            "pinnedGitBlob": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+            "pinnedSha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+            "executedSourceSha256": "e12a2a64f33a22713b966d3f69fd3679730684e5ec53c10184f3a8819caccf67",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/aimed.go",
+            "pinnedGitBlob": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644",
+            "pinnedSha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+            "executedSourceSha256": "e8da30b99fdbe04c3d48c50f459c001a03ebfa2fecf8fffcd496aad426d0cabc",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/burst.go",
+            "pinnedGitBlob": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf",
+            "pinnedSha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+            "executedSourceSha256": "f07aaa5065e6bdcf1c9b5be13cb17e30dd1b452ed220d613b4f6a90724b29b9b",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/asc.go",
+            "pinnedGitBlob": "9b3d5b04601ca942d1a245df0882f06d5561e3e4",
+            "pinnedSha256": "091a76bb82b013476b503b5b0b987083bfa17185fc41fdf5e9e187052ffb481c",
+            "executedSourceSha256": "d4c7e7282b19336ad2ffe06790c20914fdee58d33a115d57966f28a296ea686f",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/cons.go",
+            "pinnedGitBlob": "928806c76219dafdf8f944268a36a55bef52c9d3",
+            "pinnedSha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+            "executedSourceSha256": "d6b5d3fb21a1fb2df85bb137894886d760d48fdbae59262345bf806eb74da392",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/zz_faruzan.dm.go",
+            "pinnedGitBlob": "2d81ba730c8199888d6107ff64545588809d6599",
+            "pinnedSha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+            "executedSourceSha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/weapons/catalyst/angelosheptades/angelosheptades.go",
+            "pinnedGitBlob": "d4cb03643a961c2c34a63eb6b9aa03508e2b2a37",
+            "pinnedSha256": "2489bdf8f3216760991ea9952dfb2b218dc867bc206d6810bab4d3378ff1601f",
+            "executedSourceSha256": "2489bdf8f3216760991ea9952dfb2b218dc867bc206d6810bab4d3378ff1601f",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/weapons/sword/athameartis/athameartis.go",
+            "pinnedGitBlob": "a2958bb374162b7ea377191d0d556df6c7d74236",
+            "pinnedSha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+            "executedSourceSha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/artifacts/noblesse/noblesse.go",
+            "pinnedGitBlob": "bdb3a2c200e875d07e1d69d8acfc534fd12ba4a4",
+            "pinnedSha256": "e9feadc42267f06b409ff7cbaca5ea614f65be28af067b3cc18b1652ab2a564a",
+            "executedSourceSha256": "6cf514272b0a135b12240208ee7221f754da85bc22e4c19e9ac689a01d14a931",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/artifacts/gladiator/gladiator.go",
+            "pinnedGitBlob": "110194443a8d4ea55f77713a032d8f5212549851",
+            "pinnedSha256": "ebbbc4dc78b6dbda27eaac49b03c40d4abe5707e77f576e6be469639a4ea9c64",
+            "executedSourceSha256": "84553ec1387902a2da7c0f4ef109e84b9acbc0d1dbdeb24c01ea4771b03e1e74",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/catalog/character.dm.go",
+            "pinnedGitBlob": "22b2536e01cb520f0fff588977cba0db5b668328",
+            "pinnedSha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+            "executedSourceSha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/catalog/weapon.dm.go",
+            "pinnedGitBlob": "c2e731713d4fe18414efdb66cdb0c8c276b64e69",
+            "pinnedSha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+            "executedSourceSha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/catalog/curve.dm.go",
+            "pinnedGitBlob": "b960e695c8a6a154e6b5b931d7276c14fc3edbad",
+            "pinnedSha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+            "executedSourceSha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/core/core.go",
+            "pinnedGitBlob": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+            "pinnedSha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+            "executedSourceSha256": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/task/task.go",
+            "pinnedGitBlob": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+            "pinnedSha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+            "executedSourceSha256": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/player/player.go",
+            "pinnedGitBlob": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+            "pinnedSha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+            "executedSourceSha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/core/player/character/mods.go",
+            "pinnedGitBlob": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+            "pinnedSha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+            "executedSourceSha256": "09ecc1ed7f43fa1c18c724b8e3f67f3b7b49e0deb6003b90407f3039f4999502",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/player/character/stats.go",
+            "pinnedGitBlob": "33d47f781e040dbabac6622360272235888cf663",
+            "pinnedSha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+            "executedSourceSha256": "3f4e2a6f292a48b3475f6dddd04bab2e8cd063a3d656a8d79d80bb81f18788e8",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/modifier/modifier.go",
+            "pinnedGitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+            "pinnedSha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+            "executedSourceSha256": "e8a87d2ab58bb80924562fcaaf99d80cc2fb5cb6919563f3023dce8da2a996d9",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/enemy/attack.go",
+            "pinnedGitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd",
+            "pinnedSha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+            "executedSourceSha256": "3a136213ce7f728a65a37260a0e510367661b45a3eac5aca5a89b686ae74d639",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/enemy/mods.go",
+            "pinnedGitBlob": "d1c63e76895a0b8964567f0697aa9df8375ada71",
+            "pinnedSha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+            "executedSourceSha256": "7032e9bd946b4b20b063f486edf80505b2aaae25facea83e1bf6ea6d95ab0c48",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/reactable/swirl.go",
+            "pinnedGitBlob": "6cfbd7c3316e189fa461e4bfa8553025a5f87671",
+            "pinnedSha256": "193ef982ca4cb06623f942089d06dd47407d97988c67ccf898917b14cbf9f369",
+            "executedSourceSha256": "26056465b1b9cdcd868a32d256d58573129215ce7bb5ee07ef98430147dcd763",
+            "instrumentedOrPatched": true
+          }
+        ],
+        "patches": [
+          {
+            "path": "134-durin-black-skill-capture.patch",
+            "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
+            "size": 521
+          }
+        ]
+      },
+      "inputBoundary": "accepted actions/swaps/real hit packets/applied-element aura observations and native queue execution receipts for same-frame order; native buff values and status logs are comparison targets only",
+      "checks": {
+        "classic-pin": 1,
+        "fixed-seed": 1,
+        "exact-team": 1,
+        "one-stationary-target": 1,
+        "no-hitlag-clock-pause": 1,
+        "declared-character-build": 4,
+        "declared-weapon-build": 4,
+        "known-hexerei-recipients": 1,
+        "generation-athameartis-team-buff": 1,
+        "generation-blade-of-the-daylight-hours-buff": 1,
+        "generation-durin-a1-anemo": 1,
+        "generation-durin-a1-pyro": 1,
+        "generation-durin-burst-white": 1,
+        "generation-durin-c2-anemo": 1,
+        "generation-durin-c2-pyro": 1,
+        "generation-faruzan-c6": 1,
+        "generation-faruzan-q-dmg-bonus": 1,
+        "generation-faruzan-q-shred": 1,
+        "generation-grace-of-kenosis": 1,
+        "generation-guidance-of-theosis": 1,
+        "generation-nicole-c2": 1,
+        "generation-nicole-c2-anemo": 1,
+        "generation-nicole-c2-pyro": 1,
+        "generation-nob-4pc": 1,
+        "generation-silent-contemplation": 1,
+        "durin-c1-eligibility-and-tokens": 1,
+        "durin-c1-token-writeback": 1,
+        "faruzan-a4-eligibility-and-48f-icd": 1,
+        "faruzan-c6-eligibility-180f-and-33f-delay": 1,
+        "nicole-projection-eligibility-icd-count-owner-delay": 1,
+        "nicole-projection-coefficient": 42,
+        "nicole-projection-no-hexerei-extra-on-nonhexerei": 30,
+        "stat-consumption-presence": 7092,
+        "angelos-permanent-r1-atk-qualification": 38,
+        "angelos-permanent-r1-atk-vector": 988,
+        "independent-atk-stat": 543,
+        "nicole-e-independent-creation-value": 12,
+        "stat-consumption-expiry": 4303,
+        "source-derived-stat-vector": 111878,
+        "nicole-extra-owner-is-real-hexerei": 12,
+        "nicole-projection-extra-independent-atk-times-3": 12,
+        "durin-c1-live-atk-times-0p6": 157,
+        "faruzan-a4-catalog-base-atk-times-0p32": 83,
+        "resistance-generation-to-live-consumption": 3090,
+        "source-derived-resistance-delta": 1468,
+        "resistance-expiry": 1468,
+        "independent-total-live-resistance": 618,
+        "ordinary-hit-has-live-attack-read": 524,
+        "live-attack-mod-qualification": 1186,
+        "source-derived-live-attack-vector": 24934,
+        "old-athame-no-new-correction": 138,
+        "athame-60f-poll-extension": 1,
+        "angelos-shield-30f-poll-generation": 1,
+        "angelos-independent-nonextra-atk": 232,
+        "angelos-independent-capped-dmg": 232,
+        "nicole-shield-owner-birth-expiry": 1,
+        "nicole-shield-real-owner": 6,
+        "nicole-shield-independent-initial-hp": 6,
+        "nicole-shield-expiration": 5,
+        "energy-receipt-continuity": 386,
+        "energy-clamp-writeback": 386,
+        "q-energy-funded-at-consumption": 21,
+        "q-decision-ledger-energy": 23,
+        "q-decision-actual-cost": 23,
+        "q-decision-funded-and-cooldown": 23,
+        "q-decisions-correspond-to-real-casts": 4,
+        "tree-pin": 1,
+        "pristine-git-blob-identity": 35,
+        "build-manifest-wasm-hash": 1,
+        "capture-matches-built-artifact": 1
+      },
+      "failures": [],
+      "expectedGenerationCounts": {
+        "grace-of-kenosis": 24,
+        "nicole-c2": 96,
+        "guidance-of-theosis": 447,
+        "nicole-c2-pyro": 742,
+        "silent-contemplation": 6,
+        "durin-burst-white": 6,
+        "blade-of-the-daylight-hours-buff": 122,
+        "durin-a1-anemo": 100,
+        "durin-c2-anemo": 400,
+        "durin-a1-pyro": 100,
+        "durin-c2-pyro": 400,
+        "athameartis-team-buff": 17,
+        "nob-4pc": 24,
+        "faruzan-q-shred": 62,
+        "faruzan-q-dmg-bonus": 128,
+        "faruzan-c6": 128,
+        "nicole-c2-anemo": 146
+      },
+      "cancelledNicoleA1Swaps": [
+        {
+          "actor": 1,
+          "swapFrame": 354,
+          "dueFrame": 533,
+          "supersededBySwap": 532
+        },
+        {
+          "actor": 1,
+          "swapFrame": 1679,
+          "dueFrame": 1858,
+          "supersededBySwap": 1857
+        },
+        {
+          "actor": 1,
+          "swapFrame": 2885,
+          "dueFrame": 3064,
+          "supersededBySwap": 3063
+        },
+        {
+          "actor": 1,
+          "swapFrame": 4210,
+          "dueFrame": 4389,
+          "supersededBySwap": 4388
+        },
+        {
+          "actor": 1,
+          "swapFrame": 5535,
+          "dueFrame": 5714,
+          "supersededBySwap": 5713
+        },
+        {
+          "actor": 1,
+          "swapFrame": 6741,
+          "dueFrame": 6920,
+          "supersededBySwap": 6919
+        }
+      ],
+      "consumption": {
+        "independentCatalogValues": {
+          "nicole": {
+            "baseAtk": 1082.6052418000002,
+            "characterEquation": [
+              26.6266,
+              8.739,
+              109.33523
+            ],
+            "weaponBaseAtk": 740.5801544000001,
+            "permanentCatalogAtkPercent": 0.453384,
+            "skillBuffRatio": 0.15,
+            "skillBuffMax": 600.0,
+            "skillShieldAtk": 3.981312,
+            "skillShieldFlat": 3050.9045,
+            "projection": 1.8
+          },
+          "durin": {
+            "baseAtk": 954.8832482,
+            "characterEquation": [
+              26.999,
+              8.739,
+              110.86439
+            ],
+            "weaponBaseAtk": 608.0745972,
+            "permanentCatalogAtkPercent": 0,
+            "whiteDot": 1.70352
+          },
+          "faruzan": {
+            "baseAtk": 650.8305551000001,
+            "characterEquation": [
+              16.4724,
+              8.349,
+              58.939335
+            ],
+            "weaponBaseAtk": 454.36315250000007,
+            "permanentCatalogAtkPercent": 0.24,
+            "burstBonus": 0.3825
+          }
+        },
+        "graceByExpiry": {
+          "1214": 513.9268892393447,
+          "2539": 513.9268892393447,
+          "3745": 513.9268892393447,
+          "5070": 513.9268892393447,
+          "6395": 513.9268892393447,
+          "7601": 513.9268892393447
+        },
+        "reviewedStatReads": 788,
+        "snapshotSurvivedExpiry": [
+          {
+            "attack": 50,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 745,
+            "expiry": 747,
+            "hitFrame": 750
+          },
+          {
+            "attack": 82,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 984,
+            "expiry": 986,
+            "hitFrame": 989
+          },
+          {
+            "attack": 183,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 2070,
+            "expiry": 2072,
+            "hitFrame": 2075
+          },
+          {
+            "attack": 185,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 2046,
+            "expiry": 2072,
+            "hitFrame": 2079
+          },
+          {
+            "attack": 217,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 2309,
+            "expiry": 2311,
+            "hitFrame": 2314
+          },
+          {
+            "attack": 306,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 3276,
+            "expiry": 3278,
+            "hitFrame": 3281
+          },
+          {
+            "attack": 308,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 3252,
+            "expiry": 3278,
+            "hitFrame": 3285
+          },
+          {
+            "attack": 340,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 3515,
+            "expiry": 3517,
+            "hitFrame": 3520
+          },
+          {
+            "attack": 441,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 4601,
+            "expiry": 4603,
+            "hitFrame": 4606
+          },
+          {
+            "attack": 443,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 4577,
+            "expiry": 4603,
+            "hitFrame": 4610
+          },
+          {
+            "attack": 476,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 4840,
+            "expiry": 4842,
+            "hitFrame": 4845
+          },
+          {
+            "attack": 577,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 5926,
+            "expiry": 5928,
+            "hitFrame": 5931
+          },
+          {
+            "attack": 579,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 5902,
+            "expiry": 5928,
+            "hitFrame": 5935
+          },
+          {
+            "attack": 611,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 6165,
+            "expiry": 6167,
+            "hitFrame": 6170
+          },
+          {
+            "attack": 700,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 7132,
+            "expiry": 7134,
+            "hitFrame": 7137
+          },
+          {
+            "attack": 702,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 7108,
+            "expiry": 7134,
+            "hitFrame": 7141
+          }
+        ],
+        "creationExamples": [
+          {
+            "frame": 14,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 14,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 1339,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 1339,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 2545,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 2545,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 3870,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 3870,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 5195,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 5195,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 6401,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 6401,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          }
+        ],
+        "projections": 42,
+        "athameTeamExtensions": 82,
+        "angelosPolls": 232,
+        "weaponConsumerCounts": {
+          "angelos-front-applied": 360,
+          "angelos-off-hexerei-applied": 110,
+          "angelos-off-nonhexerei-rejected": 31,
+          "angelos-off-hexerei-rejected": 6,
+          "angelos-front-rejected": 17
+        },
+        "athameCorrection": false,
+        "explanationGapClassification": {
+          "originalGapCountUnchanged": 4279,
+          "readsWithIndependentSideEvidence": {
+            "angelos-heptades-atk": 38,
+            "pathfinders-light": 470,
+            "nicole-c2-pyro": 234,
+            "athame-burst-cd": 122,
+            "blade-of-the-daylight-hours-buff": 292,
+            "durin-a1-anemo": 372,
+            "durin-a1-pyro": 239,
+            "athameartis-team-buff": 344,
+            "faruzan-q-shred": 367,
+            "nicole-c2-anemo": 256
+          },
+          "remainingNotIndependentlyCheckedReads": {
+            "general-scope-or-no-read-key": 271,
+            "anemo-res-cd": 44,
+            "pyro-res": 705,
+            "tulaytullahsremembrance-atkspd": 271,
+            "tulaytullahsremembrance-na-dmg": 254
+          },
+          "representativeOriginalGaps": {
+            "general-scope-or-no-read-key": "触发资格、目标选择、排队和状态生命周期沿用固定版本的原生执行；数值公式回放不等于独立核验全部游戏机制。",
+            "not-checked-read:anemo-res-cd": "来源标量 scalar-read-7/0/anemo-res-cd/scalar 的非零 Amount 闭包返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:angelos-heptades-atk": "属性读取 actor-2-read-29/0/angelos-heptades-atk/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "not-checked-read:pyro-res": "属性读取 actor-2-read-29/2/pyro-res/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:pathfinders-light": "属性读取 actor-2-read-36/0/pathfinders-light/通用伤害加成[21] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:nicole-c2-pyro": "来源标量 scalar-read-17/0/nicole-c2-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "value-and-lifecycle-side-evidence:athame-burst-cd": "属性读取 actor-3-read-527/1/athame-burst-cd/暴击伤害[10] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:blade-of-the-daylight-hours-buff": "属性读取 actor-3-read-565/4/blade-of-the-daylight-hours-buff/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:durin-a1-anemo": "来源标量 scalar-read-394/1/durin-a1-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "value-and-lifecycle-side-evidence:durin-a1-pyro": "来源标量 scalar-read-397/2/durin-a1-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "value-and-lifecycle-side-evidence:athameartis-team-buff": "属性读取 actor-1-read-549/5/athameartis-team-buff/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:faruzan-q-shred": "来源标量 scalar-read-567/3/faruzan-q-shred/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "not-checked-read:tulaytullahsremembrance-atkspd": "属性读取 actor-0-read-747/0/tulaytullahsremembrance-atkspd/攻击速度[20] 的非零返回量缺少已验证公式节点链接。",
+            "not-checked-read:tulaytullahsremembrance-na-dmg": "属性读取 actor-0-read-758/2/tulaytullahsremembrance-na-dmg/通用伤害加成[21] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:nicole-c2-anemo": "来源标量 scalar-read-799/4/nicole-c2-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。"
+          },
+          "meaning": "The original explanationGaps are preserved. Side evidence here verifies these particular values and their replayed eligibility/lifecycle; it does not attach missing formula-node links or independently recreate aura/collision/rotation scheduling."
+        }
+      },
+      "energy": {
+        "energyWrites": 386,
+        "finalEnergy": {
+          "wanderer": 60,
+          "faruzan": 44.33821886759999,
+          "nicole": 44.3443,
+          "durin": 26.9787
+        },
+        "Q": {
+          "wanderer": {
+            "roundsStarted": 6,
+            "decisionsReached": 5,
+            "casts": 3,
+            "skipped": [
+              {
+                "frame": 2493,
+                "actor": "wanderer",
+                "energy": 52.497279999999996,
+                "max": 60.0,
+                "cooldown": 0.0,
+                "ready": false
+              },
+              {
+                "frame": 6349,
+                "actor": "wanderer",
+                "energy": 50.497279999999996,
+                "max": 60.0,
+                "cooldown": 0.0,
+                "ready": false
+              }
+            ],
+            "unreachedInFinalTruncatedRound": 1
+          },
+          "faruzan": {
+            "roundsStarted": 6,
+            "decisionsReached": 6,
+            "casts": 6,
+            "skipped": [],
+            "unreachedInFinalTruncatedRound": 0
+          },
+          "nicole": {
+            "roundsStarted": 6,
+            "decisionsReached": 6,
+            "casts": 6,
+            "skipped": [],
+            "unreachedInFinalTruncatedRound": 0
+          },
+          "durin": {
+            "roundsStarted": 6,
+            "decisionsReached": 6,
+            "casts": 6,
+            "skipped": [],
+            "unreachedInFinalTruncatedRound": 0
+          }
+        },
+        "decisions": [
+          {
+            "frame": 37,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 235,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 448,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1168,
+            "actor": "wanderer",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1362,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1560,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1773,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 2493,
+            "actor": "wanderer",
+            "energy": 52.497279999999996,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": false
+          },
+          {
+            "frame": 2568,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 2766,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 2979,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 3699,
+            "actor": "wanderer",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 3893,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 4091,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 4304,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5024,
+            "actor": "wanderer",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5218,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5416,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5629,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 6349,
+            "actor": "wanderer",
+            "energy": 50.497279999999996,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": false
+          },
+          {
+            "frame": 6424,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 6622,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 6835,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          }
+        ],
+        "limitation": "Receipt continuity and real decision/cast legality only; particle creation/probability/ER/energy-source formulas remain outside this generation audit."
+      },
+      "totalChecks": 160040,
+      "expectedGenerationTotal": 2948,
+      "fullAuditEvidencePath": "/workspace/GIDPS-cloud/function-batch-20261022/buff-generation/final-old.json",
+      "fullAuditEvidenceSha256": "5dd3ada8f3361ef7a2e352c78b93f5b80daa52d37921821f11ec38819a95de2c",
+      "generationDifferences": {
+        "missing": [],
+        "unexpected": []
+      },
+      "eligibilityCounts": {
+        "durinC1": 157,
+        "faruzanA4": 83,
+        "faruzanC6": 35,
+        "pyroSwirlEligibility": 100
+      },
+      "reactionEligibleCount": 100,
+      "sideEvidenceGapCount": 2734,
+      "remainingGapCount": 1545
+    },
+    "new": {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "captureSha256": "5d737b64f5e5f73fe22508a3bc0ad38e50525be9c74b875a482e0936b89587e8",
+      "sourceProvenance": {
+        "sourceDirectory": "/workspace/GIDPS-cloud/source-build-cache/build-i7cbzz/source",
+        "treeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+        "manifestSha256": "7de861a78b85ed8a0ab34eee96747a6777f35f2b3dac8c699cf421f312593915",
+        "wasmSha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
+        "wasmBytes": 47084616,
+        "files": [
+          {
+            "path": "internal/characters/nicole/nicole.go",
+            "pinnedGitBlob": "399f0327bb618f965d0876613bb1c85d76989579",
+            "pinnedSha256": "a2eb948317a88d27579832a4e8f4ae3613811cd676f5fec92a33fc460acb9dde",
+            "executedSourceSha256": "1512ebb20b5b1c9df1bebb5a9b941fc5352693f5f00e85acc42c71e8bd5cf820",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/skill.go",
+            "pinnedGitBlob": "30937d393aa544ec7cbbbaec2db6e8dab7693a3b",
+            "pinnedSha256": "1d8a9dc47fa15ae4ca87e6f90c8cd3188d9c33684f5511c22570d3bfb0e91823",
+            "executedSourceSha256": "559004d99f628e7e9f4a51241fc92a027d539fd0ee3836e225ac7bfe478fcfa2",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/asc.go",
+            "pinnedGitBlob": "e08aab99b3b4cd6f61e523fb987f62b27a61c0ca",
+            "pinnedSha256": "addec82b9cf47764c411981e1d6798d63f891c5ddc025987173474d0a02faf2a",
+            "executedSourceSha256": "bc8ac462f3ea1dbbe14b34153305ae0b849a9bf24af206b8b5d8f727a65094c2",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/cons.go",
+            "pinnedGitBlob": "ae44f334a2bb1b7848b5ce314836f0a98a49c891",
+            "pinnedSha256": "b2e16ca7ada85446c2c37eead77aad0190a19e786302d5058a25366b576293ff",
+            "executedSourceSha256": "c2a5658b4f5cc43db492af0df4845be12581d7da1917d1baecfdd73a60c16444",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/burst.go",
+            "pinnedGitBlob": "6f27ad88ff02547334f7e550658d83d673b7ec62",
+            "pinnedSha256": "4c23d0f594b2309677629233fbe99ab1d3365899ba277aa472a2ef34fd67bf72",
+            "executedSourceSha256": "1a5a92a0c7a7dd82f7af56536325e0620c30f7bddc15523ff6a270034109980a",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/shield.go",
+            "pinnedGitBlob": "b51d9fe5c5a4919f74a52f39bdf6af8e07332689",
+            "pinnedSha256": "b3a23c733c677e729d1dc05d000392cffdfe061827eec881f7c508b1ba1bf3e6",
+            "executedSourceSha256": "736d5128039d861f5d02d8046dcf53d38f3dd19bb4ea3a2e7ed17f3c9f359036",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/nicole/zz_nicole.dm.go",
+            "pinnedGitBlob": "831580d8223431fb391ca85d17b55c2c518c67b1",
+            "pinnedSha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+            "executedSourceSha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/durin/durin.go",
+            "pinnedGitBlob": "1ded3df8c34a2c5d07ce92156d0553c0f1dcd4e4",
+            "pinnedSha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+            "executedSourceSha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/durin/burst.go",
+            "pinnedGitBlob": "fc86070225f212a346829ca24659ba24d8f0938f",
+            "pinnedSha256": "1677ee3803d7da93ce283a77188eff52c0bb755c8aa6ad1cb25514315a068516",
+            "executedSourceSha256": "ce9c4986c6d2acbac402dbf32b5884506e6a9576384557895e6f7a2bd07315c7",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/durin/asc.go",
+            "pinnedGitBlob": "78ea926df4db86c4ea9a7deed9e8fc8363a2f587",
+            "pinnedSha256": "8e7fd4a8022ce67b80955fa95ace832746e5ff9bb01a9320c5482c14b273d972",
+            "executedSourceSha256": "aab76718e1157ea5d42e09ccad4c3c1d2e10ff31f95ce9d8a390769f247ba5c0",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/durin/cons.go",
+            "pinnedGitBlob": "ca453ed612e19919e761e587da00b7590fde7a2a",
+            "pinnedSha256": "9c41cc8fef8675e31b508d789ddbe2c663ca8c2dbc80517285e2d01f0fbc8146",
+            "executedSourceSha256": "0518f4b34349b0593a9f1c6466df4b6bc18c492bc65b97bfacbb62123ab868cf",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/durin/zz_durin.dm.go",
+            "pinnedGitBlob": "946bff24f1b7d2dfa22c22da663ecae2b5a64558",
+            "pinnedSha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+            "executedSourceSha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/faruzan/faruzan.go",
+            "pinnedGitBlob": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+            "pinnedSha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+            "executedSourceSha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/characters/faruzan/skill.go",
+            "pinnedGitBlob": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+            "pinnedSha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+            "executedSourceSha256": "e12a2a64f33a22713b966d3f69fd3679730684e5ec53c10184f3a8819caccf67",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/aimed.go",
+            "pinnedGitBlob": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644",
+            "pinnedSha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+            "executedSourceSha256": "e8da30b99fdbe04c3d48c50f459c001a03ebfa2fecf8fffcd496aad426d0cabc",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/burst.go",
+            "pinnedGitBlob": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf",
+            "pinnedSha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+            "executedSourceSha256": "f07aaa5065e6bdcf1c9b5be13cb17e30dd1b452ed220d613b4f6a90724b29b9b",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/asc.go",
+            "pinnedGitBlob": "9b3d5b04601ca942d1a245df0882f06d5561e3e4",
+            "pinnedSha256": "091a76bb82b013476b503b5b0b987083bfa17185fc41fdf5e9e187052ffb481c",
+            "executedSourceSha256": "d4c7e7282b19336ad2ffe06790c20914fdee58d33a115d57966f28a296ea686f",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/cons.go",
+            "pinnedGitBlob": "928806c76219dafdf8f944268a36a55bef52c9d3",
+            "pinnedSha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+            "executedSourceSha256": "d6b5d3fb21a1fb2df85bb137894886d760d48fdbae59262345bf806eb74da392",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/characters/faruzan/zz_faruzan.dm.go",
+            "pinnedGitBlob": "2d81ba730c8199888d6107ff64545588809d6599",
+            "pinnedSha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+            "executedSourceSha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/weapons/catalyst/angelosheptades/angelosheptades.go",
+            "pinnedGitBlob": "d4cb03643a961c2c34a63eb6b9aa03508e2b2a37",
+            "pinnedSha256": "2489bdf8f3216760991ea9952dfb2b218dc867bc206d6810bab4d3378ff1601f",
+            "executedSourceSha256": "2489bdf8f3216760991ea9952dfb2b218dc867bc206d6810bab4d3378ff1601f",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "internal/weapons/sword/athameartis/athameartis.go",
+            "pinnedGitBlob": "a2958bb374162b7ea377191d0d556df6c7d74236",
+            "pinnedSha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+            "executedSourceSha256": "493554db182e3ef0a02bc7f6514d7786522dc424c1bd7cddaa11302ac5de93d1",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/artifacts/noblesse/noblesse.go",
+            "pinnedGitBlob": "bdb3a2c200e875d07e1d69d8acfc534fd12ba4a4",
+            "pinnedSha256": "e9feadc42267f06b409ff7cbaca5ea614f65be28af067b3cc18b1652ab2a564a",
+            "executedSourceSha256": "6cf514272b0a135b12240208ee7221f754da85bc22e4c19e9ac689a01d14a931",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "internal/artifacts/gladiator/gladiator.go",
+            "pinnedGitBlob": "110194443a8d4ea55f77713a032d8f5212549851",
+            "pinnedSha256": "ebbbc4dc78b6dbda27eaac49b03c40d4abe5707e77f576e6be469639a4ea9c64",
+            "executedSourceSha256": "84553ec1387902a2da7c0f4ef109e84b9acbc0d1dbdeb24c01ea4771b03e1e74",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/catalog/character.dm.go",
+            "pinnedGitBlob": "22b2536e01cb520f0fff588977cba0db5b668328",
+            "pinnedSha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+            "executedSourceSha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/catalog/weapon.dm.go",
+            "pinnedGitBlob": "c2e731713d4fe18414efdb66cdb0c8c276b64e69",
+            "pinnedSha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+            "executedSourceSha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/catalog/curve.dm.go",
+            "pinnedGitBlob": "b960e695c8a6a154e6b5b931d7276c14fc3edbad",
+            "pinnedSha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+            "executedSourceSha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+            "instrumentedOrPatched": false
+          },
+          {
+            "path": "pkg/core/core.go",
+            "pinnedGitBlob": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+            "pinnedSha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+            "executedSourceSha256": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/task/task.go",
+            "pinnedGitBlob": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+            "pinnedSha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+            "executedSourceSha256": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/player/player.go",
+            "pinnedGitBlob": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+            "pinnedSha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+            "executedSourceSha256": "7a60b9e6b93f1c34bbf1958312eb221a13f58d36cf4050b981555602f72b60b9",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/player/character/mods.go",
+            "pinnedGitBlob": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+            "pinnedSha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+            "executedSourceSha256": "4f4b19e07303969e7b46d757d4967e3adfdaabcc8e9de95bf0f2f0835ec2d424",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/core/player/character/stats.go",
+            "pinnedGitBlob": "33d47f781e040dbabac6622360272235888cf663",
+            "pinnedSha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+            "executedSourceSha256": "174ee0916a26019e44b611964e37322f11b1366cdedcb09beab877034bbf8da1",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/modifier/modifier.go",
+            "pinnedGitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+            "pinnedSha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+            "executedSourceSha256": "e8a87d2ab58bb80924562fcaaf99d80cc2fb5cb6919563f3023dce8da2a996d9",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/enemy/attack.go",
+            "pinnedGitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd",
+            "pinnedSha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+            "executedSourceSha256": "3a136213ce7f728a65a37260a0e510367661b45a3eac5aca5a89b686ae74d639",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/enemy/mods.go",
+            "pinnedGitBlob": "d1c63e76895a0b8964567f0697aa9df8375ada71",
+            "pinnedSha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+            "executedSourceSha256": "7032e9bd946b4b20b063f486edf80505b2aaae25facea83e1bf6ea6d95ab0c48",
+            "instrumentedOrPatched": true
+          },
+          {
+            "path": "pkg/reactable/swirl.go",
+            "pinnedGitBlob": "6cfbd7c3316e189fa461e4bfa8553025a5f87671",
+            "pinnedSha256": "193ef982ca4cb06623f942089d06dd47407d97988c67ccf898917b14cbf9f369",
+            "executedSourceSha256": "26056465b1b9cdcd868a32d256d58573129215ce7bb5ee07ef98430147dcd763",
+            "instrumentedOrPatched": true
+          }
+        ],
+        "patches": [
+          {
+            "path": "134-durin-black-skill-capture.patch",
+            "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
+            "size": 521
+          },
+          {
+            "path": "135-athame-trigger-hit-atk.patch",
+            "sha256": "491d0c83d2602278aff9b440a579f58285a2826a4c34dad60df389f70a71fd60",
+            "size": 4449
+          },
+          {
+            "path": "136-normal-attack-speed-context.patch",
+            "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
+            "size": 5729
+          }
+        ]
+      },
+      "inputBoundary": "accepted actions/swaps/real hit packets/applied-element aura observations and native queue execution receipts for same-frame order; native buff values and status logs are comparison targets only",
+      "checks": {
+        "classic-pin": 1,
+        "fixed-seed": 1,
+        "exact-team": 1,
+        "one-stationary-target": 1,
+        "no-hitlag-clock-pause": 1,
+        "declared-character-build": 4,
+        "declared-weapon-build": 4,
+        "known-hexerei-recipients": 1,
+        "generation-athameartis-team-buff": 1,
+        "generation-blade-of-the-daylight-hours-buff": 1,
+        "generation-durin-a1-anemo": 1,
+        "generation-durin-a1-pyro": 1,
+        "generation-durin-burst-white": 1,
+        "generation-durin-c2-anemo": 1,
+        "generation-durin-c2-pyro": 1,
+        "generation-faruzan-c6": 1,
+        "generation-faruzan-q-dmg-bonus": 1,
+        "generation-faruzan-q-shred": 1,
+        "generation-grace-of-kenosis": 1,
+        "generation-guidance-of-theosis": 1,
+        "generation-nicole-c2": 1,
+        "generation-nicole-c2-anemo": 1,
+        "generation-nicole-c2-pyro": 1,
+        "generation-nob-4pc": 1,
+        "generation-silent-contemplation": 1,
+        "durin-c1-eligibility-and-tokens": 1,
+        "durin-c1-token-writeback": 1,
+        "faruzan-a4-eligibility-and-48f-icd": 1,
+        "faruzan-c6-eligibility-180f-and-33f-delay": 1,
+        "nicole-projection-eligibility-icd-count-owner-delay": 1,
+        "nicole-projection-coefficient": 42,
+        "nicole-projection-no-hexerei-extra-on-nonhexerei": 30,
+        "stat-consumption-presence": 7146,
+        "angelos-permanent-r1-atk-qualification": 38,
+        "angelos-permanent-r1-atk-vector": 988,
+        "independent-atk-stat": 549,
+        "nicole-e-independent-creation-value": 12,
+        "stat-consumption-expiry": 4325,
+        "source-derived-stat-vector": 112450,
+        "nicole-extra-owner-is-real-hexerei": 12,
+        "nicole-projection-extra-independent-atk-times-3": 12,
+        "durin-c1-live-atk-times-0p6": 159,
+        "faruzan-a4-catalog-base-atk-times-0p32": 85,
+        "resistance-generation-to-live-consumption": 3095,
+        "source-derived-resistance-delta": 1466,
+        "resistance-expiry": 1466,
+        "independent-total-live-resistance": 619,
+        "ordinary-hit-has-live-attack-read": 526,
+        "live-attack-mod-qualification": 1328,
+        "source-derived-live-attack-vector": 25064,
+        "athame-60f-poll-extension": 1,
+        "angelos-shield-30f-poll-generation": 1,
+        "angelos-independent-nonextra-atk": 233,
+        "angelos-independent-capped-dmg": 233,
+        "nicole-shield-owner-birth-expiry": 1,
+        "nicole-shield-real-owner": 6,
+        "nicole-shield-independent-initial-hp": 6,
+        "nicole-shield-expiration": 5,
+        "energy-receipt-continuity": 375,
+        "energy-clamp-writeback": 375,
+        "q-energy-funded-at-consumption": 21,
+        "q-decision-ledger-energy": 23,
+        "q-decision-actual-cost": 23,
+        "q-decision-funded-and-cooldown": 23,
+        "q-decisions-correspond-to-real-casts": 4,
+        "tree-pin": 1,
+        "pristine-git-blob-identity": 35,
+        "build-manifest-wasm-hash": 1,
+        "capture-matches-built-artifact": 1
+      },
+      "failures": [],
+      "expectedGenerationCounts": {
+        "grace-of-kenosis": 24,
+        "nicole-c2": 96,
+        "guidance-of-theosis": 449,
+        "nicole-c2-pyro": 752,
+        "silent-contemplation": 6,
+        "durin-burst-white": 6,
+        "blade-of-the-daylight-hours-buff": 122,
+        "durin-a1-anemo": 99,
+        "durin-c2-anemo": 396,
+        "durin-a1-pyro": 99,
+        "durin-c2-pyro": 396,
+        "athameartis-team-buff": 17,
+        "nob-4pc": 24,
+        "faruzan-q-shred": 62,
+        "faruzan-q-dmg-bonus": 128,
+        "faruzan-c6": 128,
+        "nicole-c2-anemo": 147
+      },
+      "cancelledNicoleA1Swaps": [
+        {
+          "actor": 1,
+          "swapFrame": 354,
+          "dueFrame": 533,
+          "supersededBySwap": 532
+        },
+        {
+          "actor": 1,
+          "swapFrame": 1675,
+          "dueFrame": 1854,
+          "supersededBySwap": 1853
+        },
+        {
+          "actor": 1,
+          "swapFrame": 2877,
+          "dueFrame": 3056,
+          "supersededBySwap": 3055
+        },
+        {
+          "actor": 1,
+          "swapFrame": 4198,
+          "dueFrame": 4377,
+          "supersededBySwap": 4376
+        },
+        {
+          "actor": 1,
+          "swapFrame": 5519,
+          "dueFrame": 5698,
+          "supersededBySwap": 5697
+        },
+        {
+          "actor": 1,
+          "swapFrame": 6721,
+          "dueFrame": 6900,
+          "supersededBySwap": 6899
+        }
+      ],
+      "consumption": {
+        "independentCatalogValues": {
+          "nicole": {
+            "baseAtk": 1082.6052418000002,
+            "characterEquation": [
+              26.6266,
+              8.739,
+              109.33523
+            ],
+            "weaponBaseAtk": 740.5801544000001,
+            "permanentCatalogAtkPercent": 0.453384,
+            "skillBuffRatio": 0.15,
+            "skillBuffMax": 600.0,
+            "skillShieldAtk": 3.981312,
+            "skillShieldFlat": 3050.9045,
+            "projection": 1.8
+          },
+          "durin": {
+            "baseAtk": 954.8832482,
+            "characterEquation": [
+              26.999,
+              8.739,
+              110.86439
+            ],
+            "weaponBaseAtk": 608.0745972,
+            "permanentCatalogAtkPercent": 0,
+            "whiteDot": 1.70352
+          },
+          "faruzan": {
+            "baseAtk": 650.8305551000001,
+            "characterEquation": [
+              16.4724,
+              8.349,
+              58.939335
+            ],
+            "weaponBaseAtk": 454.36315250000007,
+            "permanentCatalogAtkPercent": 0.24,
+            "burstBonus": 0.3825
+          }
+        },
+        "graceByExpiry": {
+          "1214": 513.9268892393447,
+          "2535": 513.9268892393447,
+          "3737": 513.9268892393447,
+          "5058": 513.9268892393447,
+          "6379": 513.9268892393447,
+          "7581": 513.9268892393447
+        },
+        "reviewedStatReads": 794,
+        "snapshotSurvivedExpiry": [
+          {
+            "attack": 184,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 2051,
+            "expiry": 2068,
+            "hitFrame": 2084
+          },
+          {
+            "attack": 307,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 3253,
+            "expiry": 3270,
+            "hitFrame": 3286
+          },
+          {
+            "attack": 442,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 4574,
+            "expiry": 4591,
+            "hitFrame": 4607
+          },
+          {
+            "attack": 578,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 5895,
+            "expiry": 5912,
+            "hitFrame": 5928
+          },
+          {
+            "attack": 701,
+            "key": "faruzan-q-dmg-bonus",
+            "snapshotFrame": 7097,
+            "expiry": 7114,
+            "hitFrame": 7130
+          }
+        ],
+        "creationExamples": [
+          {
+            "frame": 14,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 14,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 1335,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 1335,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 2537,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 2537,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 3858,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 3858,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 5179,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 5179,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          },
+          {
+            "frame": 6381,
+            "rule": "char-shield-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 16691.593108341825,
+            "actual": 16691.593108341825
+          },
+          {
+            "frame": 6381,
+            "rule": "char-vector-nicole-skill",
+            "independentAtk": 3426.1792615956315,
+            "expected": 513.9268892393447,
+            "actual": 513.9268892393447
+          }
+        ],
+        "projections": 42,
+        "athameTeamExtensions": 82,
+        "angelosPolls": 233,
+        "weaponConsumerCounts": {
+          "angelos-front-applied": 362,
+          "athame-same-hit-correction": 1,
+          "angelos-off-hexerei-applied": 110,
+          "angelos-off-nonhexerei-rejected": 31,
+          "angelos-off-hexerei-rejected": 6,
+          "angelos-front-rejected": 17
+        },
+        "athameCorrection": true,
+        "explanationGapClassification": {
+          "originalGapCountUnchanged": 4292,
+          "readsWithIndependentSideEvidence": {
+            "angelos-heptades-atk": 38,
+            "pathfinders-light": 472,
+            "nicole-c2-pyro": 239,
+            "athame-burst-cd": 122,
+            "athame-trigger-hit-atk": 1,
+            "blade-of-the-daylight-hours-buff": 294,
+            "durin-a1-anemo": 374,
+            "durin-a1-pyro": 238,
+            "athameartis-team-buff": 345,
+            "faruzan-q-shred": 369,
+            "nicole-c2-anemo": 246
+          },
+          "remainingNotIndependentlyCheckedReads": {
+            "general-scope-or-no-read-key": 272,
+            "anemo-res-cd": 44,
+            "pyro-res": 709,
+            "tulaytullahsremembrance-atkspd": 273,
+            "tulaytullahsremembrance-na-dmg": 256
+          },
+          "representativeOriginalGaps": {
+            "general-scope-or-no-read-key": "触发资格、目标选择、排队和状态生命周期沿用固定版本的原生执行；数值公式回放不等于独立核验全部游戏机制。",
+            "not-checked-read:anemo-res-cd": "来源标量 scalar-read-7/0/anemo-res-cd/scalar 的非零 Amount 闭包返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:angelos-heptades-atk": "属性读取 actor-2-read-29/0/angelos-heptades-atk/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "not-checked-read:pyro-res": "属性读取 actor-2-read-29/2/pyro-res/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:pathfinders-light": "属性读取 actor-2-read-36/0/pathfinders-light/通用伤害加成[21] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:nicole-c2-pyro": "来源标量 scalar-read-17/0/nicole-c2-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "value-and-lifecycle-side-evidence:athame-burst-cd": "属性读取 actor-3-read-527/1/athame-burst-cd/暴击伤害[10] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:athame-trigger-hit-atk": "属性读取 actor-3-read-527/2/athame-trigger-hit-atk/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:blade-of-the-daylight-hours-buff": "属性读取 actor-3-read-565/4/blade-of-the-daylight-hours-buff/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:durin-a1-anemo": "来源标量 scalar-read-394/1/durin-a1-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "value-and-lifecycle-side-evidence:durin-a1-pyro": "来源标量 scalar-read-397/2/durin-a1-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "value-and-lifecycle-side-evidence:athameartis-team-buff": "属性读取 actor-1-read-549/5/athameartis-team-buff/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:faruzan-q-shred": "来源标量 scalar-read-567/3/faruzan-q-shred/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+            "not-checked-read:tulaytullahsremembrance-atkspd": "属性读取 actor-0-read-747/0/tulaytullahsremembrance-atkspd/攻击速度[20] 的非零返回量缺少已验证公式节点链接。",
+            "not-checked-read:tulaytullahsremembrance-na-dmg": "属性读取 actor-0-read-758/2/tulaytullahsremembrance-na-dmg/通用伤害加成[21] 的非零返回量缺少已验证公式节点链接。",
+            "value-and-lifecycle-side-evidence:nicole-c2-anemo": "来源标量 scalar-read-807/4/nicole-c2-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。"
+          },
+          "meaning": "The original explanationGaps are preserved. Side evidence here verifies these particular values and their replayed eligibility/lifecycle; it does not attach missing formula-node links or independently recreate aura/collision/rotation scheduling."
+        }
+      },
+      "energy": {
+        "energyWrites": 375,
+        "finalEnergy": {
+          "wanderer": 60,
+          "faruzan": 42.67133978639999,
+          "nicole": 45.2746,
+          "durin": 27.909
+        },
+        "Q": {
+          "wanderer": {
+            "roundsStarted": 6,
+            "decisionsReached": 5,
+            "casts": 3,
+            "skipped": [
+              {
+                "frame": 2485,
+                "actor": "wanderer",
+                "energy": 50.497279999999996,
+                "max": 60.0,
+                "cooldown": 0.0,
+                "ready": false
+              },
+              {
+                "frame": 6329,
+                "actor": "wanderer",
+                "energy": 53.239039999999996,
+                "max": 60.0,
+                "cooldown": 0.0,
+                "ready": false
+              }
+            ],
+            "unreachedInFinalTruncatedRound": 1
+          },
+          "faruzan": {
+            "roundsStarted": 6,
+            "decisionsReached": 6,
+            "casts": 6,
+            "skipped": [],
+            "unreachedInFinalTruncatedRound": 0
+          },
+          "nicole": {
+            "roundsStarted": 6,
+            "decisionsReached": 6,
+            "casts": 6,
+            "skipped": [],
+            "unreachedInFinalTruncatedRound": 0
+          },
+          "durin": {
+            "roundsStarted": 6,
+            "decisionsReached": 6,
+            "casts": 6,
+            "skipped": [],
+            "unreachedInFinalTruncatedRound": 0
+          }
+        },
+        "decisions": [
+          {
+            "frame": 37,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 235,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 448,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1164,
+            "actor": "wanderer",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1358,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1556,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 1769,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 2485,
+            "actor": "wanderer",
+            "energy": 50.497279999999996,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": false
+          },
+          {
+            "frame": 2560,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 2758,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 2971,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 3687,
+            "actor": "wanderer",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 3881,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 4079,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 4292,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5008,
+            "actor": "wanderer",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5202,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5400,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 5613,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 6329,
+            "actor": "wanderer",
+            "energy": 53.239039999999996,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": false
+          },
+          {
+            "frame": 6404,
+            "actor": "nicole",
+            "energy": 60.0,
+            "max": 60.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 6602,
+            "actor": "durin",
+            "energy": 70.0,
+            "max": 70.0,
+            "cooldown": 0.0,
+            "ready": true
+          },
+          {
+            "frame": 6815,
+            "actor": "faruzan",
+            "energy": 80.0,
+            "max": 80.0,
+            "cooldown": 0.0,
+            "ready": true
+          }
+        ],
+        "limitation": "Receipt continuity and real decision/cast legality only; particle creation/probability/ER/energy-source formulas remain outside this generation audit."
+      },
+      "totalChecks": 160816,
+      "expectedGenerationTotal": 2951,
+      "fullAuditEvidencePath": "/workspace/GIDPS-cloud/function-batch-20261022/buff-generation/final-new.json",
+      "fullAuditEvidenceSha256": "b16b5700944ed33330e87cdcfa7eedce0ba08ed5b0aa67ea98ef14c9798531c6",
+      "generationDifferences": {
+        "missing": [],
+        "unexpected": []
+      },
+      "eligibilityCounts": {
+        "durinC1": 159,
+        "faruzanA4": 85,
+        "faruzanC6": 35,
+        "pyroSwirlEligibility": 99
+      },
+      "reactionEligibleCount": 99,
+      "sideEvidenceGapCount": 2738,
+      "remainingGapCount": 1554
+    }
+  },
+  "negativeProbes": {
+    "passed": 4,
+    "log": "/workspace/GIDPS-cloud/function-batch-20261022/buff-generation/negative-probes.log",
+    "sha256": "b884af438a578075703220a294dfcee35a959640a4c25a421248f73054868196"
+  },
+  "preservedInvestigationFailures": [
+    "first-replay.json: auditor omitted six Faruzan Q initial callbacks; source reconstruction corrected without changing product",
+    "consumption-first-old.json: coarse same-frame ordering gave 30 differences; original failures retained; pinned FIFO/task receipts and action-vs-timer order corrected the auditor"
+  ]
+}
