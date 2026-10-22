@@ -1,0 +1,12 @@
+diff --git a/internal/characters/venti/skill.go b/internal/characters/venti/skill.go
+--- a/internal/characters/venti/skill.go
++++ b/internal/characters/venti/skill.go
+@@ -40,7 +40,7 @@ func (c *char) Skill(p map[string]int) (action.Info, error) {
+ 		Element:      attributes.Anemo,
+ 		Durability:   50,
+ 		Mult:         skillPress[c.TalentLvlSkill()],
+-		HitWeakPoint: true,
++		// No guaranteed weakspot: upstream fix 2f1dc6a / PR3210.
+ 	}
+ 
+ 	act := action.Info{

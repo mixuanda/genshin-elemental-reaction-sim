@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "a16817836d46ca096f24cf31e70e614002d4d443eae06c64ba5fe0ee8bc62744",
-      "bytes": 71853672
+      "sha256": "2d34346af19e9f4f302d811950c624a2938ff98f357735cc6b6f3e0f02d461e0",
+      "bytes": 71853670
     },
     {
       "path": "wasm_exec.js",
@@ -3470,7 +3470,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "9f777719496d249550ae77ae411881b6079fea5faaa556ef8b86659de7597ddf",
+      "sha256": "1baab53b36e348e46d9f80b7789db32f0490b6435bb44ee35631e160c3cad54e",
       "bytes": 1883017
     }
   ],
@@ -4264,6 +4264,11 @@
       "path": "132-neuvillette-initial-hp-a4.patch",
       "sha256": "452b8d17b5c3e5d185e58d358e9c49495c4ccfcedcfb7e57df6c4b8077d89a15",
       "bytes": 479
+    },
+    {
+      "path": "133-venti-skill-crit.patch",
+      "sha256": "ad685e7ef02da371e7ec7788460c1f7e9da61c2aa506762abee7d0171b5719fe",
+      "bytes": 464
     }
   ],
   "supportedFormulaFamilies": [
