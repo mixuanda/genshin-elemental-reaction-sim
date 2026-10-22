@@ -26,6 +26,14 @@ const storageKey = 'gidps:editable-builds:v1';
 let selectedCharacter = gameDataCatalog.characters.find(c => c.slug === 'amber')!.id;
 let selectedTier: CharacterBuildPresetTier = 'starter';
 
+export function focusBuildImport(root: HTMLElement, target: 'uid' | 'file'): void {
+  const input = root.querySelector<HTMLInputElement>(target === 'uid' ? '#build-uid' : '[data-player-file]');
+  if (!input) return;
+  for (let section = input.closest('details'); section; section = section.parentElement?.closest('details') ?? null) section.open = true;
+  input.focus({ preventScroll: true });
+  input.scrollIntoView({ block: 'center' });
+}
+
 export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions): void {
   let saved: SavedBuild[] = [];
   try { const raw = localStorage.getItem(storageKey); if (raw) saved = JSON.parse(raw); } catch { /* Saved builds are optional; an unreadable local draft does not prevent editing. */ }
@@ -34,6 +42,15 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
   playerImportHost.dataset.playerImport = '';
   root.prepend(playerImportHost);
   mountPlayerImportPreview(playerImportHost, options.openCalculator, options.openImportedPanel);
+  const importEntry = document.createElement('section');
+  importEntry.className = 'card';
+  importEntry.dataset.buildImportEntry = '';
+  importEntry.style.marginBottom = '16px';
+  importEntry.innerHTML = '<h2>导入我的角色 / 配装</h2><p>UID 只读取 Enka 公开展示柜；本地文件支持 GOOD / 配装 JSON / 配装文本。</p><div class="editor-actions"><button type="button" data-build-import-target="uid">用 UID 读取公开展柜</button><button type="button" data-build-import-target="file">导入本地配装文件</button></div>';
+  root.prepend(importEntry);
+  importEntry.querySelectorAll<HTMLButtonElement>('[data-build-import-target]').forEach(button => {
+    button.onclick = () => focusBuildImport(root, button.dataset.buildImportTarget as 'uid' | 'file');
+  });
   const query = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
   const status = (message: string) => { query('#build-status').textContent = message; };
   const field = (selector: string) => query<HTMLInputElement>(selector);
