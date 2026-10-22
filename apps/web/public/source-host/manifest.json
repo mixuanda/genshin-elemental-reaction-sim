@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-22T13:41:57.044Z",
+  "builtAt": "2026-10-22T15:08:58.565Z",
   "source": {
     "repository": "https://github.com/genshinsim/gcsim",
     "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
@@ -3626,6 +3626,11 @@
       "path": "133-venti-skill-crit.patch",
       "sha256": "ad685e7ef02da371e7ec7788460c1f7e9da61c2aa506762abee7d0171b5719fe",
       "size": 464
+    },
+    {
+      "path": "134-durin-black-skill-capture.patch",
+      "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
+      "size": 521
     }
   ],
   "bridge": [
@@ -4060,8 +4065,8 @@
   "artifacts": [
     {
       "path": "source-host.wasm",
-      "sha256": "d09a2bad1d02b31fcd3a64643dc5a5e9919d70bd0ca739d269cac92e3ca46cab",
-      "size": 47066607
+      "sha256": "ad7f559e40af4115fad996e52de258710c5849eb06be1e15e59c8be84d20a2b4",
+      "size": 47066727
     },
     {
       "path": "wasm_exec.js",
@@ -4090,7 +4095,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "d02a71904f7b1df4e29513ac50a1cbe2de992d5beac323e4b859d03c4163197f",
+      "sha256": "f682725f3b18e0e1cfe53259a9a141f222bc6475a3a83fc58e55d2d831730da4",
       "size": 1810182
     }
   ],

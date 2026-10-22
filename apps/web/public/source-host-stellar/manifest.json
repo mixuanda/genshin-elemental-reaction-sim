@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "2d34346af19e9f4f302d811950c624a2938ff98f357735cc6b6f3e0f02d461e0",
-      "bytes": 71853670
+      "sha256": "4b30dcf39553752ff3e112c0a6efba03ce54d1a05208fd2be2d1c3d5ef71a705",
+      "bytes": 71853619
     },
     {
       "path": "wasm_exec.js",
@@ -3470,7 +3470,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "1baab53b36e348e46d9f80b7789db32f0490b6435bb44ee35631e160c3cad54e",
+      "sha256": "12833e0116dc3266e7fc252ab32ef580cb9b2e312f69b3c95baf2239d96cf87d",
       "bytes": 1883017
     }
   ],
@@ -4269,6 +4269,11 @@
       "path": "133-venti-skill-crit.patch",
       "sha256": "ad685e7ef02da371e7ec7788460c1f7e9da61c2aa506762abee7d0171b5719fe",
       "bytes": 464
+    },
+    {
+      "path": "134-durin-black-skill-capture.patch",
+      "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
+      "bytes": 521
     }
   ],
   "supportedFormulaFamilies": [
