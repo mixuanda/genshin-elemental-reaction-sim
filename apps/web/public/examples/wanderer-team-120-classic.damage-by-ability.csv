@@ -1,26 +1,26 @@
 actor,actorName,ability,attackTag,hits,damage,sourceNote
-wanderer,流浪者,Shugen: The Curtains’ Melancholic Sway,AttackTagNormal,127,5337652.249498328,按实际 ability 标记；不从 unknown 猜普通攻击
-wanderer,流浪者,Normal 2 (Windfavored),AttackTagNormal,64,4847735.621014431,按实际 ability 标记；不从 unknown 猜普通攻击
-wanderer,流浪者,Normal 0 (Windfavored),AttackTagNormal,32,3291264.2353443545,按实际 ability 标记；不从 unknown 猜普通攻击
-wanderer,流浪者,Normal 1 (Windfavored),AttackTagNormal,32,3155860.8983740266,按实际 ability 标记；不从 unknown 猜普通攻击
+wanderer,流浪者,Shugen: The Curtains’ Melancholic Sway,AttackTagNormal,129,5430984.296640682,按实际 ability 标记；不从 unknown 猜普通攻击
+wanderer,流浪者,Normal 2 (Windfavored),AttackTagNormal,64,4802546.866410348,按实际 ability 标记；不从 unknown 猜普通攻击
+wanderer,流浪者,Normal 0 (Windfavored),AttackTagNormal,33,3415272.3225342995,按实际 ability 标记；不从 unknown 猜普通攻击
+wanderer,流浪者,Normal 1 (Windfavored),AttackTagNormal,32,3055944.5246126396,按实际 ability 标记；不从 unknown 猜普通攻击
 wanderer,流浪者,Arcane Projection: Unity,AttackTagNone,11,2062841.2164987945,妮可投影；按原生触发角色记账
 wanderer,流浪者,Kyougen: Five Ceremonial Plays (Windfavored),AttackTagElementalBurst,15,1546534.336042238,按实际 ability 标记；不从 unknown 猜普通攻击
 wanderer,流浪者,Charge Attack (Windfavored),AttackTagExtra,6,645125.3257107993,按实际 ability 标记；不从 unknown 猜普通攻击
 wanderer,流浪者,Arcane Projection,AttackTagNone,11,562584.1358960945,妮可投影；按原生触发角色记账
 wanderer,流浪者,Hanega: Song of the Wind,AttackTagElementalArt,6,381210.9301831997,按实际 ability 标记；不从 unknown 猜普通攻击
-wanderer,流浪者,swirl-pyro,AttackTagSwirlPyro,55,68332.21536,按实际 ability 标记；不从 unknown 猜普通攻击
-faruzan,法露珊,Pressurized Collapse,AttackTagElementalArt,41,856296.5719126257,按实际 ability 标记；不从 unknown 猜普通攻击
-faruzan,法露珊,The Wind's Secret Ways,AttackTagElementalBurst,6,524169.0963219099,按实际 ability 标记；不从 unknown 猜普通攻击
-faruzan,法露珊,Fully-Charged Aimed Shot (Hurricane Arrow),AttackTagExtra,6,171523.10079547204,按实际 ability 标记；不从 unknown 猜普通攻击
-faruzan,法露珊,Wind Realm of Nasamjnin,AttackTagElementalArt,6,167666.66226959464,按实际 ability 标记；不从 unknown 猜普通攻击
-faruzan,法露珊,Arcane Projection,AttackTagNone,6,110688.06380097044,妮可投影；按原生触发角色记账
-faruzan,法露珊,Arcane Projection: Unity,AttackTagNone,2,105020.70949822624,妮可投影；按原生触发角色记账
-faruzan,法露珊,swirl-pyro,AttackTagSwirlPyro,39,42320.464875,按实际 ability 标记；不从 unknown 猜普通攻击
-nicole,妮可,Revelation: Ladder of Divine Ascent,AttackTagElementalBurst,6,401206.920556218,按实际 ability 标记；不从 unknown 猜普通攻击
-nicole,妮可,Revelation: Uncreated Light,AttackTagElementalArt,6,214950.96696083905,按实际 ability 标记；不从 unknown 猜普通攻击
+wanderer,流浪者,swirl-pyro,AttackTagSwirlPyro,55,68709.04743,按实际 ability 标记；不从 unknown 猜普通攻击
+faruzan,法露珊,Pressurized Collapse,AttackTagElementalArt,41,852167.2729059617,按实际 ability 标记；不从 unknown 猜普通攻击
+faruzan,法露珊,The Wind's Secret Ways,AttackTagElementalBurst,6,591309.0911043652,按实际 ability 标记；不从 unknown 猜普通攻击
+faruzan,法露珊,Fully-Charged Aimed Shot (Hurricane Arrow),AttackTagExtra,6,129615.7981051404,按实际 ability 标记；不从 unknown 猜普通攻击
+faruzan,法露珊,Wind Realm of Nasamjnin,AttackTagElementalArt,6,116356.08922445634,按实际 ability 标记；不从 unknown 猜普通攻击
+faruzan,法露珊,Arcane Projection,AttackTagNone,6,90485.44036228207,妮可投影；按原生触发角色记账
+faruzan,法露珊,Arcane Projection: Unity,AttackTagNone,2,67368.6964187148,妮可投影；按原生触发角色记账
+faruzan,法露珊,swirl-pyro,AttackTagSwirlPyro,38,41235.32475,按实际 ability 标记；不从 unknown 猜普通攻击
+nicole,妮可,Revelation: Ladder of Divine Ascent,AttackTagElementalBurst,6,450306.71208595333,按实际 ability 标记；不从 unknown 猜普通攻击
 nicole,妮可,Arcane Projection: Unity,AttackTagNone,2,205040.68477791833,妮可投影；按原生触发角色记账
-durin,杜林,Dragon of White Flame,AttackTagElementalBurst,104,3322350.7092488063,按实际 ability 标记；不从 unknown 猜普通攻击
+nicole,妮可,Revelation: Uncreated Light,AttackTagElementalArt,6,191671.74798076437,按实际 ability 标记；不从 unknown 猜普通攻击
+durin,杜林,Dragon of White Flame,AttackTagElementalBurst,104,3328936.238403633,按实际 ability 标记；不从 unknown 猜普通攻击
 durin,杜林,Arcane Projection: Unity,AttackTagNone,4,472059.91917756305,妮可投影；按原生触发角色记账
-durin,杜林,As the Light Shifts,AttackTagElementalBurst,18,459981.5304750205,按实际 ability 标记；不从 unknown 猜普通攻击
+durin,杜林,As the Light Shifts,AttackTagElementalBurst,18,461766.2336167349,按实际 ability 标记；不从 unknown 猜普通攻击
 durin,杜林,Arcane Projection,AttackTagNone,6,428805.26231077017,妮可投影；按原生触发角色记账
 durin,杜林,Confirmation of Purity,AttackTagElementalArt,6,148754.92183896585,按实际 ability 标记；不从 unknown 猜普通攻击

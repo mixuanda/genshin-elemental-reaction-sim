@@ -41,7 +41,7 @@ def event_rows(result):
     return [[a["frame"], requests[a["calculationId"]]["actorKey"], requests[a["calculationId"]]["ability"], a["appliedDamage"], a["isCrit"]] for a in result["applications"]]
 
 
-def audit(result, output, baseline=None):
+def audit(result, output, baseline=None, mechanism_revision="original"):
     assert result["sourceCommit"] == PIN
     assert result["observationWindow"] == {"actualEndFrame": 7200, "configuredEndFrame": 7200, "endReason": "duration", "policy": "duration-or-native"}
     assert result["initialEnergy"] == {"mode": "full"}
@@ -57,6 +57,7 @@ def audit(result, output, baseline=None):
     direct_checks = []
     modifier_counts = collections.Counter()
     missing_athame = []
+    corrected_athame = []
     for app in applications:
         row = records[app["calculationId"]]
         q, value = row["request"], row["value"]
@@ -80,6 +81,15 @@ def audit(result, output, baseline=None):
         if q["actorKey"] == "durin" and q["attackTagName"] == "AttackTagElementalBurst":
             steps = snap["statProvenance"]["snapshotRead"]["steps"]
             if not any(s["key"] == "blade-of-the-daylight-hours-buff" and s["outcome"] == "applied" for s in steps):
+                corrections = [step for read in snap["statProvenance"]["attackReads"] for step in read["steps"]
+                    if step["key"] == "athame-trigger-hit-atk" and step["outcome"] == "applied"]
+                if mechanism_revision == "athame-and-action-speed":
+                    assert len(corrections) == 1, ("same-hit correction missing/duplicated", q["id"])
+                    close(corrections[0]["returned"][6], .20 * 1.75, "R1 Hexerei missing self ATK contribution")
+                    corrected_athame.append({"calculationId": q["id"], "frame": q["frame"], "actual": value,
+                        "addedAtkPct": corrections[0]["returned"][6], "independentDamage": hand_damage(i)})
+                    continue
+                assert not corrections, "original audit cannot silently consume a corrected protocol"
                 # Local counterfactual for the fixed source's explicit TODO only.
                 # R1 self ATK=.20; two source Hexerei actors multiply by1.75.
                 extra_atk = snap["baseAtk"] * .20 * 1.75
@@ -166,7 +176,8 @@ def audit(result, output, baseline=None):
             decisions.append(row)
     assert len(decisions) == 23
     skipped = [d for d in decisions if not d["ready"]]
-    assert [(d["actor"], d["frame"]) for d in skipped] == [("wanderer", 2493), ("wanderer", 6349)]
+    expected_skip_frames = [2485, 6329] if mechanism_revision == "athame-and-action-speed" else [2493, 6349]
+    assert [(d["actor"], d["frame"]) for d in skipped] == [("wanderer", f) for f in expected_skip_frames]
     event_sequence = event_rows(result)
     identity = hashlib.sha256(json.dumps(event_sequence, separators=(",", ":")).encode()).hexdigest()
     identical = None if baseline is None else event_sequence == event_rows(baseline)
@@ -179,9 +190,14 @@ def audit(result, output, baseline=None):
     close(math.fsum(row["damage"] for row in rows), total, "actual ability contribution conservation")
     # This source explicitly says the ATK buff should affect the triggering Q hit.
     # Report its local effect only; it is not an error bound for every game mechanic.
-    assert len(missing_athame) == 1
+    if mechanism_revision == "athame-and-action-speed":
+        assert not missing_athame
+        assert [(row["frame"], row["actual"]) for row in corrected_athame] == [(341, 21142.88081857607)]
+    else:
+        assert len(missing_athame) == 1
+        assert not corrected_athame
     athame_delta = math.fsum(row["localDamageDelta"] for row in missing_athame)
-    report = {"verification": "provisional", "sourceCommit": PIN, "seed": result["seed"], "window": "[0,7200)", "durationSeconds": 120,
+    report = {"verification": "provisional", "mechanismRevision": mechanism_revision, "sourceCommit": PIN, "seed": result["seed"], "window": "[0,7200)", "durationSeconds": 120,
         "observedApplications": len(applications), "rawApplicationCount": len(result["applications"]), "observedTotal": total, "observedDps": total / 120,
         "outsideWindowApplications": outside, "eventSha256": identity, "readonlyLogEventSequenceIdentical": identical,
         "roleTotals": [{"actor": actor, "damage": math.fsum(by_actor[actor]), "hits": len(by_actor[actor])} for actor in ACTORS], "abilityTotals": rows,
@@ -189,8 +205,8 @@ def audit(result, output, baseline=None):
         "QDecisions": decisions, "QSkipped": skipped, "QConsumptionCounts": dict(consumed), "cooldownRecasts": cooldown_checks,
         "finalEnergy": energy, "energySources": [{"actor": key[0], "source": key[1], **value} for key, value in energy_sources.items()],
         "rotationBoundaryFrames": [p["frame"] for p in result["phaseObservations"]], "lastAcceptedAction": invocations[-1],
-        "athameKnownSameHitApproximation": {"affected": missing_athame, "localDamageDelta": athame_delta, "localDpsDelta": athame_delta / 120, "localPercentOfObserved": athame_delta / total * 100,
-            "scope": "Only the fixed-source TODO's same-hit ATK local counterfactual, holding all actual states/crit rolls/target fixed; not a global in-game accuracy bound."}}
+        "athameKnownSameHitApproximation": {"affected": missing_athame, "correctedHits": corrected_athame, "localDamageDelta": athame_delta, "localDpsDelta": athame_delta / 120, "localPercentOfObserved": athame_delta / total * 100,
+            "scope": "Corrected source model: missing self contribution checked once at341f; no remaining same-hit counterfactual is added. Not a global in-game accuracy bound." if mechanism_revision == "athame-and-action-speed" else "Only the fixed-source TODO's same-hit ATK local counterfactual, holding all actual states/crit rolls/target fixed; not a global in-game accuracy bound."}}
     output.mkdir(parents=True, exist_ok=True)
     (output / "nicole-durin-energy-audit.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     (output / "energy-ledger.json").write_text(json.dumps(energy_trace, ensure_ascii=False, indent=2))
@@ -206,5 +222,6 @@ if __name__ == "__main__":
     parser.add_argument("capture", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--baseline", type=Path)
+    parser.add_argument("--mechanism-revision", choices=["original", "athame-and-action-speed"], default="original")
     args = parser.parse_args()
-    audit(json.loads(args.capture.read_text()), args.output, json.loads(args.baseline.read_text()) if args.baseline else None)
+    audit(json.loads(args.capture.read_text()), args.output, json.loads(args.baseline.read_text()) if args.baseline else None, args.mechanism_revision)

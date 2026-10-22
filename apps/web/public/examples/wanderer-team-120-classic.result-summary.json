@@ -1,8 +1,8 @@
 {
   "verification": "provisional",
-  "title": "散法妮杜120秒：固定源暂定场景",
+  "title": "散法妮杜120秒：固定源暂定单次场景",
   "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-  "wasmSha256": "ad7f559e40af4115fad996e52de258710c5849eb06be1e15e59c8be84d20a2b4",
+  "wasmSha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
   "seed": "20261022",
   "observationWindow": {
     "policy": "duration-or-native",
@@ -11,33 +11,33 @@
     "endReason": "duration"
   },
   "statisticsWindow": "[0,7200)",
-  "totalDamage": 29529976.748742152,
-  "dps": 246083.13957285127,
-  "hits": 617,
+  "totalDamage": 29547632.435022313,
+  "dps": 246230.27029185262,
+  "hits": 619,
   "roles": [
     {
       "key": "wanderer",
-      "damage": 21899141.163922247,
-      "hits": 359,
-      "share": 0.7415901932552336
+      "damage": 21971753.00195909,
+      "hits": 362,
+      "share": 0.7436045189162547
     },
     {
       "key": "durin",
-      "damage": 4831952.343051126,
+      "damage": 4840322.575347667,
       "hits": 138,
-      "share": 0.1636287215585751
+      "share": 0.16381422728172676
     },
     {
       "key": "faruzan",
-      "damage": 1977684.669473798,
-      "hits": 106,
-      "share": 0.06697210384894864
+      "damage": 1888537.7128709191,
+      "hits": 105,
+      "share": 0.06391502659388937
     },
     {
       "key": "nicole",
-      "damage": 821198.5722949755,
+      "damage": 847019.1448446361,
       "hits": 14,
-      "share": 0.0278089813372425
+      "share": 0.028666227208129152
     }
   ],
   "abilities": [
@@ -46,8 +46,8 @@
       "actorName": "流浪者",
       "ability": "Shugen: The Curtains’ Melancholic Sway",
       "attackTag": "AttackTagNormal",
-      "hits": 127,
-      "damage": 5337652.249498328,
+      "hits": 129,
+      "damage": 5430984.296640682,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -56,7 +56,7 @@
       "ability": "Normal 2 (Windfavored)",
       "attackTag": "AttackTagNormal",
       "hits": 64,
-      "damage": 4847735.621014431,
+      "damage": 4802546.866410348,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -64,8 +64,8 @@
       "actorName": "流浪者",
       "ability": "Normal 0 (Windfavored)",
       "attackTag": "AttackTagNormal",
-      "hits": 32,
-      "damage": 3291264.2353443545,
+      "hits": 33,
+      "damage": 3415272.3225342995,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -74,7 +74,7 @@
       "ability": "Normal 1 (Windfavored)",
       "attackTag": "AttackTagNormal",
       "hits": 32,
-      "damage": 3155860.8983740266,
+      "damage": 3055944.5246126396,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -128,7 +128,7 @@
       "ability": "swirl-pyro",
       "attackTag": "AttackTagSwirlPyro",
       "hits": 55,
-      "damage": 68332.21536,
+      "damage": 68709.04743,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -137,7 +137,7 @@
       "ability": "Pressurized Collapse",
       "attackTag": "AttackTagElementalArt",
       "hits": 41,
-      "damage": 856296.5719126257,
+      "damage": 852167.2729059617,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -146,7 +146,7 @@
       "ability": "The Wind's Secret Ways",
       "attackTag": "AttackTagElementalBurst",
       "hits": 6,
-      "damage": 524169.0963219099,
+      "damage": 591309.0911043652,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -155,7 +155,7 @@
       "ability": "Fully-Charged Aimed Shot (Hurricane Arrow)",
       "attackTag": "AttackTagExtra",
       "hits": 6,
-      "damage": 171523.10079547204,
+      "damage": 129615.7981051404,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -164,7 +164,7 @@
       "ability": "Wind Realm of Nasamjnin",
       "attackTag": "AttackTagElementalArt",
       "hits": 6,
-      "damage": 167666.66226959464,
+      "damage": 116356.08922445634,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -173,7 +173,7 @@
       "ability": "Arcane Projection",
       "attackTag": "AttackTagNone",
       "hits": 6,
-      "damage": 110688.06380097044,
+      "damage": 90485.44036228207,
       "sourceNote": "妮可投影；按原生触发角色记账"
     },
     {
@@ -182,7 +182,7 @@
       "ability": "Arcane Projection: Unity",
       "attackTag": "AttackTagNone",
       "hits": 2,
-      "damage": 105020.70949822624,
+      "damage": 67368.6964187148,
       "sourceNote": "妮可投影；按原生触发角色记账"
     },
     {
@@ -190,8 +190,8 @@
       "actorName": "法露珊",
       "ability": "swirl-pyro",
       "attackTag": "AttackTagSwirlPyro",
-      "hits": 39,
-      "damage": 42320.464875,
+      "hits": 38,
+      "damage": 41235.32475,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -200,16 +200,7 @@
       "ability": "Revelation: Ladder of Divine Ascent",
       "attackTag": "AttackTagElementalBurst",
       "hits": 6,
-      "damage": 401206.920556218,
-      "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
-    },
-    {
-      "actor": "nicole",
-      "actorName": "妮可",
-      "ability": "Revelation: Uncreated Light",
-      "attackTag": "AttackTagElementalArt",
-      "hits": 6,
-      "damage": 214950.96696083905,
+      "damage": 450306.71208595333,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -222,12 +213,21 @@
       "sourceNote": "妮可投影；按原生触发角色记账"
     },
     {
+      "actor": "nicole",
+      "actorName": "妮可",
+      "ability": "Revelation: Uncreated Light",
+      "attackTag": "AttackTagElementalArt",
+      "hits": 6,
+      "damage": 191671.74798076437,
+      "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
+    },
+    {
       "actor": "durin",
       "actorName": "杜林",
       "ability": "Dragon of White Flame",
       "attackTag": "AttackTagElementalBurst",
       "hits": 104,
-      "damage": 3322350.7092488063,
+      "damage": 3328936.238403633,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -245,7 +245,7 @@
       "ability": "As the Light Shifts",
       "attackTag": "AttackTagElementalBurst",
       "hits": 18,
-      "damage": 459981.5304750205,
+      "damage": 461766.2336167349,
       "sourceNote": "按实际 ability 标记；不从 unknown 猜普通攻击"
     },
     {
@@ -301,692 +301,692 @@
     {
       "startSeconds": 5,
       "endSeconds": 6,
-      "damage": 19358.177676861684,
-      "cumulative": 237663.80129341024
+      "damage": 21142.88081857607,
+      "cumulative": 239448.50443512463
     },
     {
       "startSeconds": 6,
       "endSeconds": 7,
       "damage": 89391.5445120837,
-      "cumulative": 327055.34580549394
+      "cumulative": 328840.0489472083
     },
     {
       "startSeconds": 7,
       "endSeconds": 8,
       "damage": 60731.90201878844,
-      "cumulative": 387787.2478242824
+      "cumulative": 389571.9509659968
     },
     {
       "startSeconds": 8,
       "endSeconds": 9,
       "damage": 294358.725385151,
-      "cumulative": 682145.9732094334
+      "cumulative": 683930.6763511477
     },
     {
       "startSeconds": 9,
       "endSeconds": 10,
       "damage": 65216.74266181994,
-      "cumulative": 747362.7158712533
+      "cumulative": 749147.4190129676
     },
     {
       "startSeconds": 10,
       "endSeconds": 11,
-      "damage": 371997.2061349963,
-      "cumulative": 1119359.9220062497
+      "damage": 367998.17472985364,
+      "cumulative": 1117145.5937428214
     },
     {
       "startSeconds": 11,
       "endSeconds": 12,
-      "damage": 344176.8023151733,
-      "cumulative": 1463536.724321423
+      "damage": 379626.98814427573,
+      "cumulative": 1496772.581887097
     },
     {
       "startSeconds": 12,
       "endSeconds": 13,
-      "damage": 463608.366739984,
-      "cumulative": 1927145.0910614072
+      "damage": 413898.376697175,
+      "cumulative": 1910670.958584272
     },
     {
       "startSeconds": 13,
       "endSeconds": 14,
-      "damage": 432226.08897601895,
-      "cumulative": 2359371.1800374263
+      "damage": 527952.5669933826,
+      "cumulative": 2438623.5255776546
     },
     {
       "startSeconds": 14,
       "endSeconds": 15,
-      "damage": 585913.7575948946,
-      "cumulative": 2945284.937632321
+      "damage": 490187.27957753104,
+      "cumulative": 2928810.8051551855
     },
     {
       "startSeconds": 15,
       "endSeconds": 16,
       "damage": 371574.0171993072,
-      "cumulative": 3316858.954831628
+      "cumulative": 3300384.8223544927
     },
     {
       "startSeconds": 16,
       "endSeconds": 17,
       "damage": 363212.4969252517,
-      "cumulative": 3680071.4517568797
+      "cumulative": 3663597.3192797443
     },
     {
       "startSeconds": 17,
       "endSeconds": 18,
-      "damage": 180887.34229997755,
-      "cumulative": 3860958.794056857
+      "damage": 280351.7247955692,
+      "cumulative": 3943949.0440753135
     },
     {
       "startSeconds": 18,
       "endSeconds": 19,
-      "damage": 453544.3689877584,
-      "cumulative": 4314503.163044616
+      "damage": 338236.7785197591,
+      "cumulative": 4282185.822595073
     },
     {
       "startSeconds": 19,
       "endSeconds": 20,
       "damage": 236454.9516173609,
-      "cumulative": 4550958.114661977
+      "cumulative": 4518640.774212434
     },
     {
       "startSeconds": 20,
       "endSeconds": 21,
       "damage": 16010.403271402363,
-      "cumulative": 4566968.517933379
+      "cumulative": 4534651.177483836
     },
     {
       "startSeconds": 21,
       "endSeconds": 22,
-      "damage": 742989.1816344706,
-      "cumulative": 5309957.69956785
+      "damage": 743114.7923244706,
+      "cumulative": 5277765.969808307
     },
     {
       "startSeconds": 22,
       "endSeconds": 23,
-      "damage": 58063.63277099065,
-      "cumulative": 5368021.332338841
+      "damage": 60258.80915593267,
+      "cumulative": 5338024.778964239
     },
     {
       "startSeconds": 23,
       "endSeconds": 24,
       "damage": 21951.763849420247,
-      "cumulative": 5389973.096188261
+      "cumulative": 5359976.54281366
     },
     {
       "startSeconds": 24,
       "endSeconds": 25,
-      "damage": 111466.23274332983,
-      "cumulative": 5501439.328931591
+      "damage": 62366.44121359451,
+      "cumulative": 5422342.984027254
     },
     {
       "startSeconds": 25,
       "endSeconds": 26,
-      "damage": 150747.5259219325,
-      "cumulative": 5652186.854853523
+      "damage": 150747.52592193254,
+      "cumulative": 5573090.509949187
     },
     {
       "startSeconds": 26,
       "endSeconds": 27,
       "damage": 0,
-      "cumulative": 5652186.854853523
+      "cumulative": 5573090.509949187
     },
     {
       "startSeconds": 27,
       "endSeconds": 28,
       "damage": 31706.629592652953,
-      "cumulative": 5683893.484446176
+      "cumulative": 5604797.13954184
     },
     {
       "startSeconds": 28,
       "endSeconds": 29,
-      "damage": 299597.73542150075,
-      "cumulative": 5983491.219867677
+      "damage": 254413.5056492597,
+      "cumulative": 5859210.6451910995
     },
     {
       "startSeconds": 29,
       "endSeconds": 30,
       "damage": 73749.8422581524,
-      "cumulative": 6057241.06212583
+      "cumulative": 5932960.487449252
     },
     {
       "startSeconds": 30,
       "endSeconds": 31,
-      "damage": 165741.29255850843,
-      "cumulative": 6222982.354684338
+      "damage": 140240.77615251555,
+      "cumulative": 6073201.263601768
     },
     {
       "startSeconds": 31,
       "endSeconds": 32,
-      "damage": 114653.816600483,
-      "cumulative": 6337636.171284821
+      "damage": 129534.52232719972,
+      "cumulative": 6202735.785928967
     },
     {
       "startSeconds": 32,
       "endSeconds": 33,
-      "damage": 329960.08915742097,
-      "cumulative": 6667596.260442242
+      "damage": 368223.9818527214,
+      "cumulative": 6570959.767781689
     },
     {
       "startSeconds": 33,
       "endSeconds": 34,
-      "damage": 384564.3204202994,
-      "cumulative": 7052160.580862542
+      "damage": 377703.59277939296,
+      "cumulative": 6948663.360561082
     },
     {
       "startSeconds": 34,
       "endSeconds": 35,
-      "damage": 650458.1587926575,
-      "cumulative": 7702618.739655199
+      "damage": 617231.4309519607,
+      "cumulative": 7565894.7915130425
     },
     {
       "startSeconds": 35,
       "endSeconds": 36,
-      "damage": 574442.0785362979,
-      "cumulative": 8277060.818191498
+      "damage": 614539.2408519385,
+      "cumulative": 8180434.032364981
     },
     {
       "startSeconds": 36,
       "endSeconds": 37,
-      "damage": 246645.11395850265,
-      "cumulative": 8523705.93215
+      "damage": 304756.22723845375,
+      "cumulative": 8485190.259603435
     },
     {
       "startSeconds": 37,
       "endSeconds": 38,
-      "damage": 454555.13749278645,
-      "cumulative": 8978261.069642788
+      "damage": 372830.1240993073,
+      "cumulative": 8858020.383702742
     },
     {
       "startSeconds": 38,
       "endSeconds": 39,
-      "damage": 322744.0017210858,
-      "cumulative": 9301005.071363874
+      "damage": 363212.4969252517,
+      "cumulative": 9221232.880627993
     },
     {
       "startSeconds": 39,
       "endSeconds": 40,
-      "damage": 271046.65213052824,
-      "cumulative": 9572051.723494401
+      "damage": 330042.53942195396,
+      "cumulative": 9551275.420049947
     },
     {
       "startSeconds": 40,
       "endSeconds": 41,
-      "damage": 622492.1591247234,
-      "cumulative": 10194543.882619124
+      "damage": 539511.0388312441,
+      "cumulative": 10090786.45888119
     },
     {
       "startSeconds": 41,
       "endSeconds": 42,
-      "damage": 214800.5519022606,
-      "cumulative": 10409344.434521385
+      "damage": 214320.65820660233,
+      "cumulative": 10305107.117087793
     },
     {
       "startSeconds": 42,
       "endSeconds": 43,
       "damage": 60258.80915593267,
-      "cumulative": 10469603.243677318
+      "cumulative": 10365365.926243726
     },
     {
       "startSeconds": 43,
       "endSeconds": 44,
       "damage": 21951.763849420247,
-      "cumulative": 10491555.007526739
+      "cumulative": 10387317.690093147
     },
     {
       "startSeconds": 44,
       "endSeconds": 45,
-      "damage": 62366.44121359451,
-      "cumulative": 10553921.448740333
+      "damage": 111466.23274332983,
+      "cumulative": 10498783.922836477
     },
     {
       "startSeconds": 45,
       "endSeconds": 46,
-      "damage": 137515.1261119097,
-      "cumulative": 10691436.574852243
+      "damage": 150747.52592193254,
+      "cumulative": 10649531.44875841
     },
     {
       "startSeconds": 46,
       "endSeconds": 47,
       "damage": 0,
-      "cumulative": 10691436.574852243
+      "cumulative": 10649531.44875841
     },
     {
       "startSeconds": 47,
       "endSeconds": 48,
       "damage": 31706.629592652953,
-      "cumulative": 10723143.204444896
+      "cumulative": 10681238.078351064
     },
     {
       "startSeconds": 48,
       "endSeconds": 49,
-      "damage": 273942.44889893156,
-      "cumulative": 10997085.653343828
+      "damage": 254413.5056492597,
+      "cumulative": 10935651.584000323
     },
     {
       "startSeconds": 49,
       "endSeconds": 50,
       "damage": 52796.190912986574,
-      "cumulative": 11049881.844256815
+      "cumulative": 10988447.77491331
     },
     {
       "startSeconds": 50,
       "endSeconds": 51,
-      "damage": 119733.90618153359,
-      "cumulative": 11169615.750438347
+      "damage": 173702.03400687102,
+      "cumulative": 11162149.80892018
     },
     {
       "startSeconds": 51,
       "endSeconds": 52,
       "damage": 129534.52232719972,
-      "cumulative": 11299150.272765547
+      "cumulative": 11291684.33124738
     },
     {
       "startSeconds": 52,
       "endSeconds": 53,
-      "damage": 329960.08915742097,
-      "cumulative": 11629110.361922968
+      "damage": 368223.9818527214,
+      "cumulative": 11659908.313100101
     },
     {
       "startSeconds": 53,
       "endSeconds": 54,
-      "damage": 251688.35489961464,
-      "cumulative": 11880798.716822583
+      "damage": 327993.6027365839,
+      "cumulative": 11987901.915836684
     },
     {
       "startSeconds": 54,
       "endSeconds": 55,
-      "damage": 798617.9451123774,
-      "cumulative": 12679416.66193496
+      "damage": 582955.5085194892,
+      "cumulative": 12570857.424356174
     },
     {
       "startSeconds": 55,
       "endSeconds": 56,
-      "damage": 511136.73415260157,
-      "cumulative": 13190553.396087563
+      "damage": 518812.7628345748,
+      "cumulative": 13089670.187190749
     },
     {
       "startSeconds": 56,
       "endSeconds": 57,
-      "damage": 237742.8961163329,
-      "cumulative": 13428296.292203896
+      "damage": 400482.7052558174,
+      "cumulative": 13490152.892446566
     },
     {
       "startSeconds": 57,
       "endSeconds": 58,
-      "damage": 542046.5205176879,
-      "cumulative": 13970342.812721584
+      "damage": 372830.1240993073,
+      "cumulative": 13862983.016545873
     },
     {
       "startSeconds": 58,
       "endSeconds": 59,
-      "damage": 221572.76371067102,
-      "cumulative": 14191915.576432254
+      "damage": 363212.4969252517,
+      "cumulative": 14226195.513471125
     },
     {
       "startSeconds": 59,
       "endSeconds": 60,
-      "damage": 300010.3279150769,
-      "cumulative": 14491925.90434733
+      "damage": 230578.15692636234,
+      "cumulative": 14456773.670397487
     },
     {
       "startSeconds": 60,
       "endSeconds": 61,
-      "damage": 694699.7213505895,
-      "cumulative": 15186625.62569792
+      "damage": 624217.3534794279,
+      "cumulative": 15080991.023876915
     },
     {
       "startSeconds": 61,
       "endSeconds": 62,
-      "damage": 236454.9516173609,
-      "cumulative": 15423080.57731528
+      "damage": 237454.73014998235,
+      "cumulative": 15318445.754026897
     },
     {
       "startSeconds": 62,
       "endSeconds": 63,
       "damage": 16010.403271402363,
-      "cumulative": 15439090.980586683
+      "cumulative": 15334456.1572983
     },
     {
       "startSeconds": 63,
       "endSeconds": 64,
-      "damage": 537549.2340188354,
-      "cumulative": 15976640.21460552
+      "damage": 537978.6586198782,
+      "cumulative": 15872434.81591818
     },
     {
       "startSeconds": 64,
       "endSeconds": 65,
-      "damage": 58063.63277099065,
-      "cumulative": 16034703.84737651
+      "damage": 60258.80915593267,
+      "cumulative": 15932693.625074113
     },
     {
       "startSeconds": 65,
       "endSeconds": 66,
       "damage": 21951.763849420247,
-      "cumulative": 16056655.611225931
+      "cumulative": 15954645.388923533
     },
     {
       "startSeconds": 66,
       "endSeconds": 67,
       "damage": 111466.23274332983,
-      "cumulative": 16168121.843969261
+      "cumulative": 16066111.621666864
     },
     {
       "startSeconds": 67,
       "endSeconds": 68,
-      "damage": 247465.77244736173,
-      "cumulative": 16415587.616416624
+      "damage": 260746.8475909948,
+      "cumulative": 16326858.469257858
     },
     {
       "startSeconds": 68,
       "endSeconds": 69,
-      "damage": 26513.474953655863,
-      "cumulative": 16442101.091370279
+      "damage": 0,
+      "cumulative": 16326858.469257858
     },
     {
       "startSeconds": 69,
       "endSeconds": 70,
       "damage": 31706.629592652953,
-      "cumulative": 16473807.720962932
+      "cumulative": 16358565.098850511
     },
     {
       "startSeconds": 70,
       "endSeconds": 71,
-      "damage": 181582.75562710996,
-      "cumulative": 16655390.476590043
+      "damage": 162053.81237743807,
+      "cumulative": 16520618.911227949
     },
     {
       "startSeconds": 71,
       "endSeconds": 72,
-      "damage": 73749.8422581524,
-      "cumulative": 16729140.318848195
+      "damage": 52796.190912986574,
+      "cumulative": 16573415.102140935
     },
     {
       "startSeconds": 72,
       "endSeconds": 73,
-      "damage": 119733.90618153359,
-      "cumulative": 16848874.22502973
+      "damage": 194834.64241235144,
+      "cumulative": 16768249.744553287
     },
     {
       "startSeconds": 73,
       "endSeconds": 74,
-      "damage": 191077.40665005601,
-      "cumulative": 17039951.631679785
+      "damage": 138544.68784382782,
+      "cumulative": 16906794.432397116
     },
     {
       "startSeconds": 74,
       "endSeconds": 75,
-      "damage": 282440.18013791955,
-      "cumulative": 17322391.811817706
+      "damage": 368223.9818527214,
+      "cumulative": 17275018.414249837
     },
     {
       "startSeconds": 75,
       "endSeconds": 76,
-      "damage": 224443.65317098238,
-      "cumulative": 17546835.464988686
+      "damage": 327993.6027365839,
+      "cumulative": 17603012.016986422
     },
     {
       "startSeconds": 76,
       "endSeconds": 77,
-      "damage": 687951.503521434,
-      "cumulative": 18234786.96851012
+      "damage": 481510.36865569255,
+      "cumulative": 18084522.385642115
     },
     {
       "startSeconds": 77,
       "endSeconds": 78,
-      "damage": 331499.3312609332,
-      "cumulative": 18566286.299771056
+      "damage": 518812.7628345748,
+      "cumulative": 18603335.14847669
     },
     {
       "startSeconds": 78,
       "endSeconds": 79,
-      "damage": 417380.2990080013,
-      "cumulative": 18983666.598779056
+      "damage": 400482.7052558174,
+      "cumulative": 19003817.853732508
     },
     {
       "startSeconds": 79,
       "endSeconds": 80,
-      "damage": 727477.5728567651,
-      "cumulative": 19711144.17163582
+      "damage": 558261.1764383845,
+      "cumulative": 19562079.03017089
     },
     {
       "startSeconds": 80,
       "endSeconds": 81,
-      "damage": 221572.76371067102,
-      "cumulative": 19932716.93534649
+      "damage": 363212.4969252517,
+      "cumulative": 19925291.527096145
     },
     {
       "startSeconds": 81,
       "endSeconds": 82,
-      "damage": 300010.3279150769,
-      "cumulative": 20232727.263261568
+      "damage": 230578.15692636234,
+      "cumulative": 20155869.68402251
     },
     {
       "startSeconds": 82,
       "endSeconds": 83,
-      "damage": 486261.8986036021,
-      "cumulative": 20718989.16186517
+      "damage": 438786.3011403507,
+      "cumulative": 20594655.985162858
     },
     {
       "startSeconds": 83,
       "endSeconds": 84,
-      "damage": 274745.5428243064,
-      "cumulative": 20993734.704689477
+      "damage": 237454.73014998235,
+      "cumulative": 20832110.71531284
     },
     {
       "startSeconds": 84,
       "endSeconds": 85,
       "damage": 16010.403271402363,
-      "cumulative": 21009745.10796088
+      "cumulative": 20848121.11858424
     },
     {
       "startSeconds": 85,
       "endSeconds": 86,
-      "damage": 729162.6734352248,
-      "cumulative": 21738907.781396106
+      "damage": 743897.416959317,
+      "cumulative": 21592018.535543557
     },
     {
       "startSeconds": 86,
       "endSeconds": 87,
-      "damage": 71890.14097023643,
-      "cumulative": 21810797.922366343
+      "damage": 39246.921782741134,
+      "cumulative": 21631265.457326297
     },
     {
       "startSeconds": 87,
       "endSeconds": 88,
       "damage": 21951.763849420247,
-      "cumulative": 21832749.686215762
+      "cumulative": 21653217.221175715
     },
     {
       "startSeconds": 88,
       "endSeconds": 89,
-      "damage": 62366.44121359451,
-      "cumulative": 21895116.127429355
+      "damage": 111466.23274332983,
+      "cumulative": 21764683.453919046
     },
     {
       "startSeconds": 89,
       "endSeconds": 90,
-      "damage": 47938.30756202146,
-      "cumulative": 21943054.434991375
+      "damage": 150747.52592193254,
+      "cumulative": 21915430.97984098
     },
     {
       "startSeconds": 90,
       "endSeconds": 91,
-      "damage": 102809.21835991107,
-      "cumulative": 22045863.653351285
+      "damage": 0,
+      "cumulative": 21915430.97984098
     },
     {
       "startSeconds": 91,
       "endSeconds": 92,
-      "damage": 0,
-      "cumulative": 22045863.653351285
+      "damage": 31706.629592652953,
+      "cumulative": 21947137.609433632
     },
     {
       "startSeconds": 92,
       "endSeconds": 93,
-      "damage": 247704.54850542723,
-      "cumulative": 22293568.20185671
+      "damage": 234641.45931329404,
+      "cumulative": 22181779.068746928
     },
     {
       "startSeconds": 93,
       "endSeconds": 94,
-      "damage": 130609.2321193097,
-      "cumulative": 22424177.43397602
+      "damage": 73749.8422581524,
+      "cumulative": 22255528.91100508
     },
     {
       "startSeconds": 94,
       "endSeconds": 95,
-      "damage": 186873.90096398885,
-      "cumulative": 22611051.33494001
+      "damage": 207380.77093497085,
+      "cumulative": 22462909.68194005
     },
     {
       "startSeconds": 95,
       "endSeconds": 96,
-      "damage": 115738.95672548297,
-      "cumulative": 22726790.29166549
+      "damage": 114653.816600483,
+      "cumulative": 22577563.49854053
     },
     {
       "startSeconds": 96,
       "endSeconds": 97,
-      "damage": 281184.07323791954,
-      "cumulative": 23007974.36490341
+      "damage": 368223.9818527214,
+      "cumulative": 22945787.480393253
     },
     {
       "startSeconds": 97,
       "endSeconds": 98,
-      "damage": 225699.76007098236,
-      "cumulative": 23233674.124974392
+      "damage": 327993.6027365839,
+      "cumulative": 23273781.083129838
     },
     {
       "startSeconds": 98,
       "endSeconds": 99,
-      "damage": 858098.7350614758,
-      "cumulative": 24091772.860035866
+      "damage": 666941.4209947699,
+      "cumulative": 23940722.504124608
     },
     {
       "startSeconds": 99,
       "endSeconds": 100,
-      "damage": 331499.3312609332,
-      "cumulative": 24423272.1912968
+      "damage": 518812.7628345748,
+      "cumulative": 24459535.266959183
     },
     {
       "startSeconds": 100,
       "endSeconds": 101,
-      "damage": 417380.2990080013,
-      "cumulative": 24840652.4903048
+      "damage": 400482.7052558174,
+      "cumulative": 24860017.972215
     },
     {
       "startSeconds": 101,
       "endSeconds": 102,
-      "damage": 503755.9293107425,
-      "cumulative": 25344408.419615544
+      "damage": 358072.05625189946,
+      "cumulative": 25218090.0284669
     },
     {
       "startSeconds": 102,
       "endSeconds": 103,
-      "damage": 259863.35491761647,
-      "cumulative": 25604271.77453316
+      "damage": 363212.4969252517,
+      "cumulative": 25581302.525392152
     },
     {
       "startSeconds": 103,
       "endSeconds": 104,
-      "damage": 300010.3279150769,
-      "cumulative": 25904282.102448236
+      "damage": 230578.15692636234,
+      "cumulative": 25811880.682318516
     },
     {
       "startSeconds": 104,
       "endSeconds": 105,
-      "damage": 645626.1341816926,
-      "cumulative": 26549908.23662993
+      "damage": 638975.4213268358,
+      "cumulative": 26450856.10364535
     },
     {
       "startSeconds": 105,
       "endSeconds": 106,
-      "damage": 259126.771265577,
-      "cumulative": 26809035.007895507
+      "damage": 214320.65820660233,
+      "cumulative": 26665176.76185195
     },
     {
       "startSeconds": 106,
       "endSeconds": 107,
-      "damage": 82557.32936743161,
-      "cumulative": 26891592.33726294
+      "damage": 60258.80915593267,
+      "cumulative": 26725435.571007885
     },
     {
       "startSeconds": 107,
       "endSeconds": 108,
       "damage": 21951.763849420247,
-      "cumulative": 26913544.10111236
+      "cumulative": 26747387.334857304
     },
     {
       "startSeconds": 108,
       "endSeconds": 109,
       "damage": 111466.23274332983,
-      "cumulative": 27025010.33385569
+      "cumulative": 26858853.567600634
     },
     {
       "startSeconds": 109,
       "endSeconds": 110,
-      "damage": 34705.90775199864,
-      "cumulative": 27059716.24160769
+      "damage": 150747.52592193254,
+      "cumulative": 27009601.093522567
     },
     {
       "startSeconds": 110,
       "endSeconds": 111,
-      "damage": 102809.21835991107,
-      "cumulative": 27162525.4599676
+      "damage": 0,
+      "cumulative": 27009601.093522567
     },
     {
       "startSeconds": 111,
       "endSeconds": 112,
-      "damage": 0,
-      "cumulative": 27162525.4599676
+      "damage": 31706.629592652953,
+      "cumulative": 27041307.72311522
     },
     {
       "startSeconds": 112,
       "endSeconds": 113,
-      "damage": 247418.5282980813,
-      "cumulative": 27409943.98826568
+      "damage": 234641.45931329404,
+      "cumulative": 27275949.182428516
     },
     {
       "startSeconds": 113,
       "endSeconds": 114,
-      "damage": 83885.83671607237,
-      "cumulative": 27493829.82498175
+      "damage": 52796.190912986574,
+      "cumulative": 27328745.373341504
     },
     {
       "startSeconds": 114,
       "endSeconds": 115,
-      "damage": 109376.6062743438,
-      "cumulative": 27603206.431256093
+      "damage": 207380.77093497085,
+      "cumulative": 27536126.144276474
     },
     {
       "startSeconds": 115,
       "endSeconds": 116,
-      "damage": 225480.4710399531,
-      "cumulative": 27828686.902296048
+      "damage": 129534.52232719972,
+      "cumulative": 27665660.666603673
     },
     {
       "startSeconds": 116,
       "endSeconds": 117,
-      "damage": 147732.06604465996,
-      "cumulative": 27976418.968340706
+      "damage": 282553.82959284115,
+      "cumulative": 27948214.496196516
     },
     {
       "startSeconds": 117,
       "endSeconds": 118,
-      "damage": 359151.767264242,
-      "cumulative": 28335570.73560495
+      "damage": 413663.7549964642,
+      "cumulative": 28361878.25119298
     },
     {
       "startSeconds": 118,
       "endSeconds": 119,
-      "damage": 826608.7812213759,
-      "cumulative": 29162179.516826324
+      "damage": 666941.4209947699,
+      "cumulative": 29028819.67218775
     },
     {
       "startSeconds": 119,
       "endSeconds": 120,
-      "damage": 367797.23191583925,
-      "cumulative": 29529976.748742152
+      "damage": 518812.7628345748,
+      "cumulative": 29547632.435022313
     }
   ],
   "QDecisions": [
@@ -1022,8 +1022,8 @@
     },
     {
       "actor": "wanderer",
-      "frame": 1168,
-      "seconds": 19.466666666666665,
+      "frame": 1164,
+      "seconds": 19.4,
       "energy": 60.0,
       "max": 60.0,
       "cooldown": 0.0,
@@ -1032,8 +1032,8 @@
     },
     {
       "actor": "nicole",
-      "frame": 1362,
-      "seconds": 22.7,
+      "frame": 1358,
+      "seconds": 22.633333333333333,
       "energy": 60.0,
       "max": 60.0,
       "cooldown": 0.0,
@@ -1042,8 +1042,8 @@
     },
     {
       "actor": "durin",
-      "frame": 1560,
-      "seconds": 26.0,
+      "frame": 1556,
+      "seconds": 25.933333333333334,
       "energy": 70.0,
       "max": 70.0,
       "cooldown": 0.0,
@@ -1052,8 +1052,8 @@
     },
     {
       "actor": "faruzan",
-      "frame": 1773,
-      "seconds": 29.55,
+      "frame": 1769,
+      "seconds": 29.483333333333334,
       "energy": 80.0,
       "max": 80.0,
       "cooldown": 0.0,
@@ -1062,128 +1062,8 @@
     },
     {
       "actor": "wanderer",
-      "frame": 2493,
-      "seconds": 41.55,
-      "energy": 52.497279999999996,
-      "max": 60.0,
-      "cooldown": 0.0,
-      "ready": false,
-      "reason": "insufficient_energy"
-    },
-    {
-      "actor": "nicole",
-      "frame": 2568,
-      "seconds": 42.8,
-      "energy": 60.0,
-      "max": 60.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "durin",
-      "frame": 2766,
-      "seconds": 46.1,
-      "energy": 70.0,
-      "max": 70.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "faruzan",
-      "frame": 2979,
-      "seconds": 49.65,
-      "energy": 80.0,
-      "max": 80.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "wanderer",
-      "frame": 3699,
-      "seconds": 61.65,
-      "energy": 60.0,
-      "max": 60.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "nicole",
-      "frame": 3893,
-      "seconds": 64.88333333333334,
-      "energy": 60.0,
-      "max": 60.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "durin",
-      "frame": 4091,
-      "seconds": 68.18333333333334,
-      "energy": 70.0,
-      "max": 70.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "faruzan",
-      "frame": 4304,
-      "seconds": 71.73333333333333,
-      "energy": 80.0,
-      "max": 80.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "wanderer",
-      "frame": 5024,
-      "seconds": 83.73333333333333,
-      "energy": 60.0,
-      "max": 60.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "nicole",
-      "frame": 5218,
-      "seconds": 86.96666666666667,
-      "energy": 60.0,
-      "max": 60.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "durin",
-      "frame": 5416,
-      "seconds": 90.26666666666667,
-      "energy": 70.0,
-      "max": 70.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "faruzan",
-      "frame": 5629,
-      "seconds": 93.81666666666666,
-      "energy": 80.0,
-      "max": 80.0,
-      "cooldown": 0.0,
-      "ready": true,
-      "reason": "released"
-    },
-    {
-      "actor": "wanderer",
-      "frame": 6349,
-      "seconds": 105.81666666666666,
+      "frame": 2485,
+      "seconds": 41.416666666666664,
       "energy": 50.497279999999996,
       "max": 60.0,
       "cooldown": 0.0,
@@ -1192,8 +1072,8 @@
     },
     {
       "actor": "nicole",
-      "frame": 6424,
-      "seconds": 107.06666666666666,
+      "frame": 2560,
+      "seconds": 42.666666666666664,
       "energy": 60.0,
       "max": 60.0,
       "cooldown": 0.0,
@@ -1202,8 +1082,8 @@
     },
     {
       "actor": "durin",
-      "frame": 6622,
-      "seconds": 110.36666666666666,
+      "frame": 2758,
+      "seconds": 45.96666666666667,
       "energy": 70.0,
       "max": 70.0,
       "cooldown": 0.0,
@@ -1212,8 +1092,128 @@
     },
     {
       "actor": "faruzan",
-      "frame": 6835,
-      "seconds": 113.91666666666667,
+      "frame": 2971,
+      "seconds": 49.516666666666666,
+      "energy": 80.0,
+      "max": 80.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "wanderer",
+      "frame": 3687,
+      "seconds": 61.45,
+      "energy": 60.0,
+      "max": 60.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "nicole",
+      "frame": 3881,
+      "seconds": 64.68333333333334,
+      "energy": 60.0,
+      "max": 60.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "durin",
+      "frame": 4079,
+      "seconds": 67.98333333333333,
+      "energy": 70.0,
+      "max": 70.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "faruzan",
+      "frame": 4292,
+      "seconds": 71.53333333333333,
+      "energy": 80.0,
+      "max": 80.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "wanderer",
+      "frame": 5008,
+      "seconds": 83.46666666666667,
+      "energy": 60.0,
+      "max": 60.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "nicole",
+      "frame": 5202,
+      "seconds": 86.7,
+      "energy": 60.0,
+      "max": 60.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "durin",
+      "frame": 5400,
+      "seconds": 90.0,
+      "energy": 70.0,
+      "max": 70.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "faruzan",
+      "frame": 5613,
+      "seconds": 93.55,
+      "energy": 80.0,
+      "max": 80.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "wanderer",
+      "frame": 6329,
+      "seconds": 105.48333333333333,
+      "energy": 53.239039999999996,
+      "max": 60.0,
+      "cooldown": 0.0,
+      "ready": false,
+      "reason": "insufficient_energy"
+    },
+    {
+      "actor": "nicole",
+      "frame": 6404,
+      "seconds": 106.73333333333333,
+      "energy": 60.0,
+      "max": 60.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "durin",
+      "frame": 6602,
+      "seconds": 110.03333333333333,
+      "energy": 70.0,
+      "max": 70.0,
+      "cooldown": 0.0,
+      "ready": true,
+      "reason": "released"
+    },
+    {
+      "actor": "faruzan",
+      "frame": 6815,
+      "seconds": 113.58333333333333,
       "energy": 80.0,
       "max": 80.0,
       "cooldown": 0.0,
@@ -1224,9 +1224,9 @@
   "QSkipped": [
     {
       "actor": "wanderer",
-      "frame": 2493,
-      "seconds": 41.55,
-      "energy": 52.497279999999996,
+      "frame": 2485,
+      "seconds": 41.416666666666664,
+      "energy": 50.497279999999996,
       "max": 60.0,
       "cooldown": 0.0,
       "ready": false,
@@ -1234,9 +1234,9 @@
     },
     {
       "actor": "wanderer",
-      "frame": 6349,
-      "seconds": 105.81666666666666,
-      "energy": 50.497279999999996,
+      "frame": 6329,
+      "seconds": 105.48333333333333,
+      "energy": 53.239039999999996,
       "max": 60.0,
       "cooldown": 0.0,
       "ready": false,
@@ -1251,41 +1251,19 @@
   },
   "phaseFrames": [
     1,
-    1326,
-    2532,
-    3857,
-    5182,
-    6388
+    1322,
+    2524,
+    3845,
+    5166,
+    6368
   ],
   "lastAction": {
     "characterKey": "wanderer",
     "action": "attack",
-    "startedFrame": 7193
+    "startedFrame": 7197
   },
-  "boundaryApplications": [
-    {
-      "origin": {
-        "creationActionSequence": 207,
-        "triggerActionSequence": 207,
-        "parentAttackId": 709,
-        "via": "task"
-      },
-      "id": 20710,
-      "calculationId": 20709,
-      "attackId": 712,
-      "dispatchId": 712,
-      "frame": 7200,
-      "targetKey": 1,
-      "rawDamage": 50896.35649255663,
-      "appliedDamage": 50896.35649255663,
-      "hpBefore": 0,
-      "hpAfter": 0,
-      "isCrit": true,
-      "damageMode": false
-    }
-  ],
-  "eventSha256": "7b2b62c653c9982ded8573ef8dbd89064bf2a85631a9d50f1a2b75b58aa5e77e",
-  "readonlyLogSequenceIdentical": true,
+  "boundaryApplications": [],
+  "eventSha256": "518c59552bd8fd2d3dba722374b8f0261798a3c8d03e2b55210d15d1ed74a1b5",
   "assumptions": {
     "otherCharacterLevels": "90/90",
     "weaponLevels": "90/90",
@@ -1296,285 +1274,145 @@
     "actionProfile": "practicalswap8others5"
   },
   "manualEvidence": {
-    "strictSharedCallbackCount": 20096,
-    "meaning": "实际共享响应与原生回执一致，不能据此称全部机制独立闭合。",
+    "strictSharedCallbackCount": 20140,
     "directNicoleDurinChecks": 152,
-    "energyWrites": 386,
+    "energyWrites": 375,
     "cooldownRecasts": 45,
-    "wandererFaruzan": "独立原表、C6父子关系、Q C2值及法露珊A4/实际增益值核对；资格/完整状态生成仍有缺口。"
+    "meaning": "一致性和独立路径补证仍不等于实机或所有机制验证。"
   },
-  "athameKnownApproximation": {
-    "affected": [
-      {
-        "calculationId": 80,
-        "frame": 341,
-        "ability": "As the Light Shifts",
-        "actual": 19358.177676861684,
-        "extraAtkIfSameHitBuff": 334.20913687,
-        "sameHitCounterfactual": 21142.88081857607,
-        "localDamageDelta": 1784.703141714388
-      }
-    ],
-    "localDamageDelta": 1784.703141714388,
-    "localDpsDelta": 14.872526180953233,
-    "localPercentOfObserved": 0.006043699786490376,
-    "scope": "Only the fixed-source TODO's same-hit ATK local counterfactual, holding all actual states/crit rolls/target fixed; not a global in-game accuracy bound."
-  },
+  "athameSameHitCorrection": [
+    {
+      "calculationId": 80,
+      "frame": 341,
+      "actual": 21142.88081857607,
+      "addedAtkPct": 0.35000000000000003,
+      "independentDamage": 21142.88081857607
+    }
+  ],
   "explanationGaps": {
-    "noticeCount": 4279,
-    "countMeaning": "按原回执读取ID去重的说明条数，不是独立机制数量；所有原始gap均保留。",
+    "noticeCount": 4292,
+    "countMeaning": "按原回执读取ID统计，不是独立机制或错误数量。独立补证不伪造原公式节点。",
     "groups": [
       {
-        "kind": "native-modifier-output",
         "key": "pyro-res",
-        "count": 705,
+        "count": 709,
         "representative": "属性读取 actor-2-read-29/2/pyro-res/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "双火实际向量与末端攻击快照已记录；原结果未连入独立来源公式节点。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "pathfinders-light",
-        "count": 470,
+        "count": 472,
         "representative": "属性读取 actor-2-read-36/0/pathfinders-light/通用伤害加成[21] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "固定源R1 cap.26/后台Hexerei半值；持盾/站场资格和周期采样依native。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-scalar-output",
         "key": "durin-a1-anemo",
-        "count": 372,
+        "count": 374,
         "representative": "来源标量 scalar-read-394/1/durin-a1-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
-        "additionalManualEvidence": "固定源两名Hexerei加成的实际减抗值可核；触发/刷新链仍由native生成。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-scalar-output",
         "key": "faruzan-q-shred",
-        "count": 367,
+        "count": 369,
         "representative": "来源标量 scalar-read-567/3/faruzan-q-shred/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
-        "additionalManualEvidence": "实际已应用步骤的风抗-0.30及其求和已补证；每次施加/刷新/是否漏触发未独立重建。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "athameartis-team-buff",
-        "count": 344,
+        "count": 345,
         "representative": "属性读取 actor-1-read-549/5/athameartis-team-buff/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "固定源R1两Hexerei时.28；刷新/受益者资格依native。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "blade-of-the-daylight-hours-buff",
-        "count": 292,
+        "count": 294,
         "representative": "属性读取 actor-3-read-565/4/blade-of-the-daylight-hours-buff/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "首Q同击未享增益为固定源TODO，局部反事实单列；完整生成链接仍未闭合。"
+        "additionalManualEvidence": "首Q同击已修：只补该原始快照缺少的自身贡献，后续不叠加。原事件负责触发/刷新。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "tulaytullahsremembrance-atkspd",
-        "count": 271,
+        "count": 273,
         "representative": "属性读取 actor-0-read-747/0/tulaytullahsremembrance-atkspd/攻击速度[20] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "捕获向量求和已核；R5常驻量与攻击动画时序未独立完整重建。"
+        "additionalManualEvidence": "已修构造动作读取上下文；E/重击转普攻及普攻转重击的两版本微探针通过。原来源链接缺口仍保留。"
       },
       {
-        "kind": "native-scalar-output",
-        "key": "nicole-c2-anemo",
-        "count": 256,
-        "representative": "来源标量 scalar-read-799/4/nicole-c2-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
-        "additionalManualEvidence": "C2额外ATK300已独立补证；本项为独立的-25%元素减抗生成/时序链接，仍未闭合。"
+        "key": "天赋倍率来源",
+        "count": 258,
+        "representative": "伤害 #25（Arcane Projection: Unity）的攻击倍率 6 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "tulaytullahsremembrance-na-dmg",
-        "count": 254,
+        "count": 256,
         "representative": "属性读取 actor-0-read-758/2/tulaytullahsremembrance-na-dmg/通用伤害加成[21] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "返回值离散档位/部分18f gate已核；60f自然加层与真实触发层数历史未独立重建。"
+        "additionalManualEvidence": "独立从实际E、切人、普攻命中及60f/18f规则重建叠层；不把读取值本身作预期。原公式节点链接仍缺。"
       },
       {
-        "kind": "native-scalar-output",
-        "key": "durin-a1-pyro",
-        "count": 239,
-        "representative": "来源标量 scalar-read-397/2/durin-a1-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
-        "additionalManualEvidence": "同上；不清除原公式节点链接缺口。"
+        "key": "nicole-c2-anemo",
+        "count": 246,
+        "representative": "来源标量 scalar-read-807/4/nicole-c2-anemo/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-scalar-output",
         "key": "nicole-c2-pyro",
-        "count": 234,
+        "count": 239,
         "representative": "来源标量 scalar-read-17/0/nicole-c2-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
-        "additionalManualEvidence": "同上；本项不是已闭合的flat300公式。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-derived-multiplier",
-        "key": "Shugen: The Curtains’ Melancholic Sway",
-        "count": 128,
-        "representative": "伤害 #573（Shugen: The Curtains’ Melancholic Sway）的攻击倍率 0.877040727 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
-        "additionalManualEvidence": "独立原表父倍率×0.4、128次父子+8f/新快照关系；空居点数与全部触发资格未独立重建。"
+        "key": "durin-a1-pyro",
+        "count": 238,
+        "representative": "来源标量 scalar-read-397/2/durin-a1-pyro/scalar 读取非零 Value 字段；其创建公式尚未附来源链接。",
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "athame-burst-cd",
         "count": 122,
         "representative": "属性读取 actor-3-read-527/1/athame-burst-cd/暴击伤害[10] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "固定源R1爆发暴伤.16；未为原结果补造公式节点。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-derived-multiplier",
-        "key": "Dragon of White Flame",
-        "count": 104,
-        "representative": "伤害 #107（Dragon of White Flame）的攻击倍率 2.98116 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
-        "additionalManualEvidence": "152次妮/杜实际直伤包含这些白Q命中的末端算式核对；倍率生成/A4栈时序仍是native输入。"
-      },
-      {
-        "kind": "native-scalar-output",
         "key": "anemo-res-cd",
         "count": 44,
         "representative": "来源标量 scalar-read-7/0/anemo-res-cd/scalar 的非零 Amount 闭包返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "45次已执行再施放的CD时点已核，含6次杜林转化窗口合法再按；.95等输入仍保留原生来源缺口。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-modifier-output",
         "key": "angelos-heptades-atk",
         "count": 38,
         "representative": "属性读取 actor-2-read-29/0/angelos-heptades-atk/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
-        "additionalManualEvidence": "固定源R1常数.12；实际应用时序仍依native。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "native-derived-multiplier",
-        "key": "Arcane Projection: Unity",
-        "count": 19,
-        "representative": "伤害 #25（Arcane Projection: Unity）的攻击倍率 6 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
-        "additionalManualEvidence": "常数6来自固定源C1；已触发投影的末端算式/实际owner保留，触发资格/时点未独立重建。"
-      },
-      {
-        "kind": "native-derived-multiplier",
-        "key": "Fully-Charged Aimed Shot (Hurricane Arrow)",
-        "count": 6,
-        "representative": "伤害 #123（Fully-Charged Aimed Shot (Hurricane Arrow)）的攻击倍率 2.232 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
-        "additionalManualEvidence": "6次fullaim[9]=2.232独立原表补证；完整触发链仍依native。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "触发资格、目标选择、排队和状态生命周期沿用固定版本的原生执行；数值公式回放不等于独立核验全部游戏机制。",
-        "count": 1,
+        "key": "执行/范围说明",
+        "count": 14,
         "representative": "触发资格、目标选择、排队和状态生命周期沿用固定版本的原生执行；数值公式回放不等于独立核验全部游戏机制。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
+        "additionalManualEvidence": "仅审计报告明确列出的生成与消费已补证；其余输入仍未独立闭合，不因总和吻合而推定。"
       },
       {
-        "kind": "execution-or-scope",
-        "key": "数值由共享公式在原 buff 创建帧算出并存入原向量；之后的消费只关联创建回执，不重算创建状态。",
+        "key": "athame-trigger-hit-atk",
         "count": 1,
-        "representative": "数值由共享公式在原 buff 创建帧算出并存入原向量；之后的消费只关联创建回执，不重算创建状态。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "来源圣遗物调用的触发与适用由 Go 原生状态决定；固定值公式不重演生命周期。",
-        "count": 1,
-        "representative": "来源圣遗物调用的触发与适用由 Go 原生状态决定；固定值公式不重演生命周期。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "冷却修饰器 Amount 的条件与来源、充能队列和 worker 调度仍由固定 Go 宿主执行。",
-        "count": 1,
-        "representative": "冷却修饰器 Amount 的条件与来源、充能队列和 worker 调度仍由固定 Go 宿主执行。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "可用充能检查和队列空检查仍由固定 Go 宿主执行；b4 与 a7 保留各自的提前返回规则。",
-        "count": 1,
-        "representative": "可用充能检查和队列空检查仍由固定 Go 宿主执行；b4 与 a7 保留各自的提前返回规则。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "加能回调触发条件与时点仍由固定 Go 宿主决定。",
-        "count": 1,
-        "representative": "加能回调触发条件与时点仍由固定 Go 宿主决定。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "消耗触发条件与时点仍由固定 Go 宿主决定。",
-        "count": 1,
-        "representative": "消耗触发条件与时点仍由固定 Go 宿主决定。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "粒子生成、接收者与时点仍由固定 Go 宿主决定；编辑仅重算本次已捕获的数值分配。",
-        "count": 1,
-        "representative": "粒子生成、接收者与时点仍由固定 Go 宿主决定；编辑仅重算本次已捕获的数值分配。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "原生粒子应用不做下界截断；接收者与粒子来源由 Go 决定。",
-        "count": 1,
-        "representative": "原生粒子应用不做下界截断；接收者与粒子来源由 Go 决定。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "共享公式仅替换原生门槛通过后的 FlatDmg 数值操作，不重演回调副作用。",
-        "count": 1,
-        "representative": "共享公式仅替换原生门槛通过后的 FlatDmg 数值操作，不重演回调副作用。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "本次专用反应伤害按已捕获的原生攻击快照及组件计算，但没有完整的 26 槽属性来源回执；未将其归因到不存在的 getter。",
-        "count": 1,
-        "representative": "本次专用反应伤害按已捕获的原生攻击快照及组件计算，但没有完整的 26 槽属性来源回执；未将其归因到不存在的 getter。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "数值由共享公式在原 Amount 调用时根据真实状态算出；不会重演 Go 的触发与期限判定。",
-        "count": 1,
-        "representative": "数值由共享公式在原 Amount 调用时根据真实状态算出；不会重演 Go 的触发与期限判定。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "固定公式不重演来源角色的触发与生命周期；实际消费者与目标以本次 Go stat read 回执为准。",
-        "count": 1,
-        "representative": "固定公式不重演来源角色的触发与生命周期；实际消费者与目标以本次 Go stat read 回执为准。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
-      },
-      {
-        "kind": "execution-or-scope",
-        "key": "天赋表读取使用原生实际索引；未附等级来源的动态索引，其天赋、命座或动作状态生成过程尚未逐步展开。",
-        "count": 1,
-        "representative": "天赋表读取使用原生实际索引；未附等级来源的动态索引，其天赋、命座或动作状态生成过程尚未逐步展开。",
-        "additionalManualEvidence": "原生执行范围/触发与时序仍未独立闭合。"
+        "representative": "属性读取 actor-3-read-527/2/athame-trigger-hit-atk/攻击力百分比[6] 的非零返回量缺少已验证公式节点链接。",
+        "additionalManualEvidence": "首Q在341f补0.35攻击，19358.18→21142.88；同帧双目标/单魔导/R5/非Q负例均验证。未伪造原公式节点。"
       }
     ]
   },
-  "access": {
-    "editableDraft": "wanderer-team-120-classic.draft.json",
-    "individualEquipment": "wanderer-team-120-classic.equipment.json",
-    "adaptiveScript": "wanderer-team-120-classic.gcsl",
-    "fullNativeResult": "仅保留本地证据，不向public发布全trace。",
-    "perHitCsv": "wanderer-team-120-classic.hits.csv"
+  "changeFromPreviousPublishedScene": {
+    "previousTotal": 29529976.748742152,
+    "previousDps": 246083.13957285127,
+    "damageDelta": 17655.686280161142,
+    "dpsDelta": 147.13071900134673,
+    "causes": [
+      "黑蚀首Q同击自身攻击修复。",
+      "图莱/沙上普通攻击攻速使用本次构造动作，不漏加首普攻或错误加给重击；时序、窗口内命中与固定种子随机消费相应改变。"
+    ],
+    "notAnErrorBound": true
   },
   "limitations": [
-    "未给参数采用明确的计算假设，圣遗物预算并非玩家实装或全局最优。",
-    "一次固定种子运行，不代表随机期望DPS或已成立稳态。",
-    "流浪者5次已到达Q决策中2次因缺能跳过，第6轮未到Q决策。",
-    "静态可编辑draft不含if分支，其初始切人和输入流与本次自适应GC轴不同，不能据此声明同一数值。",
-    "固定Classic源码含已知近似；共享响应一致、末端手算和逐击守恒不等于官服机制完整验收。"
-  ],
-  "curveMeaning": "one-second aggregation; exact original frames in perHitCsv",
-  "faruzanCollapseOrigins": [
-    {
-      "origin": "c6-hook",
-      "hits": 35,
-      "damage": 682750.94030831
-    },
-    {
-      "origin": "hurricane-arrow",
-      "hits": 6,
-      "damage": 173545.63160431568
-    }
+    "固定Classic来源/几何/碰撞与部分机制仍暂定，未做实机对照。",
+    "一次固定种子，不能称随机期望或稳态循环。",
+    "两次已到达的流浪者Q缺能跳过，第六轮未到其Q决策。",
+    "静态draft无if分支，与高级自适应轴的初始切人和输入流不同，重跑会产生自己的结果。",
+    "配装是假设的逐件合法预算，不是玩家实装或角色最优配装。"
   ]
 }
