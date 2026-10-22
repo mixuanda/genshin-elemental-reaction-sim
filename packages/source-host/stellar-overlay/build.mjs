@@ -181,6 +181,8 @@ const phaseCompletionPatches = [
   '../patches/133-venti-skill-crit.patch',
   // Keep each delayed black-E attack independent without shifting talent read-site coordinates.
   '../patches/134-durin-black-skill-capture.patch',
+  // Snapshot only the opt-in weapon contribution; preserve hit qualification.
+  '../patches/135-athame-trigger-hit-atk.patch',
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');
