@@ -1,5 +1,6 @@
 import type { GameDataCatalog } from "@genshin-dps-lab/schemas";
 import type { CalculatorAggregation, CalculatorDocument, CalculatorResult } from "../../../packages/sim-core/src/calculator-model";
+import "./calculator-character-outputs.css";
 
 export interface CharacterOutputObservation {
   actionKey: string;
@@ -144,10 +145,17 @@ const statusLabels: Record<CharacterOutputItem["status"], string> = {
 };
 export function renderCharacterOutputs(groups: readonly CharacterOutputGroup[]): string {
   if (!groups.length) return '<p class="calculator-hint">当前角色暂无可列出的动作定义，不能据此视为伤害为 0。</p>';
-  return `<div class="calculator-character-outputs" aria-label="角色动作伤害概览">${groups.map(group => `<section data-character-output-group="${group.id}"><h3>${escape(group.label)}</h3>${group.unavailableReason ? `<p class="calculator-hint">${escape(group.unavailableReason)}</p>` : ""}<ul>${group.items.map(item => `<li>
-    <button type="button" data-character-output-index="${item.candidateIndex}"${item.selected ? ' aria-current="true"' : ""}><strong>${escape(item.title)}</strong>${item.variantLabel ? `<span> · ${escape(item.variantLabel)}</span>` : ""}<small>${escape(item.scopeLabel)} · ${statusLabels[item.status]}</small></button>
-    ${item.conditions.length ? `<p>${item.conditions.map(escape).join("；")}</p>` : ""}
-    ${item.damage ? `<dl><dt>期望伤害</dt><dd>${number(item.damage.expected)}</dd><dt>${item.nonCriticalComparisonOnly ? "不暴击对照（非实际分支）" : "不暴击"}</dt><dd>${number(item.damage.nonCritical)}</dd><dt>暴击</dt><dd>${number(item.damage.critical)}</dd></dl>` : item.knownSubtotal ? `<p>已计算部分：${number(item.knownSubtotal.expected)}；总伤害尚未确定。</p>` : '<p data-character-output-pending>伤害：—</p>'}
-    ${item.components.length > 1 ? `<details><summary>查看各段（${item.components.length}）</summary><ul>${item.components.map(component => `<li>${escape(component.label)}：${component.expected === undefined ? "—" : number(component.expected)}</li>`).join("")}</ul></details>` : ""}
-    ${item.reasons.length ? `<details><summary>查看待补条件（${item.reasons.length}）</summary><p>${item.reasons.map(escape).join("；")}</p></details>` : ""}</li>`).join("")}</ul></section>`).join("")}<p class="calculator-hint">单段与一次施放分别标注；待计算或缺少定义的伤害不记为 0。</p></div>`;
+  const selectedGroup = groups.find(group => group.items.some(item => item.selected)) ?? groups.find(group => group.items.length) ?? groups[0]!;
+  return `<div class="calculator-character-outputs calculator-character-outputs--compact" aria-label="角色动作伤害概览">${groups.map(group => `<details class="character-output-group" data-character-output-group="${group.id}" name="calculator-character-output-groups"${group === selectedGroup ? " open" : ""}>
+    <summary class="character-output-group-heading"><strong>${escape(group.label)}</strong><span>${group.unavailableReason ? "暂无定义" : `${group.items.length} 项`}</span></summary>
+    ${group.unavailableReason ? `<p class="calculator-hint">${escape(group.unavailableReason)}</p>` : ""}<ul class="character-output-list">${group.items.map(item => `<li class="character-output-row${item.selected ? " character-output-row--selected" : ""}">
+    <button type="button" class="character-output-action" data-character-output-index="${item.candidateIndex}"${item.selected ? ' aria-current="true"' : ""} title="${escape(item.title)}${item.variantLabel ? ` · ${escape(item.variantLabel)}` : ""}">
+      <strong class="character-output-title">${escape(item.title)}</strong>
+      <span class="character-output-value"${!item.damage && !item.knownSubtotal && item.status !== "non-damaging" ? ` data-character-output-pending aria-label="${statusLabels[item.status]}；伤害未确定"` : ""}>${item.damage ? `期望 ${number(item.damage.expected)}` : item.knownSubtotal ? `已知部分 ${number(item.knownSubtotal.expected)}` : statusLabels[item.status]}</span>
+      <small class="character-output-meta">${escape(item.scopeLabel)}${item.variantLabel ? ` · ${escape(item.variantLabel)}` : ""}</small>
+    </button>
+    ${item.selected && item.conditions.length ? `<p class="character-output-conditions">${item.conditions.map(escape).join("；")}</p>` : ""}
+    ${item.selected && item.damage ? `<dl class="character-output-metrics"><div><dt>期望伤害</dt><dd>${number(item.damage.expected)}</dd></div><div><dt>${item.nonCriticalComparisonOnly ? "不暴击对照（非实际分支）" : "不暴击"}</dt><dd>${number(item.damage.nonCritical)}</dd></div><div><dt>暴击</dt><dd>${number(item.damage.critical)}</dd></div></dl>` : item.selected && item.knownSubtotal ? '<p class="character-output-conditions">仅列已计算部分，总伤害尚未确定。</p>' : ""}
+    ${item.selected && item.components.length > 1 ? `<details class="character-output-more"><summary>查看各段（${item.components.length}）</summary><ul>${item.components.map(component => `<li>${escape(component.label)}：${component.expected === undefined ? "—" : number(component.expected)}</li>`).join("")}</ul></details>` : ""}
+    ${item.selected && item.reasons.length ? `<details class="character-output-more"><summary>查看待补条件（${item.reasons.length}）</summary><p>${item.reasons.map(escape).join("；")}</p></details>` : ""}</li>`).join("")}</ul></details>`).join("")}<p class="calculator-hint character-output-footnote">单段与一次施放分别标注；待计算或缺少定义的伤害不记为 0。</p></div>`;
 }

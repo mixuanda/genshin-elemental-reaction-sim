@@ -125,4 +125,22 @@ describe("existing character outputs", () => {
     expect(html).not.toContain('<img src=x');
     expect(html).toContain("&lt;img src=x onerror=&quot;bad()&quot;&gt;");
   });
+
+  it("opens only the selected action group and keeps pending actions as compact accessible rows", () => {
+    const candidates = getCharacterDocuments("character:10000015", 10);
+    const index = candidates.findIndex(document => document.gameContext?.skillId === "kaeya-skill");
+    const current = candidates[index]!;
+    const html = renderCharacterOutputs(buildCharacterOutputs(candidates, gameDataCatalog, {
+      selectedCandidateIndex: index, currentDocument: current, currentResult: calculateDocument(current),
+    }));
+    const groups = html.match(/<details class="character-output-group"[^>]*>/g)!;
+    expect(groups).toHaveLength(3);
+    expect(groups.filter(group => / open>/.test(group))).toEqual([expect.stringContaining('data-character-output-group="skill"')]);
+    expect(groups.every(group => group.includes('name="calculator-character-output-groups"'))).toBe(true);
+    expect(html.match(/data-character-output-index=/g)).toHaveLength(candidates.length);
+    expect(html.match(/data-character-output-pending aria-label="待计算；伤害未确定"/g)).toHaveLength(candidates.length - 1);
+    expect(html).not.toContain("伤害：—");
+    expect(html.match(/class="character-output-metrics"/g)).toHaveLength(1);
+    expect(html).toContain("期望伤害");
+  });
 });
