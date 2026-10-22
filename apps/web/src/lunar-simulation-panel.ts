@@ -10,6 +10,7 @@ import { createMoondewCleanseAbility, lunarBloomEventToCalculatorDocument, type 
 import { MOONDEW_CLEANSE } from "../../../packages/sim-core/src/lunar-bloom-calculation";
 import { renderTraceHtml } from "./calculator-ui";
 import type { AppliedExecutionProfile, ExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
+import { capturedLunarPanelMoonsign, deriveLunarPanelMoonsign, type LunarPanelMoonsign } from "./lunar-panel-moonsign";
 
 export type LunarProfile = SpecialSimulationProfile;
 type DamageProfileResult = LunarChargedSimulationResult | LunarCrystallizeSimulationResult | LunarBloomSimulationResult | StellarSwirlSimulationResult;
@@ -167,7 +168,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
   let stellarGuideConflictConfirmed = false;
   const moonlightArtifactDrafts = new Map<string, MoonlightArtifactSetId>();
   let moonlightArtifactBaselineConfirmed = false;
-  let moonsignDraft = "";
+  let moonsignState: LunarPanelMoonsign = deriveLunarPanelMoonsign([]);
   let runArtifactOptions: LunarArtifactOptions | null = null;
   let runStellarArtifactModel: StellarArtifactModel | null = null;
   let runMoonlightArtifactModel: MoonlightArtifactModel | null = null;
@@ -254,6 +255,25 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     for (const [index, mapping] of mappings.entries()) get<HTMLSelectElement>(`[data-lunar-party-index="${index}"]`).value = mapping.characterKey;
   }
 
+  function deriveMoonsignDraft(): void {
+    moonsignState = deriveLunarPanelMoonsign(mappings);
+  }
+
+  function moonsignExplanation(): string {
+    if (moonsignState.origin === "capture") return moonsignState.level === undefined
+      ? "原运行未记录月兆等级；保留历史输入，新运行按当前队伍重新判断。"
+      : `原运行月兆等级 ${moonsignState.level}；保留历史输入，新运行按当前队伍重新判断。`;
+    if (moonsignState.level === undefined) {
+      const unknown = moonsignState.unknownActorIds.map(actorId => ({ actorId, mapping: mappings.find(mapping => mapping.actorId === actorId) }));
+      const missing = unknown.filter(({ mapping }) => !mapping?.characterKey).map(({ actorId, mapping }) => mapping?.actorName ?? actorId);
+      const unsupported = unknown.filter(({ mapping }) => mapping?.characterKey).map(({ mapping }) => `${mapping!.actorName}（${mapping!.characterKey}）`);
+      return [missing.length ? `请先为 ${missing.join("、")} 选择真实角色身份。` : "",
+        unsupported.length ? `尚未支持 ${unsupported.join("、")} 的月兆祝赐资格判定；等级保持未知。` : ""].filter(Boolean).join(" ")
+        || "队伍身份尚未完整提供，月兆等级保持未知。";
+    }
+    return `已按本次队伍的已知月兆祝赐自动确定 ${moonsignState.level} 级；本击反应和套装窗口仍由实际事件判断。`;
+  }
+
   function drawArtifactControls(): void {
     const host = get("[data-lunar-artifact-controls]");
     if (isStellarProfile(profile)) {
@@ -279,12 +299,12 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     });
     const moonlightStatus = !hasMoonlight ? "当前未启用穹境或纺月四件套动态效果。"
       : !moonlightArtifactBaselineConfirmed ? "尚未确认配置基线已含所选套装的静态二件套属性且未含四件套动态效果；运行将被阻止。"
-      : moonsignDraft === "" ? "尚未明确选择月兆等级；运行将被阻止。"
-      : `本次将为 ${selectedMoonlight.join("、")} 启用固定 a7 月曜四件套参考，月兆等级 ${moonsignDraft}。`;
+      : moonsignState.level === undefined ? moonsignExplanation()
+      : `本次将为 ${selectedMoonlight.join("、")} 启用固定 a7 月曜四件套参考，月兆等级 ${moonsignState.level}。`;
     host.innerHTML = `<fieldset><legend>月反应圣遗物条款 · 固定来源暂定</legend><p class="calculator-hint">配置面板应已包含普通属性、二件套属性及其他已计入的增益。下列选择只应用装备者的四件套月反应条款；不会补加二件套精通、普通增伤或全队加成。乐园层数、触发冷却与晓歌前后台及回场残留由本次实际事件和切人时间轴解析。</p><div class="workspace-fields">${mappings.map((mapping, index) => {
       const selected = artifactDrafts.get(mapping.actorId) ?? moonlightArtifactDrafts.get(mapping.actorId) ?? "";
       return `<label>${esc(mapping.actorName)} · 月反应套装<select data-lunar-artifact-index="${index}"><option value=""${selected === "" ? " selected" : ""}>无月反应套装条款</option>${Object.entries(LUNAR_ARTIFACT_BONUS_RULES).map(([kind, rule]) => `<option value="${kind}"${selected === kind ? " selected" : ""}>${esc(rule.name)}</option>`).join("")}${moonlightArtifactSets.map(set => `<option value="${set.id}"${selected === set.id ? " selected" : ""}>${esc(set.name)} · ${set.id}</option>`).join("")}</select></label>`;
-    }).join("")}${hasAubade || hasMoonlight ? `<label>月兆等级（晓歌或月曜四件套使用）<select data-lunar-moonsign><option value=""${moonsignDraft === "" ? " selected" : ""}>未提供（运行前必须明确）</option>${[[0, "未激活"], [1, "初辉"], [2, "满辉"]].map(([value, label]) => `<option value="${value}"${moonsignDraft === String(value) ? " selected" : ""}>${value} · ${label}</option>`).join("")}</select></label>` : ""}</div><p class="calculator-hint">选择四件套表示明确声明该角色已装备，不会从角色名称或已有面板猜测套装。仅在适用月反应分支读取条件；普通、星反应与其他角色的贡献不受本控件影响。</p>${hasMoonlight ? `<label class="calculator-hit-select"><input type="checkbox" data-moonlight-artifact-baseline${moonlightArtifactBaselineConfirmed ? " checked" : ""}>我已确认：配置基线已包含所选月曜套装的静态二件套数值（穹境 +80 元素精通／纺月 +20% 元素充能效率），且未包含四件套动态效果</label><p class="calculator-hint">七种月曜反应可用穹境；纺月在月兆 0 级不初始化其效果。此为固定 a7 来源参考，不表示游戏机制已独立核验。</p><p class="calculator-hint" data-moonlight-artifact-status role="status">${esc(moonlightStatus)}</p>` : ""}<details><summary>固定来源</summary>${sourceLinks(Object.values(LUNAR_ARTIFACT_BONUS_RULES).map(rule => rule.source))}</details></fieldset>`;
+    }).join("")}${hasAubade || hasMoonlight ? `<label>月兆等级（按队伍自动判断）<input type="text" data-lunar-moonsign data-moonsign-origin="${moonsignState.origin}" readonly aria-readonly="true" value="${moonsignState.level ?? ""}" placeholder="资格证据不足；保持未知"></label><p class="calculator-hint" data-lunar-moonsign-status>${esc(moonsignExplanation())}</p>` : ""}</div><p class="calculator-hint">选择四件套表示明确声明该角色已装备，不会从角色名称或已有面板猜测套装。仅在适用月反应分支读取条件；普通、星反应与其他角色的贡献不受本控件影响。</p>${hasMoonlight ? `<label class="calculator-hit-select"><input type="checkbox" data-moonlight-artifact-baseline${moonlightArtifactBaselineConfirmed ? " checked" : ""}>我已确认：配置基线已包含所选月曜套装的静态二件套数值（穹境 +80 元素精通／纺月 +20% 元素充能效率），且未包含四件套动态效果</label><p class="calculator-hint">七种月曜反应可用穹境；纺月在月兆 0 级不初始化其效果。此为固定 a7 来源参考，不表示游戏机制已独立核验。</p><p class="calculator-hint" data-moonlight-artifact-status role="status">${esc(moonlightStatus)}</p>` : ""}<details><summary>固定来源</summary>${sourceLinks(Object.values(LUNAR_ARTIFACT_BONUS_RULES).map(rule => rule.source))}</details></fieldset>`;
     mappings.forEach((_, index) => {
       const select = get<HTMLSelectElement>(`[data-lunar-artifact-index="${index}"]`);
       select.value = artifactDrafts.get(mappings[index]!.actorId) ?? moonlightArtifactDrafts.get(mappings[index]!.actorId) ?? "";
@@ -296,7 +316,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       const kind = artifactDrafts.get(mapping.actorId);
       return kind === undefined ? [] : [{ actorId: mapping.actorId, kind }];
     });
-    return { artifacts, ...((artifacts.some(artifact => artifact.kind === "aubade-4pc") || moonlightArtifactDrafts.size > 0) && moonsignDraft !== "" ? { moonsignLevel: Number(moonsignDraft) as 0 | 1 | 2 } : {}) };
+    return { artifacts, ...((artifacts.some(artifact => artifact.kind === "aubade-4pc") || moonlightArtifactDrafts.size > 0) && moonsignState.level !== undefined ? { moonsignLevel: moonsignState.level } : {}) };
   }
 
   function artifactInputKey(): object {
@@ -307,7 +327,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     } } : { artifactOptions: currentArtifactOptions(), moonlightArtifactDraft: {
       actors: Array.from(moonlightArtifactDrafts, ([actorId, setId]) => ({ actorId, setId })),
       baselineIncludesStaticTwoPiece: moonlightArtifactBaselineConfirmed,
-      moonsignLevel: moonsignDraft,
+      moonsignLevel: moonsignState.level,
     } };
   }
 
@@ -317,11 +337,11 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       return setId === undefined ? [] : [{ actorId: mapping.actorId, setId }];
     });
     if (!actors.length) return null;
-    if (moonsignDraft === "") return null;
+    if (moonsignState.level === undefined) return null;
     return {
       mode: "fixed-a7-moonlight-artifact-4pc-v1",
       baselineIncludesStaticTwoPiece: true,
-      moonsignLevel: Number(moonsignDraft) as 0 | 1 | 2,
+      moonsignLevel: moonsignState.level,
       actors,
     };
   }
@@ -331,7 +351,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     if (!model) { moonlightArtifactBaselineConfirmed = false; return; }
     for (const actor of model.actors) moonlightArtifactDrafts.set(actor.actorId, actor.setId);
     moonlightArtifactBaselineConfirmed = model.baselineIncludesStaticTwoPiece === true;
-    moonsignDraft = String(model.moonsignLevel);
+    moonsignState = capturedLunarPanelMoonsign(model.moonsignLevel);
   }
 
   function currentStellarArtifactModel(): StellarArtifactModel | null {
@@ -449,7 +469,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     get<HTMLInputElement>("[data-lunar-aura-v3]").disabled = running;
     get<HTMLInputElement>("[data-lunar-legal]").disabled = running;
     get<HTMLSelectElement>("[data-lunar-profile]").disabled = running;
-    panel.querySelectorAll<HTMLSelectElement>("[data-lunar-party-index], [data-lunar-artifact-index], [data-lunar-moonsign], [data-stellar-artifact-index]").forEach(input => { input.disabled = running; });
+    panel.querySelectorAll<HTMLInputElement | HTMLSelectElement>("[data-lunar-party-index], [data-lunar-artifact-index], [data-lunar-moonsign], [data-stellar-artifact-index]").forEach(input => { input.disabled = running; });
     panel.querySelectorAll<HTMLInputElement>("[data-stellar-artifact-baseline], [data-stellar-artifact-guide-conflict], [data-moonlight-artifact-baseline]").forEach(input => { input.disabled = running; });
     panel.querySelectorAll<HTMLInputElement | HTMLSelectElement>("[data-lb-ability] input, [data-lb-ability] select, [data-lb-source-action] input, [data-lb-source-action] select").forEach(input => { input.disabled = running; });
     const sourceToggle = panel.querySelector<HTMLInputElement>("[data-lb-source-enabled]");
@@ -498,6 +518,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       for (const actorId of moonlightArtifactDrafts.keys()) if (!mappings.some(mapping => mapping.actorId === actorId)) moonlightArtifactDrafts.delete(actorId);
       if (isStellarProfile(profile)) mappings = mappings.map(mapping => stellarIdentityKeys().includes(mapping.characterKey) && mapping.evidence !== "source-reference-conditioned"
         ? { ...mapping, characterKey: "", evidence: "unmatched", reason: "该星反应启用身份属于锁定来源参考，必须在本分支手动确认，不由配置名称推定。" } : mapping);
+      deriveMoonsignDraft();
       drawParty();
       drawArtifactControls();
       drawBloomControls();
@@ -541,9 +562,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     };
     artifactDrafts.clear();
     for (const artifact of saved.request.artifacts ?? []) artifactDrafts.set(artifact.actorId, artifact.kind);
-    moonsignDraft = saved.request.moonsignLevel === undefined
-      ? loadedConfig.moonlightArtifactModel ? String(loadedConfig.moonlightArtifactModel.moonsignLevel) : ""
-      : String(saved.request.moonsignLevel);
+    moonsignState = capturedLunarPanelMoonsign(saved.request.moonsignLevel ?? loadedConfig.moonlightArtifactModel?.moonsignLevel);
     bloomDrafts.clear();
     for (const ability of saved.request.abilities ?? []) bloomDrafts.set(ability.sourceAbilityId, {
       enabled: true, talentLevel: String(ability.talentLevel), ascension: String(ability.ascension), constellation: String(ability.constellation),
@@ -754,6 +773,10 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       if (config.characters.length !== mappings.length || config.characters.some(actor => !mappings.some(mapping => mapping.actorId === actor.id && mapping.actorName === actor.name && mapping.actorElement === actor.element))) throw new Error("队伍身份已改变，请先点击“读取当前配置”重新核对映射。");
       const missing = mappings.filter(mapping => !mapping.characterKey);
       if (missing.length) throw new Error(`尚未明确身份：${missing.map(mapping => `${mapping.actorName} (${mapping.actorId})`).join("、")}。请展开“本次配置和队伍身份”选择。`);
+      // A new run derives current input only. Imported run/result snapshots and
+      // the options used to export them remain untouched until a run succeeds.
+      deriveMoonsignDraft();
+      drawArtifactControls();
       const nextArtifactOptions = isStellarProfile(profile) ? null : currentArtifactOptions();
       const nextStellarArtifactModel = isStellarProfile(profile) ? currentStellarArtifactModel() : null;
       if (nextStellarArtifactModel && !stellarArtifactBaselineConfirmed) throw new Error("启用四件套动态效果前，须确认配置基线已含二件套静态 +18% 攻击且未含四件套动态效果。");
@@ -765,12 +788,12 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       } else {
         const nextMoonlightArtifactModel = currentMoonlightArtifactModel();
         if (nextMoonlightArtifactModel && !moonlightArtifactBaselineConfirmed) throw new Error("启用月曜四件套动态效果前，须确认配置基线已含所选静态二件套数值且未含四件套动态效果。");
-        if (moonlightArtifactDrafts.size > 0 && !nextMoonlightArtifactModel) throw new Error("已选择月曜四件套，请明确选择本次运行的月兆等级；未提供不能当作 0 级。");
+        if (moonlightArtifactDrafts.size > 0 && !nextMoonlightArtifactModel) throw new Error("已选择月曜四件套，当前队伍的月兆祝赐资格证据不足，不能推定月兆等级。");
         if (nextMoonlightArtifactModel && nextArtifactOptions?.artifacts.some(artifact => nextMoonlightArtifactModel.actors.some(holder => holder.actorId === artifact.actorId))) throw new Error("同一角色不能同时选择月曜四件套和另一种月反应四件套。");
         if (nextMoonlightArtifactModel) config.moonlightArtifactModel = nextMoonlightArtifactModel;
         else delete config.moonlightArtifactModel;
       }
-      if (nextArtifactOptions?.artifacts.some(artifact => artifact.kind === "aubade-4pc") && nextArtifactOptions.moonsignLevel === undefined) throw new Error("已选择晓歌四件套，请明确选择本次运行的月兆等级；未提供不能当作 0 级。");
+      if (nextArtifactOptions?.artifacts.some(artifact => artifact.kind === "aubade-4pc") && nextArtifactOptions.moonsignLevel === undefined) throw new Error("已选择晓歌四件套，当前队伍的月兆祝赐资格证据不足，不能推定月兆等级。");
       const nextAbilities = hasBloomAbilities(profile) ? readBloomDeclarations(config) : [];
       const runtimeOptions = clone(options.getRuntimeOptions());
       const selectedExecutionProfile = options.getExecutionProfile?.() ?? null;
@@ -865,12 +888,6 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       drawArtifactControls(); updateInputNotice();
       return;
     }
-    if (select.matches("[data-lunar-moonsign]")) {
-      moonsignDraft = select.value;
-      drawArtifactControls();
-      updateInputNotice();
-      return;
-    }
     if (select.dataset.lunarPartyIndex === undefined) return;
     const mapping = mappings[Number(select.dataset.lunarPartyIndex)];
     if (!mapping) return;
@@ -879,6 +896,9 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
     mapping.evidence = !select.value ? "unmatched" : referenceIdentity ? "source-reference-conditioned" : "user-conditioned";
     mapping.reason = select.value ? `用户明确选择${referenceIdentity ? "固定 a7dc4b 来源参考身份（非正式服核验）" : "身份"} ${select.value}；仅作为本次转换资格条件，未修改配置面板或天赋。` : "尚未明确身份，不运行。";
     get(`[data-lunar-evidence="${select.dataset.lunarPartyIndex}"]`).textContent = mapping.reason;
+    deriveMoonsignDraft();
+    drawArtifactControls();
+    updateInputNotice();
     drawBloomControls();
   });
   panel.addEventListener("toggle", event => {
