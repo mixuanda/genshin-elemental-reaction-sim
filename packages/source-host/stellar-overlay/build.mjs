@@ -183,6 +183,8 @@ const phaseCompletionPatches = [
   '../patches/134-durin-black-skill-capture.patch',
   // Snapshot only the opt-in weapon contribution; preserve hit qualification.
   '../patches/135-athame-trigger-hit-atk.patch',
+  // Query normal attack speed for the action being constructed, not its predecessor.
+  '../patches/136-normal-attack-speed-context.patch',
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');

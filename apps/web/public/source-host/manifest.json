@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-22T15:08:58.565Z",
+  "builtAt": "2026-10-22T16:54:22.402Z",
   "source": {
     "repository": "https://github.com/genshinsim/gcsim",
     "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
@@ -3631,6 +3631,16 @@
       "path": "134-durin-black-skill-capture.patch",
       "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
       "size": 521
+    },
+    {
+      "path": "135-athame-trigger-hit-atk.patch",
+      "sha256": "491d0c83d2602278aff9b440a579f58285a2826a4c34dad60df389f70a71fd60",
+      "size": 4449
+    },
+    {
+      "path": "136-normal-attack-speed-context.patch",
+      "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
+      "size": 5729
     }
   ],
   "bridge": [
@@ -3681,8 +3691,8 @@
     },
     {
       "path": "pkg/core/info/sourcehost_phase_attack.go",
-      "sha256": "0790e445cd612b9d93b0779233370544602796cbf43e62aeb721c9cd369fb218",
-      "size": 2187
+      "sha256": "a44da9fa51ae55d0278e2aaf23669cc602500906c48a1b768b394f3eb271956a",
+      "size": 2351
     },
     {
       "path": "pkg/core/info/sourcehost_talent.go",
@@ -3698,6 +3708,11 @@
       "path": "pkg/core/info/sourcehost_task.go",
       "sha256": "be2f284ade689809f90394a1025ecf0579ebe52d785585487ff3f4b3c9e80942",
       "size": 3570
+    },
+    {
+      "path": "pkg/core/player/character/snapshot_mod_values_test.go",
+      "sha256": "177acc80731141cacb1eca6989ca21a77c8b47dcf4bad9eb1172cdbcc3895c78",
+      "size": 1914
     },
     {
       "path": "pkg/core/player/character/sourcehost_ability_producer.go",
@@ -4065,8 +4080,8 @@
   "artifacts": [
     {
       "path": "source-host.wasm",
-      "sha256": "ad7f559e40af4115fad996e52de258710c5849eb06be1e15e59c8be84d20a2b4",
-      "size": 47066727
+      "sha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
+      "size": 47084616
     },
     {
       "path": "wasm_exec.js",
@@ -4095,7 +4110,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "f682725f3b18e0e1cfe53259a9a141f222bc6475a3a83fc58e55d2d831730da4",
+      "sha256": "dd53f6e16245ccf34d6ea933fb74e11ea534b1b9e8e2204000039f8c85b5b13b",
       "size": 1810182
     }
   ],

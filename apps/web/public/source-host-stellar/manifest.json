@@ -3030,8 +3030,8 @@
     },
     {
       "path": "pkg/core/info/sourcehost_phase_attack.go",
-      "sha256": "0790e445cd612b9d93b0779233370544602796cbf43e62aeb721c9cd369fb218",
-      "bytes": 2187
+      "sha256": "a44da9fa51ae55d0278e2aaf23669cc602500906c48a1b768b394f3eb271956a",
+      "bytes": 2351
     },
     {
       "path": "pkg/core/info/sourcehost_talent.go",
@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "4b30dcf39553752ff3e112c0a6efba03ce54d1a05208fd2be2d1c3d5ef71a705",
-      "bytes": 71853619
+      "sha256": "0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55",
+      "bytes": 72165834
     },
     {
       "path": "wasm_exec.js",
@@ -3470,7 +3470,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "12833e0116dc3266e7fc252ab32ef580cb9b2e312f69b3c95baf2239d96cf87d",
+      "sha256": "6eda317163b2bdd3a138ce7e22d921c9b22ddcd13d93854416faff7e62428878",
       "bytes": 1883017
     }
   ],
@@ -4274,6 +4274,16 @@
       "path": "134-durin-black-skill-capture.patch",
       "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
       "bytes": 521
+    },
+    {
+      "path": "135-athame-trigger-hit-atk.patch",
+      "sha256": "491d0c83d2602278aff9b440a579f58285a2826a4c34dad60df389f70a71fd60",
+      "bytes": 4449
+    },
+    {
+      "path": "136-normal-attack-speed-context.patch",
+      "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
+      "bytes": 5729
     }
   ],
   "supportedFormulaFamilies": [

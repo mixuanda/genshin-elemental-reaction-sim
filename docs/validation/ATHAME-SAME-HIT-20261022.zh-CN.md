@@ -14,3 +14,5 @@
 - 指定队伍只运行前6秒来隔离修复：341f首 Q `19358.177676861684 → 21142.88081857607`，差 `1784.703141714388`，与此前独立反事实精确一致；此前5笔命中完全相同。没有将该差值当作全场或实机误差上界。
 
 对应可重复测试：`packages/source-host/tests/athame-native.test.ts`；原生循环测试随 bridge 进入固定源码后运行 `go test ./pkg/core/player/character -run TestSnapshotTrackedStatContributions -count=1`。本提交为源码与定向验证；最终双版本产物、图莱动作边界修复、整队更新及发布回执在后续批次记录，不声称该源码提交已经上线。旧全量3196/79/1与更早2907/86均未重跑或改写。
+
+最终双版本已用原有官方工具链重建：Classic Go1.25.0、WASM `84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194`；Stellar Go1.27.1、WASM `0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55`。每版黑蚀4/4、图莱动作边界2/2微探针通过；完整原生player/character包中的作用域与属性循环测试通过。18份许可文本哈希各自不变。此处只说明本地构建／验证，生产发布另见本批回执。
