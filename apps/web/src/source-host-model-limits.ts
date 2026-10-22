@@ -5,6 +5,17 @@ import './source-host-model-limits.css';
 type RequestIdentity={kind:string;actorKey:string;ability:string};
 export const isKaeyaQRequest=(request:RequestIdentity):boolean=>request.kind==='damage'&&request.actorKey==='kaeya'&&request.ability==='Glacial Waltz';
 const pinned=(commit:string)=>commit===SOURCE_HOST_COMMIT||commit===SOURCE_HOST_STELLAR_COMMIT;
+const ventiCritBugArtifacts: Record<string,string> = {
+ [SOURCE_HOST_COMMIT]:'8e159a65991824908ecfa1226ae18a18c87b1956f9458dc7257bd97b249322f6',
+ [SOURCE_HOST_STELLAR_COMMIT]:'a16817836d46ca096f24cf31e70e614002d4d443eae06c64ba5fe0ee8bc62744',
+};
+function legacyVentiNotice(result:SourceHostResult):string{
+ const expected=ventiCritBugArtifacts[result.sourceCommit];
+ if(!expected||result.executionArtifact?.wasmSha256!==expected)return '';
+ const affected=result.calculations.some(({request:q})=>q.kind==='damage'&&q.actorKey==='venti'
+  &&['Skyward Sonnett (Press)','Skyward Sonnett (Hold)'].includes(q.ability)&&q.input.hitWeakPoint);
+ return affected?'<aside class="source-host-model-limit" data-source-model-limit="venti-e-legacy"><strong>温迪 E 旧结果</strong><p>此执行器曾将 E 算成必暴击。原结果保留；重新运行队伍可得到修正值。</p></aside>':'';
+}
 function notice(commit:string,observed:string):string{
  const known=pinned(commit);
  const source=known?`<a href="https://github.com/genshinsim/gcsim/blob/${commit}/internal/characters/kaeya/burst.go" target="_blank" rel="noreferrer">本次固定来源</a>`:'来源版本未核对，不能推定其固定调度';
@@ -22,13 +33,14 @@ function notice(commit:string,observed:string):string{
 }
 /** Display-only scope derived from actual results. Never rewrites stored results or damage. */
 export function renderSourceResultModelLimits(result:SourceHostResult):string{
+ const legacy=legacyVentiNotice(result);
  const ids=new Set(result.calculations.filter(c=>isKaeyaQRequest(c.request)).map(c=>c.request.id));
  const casts=result.abilityInvocations?.filter(a=>a.characterKey==='kaeya'&&a.action==='burst'&&a.success);
- if(!ids.size&&!casts?.length)return '';
+ if(!ids.size&&!casts?.length)return legacy;
  const bounded=fixedDamageWindow(result);
  const hits=(bounded?.applications??result.applications).filter(a=>ids.has(a.calculationId));
  const castLabel=casts===undefined?'释放次数未记录':`来源记录 ${casts.length} 次成功释放`;
- return notice(result.sourceCommit,`${castLabel}；当前观察窗实际结算 ${hits.length} 条 Q 伤害事件（按目标计数）。这是本次记录，不是固定应有命中数。`);
+ return legacy+notice(result.sourceCommit,`${castLabel}；当前观察窗实际结算 ${hits.length} 条 Q 伤害事件（按目标计数）。这是本次记录，不是固定应有命中数。`);
 }
 export function renderSourceHitModelLimits(sourceCommit:string,request:RequestIdentity):string{
  return isKaeyaQRequest(request)?notice(sourceCommit,'当前仅重算这一笔已捕获 Q 命中；单击重放一致不能验证整次 Q 的碰撞次数。'):'';

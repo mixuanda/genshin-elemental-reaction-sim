@@ -24,3 +24,21 @@ it('does not label E or another actor by an ability name alone',()=>{
 it('unknown source never inherits pinned timing',()=>{
  const html=renderSourceHitModelLimits('unknown',q);expect(html).toContain('来源版本未核对');expect(html).not.toContain('起手后53帧');
 });
+it.each([
+ [SOURCE_HOST_COMMIT,'8e159a65991824908ecfa1226ae18a18c87b1956f9458dc7257bd97b249322f6'],
+ [SOURCE_HOST_STELLAR_COMMIT,'a16817836d46ca096f24cf31e70e614002d4d443eae06c64ba5fe0ee8bc62744'],
+])('keeps known old Venti results readable with an actionable correction notice: %s',(sourceCommit,wasmSha256)=>{
+ const result=fixture({sourceCommit,executionArtifact:{wasmSha256,wasmBytes:1},abilityInvocations:[],
+  calculations:[{request:{kind:'damage',actorKey:'venti',ability:'Skyward Sonnett (Hold)',input:{hitWeakPoint:true}}}]});
+ const before=JSON.stringify(result);
+ expect(renderSourceResultModelLimits(result)).toContain('重新运行队伍可得到修正值');
+ expect(JSON.stringify(result)).toBe(before);
+ result.executionArtifact!.wasmSha256='unknown-or-new';
+ expect(renderSourceResultModelLimits(result)).toBe('');
+});
+it('does not label old Venti Q or an unverified source as the known E bug',()=>{
+ const result=fixture({executionArtifact:{wasmSha256:'8e159a65991824908ecfa1226ae18a18c87b1956f9458dc7257bd97b249322f6',wasmBytes:1},abilityInvocations:[],
+  calculations:[{request:{kind:'damage',actorKey:'venti',ability:"Wind's Grand Ode",input:{hitWeakPoint:false}}}]});
+ expect(renderSourceResultModelLimits(result)).toBe('');
+ result.sourceCommit='unknown';expect(renderSourceResultModelLimits(result)).toBe('');
+});
