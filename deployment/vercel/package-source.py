@@ -228,6 +228,6 @@ if args.rebuild_receipt:
         if not row['byteIdentical'] or row['rebuiltSha256'] != coverage[row['variant']]['wasm']['sha256']:
             raise RuntimeError('Rebuild receipt does not match the shipped WASM')
     receipt['nativeRebuild'] = comparison
-    receipt['rebuildStatus'] = 'Both pruned native trees rebuilt byte-identically offline with pinned existing toolchains and the existing Go compile cache; not a no-cache hermetic build.'
+    receipt['rebuildStatus'] = ('Both pruned native trees rebuilt byte-identically offline with pinned toolchains and retained Go dependency inputs; compiler-cache conditions are recorded per variant. This is not a clean-room or hermetic reproducibility claim.')
 (out / 'source-distribution.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
 print(json.dumps(receipt, ensure_ascii=False, indent=2))

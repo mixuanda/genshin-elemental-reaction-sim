@@ -28,6 +28,7 @@ The public source-distribution manifest identifies the corresponding modified
 native sources, necessary TS/interface/formula/build inputs, fixed dependency
 sources and the exact WASM hashes. The two minimal native source trees were
 rebuilt offline to byte-identical WASM using the pinned official toolchains and
-an existing compiler cache. No clean-room or no-cache reproducibility claim is
-made. Source availability does not turn provisional game mechanics into
+retained Go dependency inputs. Compiler-cache conditions are recorded per
+variant in the source manifest. No clean-room or hermetic reproducibility claim
+is made. Source availability does not turn provisional game mechanics into
 officially verified mechanics.
