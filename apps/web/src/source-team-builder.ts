@@ -596,6 +596,22 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     if (playButton) playButton.textContent = playback.playing ? "暂停" : "播放回放";
     const readout = root.querySelector<HTMLElement>("[data-sim-time-readout]");
     if (readout) readout.textContent = `第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧`;
+    const timeline = root.querySelector<HTMLElement>('[data-source-timeline]');
+    if (timeline) {
+      timeline.dataset.playbackFrame = String(simulationCursor);
+      timeline.style.setProperty('--playback-position', `${simulationEndFrame ? Math.min(100, 100 * simulationCursor / simulationEndFrame) : 0}%`);
+      let active: HTMLElement | undefined, previous: HTMLElement | undefined;
+      for (const row of timeline.querySelectorAll<HTMLElement>('[data-timeline-start]')) {
+        const start = Number(row.dataset.timelineStart), end = Number(row.dataset.timelineEnd);
+        const current = simulationCursor === start || (Number.isInteger(end) && start <= simulationCursor && simulationCursor < end);
+        row.dataset.playbackState = current ? 'active' : simulationCursor < start ? 'future' : 'past';
+        if (current) active ??= row;
+        if (start <= simulationCursor) previous = row;
+      }
+      const current = active ?? previous;
+      if (current && (current.offsetTop < timeline.scrollTop || current.offsetTop + current.offsetHeight > timeline.scrollTop + timeline.clientHeight))
+        timeline.scrollTop = Math.max(0, current.offsetTop - timeline.clientHeight / 2);
+    }
     const effects = root.querySelector<HTMLElement>("[data-runtime-effects]");
     if (effects) effects.innerHTML = runtimeEffectRows();
     root.querySelectorAll<HTMLButtonElement>("[data-quick-action]").forEach(button => {
@@ -631,7 +647,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     const displayAction = (value: unknown): string => labels[String(value)] ?? String(value ?? "动作");
     const events = rows.flatMap(row => {
       const data = fields(row), frame = row.frame, message = String(row.msg ?? "");
-      if (typeof frame !== "number" || !Number.isFinite(frame)) return [];
+      if (typeof frame !== "number" || !Number.isInteger(frame)) return [];
       let title = "", detail = "", kind = "", end: number | undefined;
       if (row.event === "action" && message === "source-host action rejected") {
         const reasons: Record<string, string> = { insufficient_energy: "能量不足", cooldown: "冷却尚未就绪", skill_cd: "E 冷却尚未就绪", burst_cd: "Q 冷却尚未就绪", insufficient_stamina: "体力不足" };
@@ -647,7 +663,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
         kind = "wait"; title = `等待 ${data.f} 帧`; end = frame + data.f;
       } else if (row.event === "hitlag" && message.endsWith(" started")) {
         kind = "animation"; title = `动画 ${displayAction(message.slice(0, -8))}`;
-        if (typeof row.ended === "number" && row.ended > frame) { end = row.ended; detail = `实际结束或中断于第 ${row.ended} 帧（${row.ended - frame} 帧）`; }
+        if (typeof row.ended === "number" && Number.isInteger(row.ended) && row.ended > frame) { end = row.ended; detail = `实际结束或中断于第 ${row.ended} 帧（${row.ended - frame} 帧）`; }
         else detail = "本次日志没有结束帧";
         if (typeof data.AnimationLength === "number") detail += `；来源动画长度 ${data.AnimationLength} 帧`;
         if (typeof data.CanQueueAfter === "number") detail += `；动画内部排队门槛 ${data.CanQueueAfter} 帧`;
@@ -668,15 +684,15 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     if (!events.length) { host.innerHTML = `<p>本次来源日志没有可识别的动作、冷却或能量事件。可在下方查看原始记录。</p>`; }
     else {
       const selected = events.slice(0, 200);
-      const timeline = selected.filter(event => event.kind === "action" || event.kind === "wait" || event.kind === "animation");
-      const maxFrame = Math.max(1, ...timeline.map(event => event.end ?? event.frame));
-      const bars = timeline.slice(0, 80).map(event => {
+      const timeline = events.filter(event => event.kind === "action" || event.kind === "wait" || event.kind === "animation").sort((a,b) => a.frame-b.frame);
+      const maxFrame = Math.max(1, simulationEndFrame);
+      const bars = timeline.map(event => {
         const left = Math.min(100, Math.max(0, 100 * event.frame / maxFrame));
         const width = event.end !== undefined ? Math.max(.6, 100 * (event.end - event.frame) / maxFrame) : .6;
-        return `<div class="source-team-builder__timeline-row"><span>${escapeHtml(event.actor)} · ${escapeHtml(event.title)} · ${event.frame}${event.end !== undefined ? `–${event.end}` : ""} 帧</span><div class="source-team-builder__track"><i class="source-team-builder__bar source-team-builder__bar--${event.kind}" style="left:${left}%;width:${Math.min(100 - left, width)}%"></i></div></div>`;
+        return `<div class="source-team-builder__timeline-row" data-timeline-start="${event.frame}"${event.end === undefined ? '' : ` data-timeline-end="${event.end}"`} data-timeline-kind="${event.kind}"><span title="${escapeHtml(event.actor)} · ${escapeHtml(event.title)} · ${event.frame}${event.end !== undefined ? `–${event.end}` : ''} 帧">${escapeHtml(event.actor)} · ${escapeHtml(event.title)} · ${event.frame}${event.end !== undefined ? `–${event.end}` : ""} 帧</span><div class="source-team-builder__track"><i class="source-team-builder__bar source-team-builder__bar--${event.kind}" style="left:${left}%;width:${Math.min(100 - left, width)}%"></i></div></div>`;
       }).join("");
       const table = selected.map(event => `<tr><td>${event.frame}</td><td>${escapeHtml(event.actor)}</td><td>${escapeHtml(event.title)}</td><td>${escapeHtml(event.detail || "—")}</td></tr>`).join("");
-      host.innerHTML = `<p>${events.length} 条实际来源事件：动作、等待、动画、冷却和能量。下表只展示日志已有的数值；冷却「剩余帧」是当时记录值，实际就绪以就绪事件为准。</p><div class="source-team-builder__timeline" aria-label="实际动作时间线"><div class="source-team-builder__timeline-axis">0 帧 <span>${maxFrame} 帧</span></div>${bars}</div>${timeline.length > 80 ? `<p>时间线显示前 80 条动作与动画；表格显示前 200 条相关事件。</p>` : ""}<div class="source-team-builder__table-wrap"><table><thead><tr><th>来源帧</th><th>角色</th><th>实际事件</th><th>来源数值</th></tr></thead><tbody>${table}</tbody></table></div>${events.length > 200 ? `<p>表格显示前 200 / ${events.length} 条相关事件；完整原始日志可分页查看。</p>` : ""}`;
+      host.innerHTML = `<p>${events.length} 条实际来源事件：动作、等待、动画、冷却和能量。下表只展示日志已有的数值；冷却「剩余帧」是当时记录值，实际就绪以就绪事件为准。</p><div class="source-team-builder__timeline" data-source-timeline aria-label="实际动作时间线"><div class="source-team-builder__timeline-axis">0 帧 <span>${maxFrame} 帧</span></div>${bars}</div><p>时间线保留 ${timeline.length} 条动作与动画，绿色线标出当前查看帧；动画高亮仅使用已记录的起止帧。</p><div class="source-team-builder__table-wrap"><table><thead><tr><th>来源帧</th><th>角色</th><th>实际事件</th><th>来源数值</th></tr></thead><tbody>${table}</tbody></table></div>${events.length > 200 ? `<p>表格显示前 200 / ${events.length} 条相关事件；完整原始日志可分页查看。</p>` : ""}`;
     }
     host.insertAdjacentHTML("afterbegin", renderRuntimePanel());
     host.insertAdjacentHTML("afterbegin", renderSourceActionReceipts(executionLogs, key => inventory?.characters.find(character => character.key === key)?.name ?? key, displayAction));

@@ -30,7 +30,7 @@
 .source-team-builder__status { min-height: 1.2rem; }
 @media (max-width: 600px) { .source-team-builder__action label { flex-basis: 40%; } .source-team-builder__row-buttons { width: 100%; } }
 .source-team-builder [data-source-team-logs] { display: grid; gap: .75rem; margin-top: .75rem; }
-.source-team-builder__timeline { display: grid; gap: .25rem; max-height: 24rem; overflow: auto; padding: .5rem; border: 1px solid var(--border-color, #ccd3d6); border-radius: .5rem; }
+.source-team-builder__timeline { position: relative; display: grid; gap: .25rem; max-height: 24rem; overflow: auto; padding: .5rem; border: 1px solid var(--border-color, #ccd3d6); border-radius: .5rem; }
 .source-team-builder__timeline-axis { display: flex; justify-content: space-between; margin-left: min(14rem, 32%); font-size: .8rem; color: var(--muted, #5d6669); }
 .source-team-builder__timeline-row { display: grid; grid-template-columns: minmax(7rem, 14rem) minmax(8rem, 1fr); gap: .5rem; align-items: center; font-size: .78rem; }
 .source-team-builder__timeline-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -38,6 +38,10 @@
 .source-team-builder__bar { position: absolute; top: 0; bottom: 0; min-width: 3px; border-radius: 99px; background: #5273aa; }
 .source-team-builder__bar--animation { background: #ae7647; }
 .source-team-builder__bar--wait { background: #748c73; }
+.source-team-builder__track::after { content: ''; position: absolute; left: var(--playback-position,0%); top: -.2rem; bottom: -.2rem; width: 2px; background: #7ad6a7; }
+.source-team-builder__timeline-row[data-playback-state="future"] { opacity: .55; }
+.source-team-builder__timeline-row[data-playback-state="active"] { color: #d1fae5; font-weight: 700; }
+.source-team-builder__timeline-row[data-playback-state="active"] .source-team-builder__bar { box-shadow: 0 0 0 2px #7ad6a7; }
 .source-team-builder__table-wrap { max-height: 28rem; overflow: auto; }
 .source-team-builder__table-wrap table { width: 100%; border-collapse: collapse; font-size: .84rem; }
 .source-team-builder__table-wrap th, .source-team-builder__table-wrap td { text-align: left; vertical-align: top; padding: .4rem .5rem; border-bottom: 1px solid var(--border-color, #ccd3d6); }
