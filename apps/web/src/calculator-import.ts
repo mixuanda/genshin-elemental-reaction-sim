@@ -1,3 +1,4 @@
+import {resetTighnariPanelAccounting} from './tighnari-calculation-context';
 import { resetSourceCastPanelAccounting } from "../../../packages/sim-core/src/source-cast-context";
 import type { CatalogResolvedShowcaseCharacter } from "@genshin-dps-lab/schemas";
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
@@ -74,6 +75,7 @@ export function applyImportedCalculatorPanel(
   if (context.keqingBurst) context.keqingBurst.a4IncludedInPanel = true;
   resetKeqingPanelAccounting(doc, "imported-final");
   resetKukiPanelAccounting(doc, "imported-final");
+  resetTighnariPanelAccounting(doc, "imported-final");
   resetBaizhuPanelAccounting(doc, "imported-final");
   resetCharlottePanelAccounting(doc, "imported-final");
   resetSourceCastPanelAccounting(doc, "imported-final");

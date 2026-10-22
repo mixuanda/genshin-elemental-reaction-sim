@@ -1,3 +1,4 @@
+import {applyTighnariDamageContext,isTighnariDamageAction} from './tighnari-calculation-context';
 import { optimizerSpecialComponents } from "../../../packages/game-data/src/character-mappings/optimizer-special-components";
 import { createObservedSpecialComponentDocument } from "../../../packages/sim-core/src/observed-special-component-formulas";
 import { prepareSourceCastDocument } from "../../../packages/sim-core/src/source-cast-context";
@@ -111,7 +112,10 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     let sourceRefs = hit.sourceRefs;
     const kaeyaSkill = context.skillId === "kaeya-skill" && hit.attackTag === "skill";
     const kaeyaTick = context.skillId === "kaeya-burst-burst" && hit.attackTag === "burst" && context.scopeCoverage === "selected-components";
-    if (context.abilityId.startsWith("talent:kaeya:") && (kaeyaSkill || kaeyaTick)) {
+    if(isTighnariDamageAction(result)) {
+      allowed = context.skillId !== "tighnari-wreath-complete-c0-c5" || context.constellation <= 5;
+      reason = "提纳里：C1只给重击暴击，C2草伤、C4精通按实际状态恢复；C3/C5由有效等级一次处理。C6花筥额外箭未混入C0–C5总数。";
+    } else if (context.abilityId.startsWith("talent:kaeya:") && (kaeyaSkill || kaeyaTick)) {
       allowed = true;
       sourceRefs = [...sourceRefs, ...kaeyaConstellationSources];
       reason = "固定来源 C1 仅影响普攻/重击条件暴击；C2/C6 改变爆发持续时间或冰棱数量，C4 为护盾。所选 E 或单个 Q tick 的伤害系数保持不变；C3/C5 已由显式有效天赋等级处理。此项不验证整个爆发总次数。";
@@ -175,6 +179,7 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     hit.dependencies.push(id);
     result.dependencies.push({ id, status: allowed ? "provisional" : "missing", reason, sourceRefs });
   }
+  if(isTighnariDamageAction(result))return applyTighnariDamageContext(result,result.gameContext?.tighnariDamage??{});
   if(isKukiDamageAction(result)&&result.gameContext?.kukiDamage)return applyKukiDamageContext(result,result.gameContext.kukiDamage);
   if(isColleiSkillAction(result))return applyColleiSkillContext(result,result.gameContext?.colleiSkill??{});
   if(isCharlotteSkillAction(result))return applyCharlotteSkillContext(result,result.gameContext?.charlotteSkill??{a4IncludedInPanel:false});
@@ -241,6 +246,7 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isTighnariDamageAction(document))return applyTighnariDamageContext(document,{priorA1Active:false,a1IncludedEm:0,c4IncludedEm:0,includedA4Bonus:0,includedC2Bonus:0,includedC1Crit:0,allHitsConnected:true,statsStableAcrossHits:true});
     if(isKukiDamageAction(document)){
       if(skillId === "kuki-skill-c2-complete-cast") document.gameContext!.constellation = 2;
       return applyKukiDamageContext(document,{ringUninterrupted:true,statsStableAcrossHits:true});
