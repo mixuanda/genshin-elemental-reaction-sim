@@ -34,5 +34,11 @@ test('prepared production files support direct routes, worker calculation and pu
   const legal = await request.get('/legal/');
   expect(legal.status()).toBe(200);
   expect(await legal.text()).toContain('AGPL-3.0-or-later');
+  const grant = await request.get('/legal/STELLAR-RELEASE-LICENSE.md');
+  expect(grant.status()).toBe(200);
+  expect(await grant.text()).toContain('copy, redistribute and modify');
+  for (const privatePath of ['/prebuilt.tgz', '/install-prebuilt.mjs', '/upload-parts.json', '/gidps-upload-000.part']) {
+    expect((await request.get(privatePath)).status(), privatePath).toBe(404);
+  }
   expect(errors).toEqual([]);
 });

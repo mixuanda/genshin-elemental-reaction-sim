@@ -1,4 +1,4 @@
-# Local Vercel release preparation
+# Verified GIDPS Vercel release
 
 This adapter packages the verified application commit, its existing WASM bytes,
 public notices and corresponding-source materials. It never runs a deployment,
@@ -73,7 +73,7 @@ relicensed and no root licence is selected. The release statement and full
 AGPL terms accompany the source archives and are visibly linked on the page.
 Game data/provider rights are not overridden by a software-code licence.
 
-The owner-authorized deployment command is:
+The prepared output can be deployed by an already authorized CLI identity:
 
 ```sh
 vercel deploy --prebuilt --archive=tgz --prod --skip-domain \
@@ -81,12 +81,54 @@ vercel deploy --prebuilt --archive=tgz --prod --skip-domain \
   --meta gidpsApplicationCommit=7d3289b06735a24b81b71e64104345d4b8881264
 ```
 
-Then inspect and smoke-test that production deployment before the parent
-promotes it. Do not use `--public`, change protection, create tokens, push a
-branch merely to deploy, or target the old project. The existing authenticated
-Vercel connector successfully read the new project; upload/create-deployment
-operations have not been attempted. No local `vercel` CLI was present at this
-preparation check; installing one does not transfer connector authentication.
+The cloud CLI identity could not access this team (`scope-not-accessible`), so
+that route was stopped. No login, new token, protection change or scope change
+was made. The existing authenticated Vercel connector successfully uploaded and
+deployed the same verified output instead:
+
+```sh
+node deployment/vercel/make-upload.mjs STAGE_DIRECTORY NEW_UPLOAD_DIRECTORY
+```
+
+Upload only `upload-parts.json`, `install-prebuilt.mjs`, `package.json`,
+`vercel.json` and the manifest's listed `.part` files through the file-upload
+API using their exact SHA-1 and byte length. Create a deployment in the exact
+new project with those uploaded file references, `target: "production"`,
+`framework: null`, `nodeVersion: "24.x"`,
+`buildCommand: "node install-prebuilt.mjs"`,
+`installCommand: "echo verified-prebuilt-no-dependencies"`, and no output
+directory override. The installer verifies every part and the complete archive
+before restoring `.vercel/output`; it does not rebuild the app or native code.
+Do not upload a recursive directory listing or the duplicate `prebuilt.tgz`.
+
+Deployment `dpl_B6EQizvfhMtyjmwujGXyMS7FVLCw` reached `READY` on 2026-10-22.
+Vercel automatically assigned the verified custom domain
+<https://gidps.mixuanda.top>. The old project/site was not mutated. Its exact
+application commit is confirmed by the public source manifest, matching index
+bytes, native artifact hashes, and the retained Vercel build log. Vercel's
+returned metadata object is empty; do not use metadata as commit evidence.
+
+Public Chromium checks passed 3/3: direct routes and the six-hit calculation
+Worker; Classic and Stellar native runs with 15 applications each, total
+8918.12930387573, integral frames and zero-difference representative E/Q replays.
+The two native execution hashes match the shipped manifests. Five public
+corresponding-source archives were downloaded and hash-verified. A single
+request for Enka's documented sample UID returned HTTP 200 and four showcase
+characters. This does not implement account login or all-owned-character sync.
+
+```sh
+GIDPS_VERCEL_URL=https://gidps.mixuanda.top npm run test:e2e -- \
+  --config playwright.vercel-artifact.config.ts
+```
+
+In this managed cloud environment, tests use the existing HTTPS proxy and an
+explicit `GIDPS_BROWSER_CA_SPKI` pin for that environment's public proxy CA;
+there is no blanket `ignoreHTTPSErrors`. Python HTTPS checks also passed with
+the existing trusted system CA bundle. The first browser run failed before
+calculation because its proxy/CA setup was missing; that failure is retained.
+Windows and other real user browser environments have not been tested here.
+This bounded release smoke test does not replace the separate older full-suite
+baseline of 2907 pass / 86 fail or remove visible provisional model limits.
 
 The uncompressed prepared output is about 198 MB; an internal equivalent `.tgz`
 upload was measured around 42 MB. Do not send that archive to the user. Keep it
