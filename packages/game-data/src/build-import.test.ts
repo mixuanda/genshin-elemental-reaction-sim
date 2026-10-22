@@ -66,13 +66,21 @@ describe('Enka character level authority and advanced levels', () => {
     expect(entry.equipmentInput?.level).toBe(level);
     expect(entry.constellation).toBe(0);
     expect(entry.raw).toEqual(avatar({ val: String(level) }));
-    if (level > 90) expect(() => resolveEquipmentBuild(entry.equipmentInput!)).toThrow('80–90');
+    if (level === 95 || level === 100) {
+      expect(entry.equipmentInput?.characterLevelCap).toBe(level);
+      expect(resolveEquipmentBuild(entry.equipmentInput!).characterLevel).toBe(level);
+      const undeclared = { ...entry.equipmentInput! };
+      delete undeclared.characterLevelCap;
+      expect(() => resolveEquipmentBuild(undeclared)).toThrow('80–90');
+    }
   });
 
   it('ignores a stale ival when val reports level 100', () => {
     const entry = parse({ val: '100', ival: '1' });
     expect(entry.equipmentInput?.level).toBe(100);
-    expect(() => resolveEquipmentBuild(entry.equipmentInput!)).toThrow('80–90');
+    expect(entry.equipmentInput?.characterLevelCap).toBe(100);
+    expect(resolveEquipmentBuild(entry.equipmentInput!).characterLevel).toBe(100);
+    expect(() => resolveEquipmentBuild({ ...entry.equipmentInput!, characterLevelCap: 95 })).toThrow('90–95');
   });
 
   it.each([{ ival: '90' }, { val: '', ival: '90' }, { val: '0', ival: '90' }, { val: '101', ival: '90' }, { val: 'invalid', ival: '90' }])('blocks absent or invalid authoritative val: %j', property => {

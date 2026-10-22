@@ -53,6 +53,20 @@ describe("parent 269c47a handoff contract (synthetic inputs, no calculation)", (
     expect(h.equipment.equipmentInput!.artifacts![0]!.observed).not.toHaveProperty("mainStatValue");
     expect(h.equipment.equipmentInput!.artifacts![0]!.substats).toEqual([]);
   });
+  it.each([95, 100])('preserves observed Enka Lv.%i and declares that unlocked limit independently from C0', level => {
+    const raw = { ...enka, avatarInfoList: enka.avatarInfoList.map((avatar, index) => index !== 0 ? avatar : {
+      ...avatar, propMap: { ...avatar.propMap, '4001': { ...avatar.propMap['4001'], val: String(level), ival: '1' } },
+      talentIdList: [], proudSkillExtraLevelMap: {}
+    }) };
+    const s = snapshot(importPlayerJson(JSON.stringify(raw)));
+    const before = JSON.stringify(s), h = createCoreHandoff(s.builds[0]!, s.source, 'cryo');
+    expect(h.equipment.status).toBe('ready');
+    expect(h.equipment.constellation).toBe(0);
+    expect(h.equipment.equipmentInput).toMatchObject({ level, characterLevelCap: level, ascension: 6 });
+    expect(h.panel.data.level).toBe(level);
+    expect(h.graduation.sourceLevel).toBe(level);
+    expect(JSON.stringify(s)).toBe(before);
+  });
   it("blocks text panel accounting and never repackages displayed 13 as base level", () => {
     const s = snapshot(importPlayerText(readFileSync(new URL("../fixtures/synthetic-hutao-multi.txt", import.meta.url), "utf8")));
     const h = createCoreHandoff(s.builds[0]!, s.source, "cryo");

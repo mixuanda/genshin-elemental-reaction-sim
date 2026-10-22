@@ -94,6 +94,7 @@ export function createCoreHandoff(build: PlayerBuild, source: ImportSnapshot["so
   }
   const equipmentInput: EquipmentBuildInput | null = equipmentReasons.length || !build.identity.value || !build.weapon.identity.value || level === null || ascension === null || weaponLevel === null || weaponAscension === null || refinement === null ? null : {
     characterId: build.identity.value.id, weaponId: build.weapon.identity.value.id, level, ascension, weaponLevel, weaponAscension, refinement,
+    ...(level === 95 || level === 100 ? { characterLevelCap: level } : {}),
     effectsDisabled: true, weaponEffectsEnabled: false, setEffectsEnabled: false, artifacts
   };
   return {
