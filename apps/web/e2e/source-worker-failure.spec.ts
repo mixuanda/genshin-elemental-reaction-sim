@@ -24,6 +24,7 @@ for (const entry of ['team', 'single'] as const) for (const stage of ['load-mani
       await page.locator('[data-action="source-single-skill"]').click();
       await expect(page.locator('[data-single-character] option[value="kaeya"]')).toBeAttached();
       await page.locator('[data-single-character]').selectOption('kaeya');
+      await page.locator('[data-single-advanced="run"] > summary').click();
       await page.locator('[data-single-seed]').fill('12345');
       await injectFailure();
       await page.locator('[data-single-run]').click();

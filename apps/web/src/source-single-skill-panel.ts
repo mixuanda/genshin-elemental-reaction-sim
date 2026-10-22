@@ -40,14 +40,14 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
   let savedResult: SourceHostResult | undefined, savedSelection: ReturnType<typeof selectSourceSingleSkillAction> | undefined;
   let savedInput: SourceSingleSkillDraft | undefined, savedSourceConfig = "", selectedAssociation: SourceHostActionCollection["association"] = "creation", statusText = "正在读取固定来源名册…", busy = false, loadingInventory = true;
   let resultStale = false, resultStaleMessage = "";
+  let invalidInput: HTMLInputElement | HTMLSelectElement | null = null;
   let lastFailedRequest: SourceHostWorkerRequest | null = null, lastFailedDraft: SourceSingleSkillDraft | null = null;
   let lastDiagnostic: SourceHostDiagnosticReceipt | null = null;
   let buildCandidates: Array<{ id: string; label: string; member?: SourceTeamMember; error?: string }> = [];
-  root.innerHTML = `<section class="source-single-skill" data-source-single-skill><p class="notice">此入口从固定来源名册选择一个角色并运行一次原生 E/Q/N 等已实现动作；不需组队或编写 GCSL。来源注册与机制仍属暂定。结果只代表有限观察窗内已记录的实际命中，不表示完整施放，也不显示 DPS。</p>
-    <div class="workspace-fields"><label>来源<select data-single-source disabled>${variants.map(row => `<option value="${row.id}">${row.label}</option>`).join("")}</select></label><label>固定来源角色<select data-single-character disabled><option>正在读取名册…</option></select></label><label>参考构筑<select data-single-tier disabled><option value="starter">小毕业参考构筑</option><option value="developed">大毕业参考构筑</option></select></label></div>
+  root.innerHTML = `<section class="source-single-skill" data-source-single-skill><p>选择角色、配装与动作，运行后查看本次实际伤害。</p><details data-single-source-details><summary>高级：来源版本与数据口径</summary><label>来源<select data-single-source disabled>${variants.map(row => `<option value="${row.id}">${row.label}</option>`).join("")}</select></label><p>此入口从固定来源名册选择一个角色并运行一次原生 E/Q/N 等已实现动作；不需组队或编写 GCSL。来源注册与机制仍属暂定。结果只代表有限观察窗内已记录的实际命中，不表示完整施放，也不显示 DPS。</p><p>角色、武器与套装效果由所选固定来源处理；五件圣遗物属性只填圣遗物增量。使用已明确配置的初始目标几何与零输入延迟执行；未另行指定随机政策，使用一次原生种子流。调整后结果仍标记运行时的原始输入，须重新运行才会更新。</p><div data-single-source-context></div></details>
+    <div class="workspace-fields"><label>角色<select data-single-character disabled><option>正在读取名册…</option></select></label><label>参考构筑<select data-single-tier disabled><option value="starter">小毕业参考构筑</option><option value="developed">大毕业参考构筑</option></select></label></div>
     <p data-single-status role="status" aria-live="polite">${esc(statusText)}</p><div data-single-editor></div>
     <div class="editor-actions"><button type="button" class="primary" data-single-run disabled>运行一次动作</button><button type="button" data-single-cancel disabled>取消</button><button type="button" data-single-retry hidden disabled>按原输入安全重试</button><button type="button" data-single-diagnostic-export hidden disabled>导出安全诊断回执</button><button type="button" data-single-export-input disabled>导出输入 JSON</button><label class="file-button">导入输入／配装 JSON<input type="file" data-single-import accept="application/json"></label><select data-single-candidate hidden aria-label="选择导入的配装候选"></select><button type="button" data-single-apply-candidate hidden>应用所选配装</button></div>
-    <p class="calculator-hint">角色、武器与套装效果由所选固定来源处理；五件圣遗物属性只填圣遗物增量。使用已明确配置的初始目标几何与零输入延迟执行；未另行指定随机政策，使用一次原生种子流。调整后结果仍标记运行时的原始输入，须重新运行才会更新。</p>
     <div data-single-result></div><section class="card" data-single-diagnostic role="alert" hidden><p data-single-diagnostic-message></p><details><summary>错误阶段与技术信息</summary><pre data-single-diagnostic-json></pre></details></section></section>`;
   const sourceSelect = root.querySelector<HTMLSelectElement>("[data-single-source]")!;
   const characterSelect = root.querySelector<HTMLSelectElement>("[data-single-character]")!;
@@ -67,6 +67,25 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
   const applyCandidate = root.querySelector<HTMLButtonElement>("[data-single-apply-candidate]")!;
   const importInput = root.querySelector<HTMLInputElement>("[data-single-import]")!;
   const setStatus = (message: string) => { statusText = message; if (!disposed) status.textContent = message; };
+  const reportInputError = (error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    let field: HTMLInputElement | HTMLSelectElement | null = invalidInput ?? editor.querySelector('input:invalid, select:invalid');
+    if (!field && message.includes('几何')) field = editor.querySelector('[data-target-geometry="radius"]');
+    if (!field && message.includes('种子')) field = editor.querySelector('[data-single-seed]');
+    if (!field && message.includes('生命')) field = editor.querySelector('[data-target-profile="hp"]');
+    if (!field && message.includes('掉球')) field = [...editor.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-target-profile="particleThreshold"], [data-target-profile="particleCount"], [data-target-profile="particleElement"]')].find(input => !input.value.trim()) ?? null;
+    const explanation = field && message.includes('几何') ? `请填写有效的${field.closest('label')?.firstChild?.textContent?.trim() ?? '目标位置'}。` : message;
+    setStatus(explanation);
+    if (field) {
+      editor.querySelectorAll('[data-single-input-error]').forEach(note => note.remove());
+      editor.querySelectorAll('[aria-invalid="true"]').forEach(input => { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-errormessage'); });
+      for (let section = field.closest('details'); section; section = section.parentElement?.closest('details') ?? null) section.open = true;
+      field.setAttribute('aria-invalid', 'true');
+      const note = document.createElement('small'); note.dataset.singleInputError = ''; note.id = 'source-single-input-error'; note.setAttribute('role', 'alert'); note.textContent = explanation;
+      field.parentElement?.append(note); field.setAttribute('aria-errormessage', note.id);
+      field.focus({ preventScroll: true }); field.scrollIntoView({ block: 'center' });
+    }
+  };
   const setBusy = (value: boolean) => {
     busy = value;
     runButton.disabled = value || loadingInventory || !draft || !inventory;
@@ -96,23 +115,30 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     const parameters = (capability?.parameters ?? []).map(parameter => `<label>${esc(parameter.key)}<input type="number" step="1" data-single-param="${esc(parameter.key)}" value="${draft!.action.params?.[parameter.key] ?? ""}" placeholder="留空表示不传"></label>`).join("");
     const sets = member.artifactSets.map((set, index) => `<div class="source-single-skill__row"><label>圣遗物套装<select data-single-set-key="${index}">${inventory!.artifacts.map(item => `<option value="${esc(item.key)}"${item.key === set.key ? " selected" : ""}>${esc(item.name)} · ${esc(item.key)}</option>`).join("")}</select></label><label>件数<input type="number" min="1" max="5" step="1" data-single-set-count="${index}" value="${set.count}"></label><button type="button" data-single-remove-set="${index}">移除</button></div>`).join("");
     const stats = Object.entries(member.artifactStats).map(([key, value]) => `<label>${esc(statLabels[key] ?? key)} · 纯圣遗物增量<input type="number" step="any" data-single-stat="${esc(key)}" value="${esc(value)}"></label>`).join("");
-    editor.innerHTML = `<fieldset data-single-editor-fieldset><legend>${esc(character?.name ?? member.characterKey)} · 单角色输入</legend><p>来源配置键 <code>${esc(member.characterKey)}</code>。小／大毕业仅是本地可编辑参考构筑，不代表实测或最优；游戏配装导入只读取装备与圣遗物词条，不读最终面板。</p>
-      <div class="workspace-fields"><label>角色等级<input type="number" min="1" max="90" step="1" data-single-member="level" value="${member.level}"></label><label>角色突破等级上限<input type="number" min="1" max="90" step="1" data-single-member="levelCap" value="${member.levelCap}"></label><label>命之座<input type="number" min="0" max="6" step="1" data-single-member="constellation" value="${member.constellation}"></label>${(["auto", "skill", "burst"] as const).map(key => `<label>${{ auto: "普攻", skill: "战技", burst: "爆发" }[key]}基础天赋等级<input type="number" min="1" max="15" step="1" data-single-talent="${key}" value="${member.talents[key]}"></label>`).join("")}</div><p>填写基础天赋等级；命座增级由原生来源运行时处理，不在此预先加算。</p>
+    const openAdvanced = new Set([...editor.querySelectorAll<HTMLDetailsElement>('details[data-single-advanced][open]')].map(section => section.dataset.singleAdvanced));
+    editor.innerHTML = `<fieldset data-single-editor-fieldset><legend>${esc(character?.name ?? member.characterKey)} · 单角色输入</legend><p data-single-technical>来源配置键 <code>${esc(member.characterKey)}</code>。小／大毕业仅是本地可编辑参考构筑，不代表实测或最优；游戏配装导入只读取装备与圣遗物词条，不读最终面板。</p>
+      <div class="workspace-fields"><label>角色等级<input type="number" min="1" max="90" step="1" data-single-member="level" value="${member.level}"></label><label>角色突破等级上限<input type="number" min="1" max="90" step="1" data-single-member="levelCap" value="${member.levelCap}"></label><label>命之座<input type="number" min="0" max="6" step="1" data-single-member="constellation" value="${member.constellation}"></label>${(["auto", "skill", "burst"] as const).map(key => `<label>${{ auto: "普攻", skill: "战技", burst: "爆发" }[key]}基础天赋等级<input type="number" min="1" max="15" step="1" data-single-talent="${key}" value="${member.talents[key]}"></label>`).join("")}</div><p data-single-technical>填写基础天赋等级；命座增级由原生来源运行时处理，不在此预先加算。</p>
       <fieldset><legend>武器</legend><div class="workspace-fields"><label>武器<select data-single-weapon>${compatibleWeapons.map(item => `<option value="${esc(item.key)}"${item.key === member.weapon.key ? " selected" : ""}>${esc(item.name)} · ${esc(item.key)}</option>`).join("")}</select></label><label>武器等级<input type="number" min="1" max="90" step="1" data-single-weapon-field="level" value="${member.weapon.level}"></label><label>武器上限<input type="number" min="1" max="90" step="1" data-single-weapon-field="levelCap" value="${member.weapon.levelCap}"></label><label>精炼<input type="number" min="1" max="5" step="1" data-single-weapon-field="refinement" value="${member.weapon.refinement}"></label></div></fieldset>
       <fieldset><legend>圣遗物套装</legend><p>填写实际套装配置件数，合计不得超过五件。固定来源运行套装效果。</p>${sets}<button type="button" data-single-add-set ${member.artifactSets.reduce((sum, item) => sum + item.count, 0) >= 5 ? "disabled" : ""}>添加套装</button></fieldset>
       <fieldset><legend>五件圣遗物属性增量</legend><p>以下只代表五件圣遗物词条的增量，不是角色最终面板；角色、武器基础与套装效果不重复录入。</p><div class="workspace-fields">${stats || "<p>参考构筑没有可编辑的词条行。</p>"}</div><label>添加属性<select data-single-add-stat>${statKeys.map(key => `<option value="${key}">${key}</option>`).join("")}</select></label><button type="button" data-single-add-stat-button>添加词条</button></fieldset>
-      <fieldset><legend>一次原生动作</legend><div class="workspace-fields"><label>动作<select data-single-action>${kinds.map(kind => `<option value="${kind}"${kind === draft!.action.kind ? " selected" : ""}>${sourceActionLabels[kind]}</option>`).join("")}</select></label>${parameters}</div><p>只允许此角色在所选来源中明确标记为已实现的动作；参数只显示该方法登记的字段，并按整数读取。本次只请求一次动作，之后等待观察窗，不重复、不组成动作序列。</p></fieldset>
-      <div data-single-first-target>${renderSourceTargetGeometryControls(draft.target.geometry)}
+      <fieldset data-single-action-controls><legend>一次动作</legend><div class="workspace-fields"><label>动作<select data-single-action>${kinds.map(kind => `<option value="${kind}"${kind === draft!.action.kind ? " selected" : ""}>${sourceActionLabels[kind]}</option>`).join("")}</select></label>${parameters}</div><p data-single-technical>只允许此角色在所选来源中明确标记为已实现的动作；参数只显示该方法登记的字段，并按整数读取。本次只请求一次动作，之后等待观察窗，不重复、不组成动作序列。</p></fieldset>
+      <details data-single-advanced="target"><summary>高级：目标位置、多目标与特殊条件</summary><div data-single-first-target>${renderSourceTargetGeometryControls(draft.target.geometry)}
       ${renderSourceTargetProfileControls(draft.target)}</div>
-      ${renderSourceTargetSceneControls(sceneInput(draft))}
-      <fieldset><legend>观察条件</legend><div class="workspace-fields"><label>观察秒数<input type="number" min="0.0166666667" max="3600" step="any" data-single-duration value="${draft.durationSeconds}"></label><label>目标等级<input type="number" min="1" max="200" step="1" data-single-target="level" value="${draft.target.level}"></label><label>通用抗性（小数）<input type="number" step="any" data-single-target="resistance" value="${draft.target.resistance}"></label><label>初始能量<select data-single-startup><option value="full"${draft.startup === "full" ? " selected" : ""}>满能</option><option value="zero"${draft.startup === "zero" ? " selected" : ""}>零能</option><option value="custom"${draft.startup === "custom" ? " selected" : ""}>自定义</option></select></label>${draft.startup === "custom" ? `<label>初始能量<input type="number" min="0" max="1000" step="1" data-single-energy value="${member.initialEnergy ?? ""}"></label>` : ""}<label>随机种子（uint64 十进制）<input data-single-seed inputmode="numeric" pattern="[0-9]+" value="${esc(draft.seed)}"></label></div></fieldset></fieldset>`;
+      ${renderSourceTargetSceneControls(sceneInput(draft))}</details>
+      <fieldset><legend>目标与初始状态</legend><div class="workspace-fields"><label>目标等级<input type="number" min="1" max="200" step="1" data-single-target="level" value="${draft.target.level}"></label><label>通用抗性（小数）<input type="number" step="any" data-single-target="resistance" value="${draft.target.resistance}"></label><label>初始能量<select data-single-startup><option value="full"${draft.startup === "full" ? " selected" : ""}>满能</option><option value="zero"${draft.startup === "zero" ? " selected" : ""}>零能</option><option value="custom"${draft.startup === "custom" ? " selected" : ""}>自定义</option></select></label>${draft.startup === "custom" ? `<label>初始能量<input type="number" min="0" max="1000" step="1" data-single-energy value="${member.initialEnergy ?? ""}"></label>` : ""}</div></fieldset><details data-single-advanced="run"><summary>高级：观察时长与随机种子</summary><div class="workspace-fields"><label>观察秒数<input type="number" min="0.0166666667" max="3600" step="any" data-single-duration value="${draft.durationSeconds}"></label><label>随机种子（uint64 十进制）<input data-single-seed inputmode="numeric" pattern="[0-9]+" value="${esc(draft.seed)}"></label></div></details></fieldset>`;
+    const context = root.querySelector<HTMLElement>('[data-single-source-context]')!;
+    context.replaceChildren(...editor.querySelectorAll('[data-single-technical]'));
+    const actionControls = editor.querySelector<HTMLElement>('[data-single-action-controls]')!;
+    editor.querySelector('[data-single-editor-fieldset] > legend')!.after(actionControls);
+    for (const section of editor.querySelectorAll<HTMLDetailsElement>('details[data-single-advanced]')) section.open = openAdvanced.has(section.dataset.singleAdvanced);
     setBusy(busy);
   };
   const readDraft = (): SourceSingleSkillDraft => {
+    invalidInput = null;
     if (!draft || !inventory) throw new Error("请先选择已载入名册中的角色。");
     const next = structuredClone(draft);
     const input = <T extends HTMLInputElement | HTMLSelectElement>(selector: string) => editor.querySelector<T>(selector);
-    const number = (selector: string) => { const field = input<HTMLInputElement>(selector); if (!field || !field.checkValidity() || !Number.isFinite(field.valueAsNumber)) throw new Error(`请检查输入：${selector}`); return field.valueAsNumber; };
+    const number = (selector: string) => { const field = input<HTMLInputElement>(selector); if (!field || !field.checkValidity() || !Number.isFinite(field.valueAsNumber)) { invalidInput = field; throw new Error(`请检查${field?.closest('label')?.firstChild?.textContent?.trim() ?? '输入'}，须为有效数值。`); } return field.valueAsNumber; };
     next.member.level = number('[data-single-member="level"]'); next.member.levelCap = number('[data-single-member="levelCap"]'); next.member.constellation = number('[data-single-member="constellation"]');
     for (const key of ["auto", "skill", "burst"] as const) next.member.talents[key] = number(`[data-single-talent="${key}"]`);
     next.member.weapon.key = input<HTMLSelectElement>("[data-single-weapon]")?.value ?? next.member.weapon.key;
@@ -161,8 +187,11 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
         if (section) updateSourceTargetGeometryDiagram(section, target.geometry!);
       });
       updateSourceTargetSceneDiagram(editor, sceneInput(draft));
+      editor.querySelectorAll('[aria-invalid="true"]').forEach(field => { field.removeAttribute('aria-invalid'); field.removeAttribute('aria-errormessage'); });
+      editor.querySelectorAll('[data-single-input-error]').forEach(note => note.remove());
+      if (!savedResult) setStatus('输入已更新，可以运行一次动作。');
     }
-    catch (error) { if (savedResult) setStatus(`输入尚未完整；下方仍是旧输入的结果。${error instanceof Error ? error.message : error}`); }
+    catch (error) { setStatus(`${savedResult ? '输入尚未完整；下方仍是旧输入的结果。' : ''}${error instanceof Error ? error.message : error}`); }
   };
   const loadInventory = async (nextVariant: SourceHostVariant, preferredKey?: string) => {
     const currentGeneration = ++generation; stop(); loadingInventory = true; markResultStale("正在切换来源名册；下方结果仍对应其运行时保存的旧来源与输入。");
@@ -216,7 +245,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
       : "停止原因回执未记录，不能从时长反推。";
     try { savedSelection = selectSourceSingleSkillAction(result, selectedAssociation, input); }
     catch (error) {
-      savedSelection = undefined; resultHost.innerHTML = `<section class="card" data-source-single-result data-single-input-stale="${resultStale}"><h3>本次单动作结果</h3><p data-single-result-stale ${resultStale ? "" : "hidden"}>${esc(resultStaleMessage)}</p><p>运行输入快照：${esc(input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 配置 ${input.durationSeconds} 秒；实际运行 ${actualSeconds}。</p><p>目标场景快照：共 ${targets.length} 个目标；统计目标 ${primaryTargetIndex + 1}。${esc(targetSnapshot)}</p><div data-single-target-summary></div><p>${esc(endReceipt)}</p><p role="alert">无法选择唯一已接受动作：${esc(error instanceof Error ? error.message : error)}</p><button type="button" data-single-result-export>导出完整原生结果 JSON</button><pre>${esc(JSON.stringify(result, null, 2).slice(0, 20000))}</pre></section>`;
+      savedSelection = undefined; resultHost.innerHTML = `<section class="card" data-source-single-result data-single-input-stale="${resultStale}"><h3>本次单动作结果</h3><p data-single-result-stale ${resultStale ? "" : "hidden"}>${esc(resultStaleMessage)}</p><p data-single-action-summary>${esc(inventory?.characters.find(character => character.key === input.member.characterKey)?.name ?? input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 本次观察 ${input.durationSeconds} 秒。</p><details data-single-result-context><summary>高级：运行输入与目标记录</summary><p>运行输入快照：${esc(input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 配置 ${input.durationSeconds} 秒；实际运行 ${actualSeconds}。</p><p>目标场景快照：共 ${targets.length} 个目标；统计目标 ${primaryTargetIndex + 1}。${esc(targetSnapshot)}</p><div data-single-target-summary></div><p>${esc(endReceipt)}</p></details><p role="alert">无法选择唯一已接受动作：${esc(error instanceof Error ? error.message : error)}</p><button type="button" data-single-result-export>导出完整原生结果 JSON</button><details><summary>原始结果记录</summary><pre>${esc(JSON.stringify(result, null, 2).slice(0, 20000))}</pre></details></section>`;
       resultHost.querySelector<HTMLButtonElement>("[data-single-result-export]")!.onclick = () => downloadSourceHostJson({ schemaVersion: "source-single-skill-result-v1", input, result }, "source-single-skill-result.json");
       return;
     }
@@ -277,8 +306,8 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     const nativeDamageSummary = associatedApplications.length
       ? `本关联来源记账伤害：${nativeAppliedDamage}；目标实际扣血：${actualHpLoss}。`
       : "本关联没有可汇总的已结算应用；来源记账伤害与实际扣血未知。";
-    resultHost.innerHTML = `<section class="card" data-source-single-result data-single-input-stale="${resultStale}"><h3>本次单动作观察结果</h3><p data-single-result-stale ${resultStale ? "" : "hidden"}>${esc(resultStaleMessage)}</p><p>运行输入快照：${esc(input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 配置时长 ${input.durationSeconds} 秒；实际运行 ${actualSeconds}；接受帧 ${selection.action.acceptedFrame}；种子 ${esc(input.seed)}。下方结果固定对应这份输入，编辑器后续更改不会改写它。</p>
-      <p>目标场景快照：共 ${targets.length} 个目标；统计目标 ${primaryTargetIndex + 1}。${esc(targetSnapshot)}</p><div data-single-target-summary></div><div data-single-target-phase-summary></div><p>${esc(endReceipt)}</p>
+    resultHost.innerHTML = `<section class="card" data-source-single-result data-single-input-stale="${resultStale}"><h3>本次单动作观察结果</h3><p data-single-result-stale ${resultStale ? "" : "hidden"}>${esc(resultStaleMessage)}</p><p data-single-action-summary>${esc(inventory?.characters.find(character => character.key === input.member.characterKey)?.name ?? input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 本次观察 ${input.durationSeconds} 秒。</p><details data-single-result-context><summary>高级：运行输入与目标记录</summary><p>运行输入快照：${esc(input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 配置时长 ${input.durationSeconds} 秒；实际运行 ${actualSeconds}；接受帧 ${selection.action.acceptedFrame}；种子 ${esc(input.seed)}。下方结果固定对应这份输入，编辑器后续更改不会改写它。</p>
+      <p>目标场景快照：共 ${targets.length} 个目标；统计目标 ${primaryTargetIndex + 1}。${esc(targetSnapshot)}</p><div data-single-target-summary></div><div data-single-target-phase-summary></div><p>${esc(endReceipt)}</p></details>
       <label>伤害关联方式<select data-single-association>${["creation", "trigger", "status-owner"].map((association, index) => `<option value="${association}"${association === selectedAssociation ? " selected" : ""}>${["创建动作", "触发动作", "状态激活"][index]}</option>`).join("")}</select></label>
       ${analysis ? `<p data-single-known-subtotal>已知小计：公式伤害已知小计（扣除目标剩余生命前）：${analysis.knownSubtotal === undefined ? "尚无可记账的命中或落空伤害证据" : analysis.knownSubtotal}</p><p data-single-native-subtotal>${nativeDamageSummary}</p>` : `<p data-single-known-subtotal>此关联暂无记录证据；伤害未知，不显示为零。</p>`}
       ${finiteSection}
@@ -357,7 +386,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
       if (!inventory) throw new Error("固定来源名册尚未加载。");
       const input = readDraft(); const request: SourceHostWorkerRequest = compileSourceSingleSkill(input, inventory);
       executeRequest(request, input);
-    } catch (error) { setStatus(error instanceof Error ? error.message : String(error)); }
+    } catch (error) { reportInputError(error); }
   };
   sourceSelect.onchange = () => { void loadInventory(sourceSelect.value as SourceHostVariant); };
   characterSelect.onchange = () => loadPreset(characterSelect.value);
@@ -420,7 +449,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     if (target.closest("[data-single-add-stat-button]")) { markResultStale(); try { draft = readDraft(); const key = editor.querySelector<HTMLSelectElement>("[data-single-add-stat]")!.value; if (draft.member.artifactStats[key] === undefined) draft.member.artifactStats[key] = 0; renderEditor(); } catch(error) { setStatus(String(error)); } }
   });
   runButton.onclick = run; cancelButton.onclick = () => { stop(); setStatus("已取消来源运行；该结果未完成。"); };
-  exportInput.onclick = () => { try { downloadSourceHostJson(readDraft(), "source-single-skill-input.json"); setStatus("已导出当前单动作输入 JSON。"); } catch(error) { setStatus(String(error)); } };
+  exportInput.onclick = () => { try { downloadSourceHostJson(readDraft(), "source-single-skill-input.json"); setStatus("已导出当前单动作输入 JSON。"); } catch(error) { reportInputError(error); } };
   root.querySelector<HTMLInputElement>("[data-single-import]")!.onchange = event => {
     const input = event.currentTarget as HTMLInputElement, file = input.files?.[0]; if (!file || !inventory) return;
     const importGeneration = generation, importInventory = inventory;
