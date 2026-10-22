@@ -144,3 +144,12 @@ describe("existing character outputs", () => {
     expect(html).toContain("期望伤害");
   });
 });
+
+it('shows a state-only Q as non-damaging instead of a fake zero-damage result',()=>{
+ const docs=getCharacterDocuments('character:10000026',10);
+ const index=docs.findIndex(d=>d.gameContext?.skillId==='xiao-burst-activation');expect(index).toBeGreaterThanOrEqual(0);
+ const d=docs[index]!,r=calculateDocument(d);expect(r.hits[0]!.status).toBe('non-damaging');
+ const item=buildCharacterOutputs(docs,gameDataCatalog,{selectedCandidateIndex:index,currentDocument:d,currentResult:r}).flatMap(g=>g.items).find(x=>x.candidateIndex===index)!;
+ expect(item.status).toBe('non-damaging');expect(item.damage).toBeUndefined();
+ expect(renderCharacterOutputs([{id:'burst',label:'Q',items:[item]}])).toContain('不直接造成伤害');
+});

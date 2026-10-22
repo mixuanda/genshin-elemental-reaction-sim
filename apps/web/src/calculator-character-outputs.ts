@@ -117,7 +117,7 @@ export function buildCharacterOutputs(candidates: readonly CalculatorDocument[],
       ...(document.gameContext?.variantName ? { variantLabel: document.gameContext.variantName } : {}),
       conditions: explicitConditions(document), selected: options.selectedCandidateIndex === candidateIndex,
       scope, scopeLabel: scopes[scope] + (scope === "single-hit" && document.gameContext?.scopeCoverage === "selected-components" ? "（部分已定义范围）" : ""), status,
-      ...(damage ? { damage } : {}), ...(knownSubtotal && !damage ? { knownSubtotal } : {}),
+      ...(!nonDamaging && damage ? { damage } : {}), ...(!nonDamaging && knownSubtotal && !damage ? { knownSubtotal } : {}),
       ...(observed?.hits.some(hit => hit.nonCriticalComparisonOnly) ? { nonCriticalComparisonOnly: true as const } : {}),
       components: observed ? observed.aggregation.components.filter(component => component.selected).map(component => ({
         id: component.id, label: component.label, status: component.status,

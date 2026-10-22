@@ -46,6 +46,11 @@ export function applyImportedCalculatorPanel(
     ...(character.ascension === undefined || character.ascension === null ? {} : { ascension: character.ascension }),
     stats: { atk: requireImportedNumber(character.stats.attack, "attack"), hp: requireImportedNumber(character.stats.maxHp, "maxHp"), def: requireImportedNumber(character.stats.defense, "defense"), em: requireImportedNumber(character.stats.elementalMastery, "elementalMastery"), critRate: requireImportedNumber(character.stats.critRate, "critRate"), critDamage: requireImportedNumber(character.stats.critDamage, "critDamage"), ...(character.stats.energyRecharge === null ? {} : { energyRecharge: character.stats.energyRecharge }) },
   };
+  if (context.xiaoDamage && talentPolicy === "imported-effective") {
+    const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:xiao:combat3");
+    if (burst && hasKnownImportedTalent(burst)) context.xiaoDamage.burstTalentLevel = burst.effectiveLevel;
+    else delete context.xiaoDamage.burstTalentLevel;
+  }
   if (context.noelleBurst) {
     context.noelleBurst.accounting = "already-in-final-panel";
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:noelle:combat3");

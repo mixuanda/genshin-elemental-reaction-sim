@@ -1,3 +1,5 @@
+import {extendXiaoDocuments} from "./xiao-calculation-context";
+import {isXiaoDamageAction,XIAO_DAMAGE_SOURCE_REFS} from "../../../packages/sim-core/src/xiao-damage-formulas";
 import {applyTighnariDamageContext,isTighnariDamageAction} from './tighnari-calculation-context';
 import { optimizerSpecialComponents } from "../../../packages/game-data/src/character-mappings/optimizer-special-components";
 import { createObservedSpecialComponentDocument } from "../../../packages/sim-core/src/observed-special-component-formulas";
@@ -128,6 +130,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       reason = allowed
         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
+    } else if(isXiaoDamageAction(result)) {
+      allowed=true;sourceRefs=[...sourceRefs,...XIAO_DAMAGE_SOURCE_REFS];
+      reason="魈实际单击：C1/C2/C4及C6后续E资格不改本击；C3/C5由有效E/独立有效Q等级处理。Q状态、A1时间、E前A4层数与已含份额仍单独确认，不生成整轮。";
     } else if (isDurinSkillAction(result)) {
       allowed = context.constellation <= 2;
       reason = allowed ? "杜林白E/黑E自身命中已核对C0–C2：C1不追加自身E，C2的50%火伤仍按实际快照和已含份额检查；不自动提供Q后台、队友伤害或A1反应状态。" : "杜林E当前仅审阅C0–C2，不以低命座代算更高命座。";
@@ -274,5 +279,5 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       documents.push(stampCalculatorWorkspaceEvidence(createObservedSpecialComponentDocument(base,component.id),workspace));
     }
   }
-  return documents;
+  return extendXiaoDocuments(documents,workspace);
 }

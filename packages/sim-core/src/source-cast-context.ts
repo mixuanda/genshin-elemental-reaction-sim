@@ -1,3 +1,4 @@
+import { prepareXiaoDamageDocument, resetXiaoPanelAccounting, finalizeXiaoPanelAccounting } from "./xiao-damage-formulas";
 import { prepareRawSourceStateDocument } from "./raw-source-state";
 import { prepareDurinSkillDocument, resetDurinSkillPanelAccounting } from "./durin-skill-formulas";
 import { prepareObservedPlungeDocument, resetObservedPlungePanelAccounting, finalizeObservedPlungePanelAccounting } from "./observed-plunge-formulas";
@@ -34,6 +35,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareXiaoDamageDocument(document);
   document = prepareDurinSkillDocument(document);
   document = prepareRawSourceStateDocument(document);
   document = prepareKachinaCastDocument(document);
@@ -57,6 +59,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetXiaoPanelAccounting(document, mode);
   resetDurinSkillPanelAccounting(document, mode);
   resetObservedPlungePanelAccounting(document, mode);
   resetKachinaCastPanelAccounting(document);
@@ -87,6 +90,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  finalizeXiaoPanelAccounting(document);
   finalizeObservedPlungePanelAccounting(document);
   finalizeKachinaCastPanelAccounting(document);
   finalizeTravelerHydroResolvedPanelAccounting(document);
