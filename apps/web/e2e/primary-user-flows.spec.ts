@@ -65,6 +65,20 @@ test('candidate card loads the actual four-person action editor and produces dam
   expect(Number(await total.getAttribute('data-value'))).toBeGreaterThan(0);
   await expect(page.locator('[data-source-host-overview-dps]')).not.toContainText('未知');
   await expect(page.locator('[data-source-host-actor-damage]')).toHaveCount(4);
+  // The result previously put inherited pale text on an undefined white surface.
+  // Check what users can actually read, rather than a particular CSS declaration.
+  const contrast = await total.evaluate(element => {
+    const luminance = (color: string) => {
+      const rgb = color.match(/[\d.]+/g)!.slice(0, 3).map(Number).map(v => {
+        const s = v / 255; return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4;
+      });
+      return rgb[0]! * .2126 + rgb[1]! * .7152 + rgb[2]! * .0722;
+    };
+    const a = luminance(getComputedStyle(element).color);
+    const b = luminance(getComputedStyle(element.parentElement!).backgroundColor);
+    return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+  });
+  expect(contrast).toBeGreaterThanOrEqual(4.5);
   expect(failures).toEqual([]);
   await mkdir(output,{recursive:true});
   await writeFile(`${output}/team-result.txt`,await page.locator('[data-source-host-result-overview]').innerText());

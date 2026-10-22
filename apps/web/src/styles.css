@@ -2,9 +2,11 @@
   --bg: #0b0e14;
   --panel: #121722;
   --panel-2: #171e2b;
+  --surface: var(--panel);
   --text: #e8edf5;
   --muted: #8f9bad;
   --border: #293243;
+  --border-color: var(--border);
   --accent: #8db6ff;
   --accent-2: #b49cff;
   --good: #7ad6a7;
