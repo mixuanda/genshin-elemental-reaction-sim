@@ -9,8 +9,9 @@ Target confirmed by the parent: project `gidps`,
 `team_C7eBCyezgeOKwho1xfVLcnln`; requested domain `gidps.mixuanda.top`.
 The separate old `gi-dps` project and `gi.mixuanda.top` are not targets.
 
-The application's calculation/UI assets are from
-`7d3289b06735a24b81b71e64104345d4b8881264`. Preparation code is additional,
+The current application's calculation/UI assets are from
+`ed0763bb7445188bcc49d5456251b6f7f22afe85`. The current source manifest is the
+version authority. Preparation code is additional,
 without changing calculation formulae or the native executables.
 
 ## Preparation
@@ -35,7 +36,7 @@ reports, test traces, authentication files and sourcemaps are excluded.
 ```sh
 python3 deployment/vercel/package-source.py \
   --output SOURCE_DIRECTORY --evidence EVIDENCE_DIRECTORY \
-  --commit 7d3289b06735a24b81b71e64104345d4b8881264 \
+  --commit ed0763bb7445188bcc49d5456251b6f7f22afe85 \
   --classic-source CLASSIC_MODIFIED_TREE \
   --stellar-source STELLAR_MODIFIED_TREE \
   --bundle-inventory MAIN_MODULES_JSON \
@@ -64,7 +65,7 @@ native trees or Go dependencies:
 ```sh
 python3 deployment/vercel/package-source.py \
   --project-only --output PROJECT_SOURCE_DIRECTORY \
-  --commit 7d3289b06735a24b81b71e64104345d4b8881264 \
+  --commit ed0763bb7445188bcc49d5456251b6f7f22afe85 \
   --bundle-inventory MAIN_MODULES_JSON \
   --bundle-inventory SIMULATION_WORKER_MODULES_JSON \
   --bundle-inventory ANALYSIS_WORKER_MODULES_JSON \
@@ -178,3 +179,42 @@ References: [Build Output API](https://vercel.com/docs/build-output-api),
 [Node primitives](https://vercel.com/docs/build-output-api/primitives),
 [prebuilt archive upload](https://vercel.com/docs/cli/deploy#prebuilt),
 [AGPL terms](https://spdx.org/licenses/AGPL-3.0-or-later.html).
+
+## Functional fixes and readable results release
+
+Deployment `dpl_E8oqfP65S69rE5MpUgKtk7hrh3R1` is READY at
+<https://gidps.mixuanda.top>. Application commit is
+`ed0763bb7445188bcc49d5456251b6f7f22afe85`; its preparation commit is
+`3aef57982ffb4ddf271a7a116231fca7047fbc71`. The preceding functional deployment
+`dpl_8nSYUi3aikrAJf9cyo2iZqxvQ1gP` published application `416535e` and passed
+four public browser workflows: independent single-skill calculations and required
+conditions, candidate-to-native-team calculation, legacy-read/Worker plus proxy
+checks, and C6 Wanderer initial E with full stance still rejected.
+
+A subsequent actual screenshot exposed light text over white result surfaces.
+The current release changes only theme aliases and its browser assertion;
+all 45 JS chunks differ only in dependency filenames after normalizing the
+actual emitted asset names. The source-host Worker and native binaries are
+unchanged. The current public candidate/native-team workflow passes with an
+actual text/background contrast check and the same numeric result. This is
+separate from a fresh four-workflow run on the current deployment.
+
+The actual user-supplied public UID was read once on the preceding functional
+release; its C6 Wanderer E13 panel calculated 8467.628045379934 under explicitly
+selected no-absorption conditions. Independent arithmetic gives
+8467.628045379935. This is a conditional calculation using real public equipment,
+not observed combat or an all-account login. Personal payloads/screenshots remain
+outside the repository and distribution.
+
+The current frontend source archive has 1457 files, 6265372 bytes, SHA-256
+`7d614c04c5838d29d5ddb08f50f2c44df1b2fc1f7748bf952398c76105b33321`. It covers
+789 emitted project inputs, 15 separately required compile-time JSON inputs and
+50 related notices. The preceding frontend archive was built in isolation with
+reused external dependencies; no new native or no-cache build is claimed.
+The limited AGPL scope remains the same 109 constituent source paths; no root
+licence was selected and independent components were not uniformly relicensed.
+
+The one complete unit run in this batch was 3134 pass / 79 fail / 1 skipped at
+`82908e2`, before the later bounded UI, preset and initial-hit changes. Subsequent
+targeted passes do not change that recorded full-run count. Original Golden
+files and numerical assertions were retained. Windows was not actually run.
