@@ -20,7 +20,7 @@ describe("real equipment imports", () => {
 
   it("preserves Enka display values and blocks missing weapon progression", () => {
     const avatar = {
-      avatarId: 10000002, propMap: { "4001": { ival: "90" }, "1002": { val: "6" } }, skillLevelMap: {}, talentIdList: [], fightPropMap: {},
+      avatarId: 10000002, propMap: { "4001": { val: "90", ival: "90" }, "1002": { val: "6" } }, skillLevelMap: {}, talentIdList: [], fightPropMap: {},
       equipList: [
         { itemId: 11301, flat: { itemType: "ITEM_WEAPON" }, weapon: { level: 90, promoteLevel: 6, affixMap: { "1": 4 } } },
         { itemId: 23414, flat: { itemType: "ITEM_RELIQUARY", equipType: "EQUIP_BRACER", rankLevel: 5, reliquaryMainstat: { mainPropId: "FIGHT_PROP_HP", statValue: 4780 }, reliquarySubstats: [{ appendPropId: "FIGHT_PROP_CRITICAL", statValue: 10.5 }] }, reliquary: { level: 21 } }

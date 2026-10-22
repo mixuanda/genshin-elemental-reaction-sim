@@ -132,8 +132,8 @@ function normalizeBuild(raw: unknown, root: Row, index: number, good: boolean): 
   if (!good && refinement.value !== null) { refinement.value++; refinement.note = "Enka affixMap 0–4 加 1 为精炼 R1–R5"; }
   if (!good && affixes.length > 1) checks.push(field(null, `${weaponDataPath}.affixMap`, "count", "invalid", "多个精炼项有歧义；不选择第一项"));
   const props = row(c.propMap), lp = row(props["4001"]), ap = row(props["1002"]);
-  const level = good ? num(c.level, `${path}.level`, 1, 100) : num(own(lp, "val") ? lp.val : lp.ival, `${path}.propMap.4001.${own(lp, "val") ? "val" : "ival"}`, 1, 100, "level", true);
-  if (!good && !own(lp, "val") && level.state === "known") level.note = "旧导出明确提供的 ival；无 val，不使用展柜摘要或等级 1 默认值";
+  // Enka's propMap.ival is ignored by protocol; it cannot supply a missing val.
+  const level = good ? num(c.level, `${path}.level`, 1, 100) : num(lp.val, `${path}.propMap.4001.val`, 1, 100, "level", true);
   const constellation = good ? num(c.constellation, `${path}.constellation`, 0, 6, "count")
     : Array.isArray(c.talentIdList) ? num(c.talentIdList.length, `${path}.talentIdList`, 0, 6, "count") : !own(c, "talentIdList") ? num(0, `${path}.talentIdList`, 0, 6, "count") : field<number>(null, `${path}.talentIdList`, "count", "invalid", "命座列表格式非法");
   if (!good && constellation.state === "known") constellation.note = "源命座列表的条目数；不以此重复增加天赋等级，不解释单项命座效果";

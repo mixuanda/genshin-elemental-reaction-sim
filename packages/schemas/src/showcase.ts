@@ -97,7 +97,9 @@ export const enkaShowcaseResponseSchema = z
           .object({
             avatarId: z.number().int(),
             propMap: z.record(z.string(), enkaPropValueSchema).optional(),
-            talentIdList: z.array(z.number().int()).optional(),
+            talentIdList: z.array(z.number().int().positive()).max(6)
+              .refine(ids => new Set(ids).size === ids.length, "Constellation IDs must be unique")
+              .optional(),
             skillLevelMap: z.record(z.string(), z.number().int()).optional(),
             proudSkillExtraLevelMap: z
               .record(z.string(), z.number().int())
@@ -144,7 +146,8 @@ export interface ImportedShowcaseCharacter {
   ascension?: number | null;
   constellation: number;
   skillLevels: Record<string, number>;
-  skillLevelBonuses: Record<string, number>;
+  /** null means the source did not provide extra-talent evidence; {} explicitly means no entries. */
+  skillLevelBonuses: Record<string, number> | null;
   stats: {
     maxHp: number | null;
     attack: number | null;
@@ -173,8 +176,8 @@ export interface ImportedShowcase {
 export interface CatalogResolvedSkill {
   skillId: string;
   baseLevel: number;
-  bonusLevel: number;
-  effectiveLevel: number;
+  bonusLevel: number | null;
+  effectiveLevel: number | null;
   abilityId: string | null;
   name: string | null;
   matchStatus: "matched" | "unmatched";

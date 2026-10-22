@@ -5,6 +5,7 @@ import { restoreCalculatorHitEquipmentInputs, prepareIncomingThrillingTales, res
 import { resetCharlottePanelAccounting } from "./collei-charlotte-calculation-context";
 import { resetBaizhuPanelAccounting } from "./baizhu-calculation-context";
 import { applyCharacterConstellationScope, resetKeqingPanelAccounting, resetKukiPanelAccounting } from "./character-calculations";
+import { hasKnownImportedTalent, requireImportedTalentLevel } from "./imported-talents";
 
 export function requireImportedNumber(value: number | null | undefined, field: string): number {
   if (value === null || value === undefined || !Number.isFinite(value)) throw new Error(`导入缺少 ${field}；请补齐原始数据或重新导入，不能以 0 / 默认等级代替。`);
@@ -24,8 +25,7 @@ export function applyImportedCalculatorPanel(
   if (!Number.isInteger(character.constellation) || character.constellation < 0 || character.constellation > 6) throw new Error("导入命座缺失或非法；不会假定为 C0。");
   if (character.ascension !== undefined && character.ascension !== null && (!Number.isInteger(character.ascension) || character.ascension < 0 || character.ascension > 6)) throw new Error("导入突破阶段非法；不会依据等级猜测。");
   if (talentPolicy === "imported-effective") {
-    const skill = character.resolvedSkills.find(candidate => candidate.abilityId === context.abilityId);
-    if (!skill || skill.effectiveLevel !== context.effectiveTalentLevel) throw new Error("当前动作未匹配导入的有效天赋等级；不会再次加算命座天赋等级或使用默认值。");
+    if (requireImportedTalentLevel(character, context.abilityId) !== context.effectiveTalentLevel) throw new Error("当前动作未匹配导入的有效天赋等级；不会再次加算命座天赋等级或使用默认值。");
   }
   const required: Array<[string, number | null | undefined]> = [
     ["角色等级", character.level], ["攻击力（2001）", character.stats.attack],
@@ -48,18 +48,27 @@ export function applyImportedCalculatorPanel(
   if (context.noelleBurst) {
     context.noelleBurst.accounting = "already-in-final-panel";
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:noelle:combat3");
-    if (talentPolicy === "imported-effective" && burst) context.noelleBurst.effectiveTalentLevel = burst.effectiveLevel;
+    if (talentPolicy === "imported-effective") {
+      if (burst && hasKnownImportedTalent(burst)) context.noelleBurst.effectiveTalentLevel = burst.effectiveLevel;
+      else if (context.noelleBurst.active) requireImportedTalentLevel(character, "talent:noelle:combat3");
+    }
   }
   if (context.ittoCharged) {
     context.ittoCharged.burst.accounting = "already-in-final-panel";
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:aratakiitto:combat3");
-    if (talentPolicy === "imported-effective" && burst) context.ittoCharged.burst.effectiveTalentLevel = burst.effectiveLevel;
+    if (talentPolicy === "imported-effective") {
+      if (burst && hasKnownImportedTalent(burst)) context.ittoCharged.burst.effectiveTalentLevel = burst.effectiveLevel;
+      else if (context.ittoCharged.burst.active) requireImportedTalentLevel(character, "talent:aratakiitto:combat3");
+    }
   }
   if (context.yanfeiCharged) {
     context.yanfeiCharged.priorA1BonusIncluded = 0;
     context.yanfeiCharged.includedBrillianceBonus = 0;
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:yanfei:combat3");
-    if (talentPolicy === "imported-effective" && burst) context.yanfeiCharged.brilliance.effectiveTalentLevel = burst.effectiveLevel;
+    if (talentPolicy === "imported-effective") {
+      if (burst && hasKnownImportedTalent(burst)) context.yanfeiCharged.brilliance.effectiveTalentLevel = burst.effectiveLevel;
+      else if (context.yanfeiCharged.brilliance.mainActive || context.yanfeiCharged.brilliance.a4Active) requireImportedTalentLevel(character, "talent:yanfei:combat3");
+    }
   }
   if (context.ningguangBurst) context.ningguangBurst.currentA4IncludedInBonus = context.ningguangBurst.currentA4Active;
   if (context.keqingBurst) context.keqingBurst.a4IncludedInPanel = true;

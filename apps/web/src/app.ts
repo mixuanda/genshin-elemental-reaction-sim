@@ -3252,7 +3252,7 @@ function renderShowcase(): void {
         character.resolvedSkills
           .map(
             (skill) =>
-              `${skill.name ?? `未匹配技能 ${skill.skillId}`}: ${skill.effectiveLevel}` +
+              `${skill.name ?? `未匹配技能 ${skill.skillId}`}: ${skill.effectiveLevel ?? "未知（请补齐基础／额外天赋等级）"}` +
               (skill.bonusLevel
                 ? ` (${skill.baseLevel}+${skill.bonusLevel})`
                 : "")

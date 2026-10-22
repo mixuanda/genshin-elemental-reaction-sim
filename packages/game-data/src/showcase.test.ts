@@ -17,7 +17,7 @@ const rawShowcase = {
     {
       avatarId: 10000075,
       propMap: {
-        "4001": { type: 4001, ival: "100" }
+        "4001": { type: 4001, val: "100", ival: "100" }
       },
       talentIdList: [751, 752],
       skillLevelMap: { "10751": 10 },
@@ -73,6 +73,31 @@ const rawShowcase = {
 };
 
 describe("Enka showcase adapter", () => {
+  it.each([
+    { val: "90" },
+    { val: 90 },
+    { val: "90", ival: "1" }
+  ])("uses authoritative propMap.val for the UID level: %j", (levelProp) => {
+    const imported = parseEnkaShowcase({
+      ...rawShowcase,
+      avatarInfoList: [{ ...rawShowcase.avatarInfoList[0], propMap: { "4001": levelProp } }]
+    }, { uid: "900000003" });
+    expect(imported.characters[0]?.level).toBe(90);
+  });
+
+  it.each([
+    { val: "", ival: "90" },
+    { val: "0", ival: "90" },
+    { val: "90.5", ival: "90" },
+    { ival: "90" }
+  ])("keeps invalid or absent authoritative val unknown despite ival/summary: %j", (levelProp) => {
+    const imported = parseEnkaShowcase({
+      ...rawShowcase,
+      avatarInfoList: [{ ...rawShowcase.avatarInfoList[0], propMap: { "4001": levelProp } }]
+    }, { uid: "900000003" });
+    expect(imported.characters[0]?.level).toBeNull();
+  });
+
   it("validates and normalizes account data without turning it into a sim config", () => {
     const result = parseEnkaShowcase(rawShowcase, {
       uid: "283733593",
@@ -268,6 +293,6 @@ it('preserves absent panel fields and level as unknown, distinct from legitimate
   expect(missing.stats.damageBonuses.physical).toBe(0);
   expect(missing.stats.damageBonuses.anemo).toBeNull();
   for(const value of ['', '90.5', '0']) {
-    expect(parseEnkaShowcase({playerInfo:{showAvatarInfoList:[{avatarId:10000075,level:90}]},avatarInfoList:[{avatarId:10000075,propMap:{'4001':{ival:value}},fightPropMap:{}}]}, {uid:'900000003'}).characters[0]!.level).toBeNull();
+    expect(parseEnkaShowcase({playerInfo:{showAvatarInfoList:[{avatarId:10000075,level:90}]},avatarInfoList:[{avatarId:10000075,propMap:{'4001':{val:value}},fightPropMap:{}}]}, {uid:'900000003'}).characters[0]!.level).toBeNull();
   }
 });

@@ -22,6 +22,7 @@ it('existing equipment validator rejects mismatched character/weapon types',()=>
 });
 
 import { preparePlayerPanel } from './player-import-handoff';
+import { parseEnkaShowcase, resolveShowcaseCatalog } from '../../../packages/game-data/src/showcase';
 const panelRaw=readFileSync(new URL('../e2e/fixtures/player-import/kaeya-enka-panel.json',import.meta.url),'utf8');
 function panel(raw=panelRaw){const r=importPlayerInput(raw,{fixture:true});if(!r.ok)throw Error(r.message);return {s:r.snapshot,b:r.snapshot.builds[0]!};}
 it('panel route accepts missing equipment and zero EM, preserves C3 effective E13 without additions',()=>{
@@ -44,4 +45,21 @@ it('honors authoritative val and documented absent Enka C0; malformed lists rema
  const j=JSON.parse(panelRaw);delete j.avatarInfoList[0].propMap['4001'].ival;delete j.avatarInfoList[0].talentIdList;j.avatarInfoList[0].proudSkillExtraLevelMap={};
  const raw=JSON.stringify(j),{s,b}=panel(raw);expect(preparePlayerPanel(raw,b,s.source).character.constellation).toBe(0);
  for(const value of [null,'bad',{},[1,1]]){j.avatarInfoList[0].talentIdList=value;const text=JSON.stringify(j);const {s,b}=panel(text);expect(()=>preparePlayerPanel(text,b,s.source)).toThrow();}
+});
+
+it('UID and preview resolve the same authoritative level without altering the raw source',()=>{
+ const j=JSON.parse(panelRaw);j.avatarInfoList[0].propMap['4001']={val:'90',ival:'1'};
+ const raw=JSON.stringify(j),{s,b}=panel(raw),before=JSON.stringify(b);
+ const uid=resolveShowcaseCatalog(parseEnkaShowcase(j,{uid:'900000003'})).characters[0]!;
+ const preview=preparePlayerPanel(raw,b,s.source).character;
+ expect(uid).toEqual(preview);expect(uid.level).toBe(90);
+ expect(uid.resolvedSkills.find(s=>s.skillId==='10074')?.effectiveLevel).toBe(13);
+ expect(JSON.stringify(b)).toBe(before);expect(j.avatarInfoList[0].propMap['4001'].ival).toBe('1');
+});
+
+it('blocks ival-only panel levels instead of restoring them through the bridge',()=>{
+ const j=JSON.parse(panelRaw);delete j.avatarInfoList[0].propMap['4001'].val;
+ const raw=JSON.stringify(j),{s,b}=panel(raw);
+ expect(b.level).toMatchObject({state:'missing',value:null});
+ expect(()=>preparePlayerPanel(raw,b,s.source)).toThrow('角色等级未知');
 });

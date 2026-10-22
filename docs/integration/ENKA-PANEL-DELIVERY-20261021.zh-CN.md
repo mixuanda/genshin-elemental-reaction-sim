@@ -1,5 +1,7 @@
 # Enka 最终面板接线（本地未发布）
 
+2026-10-22补充：本文保留当时接线与证据。当前批次已将旧解析器改为直接读取权威 `propMap.val`，原先将val复制到ival的内存适配已移除；缺失或非法val不再回退。本文下方的桥接描述是历史实现，不是当前契约。当前进展见 `FUNCTIONAL-GAPS-20261022.zh-CN.md`。
+
 在 4cf37ea 的独立 integration 分支上继续。`/builds` 玩家导入预览新增“用最终面板计算单技能”，沿用 `CalculatorController.loadImportedCharacter` → `applyImportedCalculatorPanel`，装备路线保持独立；不累加已经包含的武器/圣遗物。
 
 ## 文件与契约

@@ -109,6 +109,12 @@ describe("credential-free player equipment import contract (synthetic fixtures o
     const b = build({ ...enka, playerInfo: { showAvatarInfoList: [{ avatarId: 10000002, level: 90 }] }, avatarInfoList: [{ ...avatar, propMap: { ...avatar.propMap, "4001": { val: "", ival: "90" } } }] });
     expect(b.level).toMatchObject({ state: "invalid", value: null });
   });
+  it("keeps ival-only Enka levels missing instead of treating the ignored property as evidence", () => {
+    const avatar = enka.avatarInfoList[0]!;
+    const b = build({ ...enka, avatarInfoList: [{ ...avatar, propMap: { ...avatar.propMap, "4001": { ival: "90" } } }] });
+    expect(b.level).toMatchObject({ state: "missing", value: null, path: "avatarInfoList[0].propMap.4001.val" });
+    expect(b.completeness.state).toBe("partial");
+  });
   it("makes unknown character, weapon, set, slot and stat IDs visible", () => {
     const b = build({ ...good, characters: [{ ...good.characters[0], key: "UnmappedCharacter" }], weapons: [{ ...good.weapons[0], key: "UnmappedWeapon", location: "UnmappedCharacter" }], artifacts: good.artifacts.map(a => ({ ...a, location: "UnmappedCharacter", setKey: "UnmappedSet", substats: [{ key: "unmappedStat", value: 1 }] })) });
     expect(b.identity).toMatchObject({ state: "unknown-id", value: { id: "UnmappedCharacter" } });

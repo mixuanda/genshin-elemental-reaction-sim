@@ -78,6 +78,7 @@ import { resolveEquipmentBuild } from "@genshin-dps-lab/game-data/equipment-buil
 import { renderTraceHtml } from "./calculator-trace-view";
 export { renderTraceHtml } from "./calculator-trace-view";
 import { applyImportedCalculatorPanel } from "./calculator-import";
+import { hasKnownImportedTalent } from "./imported-talents";
 import { getCharacterDocuments, applyCharacterConstellationScope, applyNoelleBurstContext, applyIttoChargedContext, applyYanfeiChargedContext, applyKeqingBurstContext, applyXingqiuSkillContext, applyNingguangBurstContext, resetKeqingPanelAccounting, applyKukiDamageContext, resetKukiPanelAccounting } from "./character-calculations";
 import { renderIttoControls } from "./calculator-itto-controls";
 import { renderYanfeiControls } from "./calculator-yanfei-controls";
@@ -1131,8 +1132,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (!Number.isInteger(level) || level < 1 || level > 15) throw new Error("有效天赋等级须是 1–15 的整数；不会插值缺失等级。");
       let documents: CalculatorDocument[];
       if (importedCharacter && importedTalentBinding) {
-        const mapped = importedCharacter.resolvedSkills.filter(skill => skill.abilityId && Number.isInteger(skill.effectiveLevel) && skill.effectiveLevel >= 1 && skill.effectiveLevel <= 15);
-        if (!mapped.length) throw new Error("导入天赋尚未映射到具体技能及有效等级；保留最终面板，不使用默认天赋等级。");
+        const mapped = importedCharacter.resolvedSkills.filter(hasKnownImportedTalent);
+        if (!mapped.length) throw new Error("导入天赋的基础／额外／有效等级证据缺失或尚未映射；保留最终面板，请补齐后重新导入，不使用默认等级。");
         const byLevel = await Promise.all([...new Set(mapped.map(skill => skill.effectiveLevel))].map(value => readCharacterDocuments(id, value)));
         documents = byLevel.flat().filter(doc => doc.gameContext && mapped.some(skill => skill.abilityId === doc.gameContext!.abilityId && skill.effectiveLevel === doc.gameContext!.effectiveTalentLevel));
       } else if (equipmentTalentBinding) {
@@ -1193,8 +1194,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     get<HTMLSelectElement>("#calc-character").value = id;
     void refreshEquipment();
     if (!id) { blockCharacter(`导入 avatarId ${character.avatarId} 无对应正式目录身份，不能借用其他角色天赋。`); return; }
-    const skill = character.resolvedSkills.find(s => s.abilityId !== null);
-    if (!skill) { blockCharacter("导入的有效天赋等级尚未映射，不能假定为默认等级。最终面板已保留。"); return; }
+    const skill = character.resolvedSkills.find(hasKnownImportedTalent);
+    if (!skill) { blockCharacter("导入缺少有效的基础／额外天赋等级证据；请补齐后重新导入，不能假定额外等级为0。最终面板已保留。"); return; }
     characterDrafts.delete(id);
     const equipmentDraft = equipmentDrafts.get(id);
     if (equipmentDraft) equipmentDraft.finalized = false;

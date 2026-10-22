@@ -28,12 +28,6 @@ export function preparePlayerEquipment(build: PlayerBuild, source: ImportSnapsho
 export function preparePlayerPanel(raw: string, build: PlayerBuild, source: ImportSnapshot['source']) {
   if (source.kind !== 'enka-json' && source.kind !== 'enka-uid') throw new Error('只有 Enka 最终面板路线可用；文本面板记账未经核验。');
   const envelope = JSON.parse(raw);
-  // Enka documents val as authoritative (ival is ignored). Adapt only this
-  // fresh in-memory copy to the legacy parser; never rewrite imported files.
-  for (const avatar of envelope.avatarInfoList ?? []) {
-    const level = avatar.propMap?.['4001'];
-    if (level && Object.hasOwn(level, 'val')) level.ival = level.val;
-  }
   const resolved = resolveShowcaseCatalog(parseEnkaShowcase(envelope, { uid: source.uid ?? '', fetchedAt: source.fetchedAt ?? source.importedAt }));
   const matches = resolved.characters.filter(c => c.catalog.characterId === build.identity.value?.id);
   if (build.identity.state !== 'known' || matches.length !== 1) throw new Error('角色身份未知或重复，不能选择默认角色。');
@@ -44,7 +38,7 @@ export function preparePlayerPanel(raw: string, build: PlayerBuild, source: Impo
   if (panel.status !== 'ready') throw new Error(panel.reasons.join('；'));
   // Do not silently reconcile disagreements between the two independently validated representations.
   if (character.level !== panel.data.level || character.constellation !== panel.data.constellation || character.ascension !== panel.data.ascension) throw new Error('原始展示柜与规范化等级/命座/突破不一致；需补齐原始字段。');
-  if (!character.resolvedSkills.length || character.resolvedSkills.some(s => !s.abilityId || s.matchStatus !== 'matched' || !Number.isInteger(s.baseLevel) || s.baseLevel < 1 || s.baseLevel > 10 || !Number.isInteger(s.bonusLevel) || s.bonusLevel < 0 || s.effectiveLevel > 15)) throw new Error('技能或有效天赋映射不受支持。');
+  if (!character.resolvedSkills.length || character.resolvedSkills.some(s => !s.abilityId || s.matchStatus !== 'matched' || !Number.isInteger(s.baseLevel) || s.baseLevel < 1 || s.baseLevel > 10 || s.bonusLevel === null || !Number.isInteger(s.bonusLevel) || s.bonusLevel < 0 || s.effectiveLevel === null || s.effectiveLevel > 15)) throw new Error('技能或基础/额外/有效天赋证据缺失或映射不受支持。');
   for (const [i, name] of (['auto','skill','burst'] as const).entries()) {
     const talent = build.talents[name];
     const skill = character.resolvedSkills.find(s => s.abilityId?.endsWith(`:combat${i+1}`));
