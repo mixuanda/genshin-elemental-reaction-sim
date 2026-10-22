@@ -1,4 +1,5 @@
 import { prepareRawSourceStateDocument } from "./raw-source-state";
+import { prepareDurinSkillDocument, resetDurinSkillPanelAccounting } from "./durin-skill-formulas";
 import { prepareObservedPlungeDocument, resetObservedPlungePanelAccounting, finalizeObservedPlungePanelAccounting } from "./observed-plunge-formulas";
 import { prepareKachinaCastDocument, resetKachinaCastPanelAccounting, finalizeKachinaCastPanelAccounting } from "./kachina-cast-formulas";
 import { prepareObservedCharacterResourceDocument, resetObservedCharacterResourcePanelAccounting, finalizeObservedCharacterResourcePanelAccounting } from "./observed-character-resource";
@@ -33,6 +34,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareDurinSkillDocument(document);
   document = prepareRawSourceStateDocument(document);
   document = prepareKachinaCastDocument(document);
   document = prepareObservedPlungeDocument(document);
@@ -55,6 +57,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetDurinSkillPanelAccounting(document, mode);
   resetObservedPlungePanelAccounting(document, mode);
   resetKachinaCastPanelAccounting(document);
   resetTravelerHydroResolvedPanelAccounting(document, mode);

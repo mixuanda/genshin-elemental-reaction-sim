@@ -1,0 +1,29 @@
+# 指定四人队：机制边界与杜林 E 最小补缺
+
+玩家已指定：流浪者 C6／图莱杜拉的回忆 R5／Lv100；珐露珊 C6／西风猎弓 R5；尼可、杜林 C2／各自专武 R1。其余角色等级、武器等级、基础天赋、圣遗物、敌人及动作轴没有作为玩家数据提供。本记录不产出团队 DPS，也不把教学面板当作玩家配装。
+
+固定目录及 Classic/Stellar 均有这四名角色和对应武器实现，但方法注册不证明完整机制或指定队伍可用：
+
+| 角色 | 固定 Go 的重要机制 | 普通单技能入口的实际边界 |
+| --- | --- | --- |
+| 流浪者 | 空居普攻/重击、C6 追加攻击与空居力、C2 Q 增伤、A1/C4 吸收；图莱的攻速与逐秒/命中增伤时序 | 已发生的无吸收 E 初击 C0–C6 已验证；不能据此开放完整 C6 空居普攻或 Q |
+| 珐露珊 | Q 风伤与减抗、A4 加算基伤、C6 风伤暴伤与额外风涡；西风需实际暴击、前台、触发冷却及掉球 | 现有有限 E/Q 分支限 C0，不能用作指定 C6 支援或完整输出 |
+| 尼可 | E 在初击前产生护盾及攻击增益，A1 升级、C2 固定攻击/减抗；Q/C1 造影归实际触发角色，魔导额外基伤另读尼可；尘光七谕依据护盾和攻击授予增伤 | 现有造影模块有归属/魔导额外基伤，但排除未实现的 E/A1 升级时序，C2 完整分支未闭环 |
+| 杜林 | E 首按无伤，第二次 E 为白化一击、转变后普攻为黑化三击；Q 后台、C1 白/黑不同加算、C2 反应后元素增伤、魔导 A1、黑蚀 Q 暴伤/攻击窗口 | 本批补白 E／黑 E 自身直伤 C0–C2，Q 后台、C2 蒸发/融化的 A1 反应状态仍不由该入口生成 |
+
+本批的杜林 C2 改动：保留精确 15 级倍率，按每击真实状态加入 `50% ×（实际生效 − 输入已含）`，不从反应菜单推断触发。C2 的两个布尔字段未知时阻塞；黑 E 多击合计要求其他面板、装备和目标条件稳定。单选一击不依赖其他未选命中的状态。C3–C6 暂不扩权。契约：
+
+```text
+gameContext.durinSkill.statsStableAcrossHits
+gameContext.durinSkill.hitStates.<hitId>.c2PyroBonusActive
+gameContext.durinSkill.hitStates.<hitId>.c2PyroBonusIncluded
+hitId: durin-white-e | durin-black-e-1 | durin-black-e-2 | durin-black-e-3
+```
+
+固定来源为 gcsim `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541`，44 个角色/武器/核心文件逐一匹配保留 Git tree blob；证据位于 `/workspace/GIDPS-cloud/function-batch-20261022/wanderer-team/four-role-fixed-source.json`。数值仍为固定社区来源的 provisional 条件计算，未宣称实机认证。
+
+验证：杜林新回归与已有流浪者 E 初击回归合计 29/29，通过 JSON/面板转换、已含份额、未知状态、逐击独立性及高命拒绝；`tsc --noEmit` 通过。原有 `update-pipeline.test.ts:85` 的空预览库存断言仍失败，已核对保留完整回归是同一旧失败，未修改它。
+
+另外使用现有两份 WASM 和真实共享公式 resolver 独立执行流浪者 90/90、95/95、100/100：两 variant 均按实际等级读取曲线并传入伤害防御乘区，未裁到 90。完整配置、基础属性、curveIndex、promotion 及 WASM 哈希在同目录 `classic-level-basepanels.json`、`stellar-level-basepanels.json`。这些短调用不是完整队伍或 120 秒证据。
+
+原生黑 E 的延迟闭包另发现倍率疑点，已分开保存短调用；它的验证及修复不混入本次 TypeScript C2 补缺提交。UI 由主线程接入，未部署。

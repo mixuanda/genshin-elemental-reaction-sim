@@ -71,7 +71,7 @@ export const classifiedHitSourceRefs = [
   `https://github.com/genshinsim/gcsim/blob/${CLASSIFIED_SOURCE_COMMIT}/internal/characters/durin/skill.go`
 ];
 
-const durinMappings: SourceHitMapping[] = [
+export const durinMappings: SourceHitMapping[] = [
   { id: "durin-white-e", skillId: "durin-confirmation-of-purity", skillLabel: "转变·白化之是", hitLabel: "白 E", parameterKey: "param1", sourceCoefficientValues: [1.056, 1.1352, 1.2144, 1.32, 1.3992, 1.4784, 1.584, 1.6896, 1.7952, 1.9008, 2.0064, 2.112, 2.244, 2.376, 2.508], coefficientTolerance: 0 },
   { id: "durin-black-e-1", skillId: "durin-denial-of-darkness", skillLabel: "转变·黑度之否", hitLabel: "黑 E 第 1 段", parameterKey: "param2", sourceCoefficientValues: [0.7224, 0.77658, 0.83076, 0.903, 0.95718, 1.01136, 1.0836, 1.15584, 1.22808, 1.30032, 1.37256, 1.4448, 1.5351, 1.6254, 1.7157], coefficientTolerance: 0 },
   { id: "durin-black-e-2", skillId: "durin-denial-of-darkness", skillLabel: "转变·黑度之否", hitLabel: "黑 E 第 2 段", parameterKey: "param3", sourceCoefficientValues: [0.532, 0.5719, 0.6118, 0.665, 0.7049, 0.7448, 0.798, 0.8512, 0.9044, 0.9576, 1.0108, 1.064, 1.1305, 1.197, 1.2635], coefficientTolerance: 0 },
@@ -79,9 +79,9 @@ const durinMappings: SourceHitMapping[] = [
 ].map((entry) => ({
   ...entry, characterSlug: "durin", talentSetId: "talent-set:durin", abilityKey: "combat2",
   element: "pyro", scalingStat: "atk", attackTag: "skill", completeAction: true,
-  assumptions: ["显式假设已进入精质转变并选择该分支；只计算该分支列出的自身命中。"],
-  exclusions: ["完整爆发、被动、命座及装备触发不属于此条件命中定义。"],
-  sourcePaths: ["internal/characters/durin/skill.go", "internal/characters/durin/zz_durin.dm.go", "pkg/enemy/damage.go"]
+  assumptions: ["显式假设已进入精质转变并选择该分支；白E为再次E，黑E为转变后普攻输入，只计算该分支列出的自身命中。", "C0–C2自身E直伤已核对；C2火伤实际生效与输入已含份额由核心逐击检查，不从反应名称猜触发。"],
+  exclusions: ["Q后台、其他角色伤害与团队增益不由本条件命中生成；C2蒸发/融化的黑Q反应增益尚未接入，不当作完整队伍。"],
+  sourcePaths: ["internal/characters/durin/skill.go", "internal/characters/durin/attack.go", "internal/characters/durin/cons.go", "internal/characters/durin/asc.go", "internal/characters/durin/burst.go", "internal/characters/durin/durin.go", "internal/characters/durin/zz_durin.dm.go", "pkg/enemy/damage.go"]
 }));
 
 /** A reviewed allowlist, never damage-like label parsing. */
