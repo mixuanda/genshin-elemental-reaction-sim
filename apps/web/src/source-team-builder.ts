@@ -19,6 +19,7 @@ import { renderSourceTargetGeometryControls, readSourceTargetGeometryControls, u
 import { sourceTargetPhasesRequest } from "./source-target-scene";
 import { sourceTargetPhaseControlAction } from "./source-target-phase-controls";
 import type { SourceHostTargetPhaseRequest } from "../../../packages/sim-core/src/source-host-target-phase";
+import { SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT } from "../../../packages/sim-core/src/source-host-wire";
 
 export type SourceHostVariant = "classic" | "stellar";
 export type SourceItemKind = "character" | "weapon" | "artifact";
@@ -39,6 +40,15 @@ export interface SourceTeamInventory {
   characters: SourceInventoryItem[];
   weapons: SourceInventoryItem[];
   artifacts: SourceInventoryItem[];
+}
+/** Promotion tables stop at 90; the two pinned runtimes have actual 1–100 growth curves.
+ * This is an executor limit, not a claim that a player has unlocked Lv.95/100.
+ * Unknown revisions retain their declared catalog limit until independently checked.
+ */
+export function sourceCharacterLevelLimit(inventory: SourceTeamInventory, character: SourceInventoryItem): number {
+  const knownRepository = inventory.repository === "https://github.com/genshinsim/gcsim" || inventory.repository === "genshinsim/gcsim";
+  const pinned = inventory.hostVariant === "classic" ? SOURCE_HOST_COMMIT : SOURCE_HOST_STELLAR_COMMIT;
+  return knownRepository && inventory.revision === pinned ? 100 : character.maximumLevel ?? 90;
 }
 export interface SourceTeamMember {
   id: string;
@@ -156,7 +166,7 @@ export function equipmentBuildToSourceTeamMember(
   }
   return {
     id: sourceChar.key, characterKey: sourceChar.key,
-    level: input.level, levelCap: equipmentLevelRange(character, input.ascension).max,
+    level: input.level, levelCap: equipmentLevelRange(character, input.ascension, input.characterLevelCap).max,
     constellation: meta.constellation, talents: { ...meta.talents },
     weapon: { key: sourceWeapon.key, level: input.weaponLevel, levelCap: equipmentLevelRange(weapon, input.weaponAscension).max, refinement: input.refinement },
     artifactSets, artifactStats
@@ -189,7 +199,8 @@ export function compileSourceTeamDraft(draft: SourceTeamDraft, inventory: Source
     if (identity !== undefined && gameIdentities.has(identity)) throw new Error(`${character.name} 已在队伍中；不同元素的旅行者也不能同时入队。`);
     if (identity !== undefined) gameIdentities.add(identity);
     if (character.weaponClass && weapon.weaponClass && character.weaponClass !== weapon.weaponClass) throw new Error(`${character.name} 与 ${weapon.name} 武器类型不匹配。`);
-    integer(member.levelCap, "角色上限", 1, character.maximumLevel ?? 90); integer(member.level, "角色等级", 1, member.levelCap);
+    integer(member.levelCap, "角色上限", 1, sourceCharacterLevelLimit(inventory, character)); integer(member.level, "角色等级", 1, member.levelCap);
+    if (member.levelCap > 90 && ![95, 100].includes(member.levelCap)) throw new Error("90 级以上的角色解锁上限须为 95 或 100；实际等级可在已解锁范围内填写。");
     integer(member.constellation, "命之座", 0, 6);
     for (const [name, value] of Object.entries(member.talents)) integer(value, `${name} 天赋`, 1, 15);
     integer(member.weapon.levelCap, "武器上限", 1, weapon.maximumLevel ?? 90); integer(member.weapon.level, "武器等级", 1, member.weapon.levelCap);
@@ -419,7 +430,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     const memberPreset = getCharacterBuildPreset(char ? characterFor(char)?.id ?? "" : "", chosenTier);
     const presetCoverageLabel = memberPreset?.coverage === "role-specific" ? "已维护角色模板" : memberPreset?.coverage === "partial" ? "部分输入，非角色专属推荐" : "通用占位，非角色专属推荐";
     return `<div class="source-team-builder__member-editor"><p class="source-team-builder__note">${escapeHtml(char?.name ?? member.characterKey)} · ${escapeHtml(presetCoverageLabel)} · 来源键 <code>${escapeHtml(member.characterKey)}</code>。更换预设会重置此角色的装备与属性编辑。</p><div><button type="button" data-apply-member-tier>将当前角色改为${chosenTier === "starter" ? "基础投入" : "进阶投入"}参考档</button></div>
-      <div class="source-team-builder__fields">${numberInput("member", "level", member.level, "角色等级", 1, 90)}${numberInput("member", "levelCap", member.levelCap, "突破上限", 1, 90)}${numberInput("member", "constellation", member.constellation, "命之座", 0, 6)}${numberInput("member", "auto", member.talents.auto, "普攻天赋", 1, 15)}${numberInput("member", "skill", member.talents.skill, "技能天赋", 1, 15)}${numberInput("member", "burst", member.talents.burst, "爆发天赋", 1, 15)}</div>
+      <div class="source-team-builder__fields">${numberInput("member", "level", member.level, "角色等级", 1, Math.min(member.levelCap, char ? sourceCharacterLevelLimit(inventory, char) : 90))}${numberInput("member", "levelCap", member.levelCap, "角色解锁上限", 1, char ? sourceCharacterLevelLimit(inventory, char) : 90)}${numberInput("member", "constellation", member.constellation, "命之座", 0, 6)}${numberInput("member", "auto", member.talents.auto, "普攻天赋", 1, 15)}${numberInput("member", "skill", member.talents.skill, "技能天赋", 1, 15)}${numberInput("member", "burst", member.talents.burst, "爆发天赋", 1, 15)}</div>
       ${draft.startup === "custom" ? `<label>本角色初始能量<input type="number" data-member-field="initialEnergy" min="0" max="1000" step="1" value="${member.initialEnergy ?? ""}" placeholder="请明确填写"></label>` : ""}
       <div class="source-team-builder__fields"><label>武器<select data-member-weapon>${compatibleWeapons.map(item => option(item.key, `${item.name} · ${item.key}`, member.weapon.key)).join("")}</select></label>${numberInput("weapon", "level", member.weapon.level, "武器等级", 1, 90)}${numberInput("weapon", "levelCap", member.weapon.levelCap, "武器上限", 1, 90)}${numberInput("weapon", "refinement", member.weapon.refinement, "精炼", 1, 5)}</div>
       <h4>圣遗物套装</h4><div class="source-team-builder__sets">${setRows}</div><button type="button" data-add-set ${member.artifactSets.reduce((sum, row) => sum + row.count, 0) >= 5 ? "disabled" : ""}>添加套装</button>
