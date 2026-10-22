@@ -3,6 +3,7 @@ import { teamTemplates } from "../../../packages/game-data/src/team-templates";
 
 export interface TeamCandidatesPanelOptions {
   onSelect: (templateId: string) => void | Promise<void>;
+  currentTeam?: { name: string; characters: string[]; onContinue: () => void };
 }
 
 const escapeHtml = (value: string): string => value.replace(/[&<>"']/g, char => ({
@@ -32,6 +33,7 @@ export function filterTeamCandidates(query: string) {
 export function renderTeamCandidatesPanel(root: HTMLElement, options: TeamCandidatesPanelOptions): void {
   root.innerHTML = `<section aria-label="队伍候选">
     <h2>队伍候选</h2>
+    ${options.currentTeam ? `<article class="card" data-current-team-candidate><h3>${escapeHtml(options.currentTeam.name)}</h3><p>${options.currentTeam.characters.map(escapeHtml).join(" · ")}</p><p class="muted">保留当前角色、实际配装与已有动作；继续编辑，不替换为参考预设。</p><button type="button" class="primary" data-current-team-continue>保留配装，编辑动作轴</button></article>` : ""}
     <p class="muted">入门模板，可继续编辑；按现有模板顺序展示，不按 DPS 排名。</p>
     <label>查找队伍、角色或反应
       <input type="search" data-team-candidates-search placeholder="例如：胡桃、超绽放、行秋 夜兰" autocomplete="off">
@@ -45,6 +47,8 @@ export function renderTeamCandidatesPanel(root: HTMLElement, options: TeamCandid
   const count = root.querySelector<HTMLElement>("[data-team-candidates-count]")!;
   const status = root.querySelector<HTMLElement>("[data-team-candidates-status]")!;
   const list = root.querySelector<HTMLElement>("[data-team-candidates-list]")!;
+  const continueCurrent = root.querySelector<HTMLButtonElement>("[data-current-team-continue]");
+  if (continueCurrent && options.currentTeam) continueCurrent.onclick = options.currentTeam.onContinue;
   let selecting = false;
 
   const renderCards = (): void => {

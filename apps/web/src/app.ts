@@ -1,6 +1,6 @@
 import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { convertDocumentInput, openProjectDocument, saveEditedDocument, type OpenDocument, type ProjectDocument, type DocumentControls } from './project-document';
-import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster, requestSourceTeamTemplate } from "./source-host-panel";
+import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster, requestSourceTeamTemplate, getCurrentSourceTeamDraft } from "./source-host-panel";
 import { renderEnemyShieldLedger } from "./enemy-shield-panel";
 import { renderWeaponHitStackLedger } from "./weapon-hit-stack-panel";
 import {
@@ -3777,8 +3777,15 @@ async function renderProductRoute(): Promise<void> {
     }
     else if (path === "/team-candidates") {
       const { renderTeamCandidatesPanel } = await import("./team-candidates-panel");
+      const current = getCurrentSourceTeamDraft();
+      let currentTeam;
+      if (current?.members.length) {
+        const { loadSourceTeamInventory } = await import("./source-team-builder");
+        const inventory = await loadSourceTeamInventory(current.source?.hostVariant ?? "classic");
+        currentTeam = { name: current.name, characters: current.members.map(member => inventory.characters.find(character => character.key === member.characterKey)?.name ?? member.characterKey), onContinue: () => navigateProduct("/source-simulation") };
+      }
       if (generation !== routeGeneration) return;
-      renderTeamCandidatesPanel(panel, { onSelect: templateId => { requestSourceTeamTemplate(templateId); navigateProduct("/source-simulation"); } });
+      renderTeamCandidatesPanel(panel, { ...(currentTeam ? { currentTeam } : {}), onSelect: templateId => { requestSourceTeamTemplate(templateId); navigateProduct("/source-simulation"); } });
     }
     else if (path === "/source-simulation") renderSourceHostPanel(panel, capture => {
       void ensureCalculator().then(controller => { controller.loadSourceHostCapture(capture); navigateProduct("/calculator"); });

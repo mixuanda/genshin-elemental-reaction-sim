@@ -112,6 +112,11 @@ let activeWorkerRun: SourceHostWorkerRunHandle | null = null;
 let montePanel: ReturnType<typeof renderSourceMonteCarloPanel> | undefined;
 let disposeInventory: (() => void) | undefined;
 const teamDrafts: Partial<Record<SourceHostVariant, SourceTeamDraft>> = {};
+/** Read-only handoff for the candidate view; selecting it must not replace real equipment. */
+export function getCurrentSourceTeamDraft(): SourceTeamDraft | undefined {
+  const draft = teamDrafts[savedHostVariant];
+  return draft ? structuredClone(draft) : undefined;
+}
 let teamBuilder: ReturnType<typeof import("./source-team-builder").renderSourceTeamBuilder> | undefined;
 let builderGeneration = 0;
 export async function addSourceTeamRoster(members: SourceTeamMember[], inventory: SourceTeamInventory, mode: "merge" | "replace"): Promise<void> {
