@@ -169,6 +169,11 @@ notices = {name for name in tracked
            and (Path(name).parent in notice_directories
                 or any(Path(name).is_relative_to(root) for root in notice_roots))}
 files = {}
+public_examples = {
+    'apps/web/public/examples/wanderer-team-120-classic' + extension
+    for extension in ['.gcsl', '.draft.json', '.equipment.json', '.result-summary.json',
+                      '.damage-by-ability.csv', '.curve-1s.csv', '.hits.csv', '.html']
+}
 for name in filter(None, names):
     p = Path(name)
     allowed = name in ['package.json', 'package-lock.json', 'tsconfig.json', 'vitest.config.ts', 'THIRD_PARTY_NOTICES.md']
@@ -177,6 +182,7 @@ for name in filter(None, names):
     allowed |= name.startswith('packages/') and ('src' in p.parts or p.name == 'package.json')
     allowed |= name.startswith('packages/source-host/') and p.suffix in ['.patch', '.go', '.mjs', '.json', '.md']
     allowed |= name in project_inputs or name in notices
+    allowed |= name in public_examples
     if not allowed or any(part in ['e2e', 'fixtures', 'validation', 'dist', 'node_modules', '__tests__'] for part in p.parts) or name.endswith(('.test.ts', '.spec.ts')):
         continue
     if p.name.startswith('.env') or p.suffix in ['.map', '.zip', '.png', '.jpg', '.ttf', '.wasm']:

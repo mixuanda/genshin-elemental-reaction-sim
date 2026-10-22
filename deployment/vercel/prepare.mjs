@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,6 +35,20 @@ for (const variant of ['source-host', 'source-host-stellar']) {
 }
 const distribution = JSON.parse(readFileSync(join(sources, 'source-distribution.json')));
 if (!distribution.publishReady || distribution.licenceScopeSha256 !== digest(readFileSync(join(here, 'stellar-integration-scope.json')))) throw Error('Release source/licence scope is not finalized');
+// Publish this declared, non-personal scenario only. Do not sweep public/ or
+// accidentally distribute account fixtures, private traces or test reports.
+const exampleNames = ['.gcsl', '.draft.json', '.equipment.json', '.result-summary.json', '.damage-by-ability.csv', '.curve-1s.csv', '.hits.csv', '.html'].map(extension => `wanderer-team-120-classic${extension}`);
+const exampleDir = join(repo, 'apps/web/public/examples');
+const presentExamples = exampleNames.filter(name => existsSync(join(exampleDir, name)));
+if (presentExamples.length && presentExamples.length !== exampleNames.length) throw Error('The public team scenario is incomplete');
+for (const name of presentExamples) {
+  const relative = `apps/web/public/examples/${name}`;
+  const bytes = readFileSync(join(exampleDir, name));
+  const committed = execFileSync('git', ['show', `${distribution.applicationCommit}:${relative}`], { cwd: repo });
+  if (digest(bytes) !== digest(committed)) throw Error(`Public scenario differs from the application commit: ${name}`);
+  mkdirSync(join(staticDir, 'examples'), { recursive: true });
+  writeFileSync(join(staticDir, 'examples', name), bytes);
+}
 for (const archive of distribution.archives) {
   const bytes = readFileSync(join(sources, archive.path));
   if (digest(bytes) !== archive.sha256 || bytes.length !== archive.bytes) throw Error(`Source material hash mismatch: ${archive.path}`);
