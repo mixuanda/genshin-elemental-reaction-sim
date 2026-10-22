@@ -1,8 +1,9 @@
 import type { CharacterCatalogEntry } from "@genshin-dps-lab/schemas";
 import { gameDataCatalog } from "./catalog";
 import { artifactSetCatalog } from "./supplemental";
-import type { EquipmentBuildInput } from "./equipment-build";
+import { resolveEquipmentBuild, type EquipmentBuildInput } from "./equipment-build";
 import type { ArtifactPieceInput, ArtifactSlot, ArtifactStatKey, ArtifactSubstatKey } from "./artifact-build";
+import { balanceFiveStarArtifactRolls, type ArtifactBudgetBalance, type ArtifactStatTotals } from "./artifact-budget-balance";
 
 /** Editable reference examples, not measured drops or claims of an optimal build. */
 export type CharacterBuildPresetTier = "starter" | "developed";
@@ -17,6 +18,13 @@ export interface CharacterBuildPreset {
   constellation: number; talentLevels: { normal: number; skill: number; burst: number };
   talentPriority: { normal: TalentPriority; skill: TalentPriority; burst: TalentPriority } | null;
   weaponCandidates: PresetWeaponCandidate[];
+  /** Present only for the maintained direct-damage template; no team cycle is inferred. */
+  artifactBalance?: Omit<ArtifactBudgetBalance, "pieces"> & {
+    objective: "unbuffed-direct-atk-expected-factor";
+    energyRequirement: "unknown-without-team-and-rotation";
+    starterComparisonScore?: number;
+    retainedStarterAllocation?: boolean;
+  };
   build: EquipmentBuildInput;
 }
 
@@ -61,20 +69,20 @@ const roleRules: Record<string, PresetRoleRule> = {
     coverage: "role-specific", roleLabel: "C0–C1 站场输出",
     stats: ["atk_", "anemo_dmg_", "critRate_"], set: SET_IDS.desertPavilion,
     substats: ["critRate_", "critDMG_", "atk_", "atk"], offPieceSlot: "circlet",
-    weapons: { starter: { weaponId: "weapon:14402", refinement: 1 }, developed: { weaponId: "weapon:14501", refinement: 1 } },
+    weapons: { starter: { weaponId: "weapon:14402", refinement: 1 }, developed: { weaponId: "weapon:14402", refinement: 1 } },
     weaponCandidates: [
       { weaponId: "weapon:14402", refinement: 1, note: "4 星可用选项；KQM 称为 solid option。" },
       { weaponId: "weapon:14425", refinement: 1, note: "4 星锻造武器；KQM 称为 best free option。" },
       { weaponId: "weapon:14501", refinement: 1, note: "5 星可用属性武器；KQM 称为 solid stat stick，按 R1。" },
     ],
     talentPriority: { normal: "primary", skill: "secondary", burst: "low" },
-    talents: { starter: { normal: 9, skill: 6, burst: 1 }, developed: { normal: 10, skill: 9, burst: 1 } },
+    talents: { starter: { normal: 10, skill: 9, burst: 1 }, developed: { normal: 10, skill: 9, burst: 1 } },
     mainStatRationale: "站场输出：攻击沙、风伤杯、暴击冠；这是固定 90 级 C0 对照样例，不声称最优。",
     sourceNote: "角色定位、天赋顺序、圣遗物和候选武器依据 KQM Wanderer Quick Guide（https://keqingmains.com/q/wanderer-quickguide/，页面标注更新至 4.6）与 KQM TCL（https://library.keqingmains.com/characters/anemo/wanderer）。指南给出 C0–C1 普攻 ≥ 战技 > 爆发；普通攻击是主要伤害，战技倍率较低但仍有价值，C2 后爆发优先级改变。",
     assumptions: [
-      "小毕业天赋按普攻 9 / 战技 6 / 爆发 1；大毕业按 10 / 9 / 1。这里的“低”表示少投入，不代表爆发没有伤害。C0–C1 爆发不要求每轮施放；C2+ 的爆发等级与循环需求需另作配置。",
-      "流浪乐章 R1 用作小毕业四星候选；天空之卷 R1 用作大毕业五星候选。指南也列出纯水流华作为可用锻造四星。武器与套装被动保持关闭，因此当前面板按白值和词条比较。",
-      "C0–C1 不设置通用充能目标；充能取决于命座、队伍和是否每轮开 Q。小毕业手工样例中的一条充能强化只是输入样例，不是目标。",
+      "两档固定为 C0、Lv.90、流浪乐章 Lv.90 R1、普攻 10 / 战技 9 / 爆发 1，只比较圣遗物投入。这里的“低”表示少投入，不代表爆发没有伤害。C0–C1 爆发不要求每轮施放；C2+ 需另作配置。",
+      "天空之卷 R1 与纯水流华 R1 保留为指南支持的可编辑候选，不随档位切换。武器与套装被动保持关闭，队伍增益和反应伤害未计入此参考目标。",
+      "本参考目标不要求每轮开 Q；具体队伍、粒子和轮转未指定，因此循环充能需求为未知，不能据此宣称循环能量充足。充能词条只是输入，不是通用目标。",
     ],
   },
   sangonomiyakokomi: { stats: ["hp_", "hydro_dmg_", "heal_"], set: SET_IDS.clam, substats: ["hp_", "enerRech_", "eleMas", "atk_"] },
@@ -139,7 +147,7 @@ function wandererSmallGraduatePieces(): ArtifactPieceInput[] {
     { slot: "circlet", setId: offPiece, rarity: 5, level: 20, mainStat: "critRate_", initialSubstats: 3, substats: [roll("critDMG_", 1, 2), roll("atk_", 1, 2), roll("hp", 3, 0), roll("def_", 3, 0)] },
   ];
 }
-function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPresetTier): CharacterBuildPreset {
+function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPresetTier, starter?: CharacterBuildPreset): CharacterBuildPreset {
   const { rule, evidence, stats, weapon, set, coverage, weaponSelection, weaponCandidates } = buildDefinition(character, tier);
   const blocked = [!weapon ? `本地目录未包含示例武器 ${rule?.weapons?.[tier]?.weaponId ?? CRAFT_WEAPON_IDS[character.weaponType]}。` : "", !set ? `本地目录未包含完整五星套装 ${rule?.set ?? "角色通用套装规则"}。` : ""].filter(Boolean);
   const weaponRefinements = weapon?.refinements.map(refinement => refinement.rank) ?? [];
@@ -160,10 +168,35 @@ function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPres
   if (weapon) assumptions.push(`武器输入为目录 ID ${weapon.id}（${weapon.name}）R${refinement}；${coverage === "role-specific" ? "该候选有角色指南支持。" : "这是按武器类型填入的通用占位，并非角色专属推荐。"}装备被动默认关闭。`);
   if (weaponCandidates.length) assumptions.push(`角色指南支持的武器候选：${weaponCandidates.map(candidate => `${gameDataCatalog.weapons.find(row => row.id === candidate.weaponId)!.name} R${candidate.refinement}（${candidate.note}）`).join("；")}`);
   if (coverage !== "role-specific") assumptions.push("此角色尚无足够的角色来源、武器候选与天赋优先级证据，当前生成结果不应称为角色专属毕业配装。");
-  if (character.slug === "wanderer" && tier === "starter") assumptions.push("本小毕业面板由五件真实 +20 五星圣遗物条目逐项汇总：40 次离散副词条强化、22 次进攻有效强化；副词条不与主词条重名。充能副词条是样例输入，不是 C0–C1 默认目标。");
+  if (character.slug === "wanderer") assumptions.push(`本档使用已有的 ${tier === "starter" ? "40" : "45"} 次初始／升级档位种子，由五件合法 +20 五星圣遗物逐项汇总。高档也保留完整基础档分配作为候选；三／四词条胚不是毕业判定条件。这是项目自定参考投入，不是官方毕业标准，也不等同于 KQM 的 40 次平均词条标准。`);
   const artifacts = !set ? [] : character.slug === "wanderer" && tier === "starter"
     ? wandererSmallGraduatePieces()
     : makePieces(set.id, stats, rule?.substats ?? ["critRate_", "critDMG_", "atk_", "enerRech_"], tier, rule?.offPieceSlot);
+  const build: EquipmentBuildInput = { characterId: character.id, weaponId: weapon?.id ?? "", level: 90, ascension: 6, weaponLevel: 90, weaponAscension: 6, refinement,
+    effectsDisabled: true, setEffectsEnabled: false, weaponEffectsEnabled: false, artifacts };
+  let artifactBalance: CharacterBuildPreset["artifactBalance"];
+  if (character.slug === "wanderer" && !blocked.length) {
+    const base = resolveEquipmentBuild({ ...build, artifacts: [] }).build;
+    const score = (totals: ArtifactStatTotals) => {
+      // KQM TCL Damage Formula: same Talent%, DMG%, DEF and RES multipliers
+      // make this factor proportional to direct ATK-scaling expected damage.
+      // No EM reaction, team buff, HP/DEF conversion or cycle is inferred.
+      const attack = (base.characterBaseAtk + base.weaponBaseAtk) * (1 + base.atkPercent + (totals.atk_ ?? 0)) + base.flatAtk + (totals.atk ?? 0);
+      const critRate = Math.max(0, Math.min(1, base.critRate + (totals.critRate_ ?? 0)));
+      const critDamage = Math.max(0, base.critDamage + (totals.critDMG_ ?? 0));
+      return attack * (1 + critRate * critDamage);
+    };
+    let balanced = balanceFiveStarArtifactRolls(artifacts, score);
+    const starterCandidate = starter?.build.artifacts ? balanceFiveStarArtifactRolls(starter.build.artifacts, score) : undefined;
+    const retainedStarterAllocation = starterCandidate !== undefined && starterCandidate.finalScore > balanced.finalScore;
+    if (retainedStarterAllocation) balanced = starterCandidate!;
+    const { pieces, ...audit } = balanced;
+    build.artifacts = pieces;
+    artifactBalance = { ...audit, objective: "unbuffed-direct-atk-expected-factor", energyRequirement: "unknown-without-team-and-rotation",
+      ...(starterCandidate ? { starterComparisonScore: starterCandidate.finalScore, retainedStarterAllocation } : {}) };
+    assumptions.push("在同件主词条、四种副词条、总次数和离散档位质量不变的预算内，按无队伍增益的攻击倍率直伤期望因子 ATK × (1 + clamp(CR,0,1) × CD) 调整强化分配。只做有限的逐件局部改善，不声称全局最优；生命／防御／混合倍率和反应角色没有套用此目标。");
+    assumptions.push("配平公式来源：KQM TCL Damage Formula（https://library.keqingmains.com/combat-mechanics/damage/damage-formula）。加入班尼特攻击增益、有效暴击增益或实际反应后应重新按相应队伍目标比较，不应直接照搬此无增益分配。");
+  }
   return {
     id: `${character.id}:${tier}`, characterId: character.id, characterSlug: character.slug, characterName: character.name,
     tier, label: coverage === "role-specific" ? (tier === "starter" ? "小毕业（参考假设）" : "大毕业（参考假设）") : (tier === "starter" ? "基础占位（非角色推荐）" : "进阶占位（非角色推荐）"), status: "reference-assumption",
@@ -172,14 +205,15 @@ function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPres
     assumptions, blocked,
     mainStatRationale: `${coverage === "role-specific" ? `角色模板${rule?.roleLabel ? ` · ${rule.roleLabel}` : ""}` : coverage === "partial" ? "部分角色输入（未达角色专属毕业覆盖）" : "通用可编辑占位"}；沙漏/杯/冠：${stats.join(" / ")}。`,
     constellation: 0, talentLevels, talentPriority: coverage === "role-specific" ? rule?.talentPriority ?? null : null, weaponCandidates,
-    build: { characterId: character.id, weaponId: weapon?.id ?? "", level: 90, ascension: 6, weaponLevel: 90, weaponAscension: 6, refinement,
-      effectsDisabled: true, setEffectsEnabled: false, weaponEffectsEnabled: false,
-      artifacts }
+    ...(artifactBalance ? { artifactBalance } : {}), build,
   };
 }
 
 /** Two editable reference builds for every identity in the active released-character catalog. */
-export const characterBuildPresets: CharacterBuildPreset[] = gameDataCatalog.characters.flatMap(character => [createPreset(character, "starter"), createPreset(character, "developed")]);
+export const characterBuildPresets: CharacterBuildPreset[] = gameDataCatalog.characters.flatMap(character => {
+  const starter = createPreset(character, "starter");
+  return [starter, createPreset(character, "developed", starter)];
+});
 export const characterBuildPresetCoverage = {
   roleSpecific: [...new Set(characterBuildPresets.filter(preset => preset.coverage === "role-specific").map(preset => preset.characterSlug))],
   partial: [...new Set(characterBuildPresets.filter(preset => preset.coverage === "partial").map(preset => preset.characterSlug))],
