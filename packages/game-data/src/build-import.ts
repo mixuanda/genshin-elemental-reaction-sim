@@ -67,7 +67,7 @@ function artifact(input: { setId: number | null; slot: ArtifactSlot | null; rari
 
 function equipment(characterId: string | null, weaponId: string | null, level: number | null, ascension: number | null, weaponLevel: number | null, weaponAscension: number | null, refinement: number | null, artifacts: ArtifactPieceInput[], diagnostics: BuildImportDiagnostic[]): EquipmentBuildInput | null {
   if (!characterId || !weaponId || level === null || ascension === null || weaponLevel === null || weaponAscension === null || refinement === null || diagnostics.some(entry => entry.severity === "error")) return null;
-  return { characterId, weaponId, level, ascension, weaponLevel, weaponAscension, refinement, effectsDisabled: true, artifacts, weaponEffectsEnabled: false, setEffectsEnabled: false };
+  return { characterId, weaponId, level, ascension, ...(level === 95 || level === 100 ? { characterLevelCap: level } : {}), weaponLevel, weaponAscension, refinement, effectsDisabled: true, artifacts, weaponEffectsEnabled: false, setEffectsEnabled: false };
 }
 
 /** GOOD stores equipped gear in top-level arrays using the character key in `location`. */

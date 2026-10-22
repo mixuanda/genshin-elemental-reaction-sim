@@ -69,6 +69,7 @@ const finalizedEquipmentEffect=z.strictObject({ruleId:text,label:text,kind:z.enu
 });
 const equipmentMetadata = z.strictObject({
   characterId: text, weaponId: text, level: z.number().int().min(1), ascension: z.number().int().min(0), weaponLevel: z.number().int().min(1), weaponAscension: z.number().int().min(0), refinement: z.number().int().min(1), sourceVersion: text, sourceRefs: refs,
+  characterLevelCap: z.union([z.literal(90), z.literal(95), z.literal(100)]).optional(),
   derivedStats: z.array(z.strictObject({id:z.enum(["characterBaseAtk","baseHp","baseDef","weaponBaseAtk","weaponSecondary"]),label:text,base:num,curve:num,promotion:num,sourceRef:text})),
   secondaryContributions:z.array(z.strictObject({property:text,value:num,sourceRef:text})), assumptions:refs,effectBlockers:refs,
   artifacts:z.array(z.strictObject({slot:z.enum(["flower","plume","sands","goblet","circlet"]),setId:text,rarity:z.number().int().min(1).max(5),level:z.number().int().min(0),mainStat:text,initialSubstats:z.number().int().min(0),substats:z.array(z.strictObject({stat:text,rolls:z.array(z.number().int().min(0).max(3))})),observed:z.strictObject({source:text,mainStatValue:nonnegative.optional(),substats:z.array(z.strictObject({stat:text,value:nonnegative}))}).optional()})).optional(),
@@ -97,6 +98,10 @@ const equipmentMetadata = z.strictObject({
     catalystClearedBondHp:nonnegative.optional(),catalystSnapshotHp:nonnegative.optional(),catalystSnapshotAtk:nonnegative.optional(),catalystHydroCount:z.number().int().min(0).max(4).optional(),
     catalystSameElementCount:z.number().int().min(0).max(3).optional(),catalystDifferentElementCount:z.number().int().min(0).max(3).optional()
   }).optional(),weaponEffectsEnabled:z.boolean().optional(),setEffectsEnabled:z.boolean().optional()
+}).superRefine((equipment, ctx) => {
+  if (equipment.characterLevelCap === undefined) return;
+  if (equipment.level > equipment.characterLevelCap) ctx.addIssue({ code: 'custom', path: ['characterLevelCap'], message: 'Character level exceeds the declared unlocked limit' });
+  if (equipment.characterLevelCap > 90 && (equipment.ascension !== 6 || equipment.level < 90)) ctx.addIssue({ code: 'custom', path: ['characterLevelCap'], message: 'Advanced character level limits require ordinary ascension 6 and level 90 or higher' });
 });
 export const calculatorBuildSchema = z.discriminatedUnion("mode", [
   z.strictObject({ mode: z.literal("equipment-derived"), characterBaseAtk: nonnegative, weaponBaseAtk: nonnegative, atkPercent: num, flatAtk: num, baseHp: nonnegative, hpPercent: num, flatHp: num, baseDef: nonnegative, defPercent: num, flatDef: num, em: nonnegative, critRate: num, critDamage: nonnegative, energyRechargeBonus:num.optional(), equipment:equipmentMetadata.optional() }),

@@ -1,6 +1,6 @@
 import {
   equipmentCatalog, equipmentDatasetSource, STORY_TRIAL_WEAPON_IDS, equipmentLevelRange, legalWeaponRefinements, resolveEquipmentBuild,
-  type EquipmentBuildResolution, type EquipmentDataset, type EquipmentBuildInput
+  type EquipmentBuildResolution, type EquipmentDataset, type EquipmentBuildInput, type CharacterLevelCap
 } from "@genshin-dps-lab/game-data/equipment-build";
 import { mountArtifactControls } from "./artifact-controls";
 import type { ArtifactPieceInput } from "@genshin-dps-lab/game-data/artifact-build";
@@ -66,7 +66,8 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     container.innerHTML = `<legend>装备基础推导 · ${esc(character.name)}</legend>` +
       `<p class="calculator-hint">工作区来源 ${esc(source.gameVersion)}（${esc(source.releaseStatus)}）的精确等级和突破查表；数值／机制状态仍为暂定。只允许与角色匹配的常规武器，不补造精炼档位。</p>` +
       `<div class="calculator-fields"><label>角色等级<input data-equipment="level" type="number" min="1" max="100" step="1" value="90"></label>` +
-      `<label>角色突破<select data-equipment="ascension">${ascensionOptions(character.stats.promotion, characterAscension)}</select></label></div>` +
+      `<label>角色突破<select data-equipment="ascension">${ascensionOptions(character.stats.promotion, characterAscension)}</select></label>` +
+      `<label>已解锁等级上限<select data-equipment="characterLevelCap"><option value="90">90 · 常规突破</option><option value="95">95 · 无主的命星</option><option value="100">100 · 无主的命星</option></select></label></div>` +
       `<label>武器<select data-equipment="weapon">${weapons.map(w => `<option value="${esc(w.id)}"${w.id === weapon.id ? " selected" : ""}>${esc(w.name)} · ${w.rarity} 星</option>`).join("")}</select></label>` +
       `<div class="calculator-fields"><label>武器等级<input data-equipment="weaponLevel" type="number" min="1" max="${weapon.stats.promotion[weaponAscension]!.maxlevel}" step="1" value="${weapon.stats.promotion[weaponAscension]!.maxlevel}"></label>` +
       `<label>武器突破<select data-equipment="weaponAscension">${ascensionOptions(weapon.stats.promotion, weaponAscension)}</select></label>` +
@@ -137,15 +138,12 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
 
   function updateLevelRange(ascensionKey: string, levelKey: string, entry: (typeof equipmentCharacters)[number] | (typeof equipmentWeapons)[number], preserveValue = false): void {
     const ascension = Number(field(ascensionKey).value);
-    const range = equipmentLevelRange(entry, ascension);
+    const characterLevelCap = levelKey === "level" ? Number(field("characterLevelCap").value) as CharacterLevelCap : undefined;
+    const range = equipmentLevelRange(entry, ascension, characterLevelCap);
     const input = field<HTMLInputElement>(levelKey);
-    // Masterless Stella Fortuna permits character Lv.95/100 after ordinary
-    // ascension 6. This is an input boundary, not a numerical-source guarantee:
-    // resolveEquipmentBuild still checks the pinned promotion coverage.
-    const max = levelKey === "level" && ascension === 6 && range.max === 90 ? 100 : range.max;
     input.min = String(range.min);
-    input.max = String(max);
-    if (!preserveValue && (Number(input.value) < range.min || Number(input.value) > max)) input.value = String(range.max);
+    input.max = String(range.max);
+    if (!preserveValue && (Number(input.value) < range.min || Number(input.value) > range.max)) input.value = String(range.max);
   }
 
   container.addEventListener("change", event => {
@@ -160,13 +158,25 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     if (target.dataset.equipment === "weapon") {
       const level = field("level").value;
       const ascension = field("ascension").value;
+      const characterLevelCap = field("characterLevelCap").value;
       activeWeaponId = (target as HTMLSelectElement).value;
       render();
       field("ascension").value = ascension;
       field("level").value = level;
+      field("characterLevelCap").value = characterLevelCap;
       updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
     }
-    if (target.dataset.equipment === "ascension") updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
+    if (target.dataset.equipment === "ascension") {
+      if (field("ascension").value !== "6") field("characterLevelCap").value = "90";
+      updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
+    }
+    if (target.dataset.equipment === "characterLevelCap") {
+      if (field("ascension").value !== "6") {
+        field("characterLevelCap").value = "90";
+        status("请先完成角色普通突破 6，再选择 95/100 级解锁上限。", true);
+      }
+      updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!, true);
+    }
     if (target.dataset.equipment === "weaponAscension") updateLevelRange("weaponAscension", "weaponLevel", equipmentWeapons.find(w => w.id === activeWeaponId)!);
     if (target.dataset.equipment === "refinement") {
       const weapon = equipmentWeapons.find(w => w.id === activeWeaponId)!;
@@ -177,6 +187,7 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     return {
         characterId: activeCharacterId!, weaponId: activeWeaponId,
         level: Number(field("level").value), ascension: Number(field("ascension").value),
+        ...(field("characterLevelCap").value === "90" ? {} : { characterLevelCap: Number(field("characterLevelCap").value) as CharacterLevelCap }),
         weaponLevel: Number(field("weaponLevel").value), weaponAscension: Number(field("weaponAscension").value),
         refinement: Number(field("refinement").value), effectsDisabled: field<HTMLInputElement>("effectsDisabled").checked,
         artifacts: artifactEditor?.getArtifacts() ?? [],
@@ -213,6 +224,7 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     render(false);
     if (activeWeaponId !== input.weaponId) throw new Error("此角色不能装备导入武器，或当前目录未收录该武器。");
     for (const key of ["level", "ascension", "weaponLevel", "weaponAscension", "refinement"] as const) field(key).value = String(input[key]);
+    field("characterLevelCap").value = String(input.characterLevelCap ?? 90);
     updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!, true);
     updateLevelRange("weaponAscension", "weaponLevel", equipmentWeapons.find(w => w.id === activeWeaponId)!, true);
     for (const key of ["effectsDisabled", "weaponEffectsEnabled", "setEffectsEnabled"] as const) field<HTMLInputElement>(key).checked = input[key] ?? false;
