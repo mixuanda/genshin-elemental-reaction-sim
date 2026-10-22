@@ -121,8 +121,31 @@ const xingqiuAdapter: CalculatorRequirementAdapter = {
   },
 };
 
+const wandererInitialAdapter: CalculatorRequirementAdapter = {
+  id: "wanderer-initial-skill-conditions",
+  applies: document => document.gameContext?.skillId === "idle-wanderer-skill-c0" && document.scope === "single-hit",
+  collect(document) {
+    const hits = selectedOrdinaryHits(document);
+    if (!hits.length) return [];
+    const state = document.gameContext!.idleStanceCast?.wanderer;
+    return ([
+      ["noAbsorption", "本次 E 没有水／火／冰／雷元素吸收", "A1及C4吸收可在初击快照前增加攻击或暴击；只在本次实际无吸收时选是。"],
+      ["panelExcludesAbsorptionBonuses", "输入面板没有未触发的吸收攻击／暴击增益", "确认本击使用的实际面板未计入未触发的吸收增益；不能把未知状态当作没有。"],
+    ] as const).flatMap(([key, label, explanation]) => {
+      if (state?.[key] === true) return [];
+      const fieldPath = `gameContext.idleStanceCast.wanderer.${key}`;
+      return [{
+        id: `wanderer-initial:${key}`, fieldPath,
+        controlSelector: attributeSelector("select", "data-source-cast-state-field", fieldPath),
+        label, explanation, status: state?.[key] === undefined ? "input-required" as const : "condition-not-satisfied" as const,
+        dependencyIds: hits.map(hit => `idle-stance:${hit.id}`), hitIds: hits.map(hit => hit.id),
+      }];
+    });
+  },
+};
+
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a

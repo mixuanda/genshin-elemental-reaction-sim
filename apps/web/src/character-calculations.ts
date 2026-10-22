@@ -1,6 +1,7 @@
 import { optimizerSpecialComponents } from "../../../packages/game-data/src/character-mappings/optimizer-special-components";
 import { createObservedSpecialComponentDocument } from "../../../packages/sim-core/src/observed-special-component-formulas";
 import { prepareSourceCastDocument } from "../../../packages/sim-core/src/source-cast-context";
+import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { resolveClassifiedCharacterHits } from "@genshin-dps-lab/game-data/classified-hits";
 import { releasedRuntimeWorkspace, type RuntimeWorkspace } from "@genshin-dps-lab/game-data";
 import { stampCalculatorWorkspaceEvidence } from "./calculator-workspace-trust";
@@ -122,6 +123,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       reason = allowed
         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
+    } else if (isWandererInitialSingleHit(result, hit)) {
+      allowed = true;
+      reason = "流浪者所选E初击已审阅C0–C6：初击不挂接C6普攻追加回调，C1攻速/风矢、C2爆发增伤不改变本击；C3提升Q、C5提升E，已由显式有效天赋处理。A1/C4吸收可先于第2帧快照改变攻击/暴击，本击仍须通过吸收与面板条件检查；此项不开放完整姿态或空居普攻。";
     } else if (isKukiDamageAction(result)) {
       allowed = context.kukiDamage !== undefined;
       sourceRefs = [...sourceRefs, ...KUKI_DAMAGE_SOURCE_REFS];

@@ -54,6 +54,7 @@ const exclusions = [
 ];
 
 function mapping(cast: IdleStanceTemplate, role: IdleStanceRole): SourceHitMapping {
+  const wandererInitial = cast.sourceSlug === "wanderer" && role.mappingId === "idle-wanderer-skill-c0-initial";
   const [primary, ...extra] = role.terms;
   const additionalTerms = extra.filter(term => term.parameterKey !== undefined).map(term => ({
     scalingStat: term.stat,
@@ -74,7 +75,7 @@ function mapping(cast: IdleStanceTemplate, role: IdleStanceRole): SourceHitMappi
     abilityKey: role.abilityKey,
     parameterKey: role.parameterKey,
     skillId: cast.skillId,
-    skillLabel: cast.label,
+    skillLabel: wandererInitial ? "羽画·E初击C0–C6／完整空居C0" : cast.label,
     hitLabel: role.label,
     element: role.element,
     attackTag: role.attackTag,
@@ -87,8 +88,12 @@ function mapping(cast: IdleStanceTemplate, role: IdleStanceRole): SourceHitMappi
     sourceRepository: "genshinsim/gcsim",
     sourceCommit: manifest.revision,
     sourcePaths: role.sourceRefs,
-    assumptions: [...assumptions, ...cast.assumptions],
-    exclusions,
+    assumptions: [...assumptions.map((note, index) => wandererInitial && index === 0
+      ? "流浪者已发生E初击支持C0–C6；完整无后续攻击姿态仍仅C0。实际吸收与快照面板独立检查，instanceCount=1不代表完整姿态。"
+      : note), ...cast.assumptions],
+    exclusions: wandererInitial ? exclusions.map((note, index) => index === 1
+      ? "完整姿态不包含高命座、旧实体或未知触发；单选E初击的C0–C6范围不开放空居普攻、重击、风矢或C6追加伤害。"
+      : note) : exclusions,
     completeAction: true,
   };
 }
