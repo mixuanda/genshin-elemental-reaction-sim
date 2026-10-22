@@ -14,14 +14,23 @@ import tarfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', required=True)
-parser.add_argument('--evidence', required=True)
-parser.add_argument('--classic-source', required=True)
-parser.add_argument('--stellar-source', required=True)
+parser.add_argument('--evidence')
+parser.add_argument('--classic-source')
+parser.add_argument('--stellar-source')
 parser.add_argument('--rebuild-receipt')
 parser.add_argument('--commit', default='7d3289b06735a24b81b71e64104345d4b8881264')
+parser.add_argument('--bundle-inventory', action='append', required=True,
+                    help='Retained Vite emitted-module JSON; repeat for main and every worker.')
+parser.add_argument('--inventory-source-root', action='append', default=[],
+                    help='Additional checkout root recorded by the module inventory; bytes still come only from --commit.')
+parser.add_argument('--project-only', action='store_true',
+                    help='Package TS/UI/data inputs only; do not inspect or repackage native trees or Go dependencies.')
 args = parser.parse_args()
+if not args.project_only and not all([args.evidence, args.classic_source, args.stellar_source]):
+    parser.error('--evidence, --classic-source and --stellar-source are required unless --project-only is selected')
 repo = Path(__file__).resolve().parents[2]
-out, evidence = Path(args.output), Path(args.evidence)
+out = Path(args.output)
+evidence = Path(args.evidence) if args.evidence else None
 out.mkdir(parents=True, exist_ok=True)
 sha = lambda data: hashlib.sha256(data).hexdigest()
 
@@ -53,7 +62,7 @@ def go_packages(path):
 
 
 archives, coverage = [], {}
-for variant in ['classic', 'stellar']:
+for variant in ([] if args.project_only else ['classic', 'stellar']):
     source = Path(getattr(args, variant + '_source')).resolve()
     manifest_dir = repo / 'apps/web/public' / ('source-host' if variant == 'classic' else 'source-host-stellar')
     manifest = json.loads((manifest_dir / 'manifest.json').read_text())
@@ -101,6 +110,64 @@ for variant in ['classic', 'stellar']:
 # scripts and lock files. Read tracked content from the verified commit, not
 # from evidence caches or the working directory.
 names = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', '-z', args.commit], cwd=repo).decode().split('\0')
+tracked = set(filter(None, names))
+source_roots = [str(repo), *[str(Path(root).absolute()) for root in args.inventory_source_root]]
+bundle_inputs, inventories = set(), []
+for inventory_path in args.bundle_inventory:
+    data = Path(inventory_path).read_bytes()
+    inventories.append({'path': str(Path(inventory_path).absolute()), 'sha256': sha(data)})
+    for chunk in json.loads(data):
+        for module in chunk['modules']:
+            module_path = module['path'].split('?', 1)[0]
+            if '\0' in module_path or '/node_modules/' in module_path or not module_path.startswith('/'):
+                continue
+            relative = next((module_path[len(root) + 1:] for root in source_roots
+                             if module_path.startswith(root.rstrip('/') + '/')), None)
+            if relative is None:
+                raise RuntimeError(f'Unmapped emitted source root: {module_path}; supply --inventory-source-root')
+            if relative not in tracked or not relative.startswith(('apps/web/', 'packages/')):
+                raise RuntimeError(f'Emitted project input is not in the immutable commit: {relative}')
+            bundle_inputs.add(relative)
+if not bundle_inputs:
+    raise RuntimeError('Bundle inventories contain no mapped project inputs')
+
+# The first source-only rebuild of this pinned release exposed these imports:
+# TypeScript loads them even though Vite removes their values from emitted JS.
+compile_inputs = {
+    'packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/metadata.json',
+    'packages/game-data/sources/additional-base-state-attacks/manifest.json',
+    'packages/game-data/sources/base-state-attacks/manifest.json',
+    'packages/game-data/sources/conditioned-basic-actions/manifest.json',
+    'packages/game-data/sources/entity-followup-casts/manifest.json',
+    'packages/game-data/sources/extended-stance-casts/manifest.json',
+    'packages/game-data/sources/iansan-swift-resolved-casts/manifest.json',
+    'packages/game-data/sources/mixed-source-casts/manifest.json',
+    'packages/game-data/sources/nefer-phantasm-cast/manifest.json',
+    'packages/game-data/sources/optimizer-missing-components/linnea/manifest.json',
+    'packages/game-data/sources/optimizer-missing-components/sandrone/manifest.json',
+    'packages/game-data/sources/conditional-skills/manifest.json',
+    'packages/game-data/sources/traveler-cross-source-casts/manifest.json',
+    'packages/game-data/sources/traveler-hydro-resolved-casts/manifest.json',
+    'packages/game-data/sources/traveler-male-charged-resolution/manifest.json',
+}
+if not compile_inputs <= tracked:
+    raise RuntimeError(f'Pinned compile inputs are absent from the immutable commit: {sorted(compile_inputs - tracked)}')
+project_inputs = bundle_inputs | compile_inputs
+
+# Data imported from manifests/sources is a build input even outside src/.
+# Include its own source-family notices as well as ancestor notices, without
+# sweeping unrelated evidence directories or reading the recorded checkout.
+notice_roots = set()
+for name in project_inputs:
+    parts = Path(name).parts
+    if parts[:3] == ('packages', 'game-data', 'sources'):
+        notice_roots.add(Path(*parts[:4]))
+notice_directories = {parent for name in project_inputs for parent in Path(name).parents}
+notices = {name for name in tracked
+           if (Path(name).name.upper().startswith(('LICENSE', 'LICENCE', 'NOTICE', 'COPYING', 'COPYRIGHT', 'AUTHORS', 'ATTRIBUTION', 'README'))
+               or 'licenses' in Path(name).parts)
+           and (Path(name).parent in notice_directories
+                or any(Path(name).is_relative_to(root) for root in notice_roots))}
 files = {}
 for name in filter(None, names):
     p = Path(name)
@@ -109,6 +176,7 @@ for name in filter(None, names):
     allowed |= name.startswith('apps/web/') and (name.startswith('apps/web/src/') or name in ['apps/web/index.html', 'apps/web/vite.config.ts', 'apps/web/tsconfig.json', 'apps/web/package.json'])
     allowed |= name.startswith('packages/') and ('src' in p.parts or p.name == 'package.json')
     allowed |= name.startswith('packages/source-host/') and p.suffix in ['.patch', '.go', '.mjs', '.json', '.md']
+    allowed |= name in project_inputs or name in notices
     if not allowed or any(part in ['e2e', 'fixtures', 'validation', 'dist', 'node_modules', '__tests__'] for part in p.parts) or name.endswith(('.test.ts', '.spec.ts')):
         continue
     if p.name.startswith('.env') or p.suffix in ['.map', '.zip', '.png', '.jpg', '.ttf', '.wasm']:
@@ -116,7 +184,21 @@ for name in filter(None, names):
     files['project/' + name] = subprocess.check_output(['git', 'show', args.commit + ':' + name], cwd=repo)
 for name in ['STELLAR-RELEASE-LICENSE.md', 'stellar-integration-scope.json', 'AGPL-3.0-or-later.txt']:
     files['project/deployment/vercel/' + name] = (repo / 'deployment/vercel' / name).read_bytes()
+missing = sorted(name for name in project_inputs if 'project/' + name not in files)
+if missing:
+    raise RuntimeError(f'Emitted project inputs were excluded from source packaging: {missing}')
 archives.append(pack('gidps-build-inputs.tar.gz', files))
+project_coverage = {'format': 'gidps-project-source-coverage-v1', 'applicationCommit': args.commit,
+    'inventories': inventories, 'archive': archives[-1],
+    'bundleInputs': [{'path': name, 'sha256': sha(files['project/' + name])} for name in sorted(bundle_inputs)],
+    'compileInputs': [{'path': name, 'sha256': sha(files['project/' + name])} for name in sorted(compile_inputs)],
+    'notices': sorted(notices)}
+(out / 'project-source-coverage.json').write_text(json.dumps(project_coverage, ensure_ascii=False, indent=2) + '\n')
+if args.project_only:
+    print(json.dumps({'applicationCommit': args.commit, 'archive': archives[-1],
+                      'bundleInputs': len(bundle_inputs), 'compileInputs': len(compile_inputs),
+                      'noticeFiles': len(notices)}, ensure_ascii=False, indent=2))
+    raise SystemExit(0)
 
 # Retained cache contains only public fixed Go dependencies; reject unexpected
 # roots instead of sweeping a home directory or authentication configuration.

@@ -35,12 +35,52 @@ reports, test traces, authentication files and sourcemaps are excluded.
 ```sh
 python3 deployment/vercel/package-source.py \
   --output SOURCE_DIRECTORY --evidence EVIDENCE_DIRECTORY \
+  --commit 7d3289b06735a24b81b71e64104345d4b8881264 \
   --classic-source CLASSIC_MODIFIED_TREE \
   --stellar-source STELLAR_MODIFIED_TREE \
+  --bundle-inventory MAIN_MODULES_JSON \
+  --bundle-inventory SIMULATION_WORKER_MODULES_JSON \
+  --bundle-inventory ANALYSIS_WORKER_MODULES_JSON \
+  --bundle-inventory LUNAR_WORKER_MODULES_JSON \
+  --bundle-inventory SOURCE_HOST_WORKER_MODULES_JSON \
   --rebuild-receipt NATIVE_COMPARISON_JSON
 node deployment/vercel/prepare.mjs STAGE_DIRECTORY SOURCE_DIRECTORY
 node --test deployment/vercel/showcase-proxy.test.mjs
 ```
+
+Pass the retained emitted-module inventories for the main build and every
+worker. Project paths are read from the specified immutable Git commit;
+inventories do not authorize copying files from another checkout. If a retained
+inventory records an additional checkout root, add
+`--inventory-source-root RECORDED_ADDITIONAL_CHECKOUT_ROOT` explicitly. The
+packager refuses unmapped roots, untracked project inputs and excluded emitted
+inputs. It also includes the pinned release's separately observed compile-time
+JSON imports and their original source-family notices. The coverage receipt is
+`project-source-coverage.json`.
+
+To rebuild only the project source archive without inspecting or repackaging
+native trees or Go dependencies:
+
+```sh
+python3 deployment/vercel/package-source.py \
+  --project-only --output PROJECT_SOURCE_DIRECTORY \
+  --commit 7d3289b06735a24b81b71e64104345d4b8881264 \
+  --bundle-inventory MAIN_MODULES_JSON \
+  --bundle-inventory SIMULATION_WORKER_MODULES_JSON \
+  --bundle-inventory ANALYSIS_WORKER_MODULES_JSON \
+  --bundle-inventory LUNAR_WORKER_MODULES_JSON \
+  --bundle-inventory SOURCE_HOST_WORKER_MODULES_JSON
+```
+
+This mode writes `gidps-build-inputs.tar.gz` and the coverage receipt, leaving
+full distribution manifests and deployed archives untouched. Verify a fresh
+extraction with the archive's `npm run build` (typecheck followed by Vite), with
+all workspace aliases resolving inside that extraction. An existing external
+dependency installation may be reused through an isolated local overlay;
+do not link workspace packages back to another checkout. Inventory coverage
+alone is not evidence of a successful frontend rebuild. Reusing installed
+dependencies is not a hermetic/no-cache rebuild, and deduplicating checkout
+paths does not establish byte identity with historical bundles.
 
 The output is `.vercel/output/{config.json,static,functions}`. The only
 server function is a bounded public-showcase GET proxy; it has no sessions,
