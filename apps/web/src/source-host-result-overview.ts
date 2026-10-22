@@ -1,3 +1,4 @@
+import {renderSourceResultModelLimits} from './source-host-model-limits';
 import {fixedDamageWindow} from "./source-damage-curve";
 import type { SourceHostResult } from '../../../packages/sim-core/src/source-host-wire';
 import './source-host-result-overview.css';
@@ -95,6 +96,7 @@ export function renderSourceHostResultOverview(result: SourceHostResult, actorLa
       : endReason === 'duration' ? '本次模拟运行到设定时长。' : '时长来自来源实际运行回执。';
   const hitLabel = result.applications.length ? result.applications.length + ' 次已结算命中' : '本次没有已结算命中记录';
   return `<section class=\"source-host-result-overview\" data-source-host-result-overview aria-label=\"本次模拟结果概览\">
+    ${renderSourceResultModelLimits(result)}
     <div class=\"source-host-result-overview__metrics\">
       <div><span>模拟时长</span><strong data-source-host-overview-duration>${seconds === undefined ? '未知（来源未记录时长）' : format(seconds) + ' 秒'}</strong></div>
       <div><span>来源总伤害</span><strong data-source-host-overview-total data-value=${totalDamage}>${format(totalDamage)}</strong></div>

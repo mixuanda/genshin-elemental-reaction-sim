@@ -1,3 +1,4 @@
+import {renderSourceHitModelLimits} from './source-host-model-limits';
 import {
   calculateSourceHostEditableCalculation, createSourceHostEditableCalculation,
   sourceHostEditableCalculationSchema, replaySourceHostHit,
@@ -109,7 +110,7 @@ export function renderSourceHostCalculator(root: HTMLElement, input: SourceHostH
       <p>同一个反应组件可能被多个 tick 复用；这里仅重算当前捕获命中，原 getter 与触发历史保持不变。主命中 EM 不会替代反应生成时的 EM。</p>${originalRead}
       <div class="calculator-fields">${editableFields.map(field => `<label>${field.label}<input type="number" min="${field.min}"${field.max === undefined ? "" : ` max="${field.max}"`} step="${field.step}" required data-source-host-component="${request.id}" data-source-host-component-field="${field.key}" value="${field.value}"></label>`).join("")}</div></fieldset>`;
   }).join("");
-  root.innerHTML = `<article class="card"><h2>来源模拟命中 · 独立计算</h2><p>${esc(current.label)}</p>
+  root.innerHTML = `<article class="card"><h2>来源模拟命中 · 独立计算</h2>${renderSourceHitModelLimits(current.originalCapture.sourceCommit,current.request)}<p>${esc(current.label)}</p>
     <p>共享伤害公式按保存的本击输入独立重放；前置属性的算式与说明缺口见基础面板回执及共享轨迹。</p>
     <p>固定来源机制仍属暂定；此处只编辑单次捕获命中，不支持从任意帧恢复队伍状态。</p>
     <p>原命中：原始公式伤害 <strong>${restored.originalRawDamage}</strong>；来源记账伤害 <strong>${restored.originalDamage}</strong>。完整上下文重放：原始公式伤害 <strong>${restored.reproducedRawDamage}</strong>；来源记账伤害 <strong>${restored.reproducedDamage}</strong>；记账差值 ${restored.difference}。免伤等门控下，原始公式伤害可以大于零而来源记账伤害为零。</p>
