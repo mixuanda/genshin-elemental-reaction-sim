@@ -4,6 +4,10 @@ import {resolve} from 'node:path';
 
 const audit=async(page:import('@playwright/test').Page)=>JSON.parse((await page.locator('#calc-results .calculator-audit pre').textContent())!);
 const formatted=(value:number)=>value.toLocaleString('zh-CN',{maximumFractionDigits:1});
+const openGroup=async(overview:import('@playwright/test').Locator,id:string)=>{
+  const group=overview.locator(`[data-character-output-group="${id}"]`);
+  if(await group.getAttribute('open')===null)await group.locator(':scope > summary').click();
+};
 
 for(const width of [1365,390])test(`character output buttons use real actions and current formula results (${width}px)`,async({page})=>{
   await page.setViewportSize({width,height:width===390?844:1050});
@@ -13,6 +17,7 @@ for(const width of [1365,390])test(`character output buttons use real actions an
   await page.locator('#calc-character').selectOption('character:10000015');
   await expect(overview.locator('[data-character-output-group="normal"] button')).toHaveCount(5);
   const skill=overview.locator('[data-character-output-group="skill"] button');await expect(skill).toHaveCount(1);
+  await openGroup(overview,'skill');
   await skill.click();
   let report=await audit(page);expect(report.result.status).toBe('calculated');
   const selected=overview.locator('li').filter({has:page.locator('button[aria-current="true"]')}).first();
@@ -26,7 +31,7 @@ for(const width of [1365,390])test(`character output buttons use real actions an
   await page.locator('input[data-field="build.stats.atk"]').blur();
   report=await audit(page);expect(report.result.status).toBe('calculated');expect(report.result.totals.expected).not.toBe(previous);
   await expect(selected).toContainText(`期望伤害${formatted(report.result.totals.expected)}`);
-  await overview.locator('[data-character-output-group="normal"] button').first().click();
+  await openGroup(overview,'normal');await overview.locator('[data-character-output-group="normal"] button').first().click();
   report=await audit(page);expect(report.document.build.stats.atk).toBe(2468);
   await expect(overview.locator('[data-character-output-group="normal"] button[aria-current="true"]')).toHaveCount(1);
   await expect(overview.locator('[data-character-output-group="skill"] [data-character-output-pending]')).toHaveCount(1);
@@ -44,10 +49,11 @@ test('Wanderer does not get invented normal or Q actions and Noelle keeps explic
     await expect(overview.locator(`[data-character-output-group="${group}"] button`)).toHaveCount(0);
   }
   await page.locator('#calc-character').selectOption('character:10000034');
+  await openGroup(overview,'burst');
   await overview.locator('[data-character-output-group="burst"] button').first().click();
   let report=await audit(page);expect(report.document.gameContext.noelleBurst.active).toBe(true);
   await expect(overview.locator('button[aria-current="true"]').locator('..')).toContainText('Q 状态：已激活');
-  await overview.locator('[data-character-output-group="normal"] button').first().click();
+  await openGroup(overview,'normal');await overview.locator('[data-character-output-group="normal"] button').first().click();
   report=await audit(page);
   expect(report.document.gameContext.noelleBurst.active).toBe(true);
   await expect(page.locator('#calc-form')).toHaveValue(report.document.gameContext.variantId??'');
