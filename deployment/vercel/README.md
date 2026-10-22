@@ -10,9 +10,21 @@ Target confirmed by the parent: project `gidps`,
 The separate old `gi-dps` project and `gi.mixuanda.top` are not targets.
 
 The current published calculation/UI assets are from
-`fad91ed9471718ceb86b79fa38f50ba39dd40771`. The public source manifest is the
+`cd7b32ece7bc80fbf359fbea1fc22f5f75d72c94`. The public source manifest is the
 deployed version authority. Preparation code is additional,
 without changing calculation formulae or the native executables.
+
+Latest release: `dpl_CShp3xkLXJifvkjPHTw6VXXwdZuw`, prepared by
+`c8e67408c7c04a628591baaaee789a041df3ff22`, reached READY on 2026-10-22 and is
+served at <https://gidps.mixuanda.top>. It includes the verified player entry,
+explicit 95/100 level pipeline, frame replay and Durin C2/black-E corrections.
+Five targeted public browser paths passed; public HTML/manifests and all five
+downloaded corresponding-source archives match the prepared bytes. Both
+extracted native source archives rebuilt byte-identically offline; compiler
+cache details are recorded in each native receipt. Root licence and the exact
+109-path approved integration scope are preserved. The historical reproduction
+examples below retain their explicit earlier commit IDs and do not override
+the current public source manifest.
 
 ## Preparation
 

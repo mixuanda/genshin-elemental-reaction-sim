@@ -2,6 +2,10 @@
 
 应用提交 `cd7b32ece7bc80fbf359fbea1fc22f5f75d72c94`，分支 `cloud/player-import-integration-20261021`，各独立修复均已提交并推送。发布目标仍为现有新项目 gidps / gidps.mixuanda.top；不修改旧 gi-dps 站点。此记录是发布前实证，线上是否完成由后续部署记录确认。
 
+本批现已发布：Vercel `dpl_CShp3xkLXJifvkjPHTw6VXXwdZuw`，状态READY，别名 [gidps.mixuanda.top](https://gidps.mixuanda.top)。部署地址为 `https://gidps-pub0uech6-mixuandahotmailcoms-projects.vercel.app`，准备提交 `c8e67408c7c04a628591baaaee789a041df3ff22`；应用仍为上述固定提交。公开源码清单、HTML、两份原生manifest与准备文件逐字节匹配；五个公开对应源码包下载后长度/SHA全部匹配。
+
+线上关键浏览器5/5通过：实际单技能玩家入口及凯亚独立手算、两版本杜林黑E逐段、GOOD95/100保存重开计算。另对用户已授权UID仅请求一次公开展柜代理，HTTP200/新读取得12名角色，返回等级含100与95。此处没有将该网络烟测冒充全账号导入：真实最终面板计算是本批保留快照的本地验收，线上95/100完整流程使用合成GOOD配装，两者与公开UID响应证据分开保存。未进行Windows实机验证。
+
 ## 实际功能与角色改动
 
 - 单技能默认进入角色/配装输入，教学示例独立。主要输出按真实动作类型组织：普攻各段、重击/下落、E/Q及已有特殊状态；按钮复用原计算，未算或无定义不显示0。诺艾尔保留实际Q状态，久岐忍生命/命座分支按原定义，流浪者缺完整C6空居/Q定义时不创造按钮或数值。
