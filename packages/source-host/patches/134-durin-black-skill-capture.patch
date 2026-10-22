@@ -1,0 +1,12 @@
+diff --git a/internal/characters/durin/skill.go b/internal/characters/durin/skill.go
+--- a/internal/characters/durin/skill.go
++++ b/internal/characters/durin/skill.go
+@@ -117,7 +117,7 @@ func (c *char) skillRecastBlack() action.Info {
+ 		Element:    attributes.Pyro,
+ 		Durability: 25,
+ 	}
+-	for i, mult := range skillBlack {
++	for i, mult := range skillBlack { ai := ai
+ 		ai.Mult = mult[c.TalentLvlSkill()]
+ 		c.QueueCharTask(func() {
+ 			ap := combat.NewBoxHitOnTarget(c.Core.Combat.Player(), info.Point{Y: -3}, 3, 7)
