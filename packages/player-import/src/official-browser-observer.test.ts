@@ -144,15 +144,23 @@ describe("passive official UI equipment observation", () => {
   it("runs the default CLI plan without browser execution, and refuses begin before interactive prerequisites", () => {
     const cli = "apps/player-import/official-browser-host.mjs";
     const plan = JSON.parse(execFileSync(process.execPath, [cli, "--plan"], { encoding: "utf8" }));
-    expect(plan).toMatchObject({ location: "current-cloud-host", execution: "plan-only-zero-network", realLoginVerified: false, localRetentionLimitMs: 600_000, retentionIsProviderExpiry: false });
+    expect(plan).toMatchObject({ location: null, execution: "plan-only-zero-network", realLoginVerified: false, localRetentionLimitMs: 600_000, retentionIsProviderExpiry: false });
     expect(plan.officialPages.dataOrigins).toContain("https://api-takumi-record.mihoyo.com");
-    const missingScope = spawnSync(process.execPath, [cli, "--begin"], { encoding: "utf8" });
+    const localPlan = JSON.parse(execFileSync(process.execPath, [cli, "--plan", "--location=user-device"], { encoding: "utf8" }));
+    expect(localPlan.location).toBe("user-device");
+    expect(localPlan.recipients[1]).toContain("用户主动运行此命令的电脑");
+    expect(localPlan.browser.source).toBe("Playwright installed Chromium");
+    const missingScope = spawnSync(process.execPath, [cli, "--begin", "--location=cloud"], { encoding: "utf8" });
     expect(missingScope.status).toBe(2);
     expect(missingScope.stderr).toContain("explicit-account-scope-acknowledgment-required");
     // This cannot launch: no TTY; the current-cloud visibility check is first.
-    const unavailable = spawnSync(process.execPath, [cli, "--begin", "--acknowledge=temporary-cloud-account-read"], { encoding: "utf8", env: { ...process.env, DISPLAY: "" } });
+    const unavailable = spawnSync(process.execPath, [cli, "--begin", "--location=cloud", "--acknowledge=temporary-cloud-account-read"], { encoding: "utf8", env: { ...process.env, DISPLAY: "" } });
     expect(unavailable.status).toBe(2);
     expect(unavailable.stderr).toContain("no browser or login started");
     expect(unavailable.stdout).toBe("");
+    const preflight = spawnSync(process.execPath, [cli, "--preflight", "--location=user-device"], { encoding: "utf8" });
+    expect(preflight.status).toBe(2);
+    expect(preflight.stderr).toContain("interactive-terminal-required");
+    expect(preflight.stderr).toContain("no browser or login started");
   });
 });

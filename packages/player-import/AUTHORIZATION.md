@@ -1,6 +1,6 @@
 # 米游社 / HoYoLAB 当前配装导入
 
-核对日期：2026-10-22。**找到成熟客户端采用的正常账号登录与本人配装读取路线；本云任务尚未执行真实登录或读取。** 没找到公开只读 OAuth 合同，不等于无法继续实现。当前交付包含默认零网络的可执行宿主 CLI、响应观察器和已有导入器的部分字段接入。它不是已连通的账号服务。
+核对日期：2026-10-22。**找到成熟客户端采用的正常账号登录与本人配装读取路线；本轮仅在云端编写和测试原型，尚未操作用户电脑或执行真实登录/读取。** 没找到公开只读 OAuth 合同，不等于无法继续实现。当前交付包含可明确选择 user-device/cloud、默认零网络的宿主 CLI、可见空白窗口预检、响应观察器及已有导入器的部分字段接入。它不是已连通的账号服务。Windows/macOS 已完成参数/平台适配和模拟测试，尚未实机验证。
 
 本分支复用 `73c7d1c119e605c62299881eba65b11b857eb89c` 的 `authorized-host.ts` 契约，未重新实现 GOOD / Enka / 文本解析。该旧契约仍是 fixture-only，不把新宿主结果塞进它来伪称真实授权成功。
 
@@ -19,24 +19,28 @@
 
 候选流程：新建临时官方页面 → 用户在官方 UI 正常登录或扫码 → 观察官方返回的本人绑定列表 → 用户选 UID / 服务器 → 仅观察后续匹配的 list / detail → 预览 → 关闭临时上下文。无需把 Cookie、密码或浏览器会话交给聊天或 GIDPS 页面。
 
-必须先向用户讲清：本任务在**当前云宿主**执行；官方账号系统正常处理登录，云宿主临时浏览器持有这次普通账号会话。它的实际权限超出只读，不能包装成提供方授予的装备专用权限。宿主程序只观察选定原神角色的当前配装响应，不导出凭据、不建立刷新/长期访问，不发账号修改请求。官方登录 UI 正常流量本身仍由提供方控制。
+必须明确选择实际执行位置：`--location=user-device` 时，用户在自己的电脑主动运行，新建临时浏览器在该电脑持有普通账号会话，不把账号状态发给 GIDPS 云服务；`--location=cloud` 时，明确选定的云宿主会持有这次账号状态，不能套用用户电脑的确认。官方账号系统正常处理登录。普通会话的实际权限超出只读，不能包装成提供方授予的装备专用权限。宿主只观察选定原神角色的当前配装响应，不导出凭据、不建立刷新/长期访问，不发账号修改请求。官方 UI 正常流量由提供方控制。
 
-云宿主最长保留 10 分钟，完成一次输出、取消、异常、挑战、限频或本地到期即关闭上下文与浏览器；该时间是本地保留策略，**不是提供方会话到期时间**。不读已有用户浏览器 profile，不保存 storageState、HAR、trace、截图或账号文件。关闭临时上下文只表示释放本次宿主，不能称为官方全局登出/撤权。若关闭失败，CLI 显示 temporary-browser-release-unconfirmed。
+选定宿主最长保留 10 分钟，完成一次输出、取消、关闭主窗口/终端、异常、已识别挑战/限频或本地到期即关闭上下文与浏览器；该时间是本地保留策略，**不是提供方会话到期时间**。取消或期限先于异步浏览器启动/上下文创建完成时，晚到资源也会释放。不读已有用户浏览器 profile，不保存 storageState、HAR、trace、截图或账号文件。关闭临时上下文只表示释放本次宿主，不能称为官方全局登出/撤权。若关闭失败，CLI 显示 temporary-browser-release-unconfirmed。
 
 真实 begin 前由父线程协调明确以上接收方、范围和一次操作。CLI 的显式参数只表达调用意图，不代替用户授权，不是授权令牌。本轮没有请求真实账号权限，没有执行真实 begin，也没有登录操作被拒绝或结果不明。
 
 ## 可执行原型和当前云环境缺口
 
 ```sh
-node apps/player-import/official-browser-host.mjs --plan --provider=miyoushe
-node apps/player-import/official-browser-host.mjs --plan --provider=hoyolab
+node apps/player-import/official-browser-host.mjs --plan --location=user-device --provider=miyoushe
+node apps/player-import/official-browser-host.mjs --plan --location=cloud --provider=hoyolab
 ```
 
-默认就是 `--plan`：无需浏览器依赖加载，零网络，输出固定页面、数据域、接收方、10 分钟上限、字段限制和交互前提。本任务环境已有 `/usr/bin/chromium`，但 **DISPLAY 未配置，也没有 Xvfb**。可见、可由用户正常操作的云浏览器渠道尚未提供；因此本原型的真实 begin 在检查前提时就停止，浏览器和登录均不启动。`--begin --acknowledge=temporary-cloud-account-read` 还必须有 TTY 和可见 DISPLAY，不可把伪造环境变量当作可见 UI 的证据。
+默认就是 `--plan`：无需浏览器依赖加载，零网络，输出固定页面、数据域、接收方、10 分钟上限、字段限制和交互前提。不指定位置的计划会标未选择；预检/开始必须显式指定，不默认为云。Windows/macOS 使用交互桌面，不检查 Linux DISPLAY；Linux 需要可见的 X11/XWayland DISPLAY。浏览器默认取 Playwright 安装的 Chromium，也可明确给出存在的可信本地绝对可执行文件路径，不再写死 `/usr/bin/chromium`。安装/用户电脑运行步骤见 [USER-DEVICE.md](../../apps/player-import/USER-DEVICE.md)。
+
+`--preflight` 仅打开本地 about:blank 检查页，用户输入 visible 确认可见后立即关闭，不访问官方站点。真实 `--begin` 需要 TTY、可见交互桌面和与位置匹配的 `--acknowledge=temporary-user-device-account-read` 或 `--acknowledge=temporary-cloud-account-read`；仍先显示检查页，输入 official-login 后才打开官方页面。参数/环境变量不证明窗口可见，也不代替用户授权。
+
+当前云有 Chromium，但 **DISPLAY 未配置，也没有 Xvfb**，仍缺可由用户正常操作的云官方窗口；本轮未创建真实登录浏览器。用户电脑方案不依赖这个云 DISPLAY 前提，必须由用户在自己的桌面主动预检和启动，不能把云测试当作用户电脑已验证。
 
 无头 Chromium 可以渲染官方页面，理论上可把官方 UI 生成的二维码展示给用户；**本原型尚未实现经协调的临时可见传递与交互渠道**。官方登录按钮、二维码是否能在当前云正常出现、扫码后的风险验证如何由用户在官方 UI 完成，也尚未验证。不能以静态二维码图片或假成功替代这些步骤。这是云扫码下一项具体交付缺口，非“没有 OAuth 就停止”。
 
-在具备经协调的可见临时云 UI 后，宿主代码可以打开正常官方页面，只接受终端命令 roles / 数字序号 / record / finish / cancel，不接收凭据。观察器只解析固定 HTTPS origin/path 与正常方法的角色响应，不读取登录响应或任何 Cookie/header。国服和海外的数据路径分别固定于[客户端路由](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/routes.py#L136)，不拼接自定义目标。官方 UI 使用其他路径就保持缺项，不盲加宽白名单或重放内部签名。
+在具备经协调的选定宿主可见 UI 后，代码可以打开正常官方页面，只接受终端命令 official-login / roles / 数字序号 / record / finish / cancel，不接收凭据。观察器只解析固定 HTTPS origin/path 与正常方法的角色响应，不读取登录响应或任何 Cookie/header。国服和海外的数据路径分别固定于[客户端路由](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/routes.py#L136)，不拼接自定义目标。官方 UI 使用其他路径就保持缺项，不盲加宽白名单或重放内部签名。
 
 若官方 UI 按需返回详情，用户需在官方页面打开缺少的角色；未观察到本次完整列表或任一详情时返回 partial-coverage。即使列表与详情严格一致，也**只证明观察覆盖该列表**，不证明提供方列表代表全部已拥有角色，未验证前不会标全账号导入。
 
@@ -53,3 +57,5 @@ node apps/player-import/official-browser-host.mjs --plan --provider=hoyolab
 新增 focused tests 覆盖固定来源正反例、无绑定不可选、区服不推断、错 UID/服务器响应不混入、分批详情与缺项、Lv100 与未知值保留、挑战/限频/失效后清空、列表或账号变化、取消/本地期限、一次输出后清空，以及 CLI 默认零网络/开始前提拒绝。现有导入器用于验证输出，不另建解析器。真实 begin 分支没有执行，不把测试通过当登录成功。
 
 前一阶段现有导入包 120/120、独立工作台 7/7 已通过；本次只运行新增 focused tests 与 standalone 类型检查，不重跑主应用完整回归，不部署。
+
+跨平台修复本轮：观察器和宿主运行时 focused tests 共 28/28，通过 standalone 类型检查。新增覆盖 Windows/macOS 无 DISPLAY、Linux 显示缺项、TTY、位置与范围不匹配、本地绝对路径/空格、禁止已有 profile/CDP/任意启动参数、浏览器文件不可用、取消后晚到资源释放与释放失败。平台分支使用模拟环境；没有在云端或用户电脑执行真实 headful/登录。
