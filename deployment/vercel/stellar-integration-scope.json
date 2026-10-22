@@ -1,8 +1,8 @@
 {
   "format": "gidps-stellar-integration-licensing-v1",
-  "applicationCommit": "7d3289b06735a24b81b71e64104345d4b8881264",
+  "applicationCommit": "416535e854a08c6a534c740fa87228453e393e94",
   "modifiedReleaseDate": "2026-10-22",
-  "scopeBasis": "Actual nonzero rendered modules in the source-host Worker bundle; all emitted application asset bytes equal the verified build.",
+  "scopeBasis": "Actual nonzero rendered modules of the current source-host Worker; same 109 constituent paths as the previously approved release, with hashes for this application commit. Independent components are not uniformly relicensed.",
   "originalIntegration": [
     {
       "path": "apps/web/package.json",

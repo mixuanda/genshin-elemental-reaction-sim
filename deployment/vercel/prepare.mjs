@@ -72,7 +72,7 @@ const config = { version: 3, routes: [
   { src: '^/legal/?$', dest: '/legal/index.html' },
   { src: '^/$', dest: '/index.html' },
   { handle: 'filesystem' },
-  { src: '^/(calculator|examples|builds|team|rotation|results|source-simulation|compare|data|updates)/?$', dest: '/index.html' }
+  { src: '^/(calculator|examples|builds|team|team-candidates|rotation|results|source-simulation|compare|data|updates)/?$', dest: '/index.html' }
 ], overrides: Object.fromEntries(['source-host', 'source-host-stellar'].map(name => [`${name}/source-host.wasm`, { contentType: 'application/wasm' }])) };
 writeFileSync(join(output, 'config.json'), JSON.stringify(config, null, 2));
 writeFileSync(join(stage, '.vercel/project.json'), JSON.stringify({ orgId: 'team_C7eBCyezgeOKwho1xfVLcnln', projectId: 'prj_sJ9g9ekx86oTiizlxalayHtklnxo', projectName: 'gidps' }, null, 2));
