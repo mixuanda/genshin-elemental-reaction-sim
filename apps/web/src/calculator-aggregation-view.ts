@@ -57,7 +57,7 @@ function renderRow(component: CalculatorAggregation["components"][number]): stri
 }
 
 /** Render a compact aggregate; only the first 20 component rows are emitted initially. */
-export function renderCalculatorAggregation(aggregation: CalculatorAggregation, visibleCount = 20, options: { nonCriticalComparisonOnly?: boolean } = {}): string {
+export function renderCalculatorAggregation(aggregation: CalculatorAggregation, visibleCount = 20, options: { nonCriticalComparisonOnly?: boolean; playerView?: boolean } = {}): string {
   const components = aggregation.components;
   const shown = Math.max(1, Math.min(components.length, Math.floor(visibleCount)));
   const damageCount = components.filter(item => item.status === "calculated" && item.damage !== undefined).length;
@@ -96,17 +96,18 @@ export function renderCalculatorAggregation(aggregation: CalculatorAggregation, 
   const more = components.length > shown
     ? '<button type="button" data-cast-load-more data-next-count="' + Math.min(shown + 20, components.length) + '">再显示 20 项（剩余 ' + (components.length - shown) + ' 项）</button>'
     : "";
+  const counts = '<div class="calculator-aggregation-counts" aria-label="组成统计"><span>有伤害值 ' + damageCount + '</span><span>非伤害状态 ' + nonDamagingCount + '</span><span>被阻塞 ' + blockedCount + '</span><span>未选／排除 ' + excludedCount + '</span><span>未列入 ' + aggregation.omittedHitIds.length + '</span></div>';
   return '<section class="calculator-aggregation" data-cast-aggregation data-aggregation-scope="' + esc(aggregation.scope) + '" data-aggregation-status="' + esc(aggregation.status) + '">' +
     '<header><h3>技能伤害组成</h3><span class="calculator-badge" data-testid="cast-aggregation-scope">' + esc(scopeLabels[aggregation.scope]) + '</span><span class="calculator-badge ' + (aggregation.status === "blocked" ? "provisional" : "") + '">' + esc(statusLabels[aggregation.status]) + '</span></header>' +
-    '<p class="calculator-hint">归属政策：' + esc(aggregation.attributionPolicy) + '</p>' + blocked +
-    '<div class="calculator-aggregation-counts" aria-label="组成统计"><span>有伤害值 ' + damageCount + '</span><span>非伤害状态 ' + nonDamagingCount + '</span><span>被阻塞 ' + blockedCount + '</span><span>未选／排除 ' + excludedCount + '</span><span>未列入 ' + aggregation.omittedHitIds.length + '</span></div>' +
+    (options.playerView ? '' : '<p class="calculator-hint">归属政策：' + esc(aggregation.attributionPolicy) + '</p>') + blocked +
+    (options.playerView ? '' : counts) +
     subtotalMarkup + completeness +
-    '<details class="calculator-aggregation-components" open><summary>组成明细（' + components.length + '）</summary><div class="table-wrap"><table><thead><tr><th>组成</th><th>状态</th><th>非暴击</th><th>暴击</th><th>期望</th></tr></thead><tbody>' +
+    '<details class="calculator-aggregation-components"' + (options.playerView ? '' : ' open') + '><summary>组成明细（' + components.length + '）</summary>' + (options.playerView ? '<p class="calculator-hint">归属政策：' + esc(aggregation.attributionPolicy) + '</p>' + counts : '') + '<div class="table-wrap"><table><thead><tr><th>组成</th><th>状态</th><th>非暴击</th><th>暴击</th><th>期望</th></tr></thead><tbody>' +
     components.slice(0, shown).map(renderRow).join("") + '</tbody></table></div>' + more + omitted + '</details></section>';
 }
 
 /** Mount a paged view; cast-open-hit buttons bubble for the calculator's existing delegated handler. */
-export function mountCalculatorAggregation(root: HTMLElement, aggregation: CalculatorAggregation, options: { nonCriticalComparisonOnly?: boolean } = {}): void {
+export function mountCalculatorAggregation(root: HTMLElement, aggregation: CalculatorAggregation, options: { nonCriticalComparisonOnly?: boolean; playerView?: boolean } = {}): void {
   let visibleCount = 20;
   const render = (): void => { root.innerHTML = renderCalculatorAggregation(aggregation, visibleCount, options); };
   root.addEventListener("click", event => {

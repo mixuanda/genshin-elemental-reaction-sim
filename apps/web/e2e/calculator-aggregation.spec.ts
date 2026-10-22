@@ -71,6 +71,7 @@ test("a sourced two-strike skill shows complete and selected composition, update
   await expect(cast.getByTestId("cast-aggregation-scope")).toHaveText("完整技能");
   await expect(cast.getByTestId("cast-aggregation-expected")).toHaveText(display(complete.result.totals!.expected));
   for (const id of hitIds) await expect(cast.locator(`tr[data-cast-component="${id}"]`)).toHaveAttribute("data-component-status", "calculated");
+  await cast.locator(".calculator-aggregation-components > summary").click();
   await cast.locator(`[data-cast-hit-id="${hitIds[0]}"]`).click();
   const firstTrace = page.locator(`[data-detail-id="hit-card:${hitIds[0]}"]`);
   await expect(firstTrace).toHaveAttribute("open", "");
