@@ -1,0 +1,63 @@
+{
+  "scope": "same original config/seed; joint 135+136 native update, not a Tulaytullah-only DPS counterfactual or a statistical expectation",
+  "sameConfig": true,
+  "sameSeed": true,
+  "legacy": {
+    "applications": 617,
+    "damage": 29529976.748742167,
+    "dps": 246083.1395728514
+  },
+  "fixed": {
+    "applications": 619,
+    "damage": 29547632.435022317,
+    "dps": 246230.27029185265
+  },
+  "damageDelta": 17655.686280149966,
+  "dpsDelta": 147.13071900125942,
+  "abilityCountChangesInsideWindow": [
+    {
+      "actor": "faruzan",
+      "ability": "swirl-pyro",
+      "old": 39,
+      "new": 38,
+      "delta": -1
+    },
+    {
+      "actor": "wanderer",
+      "ability": "Normal 0 (Windfavored)",
+      "old": 32,
+      "new": 33,
+      "delta": 1
+    },
+    {
+      "actor": "wanderer",
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "old": 127,
+      "new": 129,
+      "delta": 2
+    }
+  ],
+  "firstNormal2": {
+    "legacyFrame": 658,
+    "fixedFrame": 654,
+    "legacyDamage": 89669.18366502295,
+    "fixedDamage": 85670.1522598803,
+    "changedOperands": {
+      "flatDamage": {
+        "legacy": 2518.421278388179,
+        "fixed": 2310.1555007561788
+      },
+      "damageBonus": {
+        "legacy": 2.5425000000000004,
+        "fixed": 2.4465000000000003
+      }
+    },
+    "sequentialConditionalDecomposition": {
+      "afterReplacingOnlyTulayBonus": 87239.19308440412,
+      "tulayBonusDeltaAtOldOtherInputs": -2429.9905806188326,
+      "thenRemovingA4AtNewBonus": 85670.15225988028,
+      "a4DeltaAtNewBonus": -1569.040824523836,
+      "matchesNewDamage": true
+    }
+  }
+}
