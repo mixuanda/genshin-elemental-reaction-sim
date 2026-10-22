@@ -14,3 +14,4 @@ export { getEquipmentAuthorizationAvailability } from "./authorization-availabil
 export type { EquipmentAuthorizationAvailability } from "./authorization-availability";
 export { createOfficialEquipmentObserver, matchOfficialEquipmentResponse } from "./official-browser-observer.mjs";
 export type { ObserverProvider, ObservedRole, ObservationResult } from "./official-browser-observer.mjs";
+export { importOfficialEquipmentObservation } from "./official-equipment-import";

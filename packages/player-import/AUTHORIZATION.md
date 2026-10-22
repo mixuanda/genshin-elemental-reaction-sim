@@ -48,7 +48,9 @@ node apps/player-import/official-browser-host.mjs --plan --location=cloud --prov
 
 观察器只输出既有 GOOD JSON，可直接交给现有文件/文本输入，不新增主计算器接线。它使用既有身份映射和输入限制；只映射来源明确的角色 ID/等级/命座、武器 ID/等级/promote_level/affix_level。等级 100 原样保留，不裁成 90；缺少值不补零。
 
-源码模型未明确角色突破；技能 level 是否已含命座也未明确；圣遗物位置编号、词条编号/单位与本项目目录的转换尚未完整核验。这些均不猜。已净化的原始装备/技能数字观察保留在 JSON 的 observations；GOOD 的对应基础天赋、角色突破和圣遗物字段保持缺项，因此预览为部分配装，不能假称已可完整计算。模型里武器 promote_level 表示突破，affix_level 表示精炼，二者不混用。合成测试输出继续显式 syntheticFixture=true，不作为真号证明。
+本轮新增严格 observation 适配器：collector 保留同次 property_map 的明确属性名、圣遗物 pos_name 和武器 main/sub_property.final；现有 JSON/文件入口识别 observations.format 后复用原 GOOD、词条归一化与完整性校验。五槽圣遗物、主副词条、武器观测值和按固定 skill_id 匹配的显示天赋已可进入同一个 ImportSnapshot；仅观察当前 relics，不读取背包，不把武器观测叠入总面板。没有 property_map、名称/单位未知或 ID 未识别就保持未知/阻断，不猜数字编号。
+
+角色突破和技能基础/附加拆分仍无模型证据，不从等级或命座推算；未支持格式也不猜。原始净化观察保留在 observations。预览明确为部分配装，不能假称已可完整计算。模型里武器 promote_level 表示突破、affix_level 表示精炼，二者不混用。合成输出显式 syntheticFixture=true，不作真号证明。逐字段来源、接入和现场缺口见 [OBSERVATION-FIELDS.md](OBSERVATION-FIELDS.md)。
 
 提供方挑战码、限频和登录失效按固定客户端的[错误定义](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/errors.py#L277)与[挑战码集合](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/constants.py#L130)停止；不自动解验证码、刷新会话或切换代理。官方 UI 中未映射的挑战未承诺可自动检测，用户需要取消，本地上限仍生效。
 

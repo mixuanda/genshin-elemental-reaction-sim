@@ -22,12 +22,16 @@ const labels: Record<string, string> = {
   "Physical DMG Bonus": "physical_dmg_", "Pyro DMG Bonus": "pyro_dmg_", "Hydro DMG Bonus": "hydro_dmg_", "Cryo DMG Bonus": "cryo_dmg_", "Electro DMG Bonus": "electro_dmg_", "Anemo DMG Bonus": "anemo_dmg_", "Geo DMG Bonus": "geo_dmg_", "Dendro DMG Bonus": "dendro_dmg_"
 };
 
+export function resolveEquipmentDisplayStatLabel(label: string, percent: boolean): string | null {
+  let result = Object.hasOwn(labels, label) ? labels[label]! : null;
+  if (result !== null && ["hp", "atk", "def"].includes(result) && percent) result += "_";
+  return result;
+}
 function parseStat(text: string, path: string): ParsedStat {
   const match = text.match(/^([^:\[\]]{1,100}):\s*(\?|[-+]?\d+(?:\.\d+)?)\s*(%)?$/u);
   if (!match) return unsupported();
   const label = match[1]!.trim(), percent = match[3] === "%";
-  let key = Object.hasOwn(labels, label) ? labels[label]! : `hutao-stat:${label}`;
-  if (["hp", "atk", "def"].includes(key) && percent) key += "_";
+  const key = resolveEquipmentDisplayStatLabel(label, percent) ?? `hutao-stat:${label}`;
   const expected = key.startsWith("hutao-stat:") ? "unknown" : key.endsWith("_") ? "ratio" : "flat";
   const amount = match[2] === "?" ? undefined : Number(match[2]);
   if (amount !== undefined && !Number.isFinite(amount)) return invalid();

@@ -40,34 +40,44 @@ function observedNumber(source, key, min, max) {
   if (!integer(value, min, max)) throw new Error("invalid-data");
   return value;
 }
-function observedStat(raw) {
-  const value = object(raw);
-  if (!integer(value.property_type, 1, 100_000) || typeof value.value !== "string" || !/[0-9]/.test(value.value) || !/^[0-9.,%+−\- ]{1,40}$/.test(value.value)) throw new Error("invalid-data");
-  return { property_type: value.property_type, value: value.value };
+function observedText(value, max = 80) {
+  return typeof value === "string" && value.length > 0 && value.length <= max ? value : undefined;
 }
-function observeCharacter(raw) {
+function observedStat(raw, propertyMap, weapon = false) {
+  if (raw === undefined || raw === null) return undefined;
+  const value = object(raw);
+  const id = observedNumber(value, "property_type", 1, 100_000), definition = object(propertyMap[String(id)]);
+  const amount = weapon ? value.final : value.value;
+  return { property_type: id, value: observedText(amount, 40),
+    name: definition.property_type === id ? observedText(definition.name) : undefined,
+    metadataMismatch: definition.property_type !== undefined && definition.property_type !== id ? true : undefined,
+    ...(weapon ? { base: observedText(value.base, 40), add: observedText(value.add, 40) } : {}) };
+}
+function observeCharacter(raw, propertyMap) {
   const value = object(raw), base = object(value.base), weapon = object(value.weapon);
-  if (!integer(base.id, 1, 1_000_000_000) || !Array.isArray(value.relics) || value.relics.length > 5 || !Array.isArray(value.skills) || value.skills.length > 30) throw new Error("invalid-data");
+  if (!integer(base.id, 1, 1_000_000_000) || value.relics != null && (!Array.isArray(value.relics) || value.relics.length > 5) || value.skills != null && (!Array.isArray(value.skills) || value.skills.length > 30)) throw new Error("invalid-data");
   return {
     id: base.id, level: observedNumber(base, "level", 1, 100),
     constellation: observedNumber(base, "actived_constellation_num", 0, 6),
     weapon: {
       id: observedNumber(weapon, "id", 1, 1_000_000_000), level: observedNumber(weapon, "level", 1, 90),
       ascension: observedNumber(weapon, "promote_level", 0, 6), refinement: observedNumber(weapon, "affix_level", 1, 5),
+      main: observedStat(weapon.main_property, propertyMap, true), sub: observedStat(weapon.sub_property, propertyMap, true),
     },
     // Retain source observations, without guessing numeric slot/stat identities
     // or whether displayed skill levels include constellation bonuses.
-    relics: value.relics.map(rawRelic => {
+    relics: value.relics?.map(rawRelic => {
       const relic = object(rawRelic);
-      if (!Array.isArray(relic.sub_property_list) || relic.sub_property_list.length > 4) throw new Error("invalid-data");
+      if (relic.sub_property_list != null && (!Array.isArray(relic.sub_property_list) || relic.sub_property_list.length > 4)) throw new Error("invalid-data");
       return { id: observedNumber(relic, "id", 1, 1_000_000_000), pos: observedNumber(relic, "pos", 1, 5),
+        posName: observedText(relic.pos_name),
         level: observedNumber(relic, "level", 0, 20), rarity: observedNumber(relic, "rarity", 1, 5),
         setId: observedNumber(object(relic.set), "id", 1, 1_000_000_000),
-        main: observedStat(relic.main_property), substats: relic.sub_property_list.map(observedStat) };
+        main: observedStat(relic.main_property, propertyMap), substats: relic.sub_property_list?.map(stat => observedStat(stat, propertyMap)) };
     }),
-    skills: value.skills.map(rawSkill => {
+    skills: value.skills?.map(rawSkill => {
       const skill = object(rawSkill);
-      if (typeof skill.is_unlock !== "boolean") throw new Error("invalid-data");
+      if (skill.is_unlock != null && typeof skill.is_unlock !== "boolean") throw new Error("invalid-data");
       return { id: observedNumber(skill, "skill_id", 1, 1_000_000_000), type: observedNumber(skill, "skill_type", 0, 100),
         displayedLevel: observedNumber(skill, "level", 0, 15), unlocked: skill.is_unlock };
     }),
@@ -145,7 +155,8 @@ export function createOfficialEquipmentObserver({ provider, evidence = "official
           roster = ids;
         } else {
           if (!Array.isArray(params.character_ids) || !params.character_ids.length || params.character_ids.length > 500 || new Set(params.character_ids).size !== params.character_ids.length) throw new Error("invalid-data");
-          const observed = list.map(observeCharacter), returned = observed.map(character => character.id);
+          const propertyMap = object(object(payload.data).property_map);
+          const observed = list.map(character => observeCharacter(character, propertyMap)), returned = observed.map(character => character.id);
           if (returned.length !== params.character_ids.length || new Set(returned).size !== returned.length || returned.some(id => !params.character_ids.includes(id))) throw new Error("invalid-data");
           for (const character of observed) details.set(character.id, character);
         }
@@ -166,8 +177,8 @@ export function createOfficialEquipmentObserver({ provider, evidence = "official
           location: characterKeys.get(character.id) ?? `chronicle-avatar:${character.id}`,
           level: character.weapon.level, ascension: character.weapon.ascension, refinement: character.weapon.refinement })),
         artifacts: [],
-        observations: { provider, role: selected, evidence, characters: observed,
-          limitations: ["角色突破未确认；不从等级推算。", "天赋仅保留显示等级与解锁状态，未确认基础/附加拆分。", "圣遗物位置、词条编号及单位转换尚未核验；原始数字观察保留于 observations，不冒充完整配装。", "角色覆盖校验仅比较本次官方列表与详细响应，不证明提供方列表覆盖全部已拥有角色。"] },
+        observations: { format: "gidps-official-ui-observation/1", provider, role: selected, evidence, rosterIds: roster, characters: observed,
+          limitations: ["角色突破未确认；不从等级推算。", "天赋仅保留显示等级与解锁状态，未确认基础/附加拆分。", "GIDPS 导入器只按明确的 property_map 名称、百分号和 pos_name 映射词条；缺少元数据或未支持的格式保持未知。", "角色覆盖校验仅比较本次官方列表与详细响应，不证明提供方列表覆盖全部已拥有角色。"] },
       };
       const result = JSON.stringify(good, null, 2);
       if (!readInput(result).ok) { clear("output-limit"); return error(problem); }

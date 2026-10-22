@@ -222,3 +222,6 @@ export function importPlayerJson(text: string, options: Parameters<typeof normal
   try { return normalizeInput(text, options); }
   catch { return { ok: false, code: "invalid-input", message: "配装结构无效。旧数据保持。" }; }
 }
+
+// Reused by source observation adapters; these perform import validation only.
+export { stat as normalizeObservedStat, completeness as assessImportedBuildCompleteness };

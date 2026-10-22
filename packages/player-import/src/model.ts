@@ -51,7 +51,7 @@ export interface PlayerBuild {
 export interface ImportSnapshot {
   schemaVersion: "player-import/1";
   source: {
-    kind: "good-file" | "enka-json" | "enka-uid" | "authorized-fixture" | "hutao-text";
+    kind: "good-file" | "enka-json" | "enka-uid" | "authorized-fixture" | "hutao-text" | "official-ui-observation";
     uid: string | null;
     scope: "public-showcase" | "file-equipped-subset" | "fixture-owned-current-equipment";
     inventory: "not-imported";
