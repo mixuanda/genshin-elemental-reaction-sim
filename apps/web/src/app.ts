@@ -3572,9 +3572,16 @@ function initEvents(): void {
           const raw:unknown=JSON.parse(text);
           if(raw&&typeof raw==='object'&&'format' in raw&&(raw.format==='simulation-record-v1'||raw.format==='gidps-simulation-record-v2')){
             try {
-              const newRecord=raw.format==='gidps-simulation-record-v2' ? readSimulationRecordV2(raw) : null;
-              const restored=newRecord?.inputs??restoreSimulationInputs(raw);
-              if(newRecord){lastResult=newRecord.result;lastEventStepResult=newRecord.eventStepResult;importedRecordText=text;byId<HTMLButtonElement>('exportRunButton').disabled=false;renderAll();}
+              const restored=openedDocument.runInputs;
+              if(!restored)throw new Error('缺少完整运行输入。');
+              if(raw.format==='gidps-simulation-record-v2'){
+                let newRecord:ReturnType<typeof readSimulationRecordV2>|null=null;
+                try {newRecord=readSimulationRecordV2(raw);}
+                catch {
+                  openedDocument={...openedDocument,reason:'原结果未通过校验，未载入结果；完整源输入可编辑后另存新副本。原文件与旧结果保留。'};
+                }
+                if(newRecord){lastResult=newRecord.result;lastEventStepResult=newRecord.eventStepResult;importedRecordText=text;byId<HTMLButtonElement>('exportRunButton').disabled=false;renderAll();}
+              }
               executionProfile=restored.executionProfile;benchmarkRecord=restored.benchmark;restoredRunOptions=restored.options;
               syncControlsFromConfig();
               byId<HTMLInputElement>('iterationInput').value=String(restored.iterations);

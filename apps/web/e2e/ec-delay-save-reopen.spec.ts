@@ -19,6 +19,7 @@ test('EC delay preview and actual run preserve strict evidence through save, reo
  await page.goto('/results');
  await page.locator('#importInput').setInputFiles({name:'ec-delay.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(config))});
  await expect(page.locator('#documentNotice')).toContainText('打开不会运行模拟');
+ await page.locator('.product-nav-more > summary').click();
  await page.locator('.product-nav a[href="/rotation"]').click();
  await page.locator('#rotation-advanced-controls > summary').click();
  await page.locator('#execution-profile').selectOption('practical-assumed-input');

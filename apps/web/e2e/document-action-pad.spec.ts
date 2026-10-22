@@ -87,7 +87,7 @@ test('new EC run exports strict witnesses and reopens without rerunning',async({
  expect(await page.locator('#simulationProgress').textContent()).toContain('未重新模拟');
  const forged=structuredClone(raw);forged.result.evidence.propagationEvents[0].operations.reverse();
  await page.locator('#importInput').setInputFiles({name:'forged.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(forged))});
- await expect(page.locator('#documentNotice')).toContainText('运行输入不完整');
+ await expect(page.locator('#documentNotice')).toContainText('原结果未通过校验');
  expect(await page.evaluate(()=>window.GenshinDpsLab.getLastResult())).toBeNull();
  await page.locator('.product-nav a[href="/calculator"]').click();
  const capture={schemaVersion:'calculator-event-v2',eventId:raw.result.result.damageEvents[0].id,eventStepResult:raw.result};
