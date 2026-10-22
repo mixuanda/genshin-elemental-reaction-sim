@@ -8,15 +8,18 @@ const fallback:Record<string,string>={bennett:'班尼特',kaeya:'凯亚',xiangli
 export function renderSourceDamageCurve(root:HTMLElement,result:SourceHostResult,actorName:(key:string)=>string|undefined=()=>undefined){
  const model=buildSourceDamageCurve(result),label=(d:DamageDimension,k:string)=>k==='unknown'?fallback.unknown!:d==='actor'?(actorName(k)??fallback[k]??k):k;
  const full=curveSeries(model);let mode='damage',startFrame=0,endFrame=model.endFrame,eventPage=0;const filters:Partial<Record<DamageDimension,string>>={};
- root.innerHTML=`<style>[data-curve-breakdowns] section{min-width:0}[data-curve-table]{min-width:0!important;width:100%;table-layout:fixed}[data-curve-table] th,[data-curve-table] td{white-space:normal;overflow-wrap:anywhere;padding:8px 5px;font-size:12px}[data-curve-table] th:first-child{width:40%}</style><p>单次真实模拟曲线 · 默认为1秒汇总 [s,s+1)，不是计算精度。来源引擎按60 FPS模拟，保留每笔事件的原始帧号；不代表游戏显示帧率或服务端精度，也不代表每帧都有伤害。截止帧不计入，空档为零，持续伤害按实际 tick。不是多次模拟平均曲线；现有批量摘要未保存每秒时序。</p>
+ root.innerHTML=`<style>[data-curve-breakdowns] section{min-width:0}[data-curve-table]{min-width:0!important;width:100%;table-layout:fixed}[data-curve-table] th,[data-curve-table] td{white-space:normal;overflow-wrap:anywhere;padding:8px 5px;font-size:12px}[data-curve-table] th:first-child{width:40%}[data-curve-range]{display:flex;flex-wrap:wrap;align-items:end;gap:12px}[data-curve-range] input{width:9rem;max-width:100%}[data-curve-methodology]{margin-top:16px}[data-curve-methodology] summary{cursor:pointer}</style><p data-curve-guidance>单次模拟 · 默认1秒汇总。切换曲线或筛选角色，悬浮查看伤害，下方查看角色贡献。</p>
  <div style="display:flex;flex-wrap:wrap;gap:12px"><label>曲线 <select data-curve-mode><option value="damage">1秒汇总</option><option value="events">逐击伤害（帧）</option><option value="cumulative">逐击累计阶梯</option></select></label>${dimensions.map(d=>`<label>${names[d]} <select data-curve-filter="${d}"><option value="">全部</option>${full.breakdown[d].map(g=>`<option value="${esc(g.key)}">${esc(label(d,g.key))}</option>`).join('')}</select></label>`).join('')}</div>
- <p><label>起始帧 <input data-curve-start type="number" min="0" step="1" value="0"></label> <label>截止帧（不含） <input data-curve-end type="number" min="1" step="1" value="${model.endFrame}"></label> <button type="button" data-curve-zoom>应用帧范围</button><span data-curve-range-status></span></p>
+ <p data-curve-range><label>起始帧 <input data-curve-start type="number" min="0" step="1" value="0"></label> <label>截止帧（不含） <input data-curve-end type="number" min="1" step="1" value="${model.endFrame}"></label> <button type="button" data-curve-zoom>应用帧范围</button><span data-curve-range-status></span></p>
  <p data-curve-total></p><div data-curve-graph style="overflow:auto"></div><label data-curve-bin-label>查看1秒汇总箱 <input data-curve-bin type="range" min="0" max="${full.points.length-1}" value="0" style="width:100%"></label><output data-curve-tooltip aria-live="polite"></output>
- <p>蓝线／点：所选伤害，累计采用事件阶梯而非平滑插值；橙点 E / 紫色方块 Q：实际成功调用；绿色带：已记录班尼特攻击加成／翠绿之影减抗区间。标记保留全队原事件。增益到期后，已保存旧快照仍可能影响后续伤害，阴影不是重新计算的增伤量。</p>
+ <p data-curve-legend>蓝色：所选伤害 · 橙点 E / 紫色方块 Q：技能调用 · 绿色带：已记录增益区间。</p>
  <div data-curve-breakdowns style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px"></div>
  <details data-curve-events><summary>逐击原始事件明细（同帧多击分别保留）</summary><div data-curve-event-table></div><button type="button" data-curve-prev>上一页</button> <button type="button" data-curve-next>下一页</button><span data-curve-event-page></span></details>
+ <details data-curve-methodology><summary>数据口径与来源</summary>
+ <p>单次真实模拟曲线 · 默认为1秒汇总 [s,s+1)，不是计算精度。来源引擎按60 FPS模拟，保留每笔事件的原始帧号；不代表游戏显示帧率或服务端精度，也不代表每帧都有伤害。截止帧不计入，空档为零，持续伤害按实际 tick。不是多次模拟平均曲线；现有批量摘要未保存每秒时序。</p>
+ <p>蓝线／点：所选伤害，累计采用事件阶梯而非平滑插值；橙点 E / 紫色方块 Q：实际成功调用；绿色带：已记录班尼特攻击加成／翠绿之影减抗区间。标记保留全队原事件。增益到期后，已保存旧快照仍可能影响后续伤害，阴影不是重新计算的增伤量。</p>
  <p>四个表是同一份伤害的不同切面，不能相加。增幅反应归类整次放大命中，不再另加“反应伤害”。角色归属来自该实际命中的计算回执，保留后台伤害；缺归属显示 unknown，绝不按站场角色猜。</p>
- <p>区间只标注有明确日志和期限的上述效果；其他增益未完整标注。${model.unclassifiedBuffLogs?`${model.unclassifiedBuffLogs} 条缺少目标/期限/前序状态的区间日志未绘制。`:''}</p>`;
+ <p>区间只标注有明确日志和期限的上述效果；其他增益未完整标注。${model.unclassifiedBuffLogs?`${model.unclassifiedBuffLogs} 条缺少目标/期限/前序状态的区间日志未绘制。`:''}</p></details>`;
  const graph=root.querySelector<HTMLElement>('[data-curve-graph]')!,tooltip=root.querySelector<HTMLOutputElement>('[data-curve-tooltip]')!,slider=root.querySelector<HTMLInputElement>('[data-curve-bin]')!;
  let series=full;
  const show=(index:number)=>{
