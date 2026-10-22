@@ -1,0 +1,767 @@
+{
+  "format": "gidps-stellar-integration-licensing-v1",
+  "applicationCommit": "7d3289b06735a24b81b71e64104345d4b8881264",
+  "modifiedReleaseDate": "2026-10-22",
+  "scopeBasis": "Actual nonzero rendered modules in the source-host Worker bundle; all emitted application asset bytes equal the verified build.",
+  "originalIntegration": [
+    {
+      "path": "apps/web/package.json",
+      "sha256": "d8e16d66cda1ebf5a2489c65b49ac33e00bc76d2dee21ce85475a2b6b3be3509",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "apps/web/src/source-host-monte-carlo.ts",
+      "sha256": "70192c9e9faa212fd1e79640d1fbda404ace4f5f3e36ee5782b7a5190503aff0",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "apps/web/src/source-host-worker-client.ts",
+      "sha256": "a2cd34c8b8146d6a1c01e3c860a0e402847ca47f3582830b94101cff43d1fce9",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "apps/web/src/source-host-worker.ts",
+      "sha256": "afbd5757a4da85d0ad2678dc1edba4916e4d9ba35b4abd43c3d1c60340f33a76",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/reaction-formulas/src/lunar-artifact-bonus.ts",
+      "sha256": "b8f3c7d564d43e165e5e87918cee4b113e3b4bce8047ffb6de12ff1690d3b56c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/reaction-formulas/src/moonlight-artifact-bonus.ts",
+      "sha256": "60f196fa36abb9e2cc81f9f9e6c722c6c56d1aa212da7de6abbf4e4893d0f717",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/reaction-formulas/src/profile.ts",
+      "sha256": "692b46a18c306dca72a31a890052478ae11fe5c32c622afad05450375b88b249",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/reaction-formulas/src/special.ts",
+      "sha256": "19740a621da8f5044f813dba8482cb50b38642480edd8be91905ffc2cabc5c76",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/reaction-formulas/src/stellar-artifact-bonus.ts",
+      "sha256": "bbbea685e2dd4e6a8e1d068e17e25fdae794cc93ab5bf8d7937823de1b0924d7",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/calculation-trace.ts",
+      "sha256": "928c272fe67dea85c86d56bf5a202a0bbb5ac3164dc7a60964c7cf343b5a2050",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/calculator-formula.ts",
+      "sha256": "e3c3f985921792cf44219075be9c947bd5a060b274d2630c164197227225513c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-action-origin.ts",
+      "sha256": "7723ca61838a48d6243eede656d7953343cf46d45bdc9cef536421d00f3f8f89",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-additive-formula.ts",
+      "sha256": "52faced9cecf8d03e2e870518757d98f47dd32b015f6ae4675795c8af234e638",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-auxiliary-formula.ts",
+      "sha256": "b276f4c0dee00e83943e0cc555b6228983ea7db43a6a4db2117206b39677ffb2",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-constant-formula.ts",
+      "sha256": "e0fe24d232259a438c9d6631ba8fd4c8a31b9b5e90b5b50868684220feca57f9",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-constant-group-a.ts",
+      "sha256": "b5f71ee9ffeace5fd76b4315c35f0d2a849c9ee104ec4bc6008876a8e715ec8e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-constant-group-b.ts",
+      "sha256": "f3345893d63fd4049a3e164abcc3d1a7f1458164b2f3f7c535df50e28568f09b",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-dynamic-formula.ts",
+      "sha256": "9390bd14a13b89b654ff6665b7b2a164286bbf9d788ea23e7b126353f5ee1e8e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-dynamic-group-a.ts",
+      "sha256": "93e06ee0a6012abed0fca5bb06cac60816f9e24a784d86574fe1c44d9cd73f54",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-dynamic-group-b.ts",
+      "sha256": "26d14ed6ff5c866ddaae4d13d7f1cef94b99d2dfd369d289d948c388038fc94e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-dynamic-group-c.ts",
+      "sha256": "c32d62ada83c9d86524f36507711eb91b00121abfd17d64cdcba95f5eb6b5faa",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-dynamic-group-d.ts",
+      "sha256": "5a00026f3167295cb895b08251c7618e2a03d230b588a9ef3c8d012a5b2044b1",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-formula.ts",
+      "sha256": "b6c67aa7418f0b50b85f0313217fbca262b2b51258004691a2017082f6930c7f",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-support.ts",
+      "sha256": "ee06636056d7132157b4ca63bde573c9e1030e129836ad960925779285297553",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-base-panel.ts",
+      "sha256": "f825f2a34c6519845a6552a9f980b0cfda97ea80a0d51a675434b382d46216b6",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-capture.ts",
+      "sha256": "ce4d4dfd9fb662c79ffa4219d0b64e41f3794cc84dde0e56044952b14970bdcb",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-additive-components.ts",
+      "sha256": "a283fcb3a8d29565fc64bf6bdca3ddf9e6173e23e4574b954a46ff87b682a4c6",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-additive-formula.ts",
+      "sha256": "965b38d025394e97a22b797127f01802a05aefc8bde7ee219e7c43909c11519c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-additive-group-a.ts",
+      "sha256": "befba935f6c445ef580c158be917ba90b9e9cfab12ac32c938e1ce92334020da",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-additive-group-b.ts",
+      "sha256": "8d7f21e4aaf60926722ce9bbf18befcb8604c9c7e55031e26ffb651737817a32",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-additive-group-c.ts",
+      "sha256": "2af99a565035035c648288f13054f3de176fea1c1ed67f0d99a5fad791c09688",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-dynamic-group-a.ts",
+      "sha256": "26c1c22f8d71a96e493c8dc8eed364210737e3274237183082e95d30240a340c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-dynamic-group-b.ts",
+      "sha256": "b603127b6efd25a9d2837cd43409b8e05f2e9a2878cfd21fd5d38b7103e96e2a",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-dynamic-group-c.ts",
+      "sha256": "5a735eab2a1c326259f26766d80738db5bd51d5a46126c822afe08d9b76d07b4",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-formula.ts",
+      "sha256": "361bd3be0051e93885fd98798eece6c4adea18145eb55b31999f5782f1f987f6",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-group-a.ts",
+      "sha256": "a3204fb69f5cd9f7a94f9aefddb7961b5244b71892adad2c850bd5d6f750082a",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-group-b.ts",
+      "sha256": "abda812a771898e604fa2d0e06d354188981d824709f60bd02b3502a532f9347",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-group-c.ts",
+      "sha256": "d7ab67ae4ffddf553eaf89465adb4e54d8df4b03dab0cf772699113f1e4ba11d",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-group-d.ts",
+      "sha256": "96d8dded44555e6d966ba689b0f34bc7ebd0fdf4e15a56aeaba8d1fcf2e7e16e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-group-e.ts",
+      "sha256": "fb42cddb6fbb38bf4d8fd698cd4ab9949f9395973074ec857f85d11ca1d0d09a",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-flat-group-f.ts",
+      "sha256": "fb1e6cdcb47b71f38d6f795f88d86dd11e10a1cf94eaada38adb0a71b55b0b5c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-modifier-dynamic-formula.ts",
+      "sha256": "cf941302b37fba7dee3678c575626da03c23b3ae7121969415f645e0e9b8ad92",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-modifier-formula.ts",
+      "sha256": "0780a989c4bc81e56bcc8d25baf1a2e90460626714e97d244b721211e43cfe3e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-multiplier-formula.ts",
+      "sha256": "a781fd5347b941e682b92ac9d84e5466a1863a9d22459724f40a499d95675494",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-multiplier-group-a.ts",
+      "sha256": "57da77af1b1e5b8958525b33f6c7ec3f8e7acfe363eb23994290bfd4bebdb699",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-multiplier-group-b.ts",
+      "sha256": "4153cbecfc9619104d5f6934296164872b2a34f3695b16f8a6f5587e72e4060e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-multiplier-group-c.ts",
+      "sha256": "e39597c95e826ab14d2a3b7f8db74b64b8d43e77aeee887801f7332c356afcc8",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-multiplier-request.ts",
+      "sha256": "ddd0e0a0b12c0cc088d8e3b059cb39bbe0b3eef890ec5738b47c41dd6b46e9d2",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-scalar-formula.ts",
+      "sha256": "3f4574c31995b2dcdb82af377fafae01da7c5d1e06701905711b528fa66b8d4e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-scalar-rules-a.ts",
+      "sha256": "de37959d7b7c72524dc961289c5d1ed14664f46f8aba1d6657d7c69850513563",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-scalar-rules-b.ts",
+      "sha256": "f1293d9ebff40bdfb5447b975f2c8165a026488ef73a03beedd4c6945dd56326",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-formula.ts",
+      "sha256": "27114d3b5505700a911ea3ad933e9500de937f0dac1cb1e03e19d22dc5c9d30c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "sha256": "c654cb55f88d89fe79d1b8e18a4d3040a0fd6c64b54fa27a2ef95e1871290982",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "sha256": "c48b78da863db621df23c3edfc5b0ec2dfa55cec69fbd3541eae05d0e483c722",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "sha256": "5dd2326b745955c4a3c520d679f060e47cfbae9ee951084a4a605fdf50544887",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "sha256": "99efeff21fffdd59609194c2513f3ec4ec3c4e832087ee196228842c90175f7a",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-group-e.ts",
+      "sha256": "5aaf600b7796f4ba840d8e7df5ff22fb2da14f773381dab2de8b3c0856d24c98",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-shield-request.ts",
+      "sha256": "eb19358a5b87cbef397c02e4c4e9d5a627d2ed7d833a371c6f04344527a1a689",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-vector-group-a.ts",
+      "sha256": "604ec130109d7d700dadc7605838fa10d5b8bcf83f8218e014655711f61c3120",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-vector-group-b.ts",
+      "sha256": "2f76697f4805737595ed44297c9272efdb22b92718dcb745fff85791f0e10005",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-vector-group-c.ts",
+      "sha256": "5dc5a8b3617087a6e1f86d8aa6883dcd9ab84972438c45ec3e52ccb0ddcf806d",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-character-vector-group-d.ts",
+      "sha256": "bd90be2c19b1769a6c8b2c10566309a69d364ae48098f950607c24bc5a32345f",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-cooldown-formula.ts",
+      "sha256": "1776751850590cb038721c120e8912abb9af43d5c78333c345bf4266b30e5df8",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-cooldown-request.ts",
+      "sha256": "97624e2ea1fd55e563741068fdd0cd12a36f08401580a1987e133923b09b40a1",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-damage-stat-links.ts",
+      "sha256": "b65302a812322011b909a9932a8eb5af9b5981b0d2b65550e6f1ee9f6aec24d9",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-drain-source-formula.ts",
+      "sha256": "e10d80ab50c3b254f58095e159fadc53934abfb5a6f814380712a2c851aec64f",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-drain-source-group-a.ts",
+      "sha256": "a5727b843ba321b30a1dc7878e6c1b1451be00771102c44e246b8feeb82a50ba",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-drain-source-group-b.ts",
+      "sha256": "47db0019e45fd918f44ba64d4a066e5ad9a5efc51b832dba3cd490a4da6f23fc",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-drain-source-request.ts",
+      "sha256": "3a036edc0cf5557746e8171449d2cfae1c0729513662226979f24eb3f57d551b",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-drain-special-formula.ts",
+      "sha256": "9be71b4c003338021e5a1ed467cdbdf110ec65e2fc8947eaa0e68f93b48ce0ed",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-energy-capture.ts",
+      "sha256": "17e64637db1cb2a296c61e38b754d900b72b4ac1ca48ce5ef756acf76f3e9bb2",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-energy-formula.ts",
+      "sha256": "a290c260a93e75381faaa39082f909df4e679f9af5ad1704aef082efb5513e0d",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-event-types.ts",
+      "sha256": "6055ac48619ea182c991c02b0e82671e196ada7bad1866c8f4222ac4696aada8",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-finite-cast-types.ts",
+      "sha256": "d3a3f71029d7e4e518849cecac247174c056e1e58f349e5b633ad0d6ed17c862",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-formula.ts",
+      "sha256": "54286792d9759a74b572a7a5f181629ececb3ba91b125c5eb7e9fb41d9b264b2",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-capture.ts",
+      "sha256": "099960f646005ecbca0fee520e41fc304bb137f41449b53dae1f1c8c4547d41a",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-formula.ts",
+      "sha256": "2aa71f7c4983c1bba4b86099dc876ff112d82ac9273f313210423e1e25800074",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-request.ts",
+      "sha256": "14631d19437276270c2fda527ef8873a588675156d169501118179bb52fbf721",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-formula.ts",
+      "sha256": "5d3c4763a777e1d19a209dc0ca83f6f3444a66964521a24b77a9759383abf8ab",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "sha256": "d27b80c345b8caeacfa4e11b99007aba5be803de3d914bc456922b5687cc807e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "sha256": "1e0e118092ad10a727146bb0952a4942547e450c5ad7b1380581eb44f4905328",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "sha256": "6b4e66a5a0c1469cba0e580869f3c19c3a76e8960ef45ed7d1dffd5741f53fee",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "sha256": "912089abe4f8888bd1682d2c47dd98d73d1fb1d7d93091f1b0f54e893af26aa7",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "sha256": "bd6c08c967d8dac89e41447c144208bd8dbe23ea9c6ec5d56f023b0b48d1e989",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "sha256": "e06fb5d5aeb7efe94195ba2694e1cd68342bfe004ca14d050682f5ab220738e5",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-group-g.ts",
+      "sha256": "6de26ce3ae6b6c18e1c9985ef3ed5bf453303b56742458083748ce72df8ec02e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-healing-source-request.ts",
+      "sha256": "11b3566c4b157e66b5ecd2fd7b1cd99a1da6657804702bdaf2aeb2e6ead17783",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-hit-callback-types.ts",
+      "sha256": "e697642a3b4d213cd0c1339957919c7660bd162ee613b7e78a2e65dc4ccc23b3",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-incoming-formula.ts",
+      "sha256": "a91d1c5ce921f9df8d6a4af7a53101230dd73994a524f777d42e7a08c5c0060e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-manual-incoming-formula.ts",
+      "sha256": "cf2595e4e90597ca214c76e9da651bf793a05546201de6ce7257de9e4be246de",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-owned-entity-types.ts",
+      "sha256": "b772dd0a55784a6627117ba51a27d7469e87626193e90c06b73708850ac1d851",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-owned-shield-types.ts",
+      "sha256": "f4ed910ec3a6cb8b0cdab55a77e35670e12646167184abb48039640d87c78b59",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-phase-analysis.ts",
+      "sha256": "859df7f3d0168a5486f3f0a112282d7b8ba36ed702161be7a3ccf03ced5070d9",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-randomness.ts",
+      "sha256": "6c1b5fe84f3fa2427ea534d62e25fe1684f75bded16b4f9483f6acf04579cf0c",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-reexecution.ts",
+      "sha256": "920a79847c05b009641bee14599b8fbc68c04505be8619233be6f1997da6b539",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-scalar-provenance.ts",
+      "sha256": "639d34b2625c9728c956b09f57a341ddaf40617aa081fae9c699be906558c75f",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-shield-formula.ts",
+      "sha256": "a65271dbab59f72c3bca6fbc144383d3721e8c7e607dbaa90619dc32f3e6cee5",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-special-formula.ts",
+      "sha256": "e6d546dc2d356c5e6f0f7c25fd77a1ca3fc47a8aa4908500ea7090f204cf9d59",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-stat-provenance.ts",
+      "sha256": "ce7b50c46b6b9ba4d91878eaf89f090c3e90254460df203d446c5cf974ab4655",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-stellar-formula.ts",
+      "sha256": "f2b97ed8ae08b3c0351446d5e854d0dcb9f88c4b57d53ebe73a8e50bb801e78e",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-expression.ts",
+      "sha256": "42573fbcaedacc615e28cdc7b11b2f8e277b264339f5ca799e3734f3ae78b1c0",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-index.ts",
+      "sha256": "9aa0e83b3ca26cc6febb8920f7f930be4eeafb4a6cf87b5ba4e4645011c8990d",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-table.ts",
+      "sha256": "3fbd25fd59055a57653344681b6fd7440d6ed1160880d17f719dc11edfc3acf9",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "d717c758da31414bc355b137bff113ef77188580df508a60b0d52f4c18cb4922",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-target-application.ts",
+      "sha256": "e6986fdbd8d00c45de8754d298996a02f9b02f7e8258ff80694c296a6bbb5dbe",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-target-phase.ts",
+      "sha256": "d4139ad6317610ee1c6d50558eda2315db04c194a467398426466b580e83a82d",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-task-lifecycle.ts",
+      "sha256": "20bc09a6d46faa1280ce43cd91b0812838a5578136cbd4a96722dbeb22242bc6",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-weapon-formula.ts",
+      "sha256": "5e5f3f37a0a9a2121e0053566e196538b645edcfdd75bc9c3cbed62fc7ac0194",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    },
+    {
+      "path": "packages/sim-core/src/source-host-wire.ts",
+      "sha256": "290645db138c8d49bab2d0b95cce6d389e71e71dd89a82911eacd7fa47470d0d",
+      "licence": "AGPL-3.0-or-later",
+      "scope": "Original GIDPS portions constituting this Stellar integration release; existing third-party notices remain applicable."
+    }
+  ],
+  "thirdParty": [
+    {
+      "path": "node_modules/zod/v4/classic/errors.js",
+      "sha256": "b155316267f79068ddc2dddc7046e13785804b768ca36e6deff1691d154f7c20",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/classic/iso.js",
+      "sha256": "3cc5e6b4da086b8ffc7ee3188c69e4d3c945b368092e78d2299b5321182752c5",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/classic/parse.js",
+      "sha256": "14cbcc416ab9169abc2cde97af77da54ca769684eac1e03a3753c16ea4a7cd95",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/classic/schemas.js",
+      "sha256": "eb4af7946a092aff8678b9251728ea58dab40154920cd65ec4a2ca1d4df68393",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/api.js",
+      "sha256": "00cb5edcfde8098e5a169e66c1dce50c101484d21436e3d78e137e1fa87c4836",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/checks.js",
+      "sha256": "5a33a20dcad372b4d18ead8d1e58b1950454f136a2216e62f247e0e5601ac838",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/core.js",
+      "sha256": "a5e713beaac4647151e03716a83f51ab714e5337cf66850f3b28eaf072a0bbfe",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/doc.js",
+      "sha256": "e084bbcc536746a8942fd33b08afe4db345554b3a0383114f1dca95261c958d9",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/errors.js",
+      "sha256": "bdd0ed8fd4a6e9d04fe6423b0f9df3a0b403939bc7dcedd8930a4b8df1fb118c",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/json-schema-processors.js",
+      "sha256": "ff15f567c9401dd7d3151ce11736283ff747c9a9e205cc08ee96f90eadc1c0c6",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/parse.js",
+      "sha256": "2578b8d1341c3882a6c089f9ec57ce1c1a16b8b2b477721d4d89ba3d3ee50c9c",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/regexes.js",
+      "sha256": "3cb122080c1154321331322ebc0cbe04878fe104c8c7b335891d9f85fc4b3f63",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/registries.js",
+      "sha256": "620ea1a715ccc4e6e605a271343bf47942dccae90885dc71f137b1f08a972e50",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/schemas.js",
+      "sha256": "09da9b0cb9b9d2d795c349bc47c7521d5aaffe241885f0c9728f2aa7de3834c9",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/to-json-schema.js",
+      "sha256": "fb3c9ab59947582f7671a53c8e20a3ced5eaa92d1c220ce8b27717a59033ad0d",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/util.js",
+      "sha256": "968e3433e810cf7ba5efb609a1cb6d9a6cfb51215fd1f699938228f7ac25deb3",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    },
+    {
+      "path": "node_modules/zod/v4/core/versions.js",
+      "sha256": "bf082fde98fa7725412d713c7f56da3a5603bdef199d68d5769263f30ce9c756",
+      "licence": "MIT",
+      "owner": "Zod contributors"
+    }
+  ],
+  "independentComponents": "No uniform repository licence is selected; unlisted independent components retain their existing status and third-party/data rights are not overridden."
+}

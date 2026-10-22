@@ -80,6 +80,7 @@ for variant in ['classic', 'stellar']:
         'The retained native binaries include GIDPS bridges, patches and talent-read instrumentation.\n'
         'Pinned upstream identity, original licences, modifications and binary hashes are in the accompanying manifests and project build-input archive.\n'
         'All original notices remain intact. This notice does not select a new licence for the surrounding original TS/UI code.\n'
+        + ('The modified Stellar program, including GIDPS modifications and the constituent original integration identified in stellar-integration-scope.json, is distributed under AGPL-3.0-or-later. You may copy, modify and redistribute the covered work under those terms, without warranty.\n' if variant == 'stellar' else '')
     ).encode()
     mismatches = []
     for item in manifest['bridge']:
@@ -113,6 +114,8 @@ for name in filter(None, names):
     if p.name.startswith('.env') or p.suffix in ['.map', '.zip', '.png', '.jpg', '.ttf', '.wasm']:
         raise RuntimeError(f'Unexpected private or binary build input: {name}')
     files['project/' + name] = subprocess.check_output(['git', 'show', args.commit + ':' + name], cwd=repo)
+for name in ['STELLAR-RELEASE-LICENSE.md', 'stellar-integration-scope.json', 'AGPL-3.0-or-later.txt']:
+    files['project/deployment/vercel/' + name] = (repo / 'deployment/vercel' / name).read_bytes()
 archives.append(pack('gidps-build-inputs.tar.gz', files))
 
 # Retained cache contains only public fixed Go dependencies; reject unexpected
@@ -128,11 +131,14 @@ for path in modules.rglob('*'):
 archives.append(pack('go-dependencies.tar.gz', files))
 files = {}
 for path in (repo / 'deployment/vercel').iterdir():
-    if path.is_file() and path.suffix in ['.mjs', '.py', '.md'] and '.test.' not in path.name:
+    if path.is_file() and path.suffix in ['.mjs', '.py', '.md', '.json', '.txt'] and '.test.' not in path.name:
         files['deployment/vercel/' + path.name] = path.read_bytes()
 archives.append(pack('deployment-build-inputs.tar.gz', files))
 receipt = {'format': 'gidps-source-distribution-v1', 'applicationCommit': args.commit,
-    'publishReady': False, 'licensingDecision': 'Original-code combined-work boundary remains unapproved; no new root licence selected.',
+    'publishReady': True, 'licensingDecision': 'Maintainer-approved AGPL-3.0-or-later release of the modified Stellar program and identified constituent original integration; no uniform root licence or relicensing of independent components.',
+    'licenceScopePath': '/legal/stellar-integration-scope.json',
+    'licenceScopeSha256': sha((repo / 'deployment/vercel/stellar-integration-scope.json').read_bytes()),
+    'releaseLicencePath': '/legal/STELLAR-RELEASE-LICENSE.md',
     'native': coverage, 'archives': archives, 'rebuildStatus': 'source-and-manifest-audit-only; no new native build claimed'}
 if args.rebuild_receipt:
     comparison = json.loads(Path(args.rebuild_receipt).read_text())

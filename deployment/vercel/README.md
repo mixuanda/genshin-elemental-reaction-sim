@@ -61,19 +61,19 @@ identities and original build information remain in each shipped manifest.
 The recorded preparation rebuilds were offline and byte-identical using the
 existing Go compile cache, not a clean-room/no-cache reproducibility claim.
 
-## Pending release gate
+## Limited release authorization
 
-`readiness.json` and `source-distribution.json` deliberately say
-`publishReady: false`. The modified Stellar AGPL program passes synchronous
-callbacks into the shared TS resolver. Providing the source archives and
-upstream notices does not, by itself, settle the original-code combined-work
-licensing boundary. No root licence was selected. The parent must resolve this
-existing maintainer decision and coordinate the final release. Do not silently
-remove Stellar, relabel original code, or publish these draft materials as
-already legally cleared. Preview data/provider and game text rights remain
-separate from software-code licences.
+The maintainer approved AGPL publication of the modified Stellar program and
+its necessary constituent original integration. The exact original files are
+identified by source path and SHA-256 in `stellar-integration-scope.json`,
+derived from actual nonzero rendered source-host Worker modules. All emitted
+application assets were byte-identical to the verified build. Third-party
+Zod modules retain MIT; independent original components are not uniformly
+relicensed and no root licence is selected. The release statement and full
+AGPL terms accompany the source archives and are visibly linked on the page.
+Game data/provider rights are not overridden by a software-code licence.
 
-Once those conditions are resolved, the exact intended command is:
+The owner-authorized deployment command is:
 
 ```sh
 vercel deploy --prebuilt --archive=tgz --prod --skip-domain \
