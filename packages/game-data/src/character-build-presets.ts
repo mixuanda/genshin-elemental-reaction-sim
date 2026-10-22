@@ -4,6 +4,7 @@ import { artifactSetCatalog } from "./supplemental";
 import { resolveEquipmentBuild, type EquipmentBuildInput } from "./equipment-build";
 import type { ArtifactPieceInput, ArtifactSlot, ArtifactStatKey, ArtifactSubstatKey } from "./artifact-build";
 import { balanceFiveStarArtifactRolls, type ArtifactBudgetBalance, type ArtifactStatTotals } from "./artifact-budget-balance";
+import { createRepresentativeArtifactBudgetObjective, type RepresentativeArtifactBudgetObjective, type RepresentativeArtifactBudgetScenario } from "./representative-artifact-budget";
 
 /** Editable reference examples, not measured drops or claims of an optimal build. */
 export type CharacterBuildPresetTier = "starter" | "developed";
@@ -18,9 +19,13 @@ export interface CharacterBuildPreset {
   constellation: number; talentLevels: { normal: number; skill: number; burst: number };
   talentPriority: { normal: TalentPriority; skill: TalentPriority; burst: TalentPriority } | null;
   weaponCandidates: PresetWeaponCandidate[];
-  /** Present only for the maintained direct-damage template; no team cycle is inferred. */
+  /** Bounded, explicitly conditioned objectives; no team cycle or full DPS is inferred. */
   artifactBalance?: Omit<ArtifactBudgetBalance, "pieces"> & {
-    objective: "unbuffed-direct-atk-expected-factor";
+    objective: "unbuffed-direct-atk-expected-factor" | RepresentativeArtifactBudgetObjective["objective"];
+    scope?: "single-effect-not-rotation-dps";
+    scenario?: RepresentativeArtifactBudgetScenario;
+    description?: string;
+    sourceRefs?: string[];
     energyRequirement: "unknown-without-team-and-rotation";
     starterComparisonScore?: number;
     retainedStarterAllocation?: boolean;
@@ -37,7 +42,7 @@ const SET_IDS = {
   emblem: "artifact-set:15020", tenacity: "artifact-set:15017", clam: "artifact-set:15022",
   husk: "artifact-set:15021", deepwood: "artifact-set:15025", gilded: "artifact-set:15026",
   paradise: "artifact-set:15028", goldenTroupe: "artifact-set:15032", viridescent: "artifact-set:15002",
-  desertPavilion: "artifact-set:15027", offPiece: "artifact-set:15001"
+  desertPavilion: "artifact-set:15027", marechaussee: "artifact-set:15031", offPiece: "artifact-set:15001"
 } as const;
 const CRAFT_WEAPON_IDS: Record<CharacterCatalogEntry["weaponType"], string> = {
   sword: "weapon:11406", claymore: "weapon:12406", polearm: "weapon:13402", catalyst: "weapon:14406", bow: "weapon:15406"
@@ -61,6 +66,8 @@ type PresetRoleRule = {
   mainStatRationale?: string;
   sourceNote?: string;
   assumptions?: string[];
+  constellation?: number;
+  budgetScenario?: RepresentativeArtifactBudgetScenario;
 };
 
 // These are explicit editable examples. Missing roles use a clearly-labelled generic input, never inferred build advice.
@@ -86,7 +93,42 @@ const roleRules: Record<string, PresetRoleRule> = {
     ],
   },
   sangonomiyakokomi: { stats: ["hp_", "hydro_dmg_", "heal_"], set: SET_IDS.clam, substats: ["hp_", "enerRech_", "eleMas", "atk_"] },
-  kukishinobu: { stats: ["eleMas", "eleMas", "eleMas"], set: SET_IDS.paradise, substats: ["eleMas", "hp_", "enerRech_", "def_" ] },
+  neuvillette: {
+    coverage: "partial", roleLabel: "C0 衡平推裁单次命中条件样例",
+    stats: ["hp_", "hydro_dmg_", "critRate_"], set: SET_IDS.marechaussee,
+    substats: ["critRate_", "critDMG_", "hp_", "enerRech_", "hp"],
+    weapons: { starter: { weaponId: "weapon:14406", refinement: 1 }, developed: { weaponId: "weapon:14406", refinement: 1 } },
+    weaponCandidates: [{ weaponId: "weapon:14406", refinement: 1, note: "KQM 支持的锻造 HP 武器；本样例关闭回能与治疗被动。" }],
+    talents: { starter: { normal: 10, skill: 6, burst: 6 }, developed: { normal: 10, skill: 6, burst: 6 } },
+    mainStatRationale: "仅衡平推裁的 HP / 水伤 / 暴击条件样例；未完成队伍与主词条组合搜索。",
+    sourceNote: "HP 倍率取固定活动目录 talent-set:neuvillette combat1 param5；定位与试作金珀依据 KQM Neuvillette Quick Guide（https://keqingmains.com/q/neuvillette-quickguide/）。来源机制保留为条件样例，不晋升完整毕业配装。",
+    assumptions: ["两档固定 C0、Lv.90、试作金珀 Lv.90 R1、天赋 10/6/6。只比较一次衡平推裁命中，当前生命比例固定 100%、遗龙之荣 0 层；A4 水伤为 30%，不模拟重击耗血、源水之滴或队伍增益。猎人套装暴击与金珀回能均未启用。"],
+    budgetScenario: { kind: "neuvillette-equitable-judgment-hit", normalTalentLevel: 10, currentHpRatio: 1, pastDraconicGloriesStacks: 0 },
+  },
+  noelle: {
+    coverage: "partial", roleLabel: "C6 Q 生效后的 N1 条件样例", constellation: 6,
+    stats: ["def_", "geo_dmg_", "critRate_"], set: SET_IDS.husk,
+    substats: ["critRate_", "critDMG_", "def_", "enerRech_", "atk_"],
+    weapons: { starter: { weaponId: "weapon:12407", refinement: 1 }, developed: { weaponId: "weapon:12407", refinement: 1 } },
+    weaponCandidates: [{ weaponId: "weapon:12407", refinement: 1, note: "KQM 支持的锻造 DEF 武器；本样例关闭叠层被动。" }],
+    talents: { starter: { normal: 9, skill: 6, burst: 10 }, developed: { normal: 9, skill: 6, burst: 10 } },
+    mainStatRationale: "仅固定 C6 Q 状态的 DEF / 岩伤 / 暴击条件样例；不是 C0 输出建议或完整循环构筑。",
+    sourceNote: "DEF 转固定 ATK 取项目已固定 gcsim b4ae769 的 noelle/burst.go 与活动目录 combat3 param3。白影剑、C5/C6 条件见 KQM Noelle Quick Guide（https://keqingmains.com/q/noelle-quickguide/）。",
+    assumptions: ["两档固定 C6、Lv.90、白影剑 Lv.90 R1、基础天赋 9/6/10。C5 使有效 Q 等级为 13，转换系数为 0.85 + C6 0.50 = 1.35。Q 已激活、起手非 Extra DEF 等于当前 DEF；转换以固定 ATK 加一次，不再乘 ATK%。只计算一次 N1，不认定 Q 能量已足够。"],
+    budgetScenario: { kind: "noelle-burst-active-normal-hit", normalTalentLevel: 9, baseBurstTalentLevel: 10, constellation: 6,
+      burstActive: true, defenseAtCast: "same-as-current-non-extra", attackIncludesBurstConversion: false },
+  },
+  kukishinobu: {
+    coverage: "partial", roleLabel: "C0 单次自有超绽放条件样例",
+    stats: ["eleMas", "eleMas", "eleMas"], set: SET_IDS.paradise, substats: ["eleMas", "hp_", "enerRech_", "def_"],
+    weapons: { starter: { weaponId: "weapon:11407", refinement: 1 }, developed: { weaponId: "weapon:11407", refinement: 1 } },
+    weaponCandidates: [{ weaponId: "weapon:11407", refinement: 1, note: "KQM 支持的锻造精通武器；增伤被动不计入超绽放。" }],
+    talents: { starter: { normal: 1, skill: 9, burst: 1 }, developed: { normal: 1, skill: 9, burst: 1 } },
+    mainStatRationale: "只对久岐忍自有的一次普通超绽放配平精通；不推断核心供应、治疗或实际触发次数。",
+    sourceNote: "三精通与铁蜂刺依据 KQM Kuki Shinobu Quick Guide（https://keqingmains.com/q/shinobu-quickguide/）；普通超绽放公式使用项目固定 classic reaction formula profile。",
+    assumptions: ["两档固定 C0、Lv.90、铁蜂刺 Lv.90 R1、天赋 1/9/1。目标是一枚明确归属久岐忍且实际命中的普通超绽放，敌人草抗 10%、额外反应加成 0；无纳西妲 C2 特殊暴击。乐园套装被动关闭，不据此生成草原核或循环 DPS。三个精通主词条禁止同件精通副词条，精通强化只来自花羽。"],
+    budgetScenario: { kind: "kuki-owned-hyperbloom-hit", triggerOwner: "kukishinobu", targetDendroResistance: 0.1, reactionBonus: 0 },
+  },
   nilou: { stats: ["hp_", "hp_", "hp_"], set: SET_IDS.tenacity, substats: ["hp_", "enerRech_", "eleMas", "def_"] },
   kaedeharakazuha: { stats: ["eleMas", "eleMas", "eleMas"], set: SET_IDS.viridescent, substats: ["eleMas", "enerRech_", "atk_", "hp_"] },
   sucrose: { stats: ["eleMas", "eleMas", "eleMas"], set: SET_IDS.viridescent, substats: ["eleMas", "enerRech_", "atk_", "hp_"] },
@@ -157,17 +199,20 @@ function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPres
     starter: { normal: 8, skill: 8, burst: 8 }, developed: { normal: 9, skill: 9, burst: 9 }
   };
   const talentLevels = rule?.talents?.[tier] ?? defaultTalents[tier];
+  const constellation = rule?.constellation ?? 0;
   const assumptions = [
     "参考假设构筑，仅供一键填入后编辑；不是游戏实测、真实掉落或最优配装。",
-    "固定对照条件：C0、角色 Lv.90、武器 Lv.90；这是可复现样例条件，不代表所有角色的统一等级上限。角色、武器、套装与数值字段取自当前本地目录。",
+    `固定对照条件：C${constellation}、角色 Lv.90、武器 Lv.90；这是可复现样例条件，不代表所有角色的统一等级上限。角色、武器、套装与数值字段取自当前本地目录。`,
     "装备被动和套装效果默认关闭，因此选中的套装身份用于可编辑示例，不将未启用套装被动计入伤害。",
     `覆盖状态：${coverage === "role-specific" ? `已维护角色模板（${rule?.roleLabel ?? "角色专属构筑"}）` : coverage === "partial" ? "仅有部分角色输入，未完成角色专属小／大毕业、武器与天赋证据" : "未维护角色专属构筑；当前值是通用占位"}。`,
     `主词条依据：${coverage === "role-specific" ? evidence.basis : `${evidence.basis} 这不是角色专属推荐。`}`,
     ...(rule?.assumptions ?? []),
   ];
-  if (weapon) assumptions.push(`武器输入为目录 ID ${weapon.id}（${weapon.name}）R${refinement}；${coverage === "role-specific" ? "该候选有角色指南支持。" : "这是按武器类型填入的通用占位，并非角色专属推荐。"}装备被动默认关闭。`);
+  if (weapon) assumptions.push(`武器输入为目录 ID ${weapon.id}（${weapon.name}）R${refinement}；${coverage === "role-specific" || rule?.budgetScenario ? "该限定样例候选有角色指南支持。" : "这是按武器类型填入的通用占位，并非角色专属推荐。"}装备被动默认关闭。`);
   if (weaponCandidates.length) assumptions.push(`角色指南支持的武器候选：${weaponCandidates.map(candidate => `${gameDataCatalog.weapons.find(row => row.id === candidate.weaponId)!.name} R${candidate.refinement}（${candidate.note}）`).join("；")}`);
-  if (coverage !== "role-specific") assumptions.push("此角色尚无足够的角色来源、武器候选与天赋优先级证据，当前生成结果不应称为角色专属毕业配装。");
+  if (coverage !== "role-specific") assumptions.push(rule?.budgetScenario
+    ? "此角色只维护有来源的单次伤害条件样例，仍缺主词条搜索、完整队伍与轮转验证；当前结果不应称为角色专属毕业配装。"
+    : "此角色尚无足够的角色来源、武器候选与天赋优先级证据，当前生成结果不应称为角色专属毕业配装。");
   if (character.slug === "wanderer") assumptions.push(`本档使用已有的 ${tier === "starter" ? "40" : "45"} 次初始／升级档位种子，由五件合法 +20 五星圣遗物逐项汇总。高档也保留完整基础档分配作为候选；三／四词条胚不是毕业判定条件。这是项目自定参考投入，不是官方毕业标准，也不等同于 KQM 的 40 次平均词条标准。`);
   const artifacts = !set ? [] : character.slug === "wanderer" && tier === "starter"
     ? wandererSmallGraduatePieces()
@@ -197,6 +242,19 @@ function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPres
     assumptions.push("在同件主词条、四种副词条、总次数和离散档位质量不变的预算内，按无队伍增益的攻击倍率直伤期望因子 ATK × (1 + clamp(CR,0,1) × CD) 调整强化分配。只做有限的逐件局部改善，不声称全局最优；生命／防御／混合倍率和反应角色没有套用此目标。");
     assumptions.push("配平公式来源：KQM TCL Damage Formula（https://library.keqingmains.com/combat-mechanics/damage/damage-formula）。加入班尼特攻击增益、有效暴击增益或实际反应后应重新按相应队伍目标比较，不应直接照搬此无增益分配。");
   }
+  if (rule?.budgetScenario && !blocked.length) {
+    const { score, ...objective } = createRepresentativeArtifactBudgetObjective(build, rule.budgetScenario);
+    let balanced = balanceFiveStarArtifactRolls(artifacts, score);
+    const starterCandidate = starter?.build.artifacts ? balanceFiveStarArtifactRolls(starter.build.artifacts, score) : undefined;
+    const retainedStarterAllocation = starterCandidate !== undefined && starterCandidate.finalScore > balanced.finalScore;
+    if (retainedStarterAllocation) balanced = starterCandidate!;
+    const { pieces, ...audit } = balanced;
+    build.artifacts = pieces;
+    artifactBalance = { ...audit, ...objective, energyRequirement: "unknown-without-team-and-rotation",
+      ...(starterCandidate ? { starterComparisonScore: starterCandidate.finalScore, retainedStarterAllocation } : {}) };
+    assumptions.push("仅在同件已有的四种副词条间转移真实离散档位；主词条、每件总次数和档位索引多重集固定。进阶候选保留完整基础分配以防目标退化；没有搜索主词条/套装/队伍或全局最优。" , objective.description);
+    assumptions.push("充能需求仍为未知；这里没有输入实际粒子到达、回能、扣能与轮转。不得把单次伤害改善显示为循环能量通过或完整毕业覆盖。");
+  }
   return {
     id: `${character.id}:${tier}`, characterId: character.id, characterSlug: character.slug, characterName: character.name,
     tier, label: coverage === "role-specific" ? (tier === "starter" ? "小毕业（参考假设）" : "大毕业（参考假设）") : (tier === "starter" ? "基础占位（非角色推荐）" : "进阶占位（非角色推荐）"), status: "reference-assumption",
@@ -204,7 +262,7 @@ function createPreset(character: CharacterCatalogEntry, tier: CharacterBuildPres
     sourceNote: rule?.sourceNote ?? `本地 game-data catalog ${gameDataCatalog.catalogVersion} 仅提供角色、装备和数值身份；当前角色没有角色专属构筑来源，通用输入不应视作推荐。`,
     assumptions, blocked,
     mainStatRationale: `${coverage === "role-specific" ? `角色模板${rule?.roleLabel ? ` · ${rule.roleLabel}` : ""}` : coverage === "partial" ? "部分角色输入（未达角色专属毕业覆盖）" : "通用可编辑占位"}；沙漏/杯/冠：${stats.join(" / ")}。`,
-    constellation: 0, talentLevels, talentPriority: coverage === "role-specific" ? rule?.talentPriority ?? null : null, weaponCandidates,
+    constellation, talentLevels, talentPriority: coverage === "role-specific" ? rule?.talentPriority ?? null : null, weaponCandidates,
     ...(artifactBalance ? { artifactBalance } : {}), build,
   };
 }
