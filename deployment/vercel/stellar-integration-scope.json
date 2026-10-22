@@ -1,6 +1,6 @@
 {
   "format": "gidps-stellar-integration-licensing-v1",
-  "applicationCommit": "ed0763bb7445188bcc49d5456251b6f7f22afe85",
+  "applicationCommit": "fad91ed9471718ceb86b79fa38f50ba39dd40771",
   "modifiedReleaseDate": "2026-10-22",
   "scopeBasis": "Actual nonzero rendered modules of the current source-host Worker; same 109 constituent paths as the previously approved release, with hashes for this application commit. Independent components are not uniformly relicensed.",
   "originalIntegration": [

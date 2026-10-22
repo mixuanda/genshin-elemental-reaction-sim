@@ -9,9 +9,9 @@ Target confirmed by the parent: project `gidps`,
 `team_C7eBCyezgeOKwho1xfVLcnln`; requested domain `gidps.mixuanda.top`.
 The separate old `gi-dps` project and `gi.mixuanda.top` are not targets.
 
-The current application's calculation/UI assets are from
-`ed0763bb7445188bcc49d5456251b6f7f22afe85`. The current source manifest is the
-version authority. Preparation code is additional,
+The next prepared calculation/UI assets are from
+`fad91ed9471718ceb86b79fa38f50ba39dd40771`. The public source manifest is the
+deployed version authority; preparation alone does not publish this candidate. Preparation code is additional,
 without changing calculation formulae or the native executables.
 
 ## Preparation
