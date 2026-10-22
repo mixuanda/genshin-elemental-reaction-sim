@@ -21,6 +21,8 @@ async function audit(page: Page): Promise<{ result: CalculatorResult; ruleVersio
 }
 
 async function loadExample(page: Page, id: string): Promise<void> {
+  const tools = page.locator("[data-calculator-example-tools]");
+  if (!await tools.evaluate(element => (element as HTMLDetailsElement).open)) await tools.locator("summary").click();
   await page.locator("#calc-example-select").selectOption(id);
   await page.locator('[data-action="load-example"]').click();
 }
@@ -72,6 +74,7 @@ function showcaseResponse(avatarId: number, skillLevels: Record<string, number> 
 test("calculator independently renders fixture A arithmetic from its execution trace", async ({ page }) => {
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await expect(page.getByRole("heading", { name: "单技能伤害计算器" })).toBeVisible();
     await expect(page.getByRole("link", { name: "技能计算器", exact: true })).toBeVisible();
     await expect(page.getByTestId("calc-expected")).toHaveText("5,340.6");
@@ -84,6 +87,7 @@ test("calculator independently renders fixture A arithmetic from its execution t
   }
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     const { result } = await audit(page);
     closeTo(result.totals?.nonCritical, 2902.5);
     closeTo(result.totals?.critical, 6385.5);
@@ -141,6 +145,7 @@ test("calculator independently renders fixture A arithmetic from its execution t
 test("editing inputs and final-panel conversion recalculate without stale values or double counting", async ({ page }) => {
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await page.locator('[data-field="build.characterBaseAtk"]').fill("400");
     let result = (await audit(page)).result;
     closeTo(result.trace.find(node => node.id === "build.baseAtk")?.result?.value, 1100);
@@ -158,6 +163,7 @@ test("editing inputs and final-panel conversion recalculate without stale values
   }
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await page.locator("#calc-build-mode").selectOption("manual-final");
     await expect(page.locator('[data-field="build.stats.atk"]')).toHaveValue("2000");
     let result = (await audit(page)).result;
@@ -196,6 +202,7 @@ test("editable two-hit example keeps per-hit totals and JSON roundtrip separate 
   }
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await loadExample(page, "fixture-b");
     await page.locator("#calc-scope").selectOption("single-hit");
     closeTo((await audit(page)).result.totals?.expected, 2760);
@@ -214,6 +221,7 @@ test("editable two-hit example keeps per-hit totals and JSON roundtrip separate 
   }
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await loadExample(page, "fixture-b");
     await page.locator('[data-field="hits.1.preReactionDamage"]').fill("800");
     await page.locator('input[data-hit-id="hit-a"]').uncheck();
@@ -242,6 +250,7 @@ test("editable two-hit example keeps per-hit totals and JSON roundtrip separate 
 test("formal skill selection tolerates unrelated gaps but blocks missing selected dependencies", async ({ page }) => {
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await page.locator("#calc-character").selectOption("character:10000123");
     await expect(page.locator("#calc-skill")).toBeEnabled();
     const blackSkill = await page.locator("#calc-skill option").filter({ hasText: "黑度之否" }).first().getAttribute("value");
@@ -267,6 +276,7 @@ test("formal skill selection tolerates unrelated gaps but blocks missing selecte
   }
   {
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     const document = loadWorkedExample("fixture-a");
     document.hits[0]!.dependencies.push("missing-selected-coefficient");
     document.dependencies.push({ id: "missing-selected-coefficient", status: "missing", reason: "所选命中倍率缺少证据", sourceRefs: [] });
@@ -286,6 +296,7 @@ test("public showcase imports preserve final stats while unknown identities cann
       status: 200, contentType: "application/json", body: JSON.stringify(showcaseResponse(19999999)),
     }));
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await page.locator("#calc-showcase-uid").fill("900000001");
     await page.locator('[data-action="showcase"]').click();
     await expect(page.locator("#calc-showcase-status")).toContainText("使用 TTL 缓存");
@@ -302,6 +313,7 @@ test("public showcase imports preserve final stats while unknown identities cann
       body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 })),
     }));
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await page.locator("#calc-showcase-uid").fill("900000002");
     await page.locator('[data-action="showcase"]').click();
     await page.locator('[data-showcase-index="0"]').click();
@@ -343,6 +355,7 @@ test("a simulator hit opens in Calculator with identical trace and roundtrips it
   expect(captured.sourceResult.config).toBeDefined();
   expect(captured.sourceResult.resolvedRuntimeOptions).toBeDefined();
   await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
   await importDocument(page, captured);
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   expect(await exportDocument<CapturedSimulationHit>(page)).toEqual(captured);
@@ -355,6 +368,7 @@ test("mobile examples preserve special-reaction readiness and preview identity",
     await expect(lunar).toContainText("缺证据，已阻塞");
     await expect(lunar.getByRole("button")).toHaveCount(0);
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     const document = loadWorkedExample("fixture-a");
     document.dataIdentity = { datasetId: "isolated-preview-test", gameVersion: "preview-test", releaseStatus: "preview", evidenceStatus: "provisional" };
     await importDocument(page, document);
@@ -365,6 +379,7 @@ test("mobile examples preserve special-reaction readiness and preview identity",
   {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
     await expect(page.getByRole("heading", { name: "单技能伤害计算器" })).toBeVisible();
     await page.locator('[data-field="build.flatAtk"]').fill("300");
     closeTo((await audit(page)).result.totals?.expected, 5589);

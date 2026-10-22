@@ -3,6 +3,13 @@
 .calculator-header h2 { font-size: 27px; margin: 4px 0 8px; }
 .calculator-header p { max-width: 760px; margin: 0; line-height: 1.7; }
 .calculator-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.calculator-entry-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.calculator-secondary-action { color: var(--muted); }
+.calculator-example-mode { border-left: 3px solid var(--warn); padding: 10px 14px; background: var(--panel-2); }
+.calculator-example-mode button { margin-left: 8px; }
+.calculator-start h3 { margin-top: 0; }
+.calculator-controls > details { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+[data-calculator-catalog-settings] > summary { color: var(--muted); }
 .calculator-layout { display: grid; grid-template-columns: minmax(290px, .8fr) minmax(0, 1.6fr); gap: 18px; align-items: start; }
 .calculator-controls { display: grid; gap: 14px; }
 .calculator-controls fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin: 0; min-width: 0; }

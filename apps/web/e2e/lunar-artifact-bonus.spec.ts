@@ -19,6 +19,7 @@ async function downloadJson<T>(page: Page, selector: string): Promise<T> {
 test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Lunar artifact conditions roundtrip and the Worker capture preserves the same formula context", async ({ page }) => {
   await page.goto("/calculator");
+  await page.locator("[data-calculator-example-tools] > summary").click();
   await page.locator("#calc-example-select").selectOption("special-artifact-flower-of-paradise-lost-4pc");
   await page.locator('[data-action="load-example"]').click();
   const artifact = page.locator('[data-special-artifact-kind][data-special-artifact-contributor="0"]');
