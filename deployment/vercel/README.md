@@ -9,9 +9,9 @@ Target confirmed by the parent: project `gidps`,
 `team_C7eBCyezgeOKwho1xfVLcnln`; requested domain `gidps.mixuanda.top`.
 The separate old `gi-dps` project and `gi.mixuanda.top` are not targets.
 
-The next prepared calculation/UI assets are from
+The current published calculation/UI assets are from
 `fad91ed9471718ceb86b79fa38f50ba39dd40771`. The public source manifest is the
-deployed version authority; preparation alone does not publish this candidate. Preparation code is additional,
+deployed version authority. Preparation code is additional,
 without changing calculation formulae or the native executables.
 
 ## Preparation
@@ -36,7 +36,7 @@ reports, test traces, authentication files and sourcemaps are excluded.
 ```sh
 python3 deployment/vercel/package-source.py \
   --output SOURCE_DIRECTORY --evidence EVIDENCE_DIRECTORY \
-  --commit ed0763bb7445188bcc49d5456251b6f7f22afe85 \
+  --commit fad91ed9471718ceb86b79fa38f50ba39dd40771 \
   --classic-source CLASSIC_MODIFIED_TREE \
   --stellar-source STELLAR_MODIFIED_TREE \
   --bundle-inventory MAIN_MODULES_JSON \
@@ -65,7 +65,7 @@ native trees or Go dependencies:
 ```sh
 python3 deployment/vercel/package-source.py \
   --project-only --output PROJECT_SOURCE_DIRECTORY \
-  --commit ed0763bb7445188bcc49d5456251b6f7f22afe85 \
+  --commit fad91ed9471718ceb86b79fa38f50ba39dd40771 \
   --bundle-inventory MAIN_MODULES_JSON \
   --bundle-inventory SIMULATION_WORKER_MODULES_JSON \
   --bundle-inventory ANALYSIS_WORKER_MODULES_JSON \
@@ -218,3 +218,50 @@ The one complete unit run in this batch was 3134 pass / 79 fail / 1 skipped at
 `82908e2`, before the later bounded UI, preset and initial-hit changes. Subsequent
 targeted passes do not change that recorded full-run count. Original Golden
 files and numerical assertions were retained. Windows was not actually run.
+
+## Actual imported-team and native crit correction release
+
+Deployment `dpl_Ct9orMkfEHPZCX3mD7sehty1f27e` is READY at
+<https://gidps.mixuanda.top>. Application commit is
+`fad91ed9471718ceb86b79fa38f50ba39dd40771`; preparation commit is
+`734327fd8ff69584686c22d5ff4c706f05a04676`. The preceding deployments above are
+historical, not this version's identity. No old project, DNS, account session
+or repository root licence was changed in this release.
+
+The application preserves actual imported equipment through the current-team
+candidate, keeps open editor settings, adds first-screen import shortcuts,
+folds detailed curve provenance and corrects Venti E's erroneous forced crit
+in both native variants. Known affected old results remain readable, with an
+actionable rerun notice; importing them does not recalculate their damage.
+The single-skill page's competing teaching/real-character entries still need
+further organization. This release does not claim a complete UI or roster.
+
+Five public Chromium checks passed, including desktop/mobile import shortcuts,
+a real-character single-skill formula with required-condition controls, and
+zero-crit Venti E in both native variants. One fresh authorized public UID read
+through the deployed UI completed equipment → current candidate → 120-second
+zero-start-energy Classic rotation → 192-hit actor curves. Its total damage is
+482051.2794640198 and DPS is 4017.0939955334984, matching the local corrected run;
+independent hit arithmetic and all recorded energy transitions have zero error.
+The saved draft reopens exactly, and the retained result imports with zero WASM
+requests. This three-Anemo/one-Dendro acceptance team does not test damaging
+reactions or all characters. Private player payloads and screenshots are not
+in the published build or source archives.
+
+Both newly distributed pruned native source archives were extracted and rebuilt
+offline, byte-identically, with the pinned official toolchains and existing
+compile cache. The frontend source archive also passed `npm run build` after
+fresh extraction, with local workspace aliases and reused external dependencies.
+No no-cache/hermetic reproduction is claimed. Nine public HTTPS checks matched
+the prepared page, both native manifests, all five source-archive hashes and
+the unchanged approved scope of 109 original integration paths.
+
+The final full unit run was 3196 pass / 79 fail / 1 skipped, 3276 total, on an
+immutable `924edf6` checkout. Its production code is identical to application
+`fad91ed`; their sole difference is a negative test fixture's type construction,
+separately verified 9/9 plus typecheck. Of the 79 failures, 78 remain previously
+recorded failures; the additional 71-required-fields schema test exceeded its
+own 15-second budget at 16.47 seconds. The unchanged assertion passed in isolation
+at 12.83 seconds. Its separate pass does not change the recorded full-run count.
+No Golden or numerical assertion was weakened. The earlier 2907/86 and 3134/79/1
+records remain separate. Windows was not actually run.
