@@ -37,6 +37,7 @@ test("Enka fixture renders 10 + 3 once and authorized prototype stays visibly sy
   const row = page.getByRole("row").filter({ has: page.getByRole("cell", { name: "skill", exact: true }) });
   await expect(row.getByRole("cell")).toHaveText(["skill", "10", "3", "13"]);
   await expect(page.locator("#apply")).toBeEnabled();
+  await page.getByText("查看合成授权适配器演示", { exact: true }).click();
   await page.locator("#authorized-demo").click();
   await expect(page.locator("#preview-content")).toContainText("未连接米游社/HoYoLAB");
   await expect(page.locator("#normalized")).toContainText('"fixture": true');

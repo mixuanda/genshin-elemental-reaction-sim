@@ -7,3 +7,6 @@ button { background: #244c54; color: #f4ffff; cursor: pointer; } button:disabled
 .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 14px 0; } form { margin-top: 24px; } article { border-top: 1px solid #526274; margin-top: 24px; } table { width: 100%; border-collapse: collapse; } th, td { text-align: left; padding: 9px; border-bottom: 1px solid #526274; overflow-wrap: anywhere; }
 pre { overflow: auto; max-height: 560px; font-size: 13px; background: #101923; padding: 16px; } .issues { color: #f6cb8b; } #status { border-left: 3px solid #7edacb; padding: 10px 16px; } summary { cursor: pointer; margin-top: 18px; }
 @media (max-width: 600px) { main { padding: 16px 12px 48px; } section { padding: 16px; } th, td { padding: 5px; font-size: 13px; } }
+select { font: inherit; display: block; margin-top: 8px; padding: 9px 12px; border: 1px solid #6c8296; border-radius: 5px; background: #101923; color: inherit; max-width: 100%; }
+a { color: #a8e9e2; text-underline-offset: 3px; } .availability-badge { border-left: 3px solid #f6cb8b; padding: 8px 14px; color: #f6cb8b; }
+[data-authorization-status] { border-left: 3px solid #7edacb; padding: 8px 14px; }

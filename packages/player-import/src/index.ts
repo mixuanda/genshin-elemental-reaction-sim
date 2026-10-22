@@ -10,3 +10,5 @@ export type { CoreImportHandoff, NullableCorePanel, DamageElement } from "./core
 
 export { createOwnedEquipmentController, equipmentProviderInfo } from "./authorized-host";
 export type { EquipmentProvider, BoundEquipmentRole, EquipmentProblemCode, EquipmentProblem, HostProblemCode, FixtureEquipmentHost, OwnedEquipmentState } from "./authorized-host";
+export { getEquipmentAuthorizationAvailability } from "./authorization-availability";
+export type { EquipmentAuthorizationAvailability } from "./authorization-availability";

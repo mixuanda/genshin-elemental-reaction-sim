@@ -6,9 +6,11 @@ import type { Field, ImportResult, ImportSnapshot, PlayerBuild, Stat } from "../
 import good from "../../packages/player-import/fixtures/synthetic-good.json?raw";
 import enka from "../../packages/player-import/fixtures/synthetic-enka.json?raw";
 import hutao from "../../packages/player-import/fixtures/synthetic-hutao-multi.txt?raw";
+import { mountEquipmentAuthorizationPanel } from "./authorization-panel";
 import "./style.css";
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+mountEquipmentAuthorizationPanel(el("account-import"));
 const input = el<HTMLTextAreaElement>("json-input"), status = el("status"), apply = el<HTMLButtonElement>("apply");
 let preview: ImportResult | null = null, current: ImportSnapshot | null = null, generation = 0;
 const display = (f: Field<unknown>) => f.state === "known" ? `${f.value}${f.unit === "ratio" ? "（比例）" : ""}` : `${f.state}：${f.note}`;
