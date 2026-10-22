@@ -1,4 +1,5 @@
 import type {SourceHostResult} from '../../../packages/sim-core/src/source-host-wire';
+import {sourceHostFixedDamageWindow} from '../../../packages/sim-core/src/source-host-observation-window';
 export const SOURCE_CURVE_FPS = 60; // Fixed gcsim time unit, not the game display/server frame rate.
 export type DamageDimension='actor'|'source'|'element'|'reaction';
 export interface CurveHit {id:number;calculationId:number;frame:number;damage:number;actor:string;source:string;element:string;reaction:string;ability:string}
@@ -8,9 +9,7 @@ const tags:Record<string,string>={AttackTagNormal:'普攻',AttackTagExtra:'重�
 const elements:Record<string,string>={pyro:'火',hydro:'水',cryo:'冰',electro:'雷',anemo:'风',geo:'岩',dendro:'草',physical:'物理'};
 const reactions:Record<string,string>={melt:'融化（整次增幅命中）',vaporize:'蒸发（整次增幅命中）',aggravate:'超激化',spread:'蔓激化'};
 export function fixedDamageWindow(r:SourceHostResult){
- const w=r.observationWindow;
- return w&&w.endReason==='duration'&&w.actualEndFrame===w.configuredEndFrame&&w.configuredEndFrame>0&&r.applications.every(a=>Number.isInteger(a.frame))
-  ?{endFrame:w.configuredEndFrame,applications:r.applications.filter(a=>a.frame>=0&&a.frame<w.configuredEndFrame)}:null;
+ return sourceHostFixedDamageWindow(r);
 }
 export function buildSourceDamageCurve(r:SourceHostResult):CurveModel {
  const window=fixedDamageWindow(r);if(!window)throw Error('曲线暂要求完整定时观察窗及逐击帧记录；提前结束或缺记录时不补造时间轴。');
