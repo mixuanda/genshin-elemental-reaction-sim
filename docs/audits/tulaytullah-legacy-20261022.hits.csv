@@ -1,0 +1,257 @@
+calculationId,attackId,frame,ability,sourceActionSequence,attackActionSequence,stacksAtRead,expectedBonus,actualBonus,gateExpiryBeforeHit,hitGateAccepted,stacksAfterHit,gateExpiryAfterHit
+519,32,638,Normal 0 (Windfavored),15,17,1,0.096,0.096,-1,True,3,656
+573,36,646,Shugen: The Curtains’ Melancholic Sway,15,17,3,0.28800000000000003,0.28800000000000003,656,False,3,656
+639,39,658,Normal 1 (Windfavored),15,18,4,0.384,0.384,656,True,6,676
+685,40,666,Shugen: The Curtains’ Melancholic Sway,15,18,6,0.5760000000000001,0.5760000000000001,676,False,6,676
+881,43,705,Normal 2 (Windfavored),15,19,6,0.5760000000000001,0.5760000000000001,676,True,8,723
+946,45,713,Shugen: The Curtains’ Melancholic Sway,15,19,8,0.768,0.768,723,False,8,723
+952,44,713,Normal 2 (Windfavored),15,19,8,0.768,0.768,723,False,8,723
+1000,46,721,Shugen: The Curtains’ Melancholic Sway,15,19,9,0.864,0.864,723,False,9,723
+1069,47,734,Normal 0 (Windfavored),15,20,9,0.864,0.864,723,True,10,752
+1119,49,742,Shugen: The Curtains’ Melancholic Sway,15,20,10,0.96,0.96,752,False,10,752
+1170,50,750,Normal 1 (Windfavored),15,21,10,0.96,0.96,752,False,10,752
+1223,52,758,Shugen: The Curtains’ Melancholic Sway,15,21,10,0.96,0.96,752,True,10,776
+1407,53,797,Normal 2 (Windfavored),15,22,10,0.96,0.96,776,True,10,815
+1463,57,805,Shugen: The Curtains’ Melancholic Sway,15,22,10,0.96,0.96,815,False,10,815
+1469,56,805,Normal 2 (Windfavored),15,22,10,0.96,0.96,815,False,10,815
+1527,61,813,Shugen: The Curtains’ Melancholic Sway,15,22,10,0.96,0.96,815,False,10,815
+1596,62,826,Normal 0 (Windfavored),15,23,10,0.96,0.96,815,True,10,844
+1652,63,834,Shugen: The Curtains’ Melancholic Sway,15,23,10,0.96,0.96,844,False,10,844
+1696,64,842,Normal 1 (Windfavored),15,24,10,0.96,0.96,844,False,10,844
+1739,65,850,Shugen: The Curtains’ Melancholic Sway,15,24,10,0.96,0.96,844,True,10,868
+1941,69,889,Normal 2 (Windfavored),15,25,10,0.96,0.96,868,True,10,907
+1993,71,897,Shugen: The Curtains’ Melancholic Sway,15,25,10,0.96,0.96,907,False,10,907
+1996,70,897,Normal 2 (Windfavored),15,25,10,0.96,0.96,907,False,10,907
+2042,72,905,Shugen: The Curtains’ Melancholic Sway,15,25,10,0.96,0.96,907,False,10,907
+2111,73,918,Normal 0 (Windfavored),15,26,10,0.96,0.96,907,True,10,936
+2159,77,926,Shugen: The Curtains’ Melancholic Sway,15,26,10,0.96,0.96,936,False,10,936
+2211,79,934,Normal 1 (Windfavored),15,27,10,0.96,0.96,936,False,10,936
+2253,80,942,Shugen: The Curtains’ Melancholic Sway,15,27,10,0.96,0.96,936,True,10,960
+2430,81,981,Normal 2 (Windfavored),15,28,10,0.96,0.96,960,True,10,999
+2498,84,989,Shugen: The Curtains’ Melancholic Sway,15,28,10,0.96,0.96,999,False,10,999
+2501,82,989,Normal 2 (Windfavored),15,28,10,0.96,0.96,999,False,10,999
+2547,85,997,Shugen: The Curtains’ Melancholic Sway,15,28,10,0.96,0.96,999,False,10,999
+2613,86,1010,Normal 0 (Windfavored),15,29,10,0.96,0.96,999,True,10,1028
+2655,87,1018,Shugen: The Curtains’ Melancholic Sway,15,29,10,0.96,0.96,1028,False,10,1028
+2712,88,1026,Normal 1 (Windfavored),15,30,10,0.96,0.96,1028,False,10,1028
+2762,91,1034,Shugen: The Curtains’ Melancholic Sway,15,30,10,0.96,0.96,1028,True,10,1052
+2940,93,1073,Normal 2 (Windfavored),15,31,10,0.96,0.96,1052,True,10,1091
+2994,95,1081,Shugen: The Curtains’ Melancholic Sway,15,31,10,0.96,0.96,1091,False,10,1091
+2997,94,1081,Normal 2 (Windfavored),15,31,10,0.96,0.96,1091,False,10,1091
+3045,98,1089,Shugen: The Curtains’ Melancholic Sway,15,31,10,0.96,0.96,1091,False,10,1091
+3112,99,1102,Normal 0 (Windfavored),15,32,10,0.96,0.96,1091,True,10,1120
+3177,104,1110,Shugen: The Curtains’ Melancholic Sway,15,32,10,0.96,0.96,1120,False,10,1120
+3221,105,1118,Normal 1 (Windfavored),15,33,10,0.96,0.96,1120,False,10,1120
+3267,106,1126,Shugen: The Curtains’ Melancholic Sway,15,33,10,0.96,0.96,1120,True,10,1144
+3450,107,1165,Normal 2 (Windfavored),15,34,10,0.96,0.96,1144,True,10,1183
+3500,112,1173,Shugen: The Curtains’ Melancholic Sway,15,34,10,0.96,0.96,1183,False,10,1183
+3503,111,1173,Normal 2 (Windfavored),15,34,10,0.96,0.96,1183,False,10,1183
+3535,113,1181,Shugen: The Curtains’ Melancholic Sway,15,34,10,0.96,0.96,1183,False,10,1183
+4496,165,1963,Normal 0 (Windfavored),52,54,1,0.096,0.096,1183,True,3,1981
+4550,170,1971,Shugen: The Curtains’ Melancholic Sway,52,54,3,0.28800000000000003,0.28800000000000003,1981,False,3,1981
+4615,173,1983,Normal 1 (Windfavored),52,55,4,0.384,0.384,1981,True,6,2001
+4661,174,1991,Shugen: The Curtains’ Melancholic Sway,52,55,6,0.5760000000000001,0.5760000000000001,2001,False,6,2001
+4849,176,2030,Normal 2 (Windfavored),52,56,6,0.5760000000000001,0.5760000000000001,2001,True,8,2048
+4910,178,2038,Shugen: The Curtains’ Melancholic Sway,52,56,8,0.768,0.768,2048,False,8,2048
+4916,177,2038,Normal 2 (Windfavored),52,56,8,0.768,0.768,2048,False,8,2048
+4965,179,2046,Shugen: The Curtains’ Melancholic Sway,52,56,9,0.864,0.864,2048,False,9,2048
+5037,180,2059,Normal 0 (Windfavored),52,57,9,0.864,0.864,2048,True,10,2077
+5091,182,2067,Shugen: The Curtains’ Melancholic Sway,52,57,10,0.96,0.96,2077,False,10,2077
+5143,183,2075,Normal 1 (Windfavored),52,58,10,0.96,0.96,2077,False,10,2077
+5204,188,2083,Shugen: The Curtains’ Melancholic Sway,52,58,10,0.96,0.96,2077,True,10,2101
+5386,189,2122,Normal 2 (Windfavored),52,59,10,0.96,0.96,2101,True,10,2140
+5440,193,2130,Shugen: The Curtains’ Melancholic Sway,52,59,10,0.96,0.96,2140,False,10,2140
+5446,192,2130,Normal 2 (Windfavored),52,59,10,0.96,0.96,2140,False,10,2140
+5503,195,2138,Shugen: The Curtains’ Melancholic Sway,52,59,10,0.96,0.96,2140,False,10,2140
+5572,196,2151,Normal 0 (Windfavored),52,60,10,0.96,0.96,2140,True,10,2169
+5636,198,2159,Shugen: The Curtains’ Melancholic Sway,52,60,10,0.96,0.96,2169,False,10,2169
+5680,199,2167,Normal 1 (Windfavored),52,61,10,0.96,0.96,2169,False,10,2169
+5723,200,2175,Shugen: The Curtains’ Melancholic Sway,52,61,10,0.96,0.96,2169,True,10,2193
+5918,202,2214,Normal 2 (Windfavored),52,62,10,0.96,0.96,2193,True,10,2232
+5966,204,2222,Shugen: The Curtains’ Melancholic Sway,52,62,10,0.96,0.96,2232,False,10,2232
+5969,203,2222,Normal 2 (Windfavored),52,62,10,0.96,0.96,2232,False,10,2232
+6014,205,2230,Shugen: The Curtains’ Melancholic Sway,52,62,10,0.96,0.96,2232,False,10,2232
+6086,206,2243,Normal 0 (Windfavored),52,63,10,0.96,0.96,2232,True,10,2261
+6133,209,2251,Shugen: The Curtains’ Melancholic Sway,52,63,10,0.96,0.96,2261,False,10,2261
+6188,213,2259,Normal 1 (Windfavored),52,64,10,0.96,0.96,2261,False,10,2261
+6235,215,2267,Shugen: The Curtains’ Melancholic Sway,52,64,10,0.96,0.96,2261,True,10,2285
+6411,216,2306,Normal 2 (Windfavored),52,65,10,0.96,0.96,2285,True,10,2324
+6480,219,2314,Shugen: The Curtains’ Melancholic Sway,52,65,10,0.96,0.96,2324,False,10,2324
+6483,217,2314,Normal 2 (Windfavored),52,65,10,0.96,0.96,2324,False,10,2324
+6528,220,2322,Shugen: The Curtains’ Melancholic Sway,52,65,10,0.96,0.96,2324,False,10,2324
+6594,221,2335,Normal 0 (Windfavored),52,66,10,0.96,0.96,2324,True,10,2353
+6637,222,2343,Shugen: The Curtains’ Melancholic Sway,52,66,10,0.96,0.96,2353,False,10,2353
+6684,223,2351,Normal 1 (Windfavored),52,67,10,0.96,0.96,2353,False,10,2353
+6732,226,2359,Shugen: The Curtains’ Melancholic Sway,52,67,10,0.96,0.96,2353,True,10,2377
+6911,228,2398,Normal 2 (Windfavored),52,68,10,0.96,0.96,2377,True,10,2416
+6963,230,2406,Shugen: The Curtains’ Melancholic Sway,52,68,10,0.96,0.96,2416,False,10,2416
+6966,229,2406,Normal 2 (Windfavored),52,68,10,0.96,0.96,2416,False,10,2416
+7013,233,2414,Shugen: The Curtains’ Melancholic Sway,52,68,10,0.96,0.96,2416,False,10,2416
+7082,234,2427,Normal 0 (Windfavored),52,69,10,0.96,0.96,2416,True,10,2445
+7149,237,2435,Shugen: The Curtains’ Melancholic Sway,52,69,10,0.96,0.96,2445,False,10,2445
+7193,238,2443,Normal 1 (Windfavored),52,70,10,0.96,0.96,2445,False,10,2445
+7247,242,2451,Shugen: The Curtains’ Melancholic Sway,52,70,10,0.96,0.96,2445,True,10,2469
+7429,243,2490,Normal 2 (Windfavored),52,71,10,0.96,0.96,2469,True,10,2508
+7480,248,2498,Shugen: The Curtains’ Melancholic Sway,52,71,10,0.96,0.96,2508,False,10,2508
+7483,247,2498,Normal 2 (Windfavored),52,71,10,0.96,0.96,2508,False,10,2508
+7498,249,2506,Shugen: The Curtains’ Melancholic Sway,72,71,0,0.0,0,2508,False,0,2508
+8112,288,3169,Normal 0 (Windfavored),89,91,1,0.096,0.096,2508,True,3,3187
+8166,293,3177,Shugen: The Curtains’ Melancholic Sway,89,91,3,0.28800000000000003,0.28800000000000003,3187,False,3,3187
+8231,296,3189,Normal 1 (Windfavored),89,92,4,0.384,0.384,3187,True,6,3207
+8277,297,3197,Shugen: The Curtains’ Melancholic Sway,89,92,6,0.5760000000000001,0.5760000000000001,3207,False,6,3207
+8465,299,3236,Normal 2 (Windfavored),89,93,6,0.5760000000000001,0.5760000000000001,3207,True,8,3254
+8526,301,3244,Shugen: The Curtains’ Melancholic Sway,89,93,8,0.768,0.768,3254,False,8,3254
+8532,300,3244,Normal 2 (Windfavored),89,93,8,0.768,0.768,3254,False,8,3254
+8580,302,3252,Shugen: The Curtains’ Melancholic Sway,89,93,9,0.864,0.864,3254,False,9,3254
+8652,303,3265,Normal 0 (Windfavored),89,94,9,0.864,0.864,3254,True,10,3283
+8707,305,3273,Shugen: The Curtains’ Melancholic Sway,89,94,10,0.96,0.96,3283,False,10,3283
+8758,306,3281,Normal 1 (Windfavored),89,95,10,0.96,0.96,3283,False,10,3283
+8819,311,3289,Shugen: The Curtains’ Melancholic Sway,89,95,10,0.96,0.96,3283,True,10,3307
+9001,312,3328,Normal 2 (Windfavored),89,96,10,0.96,0.96,3307,True,10,3346
+9055,316,3336,Shugen: The Curtains’ Melancholic Sway,89,96,10,0.96,0.96,3346,False,10,3346
+9061,315,3336,Normal 2 (Windfavored),89,96,10,0.96,0.96,3346,False,10,3346
+9117,318,3344,Shugen: The Curtains’ Melancholic Sway,89,96,10,0.96,0.96,3346,False,10,3346
+9187,319,3357,Normal 0 (Windfavored),89,97,10,0.96,0.96,3346,True,10,3375
+9251,321,3365,Shugen: The Curtains’ Melancholic Sway,89,97,10,0.96,0.96,3375,False,10,3375
+9295,322,3373,Normal 1 (Windfavored),89,98,10,0.96,0.96,3375,False,10,3375
+9337,323,3381,Shugen: The Curtains’ Melancholic Sway,89,98,10,0.96,0.96,3375,True,10,3399
+9533,325,3420,Normal 2 (Windfavored),89,99,10,0.96,0.96,3399,True,10,3438
+9581,327,3428,Shugen: The Curtains’ Melancholic Sway,89,99,10,0.96,0.96,3438,False,10,3438
+9584,326,3428,Normal 2 (Windfavored),89,99,10,0.96,0.96,3438,False,10,3438
+9629,328,3436,Shugen: The Curtains’ Melancholic Sway,89,99,10,0.96,0.96,3438,False,10,3438
+9701,329,3449,Normal 0 (Windfavored),89,100,10,0.96,0.96,3438,True,10,3467
+9748,332,3457,Shugen: The Curtains’ Melancholic Sway,89,100,10,0.96,0.96,3467,False,10,3467
+9803,336,3465,Normal 1 (Windfavored),89,101,10,0.96,0.96,3467,False,10,3467
+9850,338,3473,Shugen: The Curtains’ Melancholic Sway,89,101,10,0.96,0.96,3467,True,10,3491
+10026,339,3512,Normal 2 (Windfavored),89,102,10,0.96,0.96,3491,True,10,3530
+10096,342,3520,Shugen: The Curtains’ Melancholic Sway,89,102,10,0.96,0.96,3530,False,10,3530
+10099,340,3520,Normal 2 (Windfavored),89,102,10,0.96,0.96,3530,False,10,3530
+10144,343,3528,Shugen: The Curtains’ Melancholic Sway,89,102,10,0.96,0.96,3530,False,10,3530
+10210,344,3541,Normal 0 (Windfavored),89,103,10,0.96,0.96,3530,True,10,3559
+10252,345,3549,Shugen: The Curtains’ Melancholic Sway,89,103,10,0.96,0.96,3559,False,10,3559
+10299,346,3557,Normal 1 (Windfavored),89,104,10,0.96,0.96,3559,False,10,3559
+10347,349,3565,Shugen: The Curtains’ Melancholic Sway,89,104,10,0.96,0.96,3559,True,10,3583
+10527,351,3604,Normal 2 (Windfavored),89,105,10,0.96,0.96,3583,True,10,3622
+10578,353,3612,Shugen: The Curtains’ Melancholic Sway,89,105,10,0.96,0.96,3622,False,10,3622
+10581,352,3612,Normal 2 (Windfavored),89,105,10,0.96,0.96,3622,False,10,3622
+10629,356,3620,Shugen: The Curtains’ Melancholic Sway,89,105,10,0.96,0.96,3622,False,10,3622
+10698,357,3633,Normal 0 (Windfavored),89,106,10,0.96,0.96,3622,True,10,3651
+10765,360,3641,Shugen: The Curtains’ Melancholic Sway,89,106,10,0.96,0.96,3651,False,10,3651
+10809,361,3649,Normal 1 (Windfavored),89,107,10,0.96,0.96,3651,False,10,3651
+10864,365,3657,Shugen: The Curtains’ Melancholic Sway,89,107,10,0.96,0.96,3651,True,10,3675
+11045,366,3696,Normal 2 (Windfavored),89,108,10,0.96,0.96,3675,True,10,3714
+11096,371,3704,Shugen: The Curtains’ Melancholic Sway,89,108,10,0.96,0.96,3714,False,10,3714
+11099,370,3704,Normal 2 (Windfavored),89,108,10,0.96,0.96,3714,False,10,3714
+11132,372,3712,Shugen: The Curtains’ Melancholic Sway,89,108,10,0.96,0.96,3714,False,10,3714
+12092,424,4494,Normal 0 (Windfavored),126,128,1,0.096,0.096,3714,True,3,4512
+12147,429,4502,Shugen: The Curtains’ Melancholic Sway,126,128,3,0.28800000000000003,0.28800000000000003,4512,False,3,4512
+12212,432,4514,Normal 1 (Windfavored),126,129,4,0.384,0.384,4512,True,6,4532
+12258,433,4522,Shugen: The Curtains’ Melancholic Sway,126,129,6,0.5760000000000001,0.5760000000000001,4532,False,6,4532
+12456,435,4561,Normal 2 (Windfavored),126,130,6,0.5760000000000001,0.5760000000000001,4532,True,8,4579
+12518,437,4569,Shugen: The Curtains’ Melancholic Sway,126,130,8,0.768,0.768,4579,False,8,4579
+12524,436,4569,Normal 2 (Windfavored),126,130,8,0.768,0.768,4579,False,8,4579
+12573,438,4577,Shugen: The Curtains’ Melancholic Sway,126,130,9,0.864,0.864,4579,False,9,4579
+12645,439,4590,Normal 0 (Windfavored),126,131,9,0.864,0.864,4579,True,10,4608
+12691,440,4598,Shugen: The Curtains’ Melancholic Sway,126,131,10,0.96,0.96,4608,False,10,4608
+12742,441,4606,Normal 1 (Windfavored),126,132,10,0.96,0.96,4608,False,10,4608
+12804,446,4614,Shugen: The Curtains’ Melancholic Sway,126,132,10,0.96,0.96,4608,True,10,4632
+12986,447,4653,Normal 2 (Windfavored),126,133,10,0.96,0.96,4632,True,10,4671
+13041,451,4661,Shugen: The Curtains’ Melancholic Sway,126,133,10,0.96,0.96,4671,False,10,4671
+13047,450,4661,Normal 2 (Windfavored),126,133,10,0.96,0.96,4671,False,10,4671
+13104,453,4669,Shugen: The Curtains’ Melancholic Sway,126,133,10,0.96,0.96,4671,False,10,4671
+13173,454,4682,Normal 0 (Windfavored),126,134,10,0.96,0.96,4671,True,10,4700
+13238,456,4690,Shugen: The Curtains’ Melancholic Sway,126,134,10,0.96,0.96,4700,False,10,4700
+13282,457,4698,Normal 1 (Windfavored),126,135,10,0.96,0.96,4700,False,10,4700
+13325,458,4706,Shugen: The Curtains’ Melancholic Sway,126,135,10,0.96,0.96,4700,True,10,4724
+13511,460,4745,Normal 2 (Windfavored),126,136,10,0.96,0.96,4724,True,10,4763
+13560,462,4753,Shugen: The Curtains’ Melancholic Sway,126,136,10,0.96,0.96,4763,False,10,4763
+13563,461,4753,Normal 2 (Windfavored),126,136,10,0.96,0.96,4763,False,10,4763
+13608,463,4761,Shugen: The Curtains’ Melancholic Sway,126,136,10,0.96,0.96,4763,False,10,4763
+13680,464,4774,Normal 0 (Windfavored),126,137,10,0.96,0.96,4763,True,10,4792
+13737,468,4782,Shugen: The Curtains’ Melancholic Sway,126,137,10,0.96,0.96,4792,False,10,4792
+13792,472,4790,Normal 1 (Windfavored),126,138,10,0.96,0.96,4792,False,10,4792
+13840,474,4798,Shugen: The Curtains’ Melancholic Sway,126,138,10,0.96,0.96,4792,True,10,4816
+14016,475,4837,Normal 2 (Windfavored),126,139,10,0.96,0.96,4816,True,10,4855
+14087,478,4845,Shugen: The Curtains’ Melancholic Sway,126,139,10,0.96,0.96,4855,False,10,4855
+14090,476,4845,Normal 2 (Windfavored),126,139,10,0.96,0.96,4855,False,10,4855
+14135,479,4853,Shugen: The Curtains’ Melancholic Sway,126,139,10,0.96,0.96,4855,False,10,4855
+14201,480,4866,Normal 0 (Windfavored),126,140,10,0.96,0.96,4855,True,10,4884
+14244,481,4874,Shugen: The Curtains’ Melancholic Sway,126,140,10,0.96,0.96,4884,False,10,4884
+14291,482,4882,Normal 1 (Windfavored),126,141,10,0.96,0.96,4884,False,10,4884
+14340,485,4890,Shugen: The Curtains’ Melancholic Sway,126,141,10,0.96,0.96,4884,True,10,4908
+14529,487,4929,Normal 2 (Windfavored),126,142,10,0.96,0.96,4908,True,10,4947
+14581,489,4937,Shugen: The Curtains’ Melancholic Sway,126,142,10,0.96,0.96,4947,False,10,4947
+14584,488,4937,Normal 2 (Windfavored),126,142,10,0.96,0.96,4947,False,10,4947
+14632,492,4945,Shugen: The Curtains’ Melancholic Sway,126,142,10,0.96,0.96,4947,False,10,4947
+14701,493,4958,Normal 0 (Windfavored),126,143,10,0.96,0.96,4947,True,10,4976
+14760,495,4966,Shugen: The Curtains’ Melancholic Sway,126,143,10,0.96,0.96,4976,False,10,4976
+14805,496,4974,Normal 1 (Windfavored),126,144,10,0.96,0.96,4976,False,10,4976
+14860,500,4982,Shugen: The Curtains’ Melancholic Sway,126,144,10,0.96,0.96,4976,True,10,5000
+15041,501,5021,Normal 2 (Windfavored),126,145,10,0.96,0.96,5000,True,10,5039
+15093,506,5029,Shugen: The Curtains’ Melancholic Sway,126,145,10,0.96,0.96,5039,False,10,5039
+15096,505,5029,Normal 2 (Windfavored),126,145,10,0.96,0.96,5039,False,10,5039
+15128,507,5037,Shugen: The Curtains’ Melancholic Sway,126,145,10,0.96,0.96,5039,False,10,5039
+16087,559,5819,Normal 0 (Windfavored),163,165,1,0.096,0.096,5039,True,3,5837
+16141,564,5827,Shugen: The Curtains’ Melancholic Sway,163,165,3,0.28800000000000003,0.28800000000000003,5837,False,3,5837
+16206,567,5839,Normal 1 (Windfavored),163,166,4,0.384,0.384,5837,True,6,5857
+16251,568,5847,Shugen: The Curtains’ Melancholic Sway,163,166,6,0.5760000000000001,0.5760000000000001,5857,False,6,5857
+16439,570,5886,Normal 2 (Windfavored),163,167,6,0.5760000000000001,0.5760000000000001,5857,True,8,5904
+16500,572,5894,Shugen: The Curtains’ Melancholic Sway,163,167,8,0.768,0.768,5904,False,8,5904
+16506,571,5894,Normal 2 (Windfavored),163,167,8,0.768,0.768,5904,False,8,5904
+16555,573,5902,Shugen: The Curtains’ Melancholic Sway,163,167,9,0.864,0.864,5904,False,9,5904
+16627,574,5915,Normal 0 (Windfavored),163,168,9,0.864,0.864,5904,True,10,5933
+16681,576,5923,Shugen: The Curtains’ Melancholic Sway,163,168,10,0.96,0.96,5933,False,10,5933
+16732,577,5931,Normal 1 (Windfavored),163,169,10,0.96,0.96,5933,False,10,5933
+16794,582,5939,Shugen: The Curtains’ Melancholic Sway,163,169,10,0.96,0.96,5933,True,10,5957
+16976,583,5978,Normal 2 (Windfavored),163,170,10,0.96,0.96,5957,True,10,5996
+17030,587,5986,Shugen: The Curtains’ Melancholic Sway,163,170,10,0.96,0.96,5996,False,10,5996
+17036,586,5986,Normal 2 (Windfavored),163,170,10,0.96,0.96,5996,False,10,5996
+17092,589,5994,Shugen: The Curtains’ Melancholic Sway,163,170,10,0.96,0.96,5996,False,10,5996
+17161,590,6007,Normal 0 (Windfavored),163,171,10,0.96,0.96,5996,True,10,6025
+17226,592,6015,Shugen: The Curtains’ Melancholic Sway,163,171,10,0.96,0.96,6025,False,10,6025
+17270,593,6023,Normal 1 (Windfavored),163,172,10,0.96,0.96,6025,False,10,6025
+17312,594,6031,Shugen: The Curtains’ Melancholic Sway,163,172,10,0.96,0.96,6025,True,10,6049
+17508,596,6070,Normal 2 (Windfavored),163,173,10,0.96,0.96,6049,True,10,6088
+17556,598,6078,Shugen: The Curtains’ Melancholic Sway,163,173,10,0.96,0.96,6088,False,10,6088
+17559,597,6078,Normal 2 (Windfavored),163,173,10,0.96,0.96,6088,False,10,6088
+17605,599,6086,Shugen: The Curtains’ Melancholic Sway,163,173,10,0.96,0.96,6088,False,10,6088
+17677,600,6099,Normal 0 (Windfavored),163,174,10,0.96,0.96,6088,True,10,6117
+17724,603,6107,Shugen: The Curtains’ Melancholic Sway,163,174,10,0.96,0.96,6117,False,10,6117
+17778,607,6115,Normal 1 (Windfavored),163,175,10,0.96,0.96,6117,False,10,6117
+17825,609,6123,Shugen: The Curtains’ Melancholic Sway,163,175,10,0.96,0.96,6117,True,10,6141
+18001,610,6162,Normal 2 (Windfavored),163,176,10,0.96,0.96,6141,True,10,6180
+18071,613,6170,Shugen: The Curtains’ Melancholic Sway,163,176,10,0.96,0.96,6180,False,10,6180
+18074,611,6170,Normal 2 (Windfavored),163,176,10,0.96,0.96,6180,False,10,6180
+18119,614,6178,Shugen: The Curtains’ Melancholic Sway,163,176,10,0.96,0.96,6180,False,10,6180
+18185,615,6191,Normal 0 (Windfavored),163,177,10,0.96,0.96,6180,True,10,6209
+18227,616,6199,Shugen: The Curtains’ Melancholic Sway,163,177,10,0.96,0.96,6209,False,10,6209
+18274,617,6207,Normal 1 (Windfavored),163,178,10,0.96,0.96,6209,False,10,6209
+18322,620,6215,Shugen: The Curtains’ Melancholic Sway,163,178,10,0.96,0.96,6209,True,10,6233
+18501,622,6254,Normal 2 (Windfavored),163,179,10,0.96,0.96,6233,True,10,6272
+18552,624,6262,Shugen: The Curtains’ Melancholic Sway,163,179,10,0.96,0.96,6272,False,10,6272
+18555,623,6262,Normal 2 (Windfavored),163,179,10,0.96,0.96,6272,False,10,6272
+18603,627,6270,Shugen: The Curtains’ Melancholic Sway,163,179,10,0.96,0.96,6272,False,10,6272
+18672,628,6283,Normal 0 (Windfavored),163,180,10,0.96,0.96,6272,True,10,6301
+18739,631,6291,Shugen: The Curtains’ Melancholic Sway,163,180,10,0.96,0.96,6301,False,10,6301
+18783,632,6299,Normal 1 (Windfavored),163,181,10,0.96,0.96,6301,False,10,6301
+18837,636,6307,Shugen: The Curtains’ Melancholic Sway,163,181,10,0.96,0.96,6301,True,10,6325
+19019,637,6346,Normal 2 (Windfavored),163,182,10,0.96,0.96,6325,True,10,6364
+19070,642,6354,Shugen: The Curtains’ Melancholic Sway,163,182,10,0.96,0.96,6364,False,10,6364
+19073,641,6354,Normal 2 (Windfavored),163,182,10,0.96,0.96,6364,False,10,6364
+19088,643,6362,Shugen: The Curtains’ Melancholic Sway,183,182,0,0.0,0,6364,False,0,6364
+19703,682,7025,Normal 0 (Windfavored),200,202,1,0.096,0.096,6364,True,3,7043
+19758,687,7033,Shugen: The Curtains’ Melancholic Sway,200,202,3,0.28800000000000003,0.28800000000000003,7043,False,3,7043
+19823,690,7045,Normal 1 (Windfavored),200,203,4,0.384,0.384,7043,True,6,7063
+19868,691,7053,Shugen: The Curtains’ Melancholic Sway,200,203,6,0.5760000000000001,0.5760000000000001,7063,False,6,7063
+20056,693,7092,Normal 2 (Windfavored),200,204,6,0.5760000000000001,0.5760000000000001,7063,True,8,7110
+20118,695,7100,Shugen: The Curtains’ Melancholic Sway,200,204,8,0.768,0.768,7110,False,8,7110
+20124,694,7100,Normal 2 (Windfavored),200,204,8,0.768,0.768,7110,False,8,7110
+20172,696,7108,Shugen: The Curtains’ Melancholic Sway,200,204,9,0.864,0.864,7110,False,9,7110
+20244,697,7121,Normal 0 (Windfavored),200,205,9,0.864,0.864,7110,True,10,7139
+20298,699,7129,Shugen: The Curtains’ Melancholic Sway,200,205,10,0.96,0.96,7139,False,10,7139
+20349,700,7137,Normal 1 (Windfavored),200,206,10,0.96,0.96,7139,False,10,7139
+20410,705,7145,Shugen: The Curtains’ Melancholic Sway,200,206,10,0.96,0.96,7139,True,10,7163
+20592,706,7184,Normal 2 (Windfavored),200,207,10,0.96,0.96,7163,True,10,7202
+20646,710,7192,Shugen: The Curtains’ Melancholic Sway,200,207,10,0.96,0.96,7202,False,10,7202
+20652,709,7192,Normal 2 (Windfavored),200,207,10,0.96,0.96,7202,False,10,7202
+20709,712,7200,Shugen: The Curtains’ Melancholic Sway,200,207,10,0.96,0.96,7202,False,10,7202
