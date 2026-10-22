@@ -42,6 +42,11 @@
 .source-team-builder__timeline-row[data-playback-state="future"] { opacity: .55; }
 .source-team-builder__timeline-row[data-playback-state="active"] { color: #d1fae5; font-weight: 700; }
 .source-team-builder__timeline-row[data-playback-state="active"] .source-team-builder__bar { box-shadow: 0 0 0 2px #7ad6a7; }
+@media (max-width: 600px) {
+  .source-team-builder__timeline-row { grid-template-columns: minmax(0,1fr); }
+  .source-team-builder__timeline-row > span { white-space: normal; overflow-wrap: anywhere; }
+  .source-team-builder__timeline-axis { margin-left: 0; }
+}
 .source-team-builder__table-wrap { max-height: 28rem; overflow: auto; }
 .source-team-builder__table-wrap table { width: 100%; border-collapse: collapse; font-size: .84rem; }
 .source-team-builder__table-wrap th, .source-team-builder__table-wrap td { text-align: left; vertical-align: top; padding: .4rem .5rem; border-bottom: 1px solid var(--border-color, #ccd3d6); }

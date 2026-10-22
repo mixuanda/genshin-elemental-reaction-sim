@@ -32,6 +32,15 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   await builder.locator('[data-action-params="0"]').fill('hold=1');
   await builder.locator('[data-run-direct]').click();
   await expect(page.locator('#source-host-status')).toContainText('本次运行完成', { timeout: 45_000 });
+  await expect(page.locator('[data-source-host-result-overview]')).toBeVisible();
+  await expect(page.locator('[data-source-host-result-details]')).not.toHaveAttribute('open');
+  await expect(page.locator('#source-host-target-summary')).toBeHidden();
+  await expect(page.locator('[data-runtime-details]')).not.toHaveAttribute('open');
+  await expect(page.locator('[data-source-record-details]')).not.toHaveAttribute('open');
+  await page.locator('[data-source-host-result-details] > summary').click();
+  await expect(page.locator('#source-host-target-summary')).toBeVisible();
+  await expect(page.locator('[data-source-host-incoming-ledger]')).toBeVisible();
+  await page.locator('[data-source-host-result-details] > summary').click();
 
   await page.locator('#source-host-export').evaluate(button => { button.closest('details')!.open = true; });
   const downloadPromise = page.waitForEvent('download');
@@ -40,6 +49,13 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   const filePath = await download.path();
   if (!filePath) throw new Error('来源运行结果没有可读取的下载文件。');
   const result = JSON.parse(await readFile(filePath, 'utf8')) as SourceHostResult;
+  await page.locator('[data-source-curve] > summary').click();
+  await expect(page.locator('[data-curve-svg]')).toBeVisible();
+  const total = Number(await page.locator('[data-source-host-overview-total]').getAttribute('data-value'));
+  for (const dimension of ['actor', 'source', 'element', 'reaction']) {
+    const sum = await page.locator(`[data-curve-table="${dimension}"] tbody tr`).evaluateAll(rows => rows.reduce((sum, row) => sum + Number((row as HTMLElement).dataset.damage), 0));
+    expect(sum).toBeCloseTo(total, 6);
+  }
   const logs = result.logs as unknown as RunLog[];
   const zhongliIndex = logs.find(row => {
     if (row.event !== 'character') return false;
@@ -82,6 +98,7 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   const statusCursor = linkedStatus!.createdFrame + 1;
   await moveCursor(statusCursor);
   const statusLedger = builder.locator('[data-runtime-effects]');
+  await builder.locator('[data-runtime-details] > summary').click();
   await expect(statusLedger).toContainText(linkedStatus!.statusKey);
   await expect(statusLedger).toContainText('剩余');
   await expect(actionRowSummary).toContainText(linkedStatus!.statusKey);

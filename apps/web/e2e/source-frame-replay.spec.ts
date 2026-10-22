@@ -81,3 +81,39 @@ test('all five playback rates move the same stored timeline without starting sim
  expect(await page.evaluate(()=>(window as any).__runCalls)).toBe(0);
  expect(await page.evaluate(()=>JSON.stringify((window as any).__logs)===(window as any).__originalLogs)).toBe(true);
 });
+
+test('player view keeps actions and replay visible while technical records and missing-data explanations remain expandable',async({page})=>{
+ await renderReplay(page);
+ await expect(page.locator('[data-runtime-details]')).not.toHaveAttribute('open');
+ await expect(page.locator('[data-runtime-effects]')).toBeHidden();
+ await expect(page.locator('[data-source-record-details]')).not.toHaveAttribute('open');
+ await expect(page.locator('.source-team-builder__table-wrap')).toBeHidden();
+ await expect(page.locator('[data-source-timeline]')).toBeVisible();
+ await expect(page.locator('[data-playback-toggle]')).toBeVisible();
+ await expect(page.locator('[data-source-timeline]')).toContainText('凯亚 · 动画 E 技能');
+ await page.locator('[data-runtime-details] > summary').click();
+ await expect(page.locator('[data-runtime-effects]')).toBeVisible();
+ await expect(page.locator('[data-runtime-effects]')).toContainText('状态剩余未知');
+ await page.locator('[data-source-record-details] > summary').click();
+ await expect(page.locator('.source-team-builder__table-wrap')).toBeVisible();
+ await expect(page.locator('[data-source-record-details]')).toContainText('没有动作实例与输入窗口回执');
+ await expect(page.locator('[data-source-record-details]')).toContainText('不能直接加上起始帧来预测实际结束');
+ await page.locator('[data-add-character]').selectOption('kaeya');
+ await page.locator('[data-quick-action="skill"]').click();
+ await expect(page.locator('[data-current-action-row]')).toHaveCount(1);
+ await expect(page.locator('[data-current-action-row]')).toBeHidden();
+ await expect(page.locator('.source-team-builder__action [data-runtime-action-summary]')).toBeHidden();
+ await expect(page.locator('[data-run-direct]')).toBeEnabled();
+ await page.locator('[data-team-section="action-check"] > summary').click();
+ await expect(page.locator('[data-current-action-row]')).toBeVisible();
+ await page.locator('[data-action-params-details] > summary').click();
+ await expect(page.locator('.source-team-builder__action [data-runtime-action-summary]')).toBeVisible();
+});
+
+test('mobile replay keeps complete actor, action and frame labels within the available width',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await renderReplay(page);
+ await page.locator('#replay').evaluate(root=>root.style.width='282px');
+ const labels=await page.locator('[data-timeline-start] > span').evaluateAll(elements=>elements.map(element=>({text:element.textContent,clipped:element.scrollWidth>element.clientWidth})));
+ expect(labels.length).toBe(4);expect(labels.every(label=>!label.clipped)).toBe(true);
+ expect(labels.some(label=>label.text?.includes('7190–7200 帧'))).toBe(true);
+});
