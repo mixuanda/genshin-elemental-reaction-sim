@@ -1,36 +1,55 @@
-# 米游社 / HoYoLAB 账号导入状态
+# 米游社 / HoYoLAB 当前配装导入
 
-核对日期：2026-10-22。真实登录和真实账号当前装备读取**未实现、未发起**。未遇到权限拒绝或未知结果的真实登录；当前阻碍是没有核实到适用于第三方的官方只读授权接入方式。
+核对日期：2026-10-22。**找到成熟客户端采用的正常账号登录与本人配装读取路线；本云任务尚未执行真实登录或读取。** 没找到公开只读 OAuth 合同，不等于无法继续实现。当前交付包含默认零网络的可执行宿主 CLI、响应观察器和已有导入器的部分字段接入。它不是已连通的账号服务。
 
-本工作线基于 `4770eab`，复用独立交付 `73c7d1c119e605c62299881eba65b11b857eb89c` 的 `authorized-host.ts` 和测试，字节不变。其唯一实现是 `fixture-only` 宿主端口，`realLogin` 始终为 false。现有 GOOD / Enka / 文本解析、角色字段完整性和预览校验继续使用原实现，没有增加一套解析器。外部任务线程本身没有可读取工具；这里核对的是已落库的交付代码与说明。
+本分支复用 `73c7d1c119e605c62299881eba65b11b857eb89c` 的 `authorized-host.ts` 契约，未重新实现 GOOD / Enka / 文本解析。该旧契约仍是 fixture-only，不把新宿主结果塞进它来伪称真实授权成功。
 
-## 官方来源与证据限制
+## 已核实的正常客户端路线
 
-- [米游社原神社区](https://www.miyoushe.com/ys/)：官方入口，本次公开抓取超时。
-- [米哈游通行证](https://user.mihoyo.com/)与[HoYoverse Account](https://account.hoyoverse.com/)：公开读取为脚本页面。没有登录，也没有抓取账号会话。
-- [HoYoLAB 官方社区](https://www.hoyolab.com/)与[官方 Battle Chronicle](https://act.hoyolab.com/app/community-game-records-sea/index.html)：可确认官方社区/战绩产品入口存在；战绩页面本次只取得脚本壳。
-- 官方账号的[战绩更新文章](https://www.hoyolab.com/article/2002956)公开读取也仅返回 Loading，不能将 HTTP 成功或搜索摘要冒充已读开发者授权合同。
+| 环节 | 公开主来源与结论 | 尚未证实 |
+| --- | --- | --- |
+| 米游社扫码 | genshin.py 的 [login_with_qrcode](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/components/auth/client.py#L289) 仅标记中国区；[子客户端](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/components/auth/subclients/app.py#L232) 向官方 passport-api.miyoushe.com 创建/查询二维码，确认后取得账号会话。 | 不构成只读 OAuth；本项目没有调用。这套库的[设备头](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/utility/auth.py#L79)含固定设备信息，本项目不复制，不冒充其客户端。 |
+| 两区官方网页登录 | Starward 的[登录页面实现](https://github.com/Scighost/Starward/blob/df8ae07b5ad4c9c6cb70d288488ce8073ce01478/src/Starward/Features/GameRecord/LoginPage.xaml.cs#L25)在自身 WebView 打开 www.miyoushe.com 或 www.hoyolab.com，由官方页面完成登录。 | 不能套用国服 QR 到海外；当前官方 UI 的扫码与挑战状态未真号验证。 |
+| 本人绑定 UID / 服务器 | genshin.py [get_game_accounts](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/components/base.py#L499)读取当前登录用户的绑定角色；[账号模型](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/models/hoyolab/record.py#L29)明确 game_biz / game_uid / region。 | 必须观察到绑定列表并由用户明确选择，不从 UID 前缀推服务器，不自动选择等级最高的账号。 |
+| 当前配装 | genshin.py 的[角色读取](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/components/chronicle/genshin.py#L78)先 POST character/list，再以返回 ID 调用 character/detail；[数据模型](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/models/genshin/chronicle/characters.py#L192)含武器、relics、技能与面板。 | 本项目只被动观察官方 UI 自己的请求，不主动调用端点。官方 UI 是否当前发出相同路径/完整列表，需真实观察；不能以库支持声称云宿主已支持。 |
 
-本轮在官方域名检索了“米游社 第三方 授权 开放平台 角色 装备 API”“HoYoLAB developer OAuth third party Battle Chronicle API authorization”等查询。未找到可核验的第三方应用接入、当前装备只读权限、绑定角色枚举/完整配装字段、授权到期与撤回的官方合同。**这是一项有边界的检索结论，不是证明所有私下官方合作方式均不存在。** 非官方库、内部接口或会话提取教程不构成本工具的官方读取授权。
+以上是开源客户端自身代码的主来源，**不是提供方授权第三方接入的合同**。两个源码仓库以完整提交固定。Starward [GameRecordService](https://github.com/Scighost/Starward/blob/df8ae07b5ad4c9c6cb70d288488ce8073ce01478/src/Starward/Features/GameRecord/GameRecordService.cs#L120)会把账号会话保存到数据库；这种持久方案不适合本任务，没有复用。旧 Snap.Hutao 原仓库本次访问 404，当前 hut.ao 页面声明与原开发者无关，未把该域名当成原项目证据。
 
-## 准确缺口与最小后续步骤
+## 实际接收方、范围和最小用户决定
 
-首先需要提供方发布或明确批准可用于本产品的第三方接入：用户在官方界面完成认证，并授予一次只读当前装备的访问；必须同时明确数据字段、选定 UID/区服、读取次数/有效期、验证挑战处理以及断开确认。当前没有该生产宿主，不能用假 OAuth 参数、仅打开登录页、借用跨域浏览器状态或 fixture 代替。
+候选流程：新建临时官方页面 → 用户在官方 UI 正常登录或扫码 → 观察官方返回的本人绑定列表 → 用户选 UID / 服务器 → 仅观察后续匹配的 list / detail → 预览 → 关闭临时上下文。无需把 Cookie、密码或浏览器会话交给聊天或 GIDPS 页面。
 
-在接入经过核实以后，用户最少只需：选择国服/海外 → 在官方界面登录并同意本次只读范围 → 从官方返回的绑定列表选择 UID/区服 → 预览并主动应用。现在无需为此在本工具创建新登录，不需要向聊天或页面发送 Cookie、密码、令牌、浏览器会话或持久凭据。
+必须先向用户讲清：本任务在**当前云宿主**执行；官方账号系统正常处理登录，云宿主临时浏览器持有这次普通账号会话。它的实际权限超出只读，不能包装成提供方授予的装备专用权限。宿主程序只观察选定原神角色的当前配装响应，不导出凭据、不建立刷新/长期访问，不发账号修改请求。官方登录 UI 正常流量本身仍由提供方控制。
 
-拟申请范围只有：所选绑定角色的全部已拥有角色及当前配装。未装备背包、历史配装、账号写操作、后台同步不在范围内。完整角色覆盖与配装字段完整、能否计算分别校验。
+云宿主最长保留 10 分钟，完成一次输出、取消、异常、挑战、限频或本地到期即关闭上下文与浏览器；该时间是本地保留策略，**不是提供方会话到期时间**。不读已有用户浏览器 profile，不保存 storageState、HAR、trace、截图或账号文件。关闭临时上下文只表示释放本次宿主，不能称为官方全局登出/撤权。若关闭失败，CLI 显示 temporary-browser-release-unconfirmed。
 
-## 当前界面和断开语义
+真实 begin 前由父线程协调明确以上接收方、范围和一次操作。CLI 的显式参数只表达调用意图，不代替用户授权，不是授权令牌。本轮没有请求真实账号权限，没有执行真实 begin，也没有登录操作被拒绝或结果不明。
 
-独立 `apps/player-import` 显示真实接入不可用与精确缺口，官方链接只是外部社区入口，不表示授权成功。“检查接入状态”复用已有控制器的无宿主路径，不请求账号接口。“清除本页账号导入状态”只清空该控制器的内存；没有真实授权可撤销，不声称退出官方账号。未来宿主释放失败必须报告 `disconnect-unconfirmed`。
+## 可执行原型和当前云环境缺口
 
-旧合成演示仍标为“合成数据，无登录”，位于折叠的演示区。它不证明真实账号覆盖率。UID 仅请求公开展示柜；文件导入仍是现有本地预览，二者均不冒充全账号授权导入。所有本页状态仅在内存中，不新增存储、依赖、凭据或付费服务。
+```sh
+node apps/player-import/official-browser-host.mjs --plan --provider=miyoushe
+node apps/player-import/official-browser-host.mjs --plan --provider=hoyolab
+```
 
-## 本地验证
+默认就是 `--plan`：无需浏览器依赖加载，零网络，输出固定页面、数据域、接收方、10 分钟上限、字段限制和交互前提。本任务环境已有 `/usr/bin/chromium`，但 **DISPLAY 未配置，也没有 Xvfb**。可见、可由用户正常操作的云浏览器渠道尚未提供；因此本原型的真实 begin 在检查前提时就停止，浏览器和登录均不启动。`--begin --acknowledge=temporary-cloud-account-read` 还必须有 TTY 和可见 DISPLAY，不可把伪造环境变量当作可见 UI 的证据。
 
-- `./node_modules/.bin/vitest run packages/player-import/src`：5 文件，120/120 通过。
-- `./node_modules/.bin/tsc -p apps/player-import/tsconfig.json --noEmit`：通过。
-- `./node_modules/.bin/playwright test --config apps/player-import/playwright.config.ts --workers=1`：独立 Chromium 工作台 7/7 通过，包含原有文件/文本/UID 流程与新增接入状态检查。
+无头 Chromium 可以渲染官方页面，理论上可把官方 UI 生成的二维码展示给用户；**本原型尚未实现经协调的临时可见传递与交互渠道**。官方登录按钮、二维码是否能在当前云正常出现、扫码后的风险验证如何由用户在官方 UI 完成，也尚未验证。不能以静态二维码图片或假成功替代这些步骤。这是云扫码下一项具体交付缺口，非“没有 OAuth 就停止”。
 
-新增浏览器验证观察到账号检查流程的外部请求为零、本地与会话存储项为零；两提供方均返回未配置真实宿主，清除不声称官方登出或撤权。公开 UID 用原有 mock 测试，不把合成覆盖断言当作真实账号读取证据。没有执行真实登录、主应用完整回归或部署。
+在具备经协调的可见临时云 UI 后，宿主代码可以打开正常官方页面，只接受终端命令 roles / 数字序号 / record / finish / cancel，不接收凭据。观察器只解析固定 HTTPS origin/path 与正常方法的角色响应，不读取登录响应或任何 Cookie/header。国服和海外的数据路径分别固定于[客户端路由](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/client/routes.py#L136)，不拼接自定义目标。官方 UI 使用其他路径就保持缺项，不盲加宽白名单或重放内部签名。
+
+若官方 UI 按需返回详情，用户需在官方页面打开缺少的角色；未观察到本次完整列表或任一详情时返回 partial-coverage。即使列表与详情严格一致，也**只证明观察覆盖该列表**，不证明提供方列表代表全部已拥有角色，未验证前不会标全账号导入。
+
+## 字段边界与既有导入器
+
+观察器只输出既有 GOOD JSON，可直接交给现有文件/文本输入，不新增主计算器接线。它使用既有身份映射和输入限制；只映射来源明确的角色 ID/等级/命座、武器 ID/等级/promote_level/affix_level。等级 100 原样保留，不裁成 90；缺少值不补零。
+
+源码模型未明确角色突破；技能 level 是否已含命座也未明确；圣遗物位置编号、词条编号/单位与本项目目录的转换尚未完整核验。这些均不猜。已净化的原始装备/技能数字观察保留在 JSON 的 observations；GOOD 的对应基础天赋、角色突破和圣遗物字段保持缺项，因此预览为部分配装，不能假称已可完整计算。模型里武器 promote_level 表示突破，affix_level 表示精炼，二者不混用。合成测试输出继续显式 syntheticFixture=true，不作为真号证明。
+
+提供方挑战码、限频和登录失效按固定客户端的[错误定义](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/errors.py#L277)与[挑战码集合](https://github.com/seriaati/genshin.py/blob/2d20ab1ad7e8af722d179a2cf0d79db5f8a9b213/genshin/constants.py#L130)停止；不自动解验证码、刷新会话或切换代理。官方 UI 中未映射的挑战未承诺可自动检测，用户需要取消，本地上限仍生效。
+
+## 验证
+
+新增 focused tests 覆盖固定来源正反例、无绑定不可选、区服不推断、错 UID/服务器响应不混入、分批详情与缺项、Lv100 与未知值保留、挑战/限频/失效后清空、列表或账号变化、取消/本地期限、一次输出后清空，以及 CLI 默认零网络/开始前提拒绝。现有导入器用于验证输出，不另建解析器。真实 begin 分支没有执行，不把测试通过当登录成功。
+
+前一阶段现有导入包 120/120、独立工作台 7/7 已通过；本次只运行新增 focused tests 与 standalone 类型检查，不重跑主应用完整回归，不部署。

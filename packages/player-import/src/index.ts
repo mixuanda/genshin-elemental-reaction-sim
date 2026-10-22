@@ -12,3 +12,5 @@ export { createOwnedEquipmentController, equipmentProviderInfo } from "./authori
 export type { EquipmentProvider, BoundEquipmentRole, EquipmentProblemCode, EquipmentProblem, HostProblemCode, FixtureEquipmentHost, OwnedEquipmentState } from "./authorized-host";
 export { getEquipmentAuthorizationAvailability } from "./authorization-availability";
 export type { EquipmentAuthorizationAvailability } from "./authorization-availability";
+export { createOfficialEquipmentObserver, matchOfficialEquipmentResponse } from "./official-browser-observer.mjs";
+export type { ObserverProvider, ObservedRole, ObservationResult } from "./official-browser-observer.mjs";
