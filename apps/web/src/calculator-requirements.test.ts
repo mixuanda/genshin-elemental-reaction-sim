@@ -4,6 +4,7 @@ import { applyCharacterConstellationScope, applyKeqingBurstContext, applyXingqiu
 import { renderKeqingConstellationControls } from "./calculator-keqing-controls";
 import { renderPassiveSkillControls } from "./calculator-passive-controls";
 import { CALCULATOR_REQUIREMENT_ADAPTERS, collectCalculatorRequirements, type CalculatorRequirementAdapter } from "./calculator-requirements";
+import { renderSourceCastControls } from "./calculator-source-cast-controls";
 
 function fixture(character: "keqing" | "xingqiu" = "keqing", constellation = 4): CalculatorDocument {
   const document = getCharacterDocuments(character === "keqing" ? "character:10000042" : "character:10000025", 1)
@@ -145,5 +146,35 @@ describe("calculator missing fields to existing controls", () => {
     const report = collectCalculatorRequirements(document, { adapters: [...CALCULATOR_REQUIREMENT_ADAPTERS, adapter] });
     expect(report.fields[0]).toMatchObject({ adapterId: "explicit-extension", controlSelector: "#existing-future-control" });
     expect(report.blockers[0]).toMatchObject({ status: "linked-controls", reason: document.dependencies[0]!.reason });
+  });
+});
+
+describe("Durin C2 condition controls", () => {
+  const create = (black=false) => {
+    const document=getCharacterDocuments("character:10000123",10).find(row=>row.gameContext?.skillId===(black?"durin-denial-of-darkness":"durin-confirmation-of-purity"))!;
+    document.gameContext!.constellation=2;
+    return applyCharacterConstellationScope(document);
+  };
+  it("maps actual missing state to the rendered controls without choosing an answer",()=>{
+    let document=create();const before=JSON.stringify(document);
+    const requirements=collectCalculatorRequirements(document);
+    expect(requirements.fields.map(field=>field.fieldPath.split('.').at(-1))).toEqual(["c2PyroBonusActive","c2PyroBonusIncluded"]);
+    expect(JSON.stringify(document)).toBe(before);
+    for(const field of requirements.fields)expect(renderSourceCastControls(document)).toContain(`data-source-cast-state-field="${field.fieldPath}"`);
+    expect(requirements.blockers.every(blocker=>blocker.status==="linked-controls")).toBe(true);
+    document.gameContext!.durinSkill!.hitStates={"durin-white-e":{c2PyroBonusActive:false,c2PyroBonusIncluded:false}};
+    document=applyCharacterConstellationScope(document);
+    expect(collectCalculatorRequirements(document)).toEqual({fields:[],blockers:[]});
+    expect(calculateDocument(document).status).toBe("calculated");
+  });
+  it("asks for stability only across selected hits and does not borrow other hits' answers",()=>{
+    const document=create(true);
+    expect(collectCalculatorRequirements(document).fields).toHaveLength(7);
+    document.scope="single-hit";document.selectedHitIds=[document.hits[1]!.id];
+    const selected=applyCharacterConstellationScope(document);
+    const fields=collectCalculatorRequirements(selected).fields;
+    expect(fields).toHaveLength(2);
+    expect(fields.every(field=>field.hitIds[0]===document.hits[1]!.id)).toBe(true);
+    expect(fields.some(field=>field.fieldPath.endsWith("statsStableAcrossHits"))).toBe(false);
   });
 });

@@ -144,8 +144,38 @@ const wandererInitialAdapter: CalculatorRequirementAdapter = {
   },
 };
 
+const durinAdapter: CalculatorRequirementAdapter = {
+  id: "durin-skill-conditions",
+  applies: document => document.gameContext?.durinSkill !== undefined,
+  collect(document) {
+    const game = document.gameContext!, context = game.durinSkill!, hits = selectedOrdinaryHits(document);
+    const fields: CalculatorFieldRequirementDraft[] = [];
+    if (hits.length > 1 && context.statsStableAcrossHits !== true) {
+      const fieldPath = "gameContext.durinSkill.statsStableAcrossHits";
+      fields.push({id:"durin-skill:statsStableAcrossHits",fieldPath,
+        controlSelector:attributeSelector("select","data-source-cast-state-field",fieldPath),
+        label:"这几击的其余面板、装备和目标状态保持不变",explanation:"黑E合计使用共同面板；状态变化时应单选一击并提供该击面板。C2仍逐击判断。",
+        status:"condition-not-satisfied",dependencyIds:["durin-skill:conditions"],hitIds:hits.map(hit=>hit.id)});
+    }
+    if (game.constellation === 2) for (const hit of hits) {
+      const hitState = context.hitStates?.[hit.id];
+      for (const [key,label,explanation] of [
+        ["c2PyroBonusActive","本击的 C2 火伤增益仍在生效","Q持续期间触发相关反应后生效6秒；本页没有触发轴，需要该击实际状态。"],
+        ["c2PyroBonusIncluded","本击的增伤输入已经计入 C2 火伤","已含时不重复加算；明确未含才选择否。"],
+      ] as const) {
+        if (hitState?.[key] !== undefined) continue;
+        const fieldPath = `gameContext.durinSkill.hitStates.${hit.id}.${key}`;
+        fields.push({id:`durin-skill:${hit.id}:${key}`,fieldPath,
+          controlSelector:attributeSelector("select","data-source-cast-state-field",fieldPath),label,explanation,
+          status:"input-required",dependencyIds:[`durin-skill:${hit.id}`],hitIds:[hit.id]});
+      }
+    }
+    return fields;
+  },
+};
+
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a
