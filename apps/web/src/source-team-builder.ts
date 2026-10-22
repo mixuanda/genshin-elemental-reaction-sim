@@ -264,6 +264,7 @@ export interface SourceTeamBuilderOptions {
   onRunScript?: (script: string, primaryTargetIndex: number, targetPhases: SourceHostTargetPhaseRequest | undefined) => void;
   onDraftChange?: (draft: SourceTeamDraft) => void;
   initialDraft?: SourceTeamDraft;
+  initialTemplateId?: string;
 }
 export interface SourceTeamBuilderHandle {
   setDraft(draft: SourceTeamDraft): void;
@@ -998,6 +999,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
   void loadSourceTeamInventory(hostVariant).then(value => {
     if (disposed) return;
     inventory = value;
+    if (options.initialTemplateId) { applyTemplate(options.initialTemplateId); return; }
     if (draft.members.length) compileSourceTeamDraft(draft, value);
     draft.source ??= { hostVariant, revision: value.revision };
     notify(); render();

@@ -123,6 +123,9 @@ export async function addSourceTeamRoster(members: SourceTeamMember[], inventory
   savedHostVariant = variant;
 }
 
+let pendingTemplateId: string | undefined;
+/** User selected an existing candidate; the builder still validates its actual source inventory. */
+export function requestSourceTeamTemplate(templateId: string): void { pendingTemplateId = templateId; }
 export function stopSourceHostRun(): void { montePanel?.cancel(); activeWorkerRun?.cancel(); activeWorkerRun = null; }
 export function disposeSourceHostPanel(): void { stopSourceHostRun(); disposeInventory?.(); disposeInventory = undefined; builderGeneration++; teamBuilder?.dispose(); teamBuilder = undefined; }
 
@@ -131,9 +134,9 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   disposeInventory?.();
   teamBuilder?.dispose(); teamBuilder = undefined;
   const mountedGeneration = ++builderGeneration;
-  root.innerHTML = `<article class="card"><h2>来源队伍模拟</h2><p>固定版本的来源执行器运行角色、装备、快照、粒子、附着与回调，共享公式核心返回实际使用的出伤结果。原有队伍编辑与独立技能计算继续可用。</p>
-    <p class="notice">来源机制为暂定。共用出伤核心支持普通、增幅、激化、经典剧变，以及直接月伤害、多人月感电／月结晶；月绽放资源事件另列。星辉另由 a7dc4bf 执行器运行；其源码与指南的分歧保留，尚未游戏验证。任意属性转换的前置解释仍不完整，不支持任意帧断点恢复或据此宣称稳态。</p>
-    <label>来源规则版本<select id="source-host-variant"><option value="classic">b4ae769 · 普通/月曜、逐项属性、共享玩家受击</option><option value="stellar">a7dc4bf · 星辉来源规则（暂定、AGPL）</option></select></label><p>配队卡、装备名册与生成脚本使用所选来源；两个来源分别保留队伍草稿。星辉来源的新增角色也可自由配队。切换不会改动正式或预览数据集。</p>
+  root.innerHTML = `<article class="card"><h2>队伍 DPS 模拟</h2><p>选队伍 → 点 E / Q / A 编排动作 → 运行动作轴。结果显示总伤、DPS、角色贡献和逐帧伤害。</p>
+    <details><summary>机制版本与支持范围</summary><p>固定来源机制仍有未验证项；具体缺口随角色、动作和结果列出。</p>
+    <label>来源规则版本<select id="source-host-variant"><option value="classic">普通／月曜 · b4ae769</option><option value="stellar">星辉 · a7dc4bf</option></select></label><p>两版本分别保留队伍草稿。特殊反应由执行器依实际队伍与事件判断；不是所有角色、分支均已核验。</p></details>
     <div id="source-team-builder"></div>
     <details><summary>高级：示例脚本与来源运行参数</summary>
     <div class="editor-actions"><button type="button" data-source-host-example="ordinary">载入单角色动作示例</button><button type="button" data-source-host-example="lunar">载入月曜机制示例</button><button type="button" data-source-host-example="incoming">载入玩家受击示例</button><button type="button" data-source-host-example="stellar">载入星扩散示例</button><button type="button" data-source-host-example="conduct">载入星导示例</button></div>
@@ -157,7 +160,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     <p id="source-host-reexecution-status" role="status">当前结果尚未在本页面完成从头复跑核对。</p>
     </details>
     <details><summary>来源与能力边界</summary><p>源码注册不等于通过游戏验证。源内 TODO、缺失人物及各机制限制仍保留。共享公式返回玩家受击、护盾消耗、穿透最小值与生命比例；来源运行时保留事件、护盾顺序与生命上下限处理。</p><a href="/source-host/manifest.json" target="_blank" rel="noopener">b4ae769 源码、构建哈希、名册及许可</a> · <a href="/source-host-stellar/manifest.json" target="_blank" rel="noopener">a7dc4bf 独立源码、哈希及许可</a></details></article>
-    <div id="source-host-monte"></div><div id="source-host-batch"></div><div id="source-host-startup"></div><div id="source-host-result"></div><div id="source-host-inventory"></div>`;
+    <div id="source-host-result"></div><details><summary>多次模拟与统计对照</summary><div id="source-host-monte"></div><div id="source-host-batch"></div><div id="source-host-startup"></div></details><details><summary>来源名册与实现详情</summary><div id="source-host-inventory"></div></details>`;
   const config = root.querySelector<HTMLTextAreaElement>("#source-host-config")!, seed = root.querySelector<HTMLInputElement>("#source-host-seed")!;
   const hostVariant = root.querySelector<HTMLSelectElement>("#source-host-variant")!;
   const executionMode = root.querySelector<HTMLSelectElement>("#source-host-execution-mode")!;
@@ -248,6 +251,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
       if (mountedGeneration !== builderGeneration || attempt !== builderMount) return;
       teamBuilder = renderSourceTeamBuilder(host, {
         hostVariant: variant,
+        ...(pendingTemplateId ? { initialTemplateId: pendingTemplateId } : {}),
         ...(teamDrafts[variant] ? { initialDraft: teamDrafts[variant] } : {}),
         onDraftChange: draft => { teamDrafts[variant] = structuredClone(draft); },
         onApplyScript: (script, primaryTargetIndex, targetPhases) => {
@@ -266,6 +270,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
           run.click();
         },
       });
+      pendingTemplateId = undefined;
       if (savedResult && (savedResult.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === variant) teamBuilder.renderExecutionLogs(savedResult.logs, savedResult.statusInstances, savedResult.observationWindow?.actualEndFrame ?? savedResult.lifecycleObservationFrame);
     }).catch(error => { if (mountedGeneration === builderGeneration && attempt === builderMount) host.textContent = `配队编辑器加载失败：${error}`; });
   }

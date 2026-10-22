@@ -1,6 +1,6 @@
 import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { convertDocumentInput, openProjectDocument, saveEditedDocument, type OpenDocument, type ProjectDocument, type DocumentControls } from './project-document';
-import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster } from "./source-host-panel";
+import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster, requestSourceTeamTemplate } from "./source-host-panel";
 import { renderEnemyShieldLedger } from "./enemy-shield-panel";
 import { renderWeaponHitStackLedger } from "./weapon-hit-stack-panel";
 import {
@@ -3697,7 +3697,7 @@ populatePresetSelect();
 initEvents();
 syncControlsFromConfig();
 renderShowcase();
-if (["/", "/results"].includes(location.pathname)) void runSimulation();
+if (location.pathname === "/results") void runSimulation();
 
 let calculatorController: CalculatorController | null = null;
 let routeGeneration = 0;
@@ -3724,7 +3724,7 @@ async function renderProductRoute(): Promise<void> {
   const path = location.pathname;
   if (path !== "/source-simulation") disposeSourceHostPanel();
   if (path !== "/calculator") calculatorController?.stopSourceSkillRun();
-  const simulation = path === "/" || path === "/results";
+  const simulation = path === "/results";
   byId<HTMLElement>("simulationWorkspace").hidden = !simulation;
   byId<HTMLElement>("simulationActions").hidden = !simulation;
   workspace.hidden = simulation;
@@ -3771,7 +3771,16 @@ async function renderProductRoute(): Promise<void> {
       run: runSimulation,
       navigate: navigateProduct
     };
-    if (path === "/source-simulation") renderSourceHostPanel(panel, capture => {
+    if (path === "/") {
+      panel.innerHTML = `<section class="card product-start"><h2>开始计算</h2><p>先选择要完成的事。面板与配装可随后修改。</p><div class="product-start-grid"><article><h3>单技能伤害</h3><p>选择角色和动作，填写面板；查看伤害与逐步公式。</p><button type="button" data-start-route="/calculator">打开技能计算器</button></article><article><h3>队伍 DPS</h3><p>选择四人队，点选动作；运行后查看冷却、能量、贡献和伤害曲线。</p><button type="button" data-start-route="/source-simulation">搭队并编辑动作轴</button></article><article><h3>队伍候选</h3><p>从已有入门队伍开始，再替换角色、装备和动作。</p><button type="button" data-start-route="/team-candidates">挑选入门队伍</button></article></div></section>`;
+      panel.querySelectorAll<HTMLButtonElement>("[data-start-route]").forEach(button => button.onclick = () => navigateProduct(button.dataset.startRoute!));
+    }
+    else if (path === "/team-candidates") {
+      const { renderTeamCandidatesPanel } = await import("./team-candidates-panel");
+      if (generation !== routeGeneration) return;
+      renderTeamCandidatesPanel(panel, { onSelect: templateId => { requestSourceTeamTemplate(templateId); navigateProduct("/source-simulation"); } });
+    }
+    else if (path === "/source-simulation") renderSourceHostPanel(panel, capture => {
       void ensureCalculator().then(controller => { controller.loadSourceHostCapture(capture); navigateProduct("/calculator"); });
     });
     else if (path === "/builds") {

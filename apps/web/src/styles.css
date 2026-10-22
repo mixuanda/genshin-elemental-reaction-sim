@@ -182,3 +182,9 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
   .control-grid, .metric-grid, .energy-grid, .hit-filters, .showcase-import, .showcase-grid, .formula-detail { grid-template-columns: 1fr; }
   .showcase-import .muted { grid-column: auto; }
 }
+.product-start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.product-start-grid article { padding: 16px; border: 1px solid var(--border); border-radius: 12px; }
+.product-nav-more { position: relative; }
+.product-nav-more summary { padding: 10px 14px; cursor: pointer; }
+.product-nav-more[open] { padding-bottom: 8px; }
+.product-nav-more[open] a { display: block; }

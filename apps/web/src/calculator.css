@@ -89,3 +89,5 @@
 .calculator-shell [hidden] { display: none !important; }
 @media (max-width: 950px) { .calculator-layout { grid-template-columns: 1fr; } .calculator-controls { grid-template-columns: repeat(2,minmax(0,1fr)); } .calculator-controls > :first-child { grid-column: 1 / -1; } }
 @media (max-width: 600px) { .calculator-controls { grid-template-columns: 1fr; } .calculator-summary { grid-template-columns: 1fr; } .calculator-summary .metric { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .calculator-summary .value { margin: 0; } .calculator-trace th:nth-child(1) { width: 30%; } .calculator-trace th:nth-child(2) { width: 24%; } .calculator-trace td, .calculator-trace th { padding: 8px 6px; } .trace-detail-content dl { grid-template-columns: 1fr; } .calculator-preset-row { align-items: stretch; flex-direction: column; } }
+.calculator-required-fields { display: flex; gap: 8px; flex-wrap: wrap; }
+.calculator-required-target { outline: 3px solid var(--warn); outline-offset: 3px; }
