@@ -1,5 +1,5 @@
 import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
-import { openProjectDocument, saveEditedDocument, type OpenDocument, type ProjectDocument, type DocumentControls } from './project-document';
+import { convertDocumentInput, openProjectDocument, saveEditedDocument, type OpenDocument, type ProjectDocument, type DocumentControls } from './project-document';
 import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster } from "./source-host-panel";
 import { renderEnemyShieldLedger } from "./enemy-shield-panel";
 import { renderWeaponHitStackLedger } from "./weapon-hit-stack-panel";
@@ -321,8 +321,8 @@ function populatePresetSelect(): void {
     .join("");
 }
 
-function syncControlsFromConfig(): void {
-  editorDraftDirty = false;
+function syncControlsFromConfig(updateEditor = true): void {
+  if (updateEditor) editorDraftDirty = false;
   byId<HTMLInputElement>("randomSeedInput").value = currentConfig.randomSeed;
   byId<HTMLInputElement>("durationInput").value = String(
     currentConfig.duration
@@ -375,14 +375,21 @@ function syncControlsFromConfig(): void {
       : targetOverrideCount > 0
         ? `共享标量当前作用于：${scalarConsumerNames.join("、")}；其余目标的目标级抗性覆盖不受影响。`
         : `全元素共享的兼容抗性（当前作用于：${scalarConsumerNames.join("、")}）。`;
-  byId<HTMLTextAreaElement>("jsonEditor").value = JSON.stringify(
-    currentConfig,
-    null,
-    2
-  );
+  if (updateEditor) {
+    byId<HTMLTextAreaElement>("jsonEditor").value = JSON.stringify(
+      currentConfig,
+      null,
+      2
+    );
+  }
 }
 
 function syncConfigFromControls(): void {
+  // Valid drafts already update currentConfig without rewriting the textarea.
+  // An incomplete/invalid draft must block consumers of the last valid config.
+  if (editorDraftDirty) {
+    convertDocumentInput(JSON.parse(byId<HTMLTextAreaElement>('jsonEditor').value));
+  }
   currentConfig.randomSeed = byId<HTMLInputElement>("randomSeedInput").value;
   currentConfig.duration = clamp(
     numericInput("durationInput", 120),
@@ -3392,9 +3399,9 @@ function activateTab(tabName: string): void {
 }
 
 function downloadJson(): void {
-  syncConfigFromControls();
   try {
-    if(!saveDocumentEdit(editorDraftDirty ? JSON.parse(byId<HTMLTextAreaElement>('jsonEditor').value) : currentConfig))return;
+    syncConfigFromControls();
+    if(!saveDocumentEdit(currentConfig))return;
   }catch(error){documentNotice(`副本导出失败；编辑内容仍在编辑器中：${String(error)}`);return;}
   if (!editedDocument) return;
   const blob = new Blob([JSON.stringify(editedDocument, null, 2)], {
@@ -3422,7 +3429,7 @@ function showConfigError(error: unknown): void {
 function applyEditorJson(): void {
   pendingSimulation?.abort();
   try {
-    currentConfig = migrateConfig(
+    currentConfig = convertDocumentInput(
       JSON.parse(byId<HTMLTextAreaElement>("jsonEditor").value) as unknown
     );
     executionProfile = null;
@@ -3455,13 +3462,33 @@ function initEvents(): void {
     }
   };
 
-  document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(".control-grid input, .control-grid select").forEach((control) => control.addEventListener("change", () => { restoredRunOptions = null; syncConfigFromControls(); saveDocumentEdit(currentConfig); }));
+  document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(".control-grid input, .control-grid select").forEach((control) => control.addEventListener("change", () => {
+    try {
+      syncConfigFromControls();
+      restoredRunOptions = null;
+      if (saveDocumentEdit(currentConfig)) syncControlsFromConfig();
+    } catch (error) {
+      showConfigError(error);
+      documentNotice('当前 JSON 编辑未通过验证；未运行模拟，也未替换已保存副本或原件。请先修正编辑内容。');
+    }
+  }));
   byId<HTMLTextAreaElement>("jsonEditor").addEventListener("input", () => {
     pendingSimulation?.abort();
     editorDraftDirty = true;
     const text=byId<HTMLTextAreaElement>('jsonEditor').value;
-    try { saveDocumentEdit(JSON.parse(text)); }
-    catch { documentNotice('JSON 尚未完整；编辑内容保留在编辑器中，不替换已保存副本或原件。'); }
+    try {
+      const edited = convertDocumentInput(JSON.parse(text));
+      if (openedDocument?.config !== null) {
+        currentConfig = edited;
+        restoredRunOptions = null;
+        // Reflect valid authored values in the controls but preserve typing,
+        // whitespace and the caret. A control change then edits this same config.
+        syncControlsFromConfig(false);
+      }
+      saveDocumentEdit(edited);
+    } catch (error) {
+      documentNotice(`JSON 尚未完整或配置不合法；编辑内容保留在编辑器中，不替换已保存副本或原件：${error instanceof Error ? error.message : String(error)}`);
+    }
   });
   byId<HTMLSelectElement>("benchmarkSelect").addEventListener("change", () => {
     const profile=BENCHMARK_PROFILES.find((p) => p.id === byId<HTMLSelectElement>("benchmarkSelect").value);
