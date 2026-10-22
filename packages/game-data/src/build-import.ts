@@ -162,7 +162,8 @@ export function parseEnkaBuilds(raw: unknown, options: { uid: string; fetchedAt?
     }
     if (new Set(artifacts.map(piece => piece.slot)).size !== artifacts.length) diagnostics.push(diagnostic("artifact-slot-duplicate", path, "展示柜有重复圣遗物位置。"));
     const prop = row(a?.propMap), levelProp = row(prop?.["4001"]), ascProp = row(prop?.["1002"]);
-    const level = enkaPropInteger(levelProp?.ival, 1, 100);
+    // Enka's propMap value is val; ival is explicitly documented as ignored.
+    const level = enkaPropInteger(levelProp?.val, 1, 100);
     const ascension = enkaPropInteger(ascProp?.val, 0, 6);
     const skillMap = row(a?.skillLevelMap);
     const mapping = (options.dataset?.catalog ?? gameDataCatalog).enkaCharacterMappings.find(entry => entry.avatarId === avatarId && entry.skillOrder.some(id => skillMap?.[String(id)] !== undefined));
