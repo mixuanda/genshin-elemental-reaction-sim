@@ -1,5 +1,6 @@
 import { mountObservedSkillComposition } from "./calculator-observed-composition";
 import { collectCalculatorRequirements } from "./calculator-requirements";
+import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { parseObservedSkillComposition, type ObservedSkillCompositionDocument } from "../../../packages/sim-core/src/observed-skill-composition";
 import { renderArtifactUtilityCalculator } from "./artifact-utility-calculator";
 import { calculatorTraceExecutionDetails } from "./calculator-trace-view";
@@ -900,10 +901,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const distinctWarnings = result.warnings.filter(warning => !current!.assumptions.includes(warning));
       const requirements = collectCalculatorRequirements(current, { isControlAvailable: selector => root.querySelector(selector) !== null });
       const requiredFields = requirements.fields.filter(field => field.status !== "missing-control");
+      const unsupportedIdleConstellation = current.gameContext?.idleStanceCast && current.gameContext.constellation !== 0
+        && !(current.selectedHitIds.length === 1 && current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && isWandererInitialSingleHit(current!, hit)));
       const conditionLinks = requiredFields.length ? `<p>请补齐以下实际条件：</p><div class="calculator-required-fields">${requiredFields.map(field => `<button type="button" data-calculator-requirement="${esc(field.controlSelector)}" title="${esc(field.explanation)}">填写：${esc(field.label)}</button>`).join("")}</div>` : "";
       get("#calc-results").innerHTML = `<section class="card"><h3 class="calculator-result-header">${esc(current.label)}</h3><span class="calculator-badge ${esc(data.releaseStatus)}">${esc(releaseLabels[data.releaseStatus])}</span><span class="calculator-badge ${esc(result.verification)}">${esc(evidenceLabels[result.verification])}</span><p class="calculator-hint">数据集 ${esc(data.datasetId)} · 版本 ${esc(data.gameVersion)} · 公式 ${esc(current.ruleVersion)}</p>` +
         documentIdentity(current, result) + '<div data-cast-aggregation-host></div>' +
-        (result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>尚需补充条件或更换受支持动作</strong>${conditionLinks}<ul>${result.blockers.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${current.gameContext?.idleStanceCast && current.gameContext.constellation !== 0 ? '<p>此有限姿态分支只支持 C0，不能把当前命座改成 C0 代算。可打开动作执行器，另行选择明确配装与实际动作。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "") +
+        (result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>尚需补充条件或更换受支持动作</strong>${conditionLinks}<ul>${result.blockers.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${unsupportedIdleConstellation ? '<p>此有限姿态分支只支持 C0，不能把当前命座改成 C0 代算。可打开动作执行器，另行选择明确配装与实际动作。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "") +
         `<p class="calculator-hint">${result.hits.some(hit => hit.nonCriticalComparisonOnly) ? "弱点来源保证暴击的命中，其期望等于暴击伤害；非暴击数值仅为移除该条件后的教学对照，本条件下不会发生。其他命中仍按各自概率计算。" : "期望值是概率加权的平均结果，不是保证出现的单次伤害数字。"}</p>` +
         (current.assumptions.length || distinctWarnings.length ? `<details class="calculator-status"><summary>计算条件与支持范围</summary><ul>${[...current.assumptions, ...distinctWarnings].map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>` : "") +
         `<p class="calculator-hint">纳入：${result.includedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}；排除：${result.excludedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}。</p>` +
