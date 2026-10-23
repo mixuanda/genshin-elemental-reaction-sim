@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "browser": "154.0.8037.57",
+  "nativeRuns": 0,
+  "worker": "intercepted request only; no simulated result supplied",
+  "actualWorkerRequests": 1,
+  "exactOriginalRequest": true,
+  "allFourEquipmentCards": true,
+  "level100Preserved": true,
+  "editingUnbindsOriginalProgram": true,
+  "failurePreservesEdits": true,
+  "cancellationTerminatesWorker": true,
+  "desktopAndNarrow": true,
+  "errors": [],
+  "realSavedResultRoundtrip": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "nativeRuns": 0,
+    "savedInput": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.result.json",
+    "savedInputSha256": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+    "exportedSha256": "a34712835439c1bfc930198d4f8f3b79c6c617ad87adc54b6dbb5c47c2341907",
+    "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "frames": 7200,
+    "actualHits": 610,
+    "total": 27069474.337322712,
+    "dps": 225578.9528110226,
+    "byActor": {
+      "nicole": 921151.0747939858,
+      "durin": 4621465.1979512945,
+      "faruzan": 1851300.261779438,
+      "wanderer": 19675557.80279801
+    },
+    "projections": {
+      "命座投影（妮可C1）": 2344765.699898373,
+      "协同投影（妮可Q）": 1043662.512959718
+    },
+    "resultFilesVisibleWithoutOpeningAdvanced": true,
+    "originalFileUnchanged": true,
+    "savedApplicationsEnergyAndConfigurationUnchanged": true,
+    "frameCurveAndSteps": true,
+    "desktopAndNarrow": true,
+    "errors": []
+  },
+  "roundtripRestoresKnownEquipmentCards": true,
+  "production": "paused-not-deployed"
+}

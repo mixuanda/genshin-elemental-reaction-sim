@@ -54,6 +54,10 @@ async function open(path) {
   await expect(page.locator('[data-source-host-overview-duration]')).toHaveText('120 秒');
   await expect(page.locator('[data-source-host-actor-damage]')).toHaveCount(4);
   await expect(page.locator('#source-host-export')).toBeEnabled();
+  // This exact reviewed program may restore its equipment cards; arbitrary scripts must not be guessed.
+  await expect(page.locator('[data-wanderer-run]')).toBeEnabled({ timeout: 30_000 });
+  await expect(page.locator('[data-member-tab]')).toHaveCount(4);
+  await expect(page.locator('[data-member-field="level"]')).toHaveValue('100');
 }
 try {
   await page.goto(`${base}/source-simulation`);

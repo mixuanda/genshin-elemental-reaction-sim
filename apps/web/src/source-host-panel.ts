@@ -1,6 +1,7 @@
 import { renderSourceMonteCarloPanel } from "./source-host-monte-carlo-panel";
 import { renderSourceHostTargetSummaryPanel } from "./source-host-target-summary-panel";
 import { renderSourceHostResultOverview } from "./source-host-result-overview";
+import { renderWandererScenarioPanel } from "./source-wanderer-scenario-panel";
 import { openSourceHostResultArchive } from "../../../packages/sim-core/src/source-host-result-archive";
 import { renderSourceHostTargetPhasePanel } from "./source-host-target-phase-panel";
 import { normalizeSourceHostTargetPhases, sourceHostTargetPhaseRequestSchema } from "../../../packages/sim-core/src/source-host-target-phase";
@@ -144,7 +145,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   root.innerHTML = `<article class="card"><h2>队伍 DPS 模拟</h2><p>选队伍 → 点 E / Q / A 编排动作 → 运行动作轴。结果显示总伤、DPS、角色贡献和逐帧伤害。</p>
     <details><summary>机制版本与支持范围</summary><p>固定来源机制仍有未验证项；具体缺口随角色、动作和结果列出。</p>
     <label>来源规则版本<select id="source-host-variant"><option value="classic">普通／月曜 · b4ae769</option><option value="stellar">星辉 · a7dc4bf</option></select></label><p>两版本分别保留队伍草稿。特殊反应由执行器依实际队伍与事件判断；不是所有角色、分支均已核验。</p></details>
-    <div id="source-team-builder"></div>
+    <div id="source-wanderer-scenario"></div><div id="source-team-builder"></div>
     <div class="editor-actions" data-source-result-files aria-label="计算结果文件"><label class="file-button">打开计算结果<input type="file" id="source-host-import" accept="application/json"></label><button id="source-host-export" ${savedResult ? "" : "disabled"}>保存完整结果</button><button id="source-host-cancel" disabled>取消计算</button></div>
     <details><summary>高级：示例脚本与来源运行参数</summary>
     <div class="editor-actions"><button type="button" data-source-host-example="ordinary">载入单角色动作示例</button><button type="button" data-source-host-example="lunar">载入月曜机制示例</button><button type="button" data-source-host-example="incoming">载入玩家受击示例</button><button type="button" data-source-host-example="stellar">载入星扩散示例</button><button type="button" data-source-host-example="conduct">载入星导示例</button></div>
@@ -188,6 +189,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   const swapWarning = root.querySelector<HTMLElement>("#source-host-swap-warning")!;
   const switchPracticalButton = root.querySelector<HTMLButtonElement>("#source-host-switch-practical")!;
   let swapBlocked = false, sourceRunBusy = false;
+  let wandererScenario: ReturnType<typeof renderWandererScenarioPanel> | undefined;
   const updateSwapGuard = (script = config.value) => {
     swapBlocked = sourceScriptNeedsPracticalSwap(script);
     swapWarning.hidden = !swapBlocked;
@@ -261,13 +263,15 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
         hostVariant: variant,
         ...(pendingTemplateId ? { initialTemplateId: pendingTemplateId } : {}),
         ...(teamDrafts[variant] ? { initialDraft: teamDrafts[variant] } : {}),
-        onDraftChange: draft => { teamDrafts[variant] = structuredClone(draft); },
+        onDraftChange: draft => { teamDrafts[variant] = structuredClone(draft); wandererScenario?.refresh(); },
         onApplyScript: (script, primaryTargetIndex, targetPhases) => {
+          wandererScenario?.invalidatePending();
           savedConfig = script; config.value = script; updateSwapGuard(); savedPrimaryTargetIndex = primaryTargetIndex; primaryTarget.value = String(primaryTargetIndex + 1); savedStopAtDuration = true; stopAtDuration.checked = true;
           savedTargetPhasesText = targetPhases === undefined ? "" : JSON.stringify(targetPhases, null, 2); targetPhasesInput.value = savedTargetPhasesText;
           status.textContent = `已从${variant === "stellar" ? "星辉" : "普通／月曜"}来源配队卡生成脚本。点击「运行来源队伍」，由实际机制检查动画、冷却与能量。`;
         },
         onRunScript: (script, primaryTargetIndex, targetPhases) => {
+          wandererScenario?.invalidatePending();
           savedConfig = script; config.value = script; updateSwapGuard(); savedPrimaryTargetIndex = primaryTargetIndex; primaryTarget.value = String(primaryTargetIndex + 1); savedStopAtDuration = true; stopAtDuration.checked = true;
           savedTargetPhasesText = targetPhases === undefined ? "" : JSON.stringify(targetPhases, null, 2); targetPhasesInput.value = savedTargetPhasesText;
           if (run.disabled) {
@@ -289,6 +293,27 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     if (changed) mountBuilder();
   }
   mountBuilder();
+  wandererScenario = renderWandererScenarioPanel(root.querySelector<HTMLElement>("#source-wanderer-scenario")!, {
+    getRequest,
+    getDraft: () => teamDrafts[savedHostVariant],
+    apply: prepared => {
+      const request = prepared.exactRequest;
+      savedConfig = request.config; config.value = savedConfig; savedSeed = request.seed; seed.value = savedSeed;
+      savedExecutionMode = request.executionMode ?? "auto-wait"; executionMode.value = savedExecutionMode;
+      savedPrimaryTargetIndex = 0; primaryTarget.value = "1";
+      savedStopAtDuration = true; stopAtDuration.checked = true; clearTargetPhases();
+      savedPhaseObservation = request.phaseObservation;
+      root.querySelector<HTMLInputElement>("#source-host-phase-enabled")!.checked = Boolean(savedPhaseObservation);
+      if (savedPhaseObservation) for (const [id, value] of [["warmup", savedPhaseObservation.warmupFrames], ["period", savedPhaseObservation.maxPeriod], ["repeats", savedPhaseObservation.requiredConsecutivePeriods], ["limit", savedPhaseObservation.maxObservations]] as const) root.querySelector<HTMLInputElement>(`#source-host-phase-${id}`)!.value = String(value);
+      teamDrafts.classic = structuredClone(prepared.equipmentDraft);
+      const changed = savedHostVariant !== "classic";
+      selectHostVariant("classic");
+      if (!changed) teamBuilder?.setDraft(prepared.equipmentDraft);
+      updateSwapGuard();
+    },
+    run: request => startRun(request),
+  });
+  for (const event of ["input", "change"]) root.addEventListener(event, () => wandererScenario?.refresh());
 
   root.querySelectorAll<HTMLButtonElement>("[data-source-host-example]").forEach(button => {
     button.onclick = () => { clearTargetPhases(); savedPrimaryTargetIndex = 0; primaryTarget.value = "1"; const key = button.dataset.sourceHostExample; selectHostVariant(key === "stellar" || key === "conduct" ? "stellar" : "classic"); savedConfig = key === "stellar" ? stellarExampleConfig : key === "conduct" ? stellarConductExampleConfig : key === "lunar" ? lunarExampleConfig : key === "incoming" ? incomingExampleConfig : exampleConfig; config.value = savedConfig; updateSwapGuard(); status.textContent = "已载入可编辑示例。构筑为假设值，反应由实际执行状态决定。"; };
@@ -308,7 +333,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   });
   }
   mountInventory();
-  const setBusy = (busy: boolean) => { sourceRunBusy = busy; run.disabled = busy || swapBlocked; cancel.disabled = !busy; batch.setBusy(busy); startup.setBusy(busy); montePanel?.setBusy(busy); reexecuteButton.disabled = busy || !savedResult || Boolean(savedReadOnlyArchive); importInput.disabled = busy; };
+  const setBusy = (busy: boolean) => { sourceRunBusy = busy; run.disabled = busy || swapBlocked; cancel.disabled = !busy; batch.setBusy(busy); startup.setBusy(busy); montePanel?.setBusy(busy); wandererScenario?.setBusy(busy); reexecuteButton.disabled = busy || !savedResult || Boolean(savedReadOnlyArchive); importInput.disabled = busy; };
   const mountDamageCurve = (result: SourceHostResult) => {
     const details = resultHost.querySelector<HTMLDetailsElement>("[data-source-curve]")!;
     let started = false;
@@ -434,7 +459,10 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     const showLog = () => { const start = Math.max(0, offset.valueAsNumber || 0); resultHost.querySelector<HTMLElement>("#source-host-log")!.textContent = `共 ${logs.length} 行；显示 ${start}–${Math.min(start + 50, logs.length)}\n${JSON.stringify(logs.slice(start, start + 50), null, 2)}`; };
     offset.oninput = showLog; showLog();
   };
-  if (savedResult) renderResult(savedResult);
+  if (savedResult) {
+    renderResult(savedResult);
+    if (!savedReadOnlyArchive && !teamDrafts[savedHostVariant] && savedConfig === savedResult.config && savedSeed === savedResult.seed) void wandererScenario.restoreResult(savedResult).catch(() => { /* Saved numerical result remains available even if its editable preset cannot be restored. */ });
+  }
   config.oninput = () => { savedConfig = config.value; updateSwapGuard(); }; seed.oninput = () => { savedSeed = seed.value; };
   updateSwapGuard();
   function startRun(request: SourceHostWorkerRequest): void {
@@ -537,6 +565,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   importInput.onchange = event => {
     const input = event.target as HTMLInputElement, file = input.files?.[0]; if (!file) return;
     const generation = ++importGeneration;
+    wandererScenario?.invalidatePending();
     void file.text().then(text => {
       if (generation !== importGeneration || mountedGeneration !== builderGeneration) return;
       const archive = openSourceHostResultArchive(text);
@@ -547,6 +576,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
       if (savedPhaseObservation) for (const [id, value] of [["warmup", savedPhaseObservation.warmupFrames], ["period", savedPhaseObservation.maxPeriod], ["repeats", savedPhaseObservation.requiredConsecutivePeriods], ["limit", savedPhaseObservation.maxObservations]] as const) root.querySelector<HTMLInputElement>(`#source-host-phase-${id}`)!.value = String(value);
       resetReexecution(); selectHostVariant(savedResult.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic"); savedConfig = savedResult.config; savedSeed = savedResult.seed; savedTargetPhasesText = savedResult.targetPhases ? JSON.stringify({ policy: savedResult.targetPhases.policy, phases: normalizeSourceHostTargetPhases(savedResult.targetPhases) }, null, 2) : ""; targetPhasesInput.value = savedTargetPhasesText; savedExecutionMode = savedResult.executionMode ?? "auto-wait"; savedPrimaryTargetIndex = savedResult.targetScene?.primaryTargetIndex ?? 0; primaryTarget.value = String(savedPrimaryTargetIndex + 1); savedStopAtDuration = savedResult.observationWindow?.policy === "duration-or-native"; stopAtDuration.checked = savedStopAtDuration; executionMode.value = savedExecutionMode; config.value = savedConfig; updateSwapGuard(); seed.value = savedSeed; renderResult(savedResult); exportButton.disabled = false; reexecuteButton.disabled = Boolean(savedReadOnlyArchive);
       status.textContent = savedReadOnlyArchive ? "已只读打开历史结果，原值保留。可原样导出；需要修正数值请重新运行上方动作轴。" : "已导入并重算来源结果的共享数值；尚未从头复跑机制。导入的历史核对记录不作为本次通过证明。";
+      if (!savedReadOnlyArchive) void wandererScenario?.restoreResult(savedResult).catch(error => { if (generation === importGeneration) status.textContent += ` 配队未恢复：${error instanceof Error ? error.message : String(error)}；结果仍保留。`; });
     }).catch(error => { if (generation === importGeneration && mountedGeneration === builderGeneration) status.textContent = `导入失败：${error}`; }); input.value = "";
   };
 }
