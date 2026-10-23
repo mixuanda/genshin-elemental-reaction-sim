@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import type { SourceHostResult } from "../../../packages/sim-core/src/source-host-wire";
-import { analyzeSourceHostEnergy } from "./source-host-energy-analysis";
+import type { SourceHostResult, SourceHostEnergyApplication } from "../../../packages/sim-core/src/source-host-wire";
+import { analyzeSourceHostEnergy, summarizeSourceHostEnergyRuns } from "./source-host-energy-analysis";
 import { buildSourceDamageCurve, curveSeries } from "./source-damage-curve";
 
 const legacy = JSON.parse(readFileSync(new URL("../../../docs/validation/source-team-builder-20260927.result.json", import.meta.url), "utf8")) as SourceHostResult;
@@ -49,6 +49,61 @@ describe("energy diagnostics use the same exact damage window as timed results",
     expect(analysis.windows[0]!.actors[0]!.endEnergy).toBe(8.98);
     expect(analysis.windows[1]!.actors[0]!.startEnergy).toBe(8.98);
     expect(analysis.windows[1]!.actors[0]!.endEnergy).toBe(17.98);
+  });
+
+  it("prefers actual ordered writes over a tick sample taken before a same-frame action", () => {
+    const result = timed();
+    const write = (id: number, frame: number, before: number, after: number): SourceHostEnergyApplication => ({ id, calculationId: id, frame, actorIndex: 0, actorKey: "xiangling", source: "synthetic-boundary-operation", operation: "flat-change", energyBefore: before, energyAfter: after, requestedAmount: after - before, energyMax: 80 });
+    result.energyApplications = [write(1, 10, 80, 30), write(2, 10, 30, 35), write(3, 11, 35, 0)];
+    result.startupState = { mode: "full", actors: [{ actorIndex: 0, actorKey: "xiangling", requestedEnergy: null, energy: 80, maxEnergy: 80 }] };
+    const before = structuredClone(result);
+    const analysis = analyzeSourceHostEnergy(result, 11);
+    expect(analysis.windows[0]!.actors[0]!.endEnergy).toBe(35);
+    expect(analysis.windows[1]!.actors[0]!.startEnergy).toBe(35);
+    expect(analysis.windows[1]!.actors[0]!.endEnergy).toBe(0);
+    expect(analysis.windows[0]!.actors[0]!.energyBoundarySource).toBe("energy-applications");
+    expect(result).toEqual(before);
+  });
+
+  it("retains known zero before the first actual write and labels a trace-only fallback as sampling", () => {
+    const result = timed();
+    result.energyApplications = [{ id: 1, calculationId: 1, frame: 10, actorIndex: 0, actorKey: "xiangling", source: "synthetic-zero-start", operation: "flat-change", energyBefore: 0, energyAfter: 7, requestedAmount: 7, energyMax: 80 }];
+    const analysis = analyzeSourceHostEnergy(result, 5);
+    expect(analysis.windows[0]!.actors[0]!.startEnergy).toBe(0);
+    expect(analysis.windows[0]!.actors[0]!.endEnergy).toBe(0);
+    expect(analysis.windows[1]!.actors[0]!.endEnergy).toBe(7);
+    expect(analysis.windows[0]!.actors[0]!.energyBoundarySource).toBe("energy-applications");
+    expect(analyzeSourceHostEnergy(timed()).windows[0]!.actors[0]!.energyBoundarySource).toBe("native-tick-samples");
+  });
+
+  it("rejects reordered or disconnected writes rather than silently sorting or accepting a broken balance", () => {
+    const result = timed();
+    const first: SourceHostEnergyApplication = { id: 1, calculationId: 1, frame: 10, actorIndex: 0, actorKey: "xiangling", source: "synthetic-order", operation: "flat-change", energyBefore: 80, energyAfter: 30, requestedAmount: -50, energyMax: 80 };
+    const second: SourceHostEnergyApplication = { ...first, id: 2, calculationId: 2, energyBefore: 30, energyAfter: 35, requestedAmount: 5 };
+    result.energyApplications = [second, first];
+    expect(() => analyzeSourceHostEnergy(result)).toThrow(/顺序或连续余额/);
+    result.energyApplications = [first, { ...second, energyBefore: 31 }];
+    expect(() => analyzeSourceHostEnergy(result)).toThrow(/顺序或连续余额/);
+  });
+
+  it("does not mix exact-write and sampled boundaries into one batch estimate", () => {
+    const exact = timed(), sampled = timed();
+    exact.energyApplications = [{ id: 1, calculationId: 1, frame: 10, actorIndex: 0, actorKey: "xiangling", source: "synthetic-batch", operation: "flat-change", energyBefore: 80, energyAfter: 80, requestedAmount: 0, energyMax: 80 }];
+    sampled.seed = "2";
+    expect(() => summarizeSourceHostEnergyRuns([exact, sampled])).toThrow(/能量边界证据/);
+  });
+
+  it.runIf(Boolean(process.env.GIDPS_WANDERER_WINDOW_CAPTURE))("uses the actual Durin F1510 action energy at boundary1511 instead of the earlier tick sample", () => {
+    const result = JSON.parse(readFileSync(process.env.GIDPS_WANDERER_WINDOW_CAPTURE!, "utf8")) as SourceHostResult;
+    const analysis = analyzeSourceHostEnergy(result, 1511);
+    const actorIndex = result.startupState!.actors.find(actor => actor.actorKey === "durin")!.actorIndex;
+    const write = result.energyApplications!.find(event => event.actorKey === "durin" && event.frame === 1510)!;
+    const native = result.result as { characters: Array<{ energy_status: number[] }> };
+    expect(write.energyBefore).toBeCloseTo(48.3756, 10);
+    expect(write.energyAfter).toBe(70);
+    expect(native.characters[actorIndex]!.energy_status[1509]).toBeCloseTo(48.3756, 10);
+    expect(analysis.windows[0]!.actors[actorIndex]!.endEnergy).toBe(70);
+    expect(analysis.windows[1]!.actors[actorIndex]!.startEnergy).toBe(70);
   });
 
   it("places warmup and adjacent measured windows on canonical integer-frame boundaries", () => {
