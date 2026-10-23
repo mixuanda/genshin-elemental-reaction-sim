@@ -4,6 +4,7 @@ import { renderHeldLifecycleCastControls } from "./calculator-held-lifecycle-con
 import { renderFiniteFollowupCastControls } from "./calculator-finite-followup-controls";
 import {renderGamingControls} from './calculator-gaming-controls';
 import {renderKinichControls} from './calculator-kinich-controls';
+import {renderCynoControls} from './calculator-cyno-controls';
 import { renderXiaoControls } from "./calculator-xiao-controls";
 import { renderObservedEntityControls } from "./calculator-observed-entity-controls";
 import { renderMaleTravelerChargedControls } from "./calculator-traveler-male-charged-controls";
@@ -143,7 +144,7 @@ function durinControls(document: CalculatorDocument): string {
 
 /** These controls record context only; all source formulas are rebuilt by sim-core. */
 export function renderSourceCastControls(document: CalculatorDocument): string {
-  return renderKinichControls(document) + renderGamingControls(document) + renderXiaoControls(document) + durinControls(document) + travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
+  return renderCynoControls(document) + renderKinichControls(document) + renderGamingControls(document) + renderXiaoControls(document) + durinControls(document) + travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
 }
 
 /** Optional nested hit/shared maps are created only after the user supplies a value. */
