@@ -157,21 +157,61 @@ describe("source-classified field-level character calculations", () => {
     const tap = aether.find((doc) => doc.gameContext?.skillId === "aether-anemo-skill-tap")!;
     expect(tap.gameContext).toMatchObject({ variantId: "aether-anemo", abilityId: "talent:traveleranemo:combat2" });
     expect(calculateDocument(tap).status).toBe("calculated");
-    const burst = aether.find((doc) => doc.gameContext?.skillId === "aether-anemo-burst")!;
+    expect(aether.some((doc) => doc.gameContext?.skillId === "aether-anemo-burst")).toBe(false);
+    const burst = aether.find((doc) => doc.gameContext?.skillId === "traveler-cross-aether-anemo-burst-c0")!;
+    expect(burst.gameContext).toMatchObject({ variantId: "aether-anemo", abilityId: "talent:traveleranemo:combat3", constellation: 0 });
     expect(calculateDocument(burst).status).toBe("blocked");
-    const charge = aether.find((doc) => doc.gameContext?.skillId === "aether-anemo-charged-base")!;
+    expect(calculateDocument(burst).totals).toBeUndefined();
+    burst.scope = "one-cast";
+    burst.characterLevel = 90;
+    burst.enemy = { level: 90, resistance: .1, defenseAdjustment: 0, defenseIgnore: 0 };
+    burst.build = { mode: "manual-final", stats: { atk: 2000, hp: 20000, def: 800, em: 0, critRate: .5, critDamage: 1 }, ascension: 6, source: "Synthetic actual unchanged Anemo Q panel" };
+    burst.gameContext!.travelerCrossEntityCast = {
+      casterId: "aether", targetId: "enemy", trueMoonStoryBuffInactive: true,
+      freshCastConfirmed: true, noHitlag: true, noInterruption: true, noReplacement: true,
+      fullObservedLifetime: true, observedThroughFrame: 363, statsStableAcrossHits: true,
+      anemo: { noAbsorption: true },
+      targetContacts: Object.fromEntries(Array.from({ length: 9 }, (_, index) => [`tick-${index + 1}`, true])),
+    };
+    const burstResult = calculateDocument(burst);
+    expect(burstResult.blockers).toEqual([]);
+    expect(burstResult.status).toBe("calculated");
+    expect(burstResult.hits).toHaveLength(9);
+    expect(burstResult.totals!.nonCritical).toBeCloseTo(9 * 2000 * 1.4544 * .5 * .9, 10);
+    const charge = aether.find((doc) => doc.gameContext?.skillId === "male-charged-aether-anemo-c0")!;
+    expect(charge.gameContext).toMatchObject({ characterId: characterId("aether"), variantId: "aether-anemo", abilityId: "talent:traveleranemo:combat1", constellation: 0 });
+    charge.scope = "one-cast";
     expect(calculateDocument(charge).status).toBe("blocked");
     charge.scope = "single-hit";
     charge.selectedHitIds = [charge.hits.find((hit) => hit.kind === "ordinary")!.id];
+    expect(calculateDocument(charge).status).toBe("blocked");
+    charge.gameContext!.travelerMaleChargedCast = { sharedState: { externalInfusionActive: false, trueMoonStoryBuffEnabled: false } };
     expect(calculateDocument(charge).status).toBe("calculated");
     const blockerIds = getClassifiedHitCoverage().travelerActionBlockers.map((entry) => entry.id);
-    expect(blockerIds).toContain("aether-anemo-burst-blocked");
+    expect(blockerIds).not.toContain("aether-anemo-burst-blocked");
     expect(blockerIds).not.toContain("lumine-pyro-charged-base-blocked");
     expect(blockerIds).not.toContain("aether-cryo-unverified-actions-blocked");
-    const cryo = aether.find((doc) => doc.gameContext?.skillId === "aether-cryo-burst-no-radiance-zero-frostglow")!;
-    expect(cryo.hits).toHaveLength(3);
-    expect(cryo.gameContext).toMatchObject({ variantId: "aether-cryo", abilityId: "talent:travelercryo:combat3", scopeCoverage: "complete-cast" });
-    expect(calculateDocument(cryo).status).toBe("calculated");
+    const cryo = aether.find((doc) => doc.gameContext?.skillId === "aether-cryo-burst-state-c0")!;
+    expect(cryo.gameContext).toMatchObject({ variantId: "aether-cryo", abilityId: "talent:travelercryo:combat3", constellation: 0 });
+    expect(calculateDocument(cryo).status).toBe("blocked");
+    cryo.scope = "one-cast";
+    cryo.characterLevel = 90;
+    cryo.enemy = { level: 90, resistance: .1, defenseAdjustment: 0, defenseIgnore: 0 };
+    cryo.build = { mode: "manual-final", stats: { atk: 2000, hp: 20000, def: 800, em: 0, critRate: .5, critDamage: 1 }, ascension: 6, source: "Synthetic actual Cryo Q panel; nonExtra ATK independently declared below" };
+    cryo.gameContext!.travelerCryoStateCast = {
+      casterId: "aether", targetId: "enemy", trueMoonStoryBuffEnabled: false,
+      freshCastConfirmed: true, noHitlag: true, noInterruption: true, noReplacement: true,
+      fullObservedLifetime: true, observedThroughFrame: 80, statsStableAcrossHits: true,
+      radianceAtBurst: "none", frostglowStacksAtBurst: 0,
+      targetContacts: { "burst-1": true, "burst-2": true, "burst-3": true },
+      sharedState: { nonExtraAtk: 2000, includedA4Em: 0 },
+    };
+    const cryoResult = calculateDocument(cryo);
+    expect(cryoResult.blockers).toEqual([]);
+    expect(cryoResult.hits).toHaveLength(3);
+    expect(cryoResult.aggregation.scope).toBe("complete-cast");
+    expect(cryoResult.status).toBe("calculated");
+    expect(cryoResult.totals!.nonCritical).toBeCloseTo(3 * 2000 * .992358 * .5 * .9, 10);
     const luminePyro = getCharacterDocuments(characterId("lumine")).find((doc) => doc.gameContext?.skillId === "lumine-pyro-charged-base")!;
     expect(luminePyro.hits).toHaveLength(2);
     expect(calculateDocument(luminePyro).status).toBe("calculated");
@@ -188,7 +228,27 @@ describe("source-classified field-level character calculations", () => {
     expect(odette.hits).toHaveLength(4);
     expect(odette.gameContext!.scopeCoverage).toBe("selected-components");
     const iansan = getCharacterDocuments(characterId("iansan"));
-    expect(calculateDocument(iansan.find((doc) => doc.gameContext?.skillId === "iansan-swift-talent-unresolved")!).status).toBe("blocked");
+    expect(iansan.some((doc) => doc.gameContext?.skillId === "iansan-swift-talent-unresolved")).toBe(false);
+    const swift = iansan.find((doc) => doc.gameContext?.skillId === "iansan-swift-resolved-c0")!;
+    expect(swift.gameContext).toMatchObject({ characterId: characterId("iansan"), abilityId: "talent:iansan:combat1", constellation: 0, effectiveTalentLevel: 10 });
+    expect(calculateDocument(swift).status).toBe("blocked");
+    expect(calculateDocument(swift).totals).toBeUndefined();
+    swift.scope = "one-cast";
+    swift.characterLevel = 90;
+    swift.enemy = { level: 90, resistance: .1, defenseAdjustment: 0, defenseIgnore: 0 };
+    swift.build = { mode: "manual-final", stats: { atk: 2000, hp: 20000, def: 800, em: 0, critRate: .5, critDamage: 1 }, ascension: 6, source: "Synthetic actual25f panel without prior A1" };
+    swift.gameContext!.iansanSwiftResolvedCast = {
+      casterId: "iansan", targetId: "enemy", freshCastConfirmed: true, noHitlag: true,
+      noInterruption: true, noReplacement: true, fullObservedLifetime: true, observedThroughFrame: 25,
+      statsStableAcrossHits: true, inputKind: "charged", actionReadyConfirmed: true, groundedAtCast: true,
+      fastSkillActiveAtCast: true, targetContacts: { swift: true },
+      sharedState: { a1ActiveAtSnapshot: false, includedA1Attack: 0, burstInactiveAtSnapshot: true },
+    };
+    const swiftResult = calculateDocument(swift);
+    expect(swiftResult.blockers).toEqual([]);
+    expect(swiftResult.status).toBe("calculated");
+    expect(swiftResult.hits).toHaveLength(1);
+    expect(swiftResult.totals!.nonCritical).toBeCloseTo(2000 * 1.6643 * .5 * .9, 10);
     expect(calculateDocument(iansan.find((doc) => doc.gameContext?.skillId === "iansan-skill-skill")!).status).toBe("calculated");
   });
 
