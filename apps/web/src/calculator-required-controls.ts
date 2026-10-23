@@ -60,5 +60,5 @@ export function createCalculatorRequiredControls(root: HTMLElement) {
     }
   }
 
-  return {restore,fields,mount,isRelocating:()=>relocating};
+  return {restore,fields,mount,isRelocating:()=>relocating,hasActiveControl:()=>focusSelector!==null};
 }

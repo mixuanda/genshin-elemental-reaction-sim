@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "browser": "154.0.8037.57",
+  "nativeRuns": 0,
+  "integerFrameSourceUnaffected": true,
+  "independentPanelNotPlayerBuild": true,
+  "baseline": {
+    "nonCritical": 43310.76923076923,
+    "critical": 86621.53846153845,
+    "expected": 64966.153846153844
+  },
+  "requiredFieldVisibleAndNoStaleDamage": true,
+  "sequentialNumericTypingRetainsFocusAndValue": true,
+  "damageBeforeAnsweredConditions": true,
+  "answeredConditionsFoldAndReopen": true,
+  "navigationReopensAndFocusesOriginalInput": true,
+  "c2ResourceEditChangesDamageAndRestoringRecoversExactTotals": true,
+  "saveReopenSameTotals": true,
+  "desktopAndNarrow": true,
+  "errors": [],
+  "production": "paused-not-deployed",
+  "typecheck": "passed",
+  "webBuild": "passed",
+  "numericalFormulaChanges": false
+}
