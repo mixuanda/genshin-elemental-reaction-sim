@@ -47,7 +47,7 @@ def attack_steps(request):
     return [step for read in provenance.get('attackReads', []) for step in read.get('steps', [])]
 
 
-def audit(capture, source_root):
+def audit(capture, source_root, expected_capture_sha=CAPTURE):
     data = capture.read_bytes()
     raw = json.loads(data)
     failures = []
@@ -56,7 +56,7 @@ def audit(capture, source_root):
         if not condition:
             failures.append({'check': name, 'detail': detail})
 
-    check('exact-capture', sha(data) == CAPTURE)
+    check('exact-capture', sha(data) == expected_capture_sha)
     check('exact-config', sha(raw['config'].encode()) == CONFIG)
     check('source-and-artifact', raw['sourceCommit'] == PIN and raw['executionArtifact']['wasmSha256'] == WASM)
     check('actual-single-seed-window', raw['seed'] == '20261022' and raw['observationWindow']['actualEndFrame'] == 7200)
@@ -253,10 +253,14 @@ def main():
     parser.add_argument('--capture', type=Path, required=True)
     parser.add_argument('--source-root', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--expected-capture-sha256', default=CAPTURE,
+                        help='Explicit immutable input hash; defaults to the retained historical capture.')
     args = parser.parse_args()
+    if len(args.expected_capture_sha256) != 64 or any(c not in '0123456789abcdef' for c in args.expected_capture_sha256):
+        parser.error('expected capture SHA256 must be 64 lowercase hexadecimal digits')
     if args.output.resolve() == args.capture.resolve():
         parser.error('output must not overwrite the source capture')
-    report = audit(args.capture, args.source_root)
+    report = audit(args.capture, args.source_root, args.expected_capture_sha256)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps({'status': report['status'], 'failures': report['failures'], 'output': str(args.output)}, ensure_ascii=False))
