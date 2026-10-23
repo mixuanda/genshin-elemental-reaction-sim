@@ -1,0 +1,223 @@
+{
+  "scope": "Cloud calculator branches; no production deployment, new account access or native team runs",
+  "baseCommit": "c8a3024f96aea587f43913a72267fb3839198e47",
+  "branch": "cloud/player-import-integration-20261021",
+  "pushedSourceCommits": {
+    "aetherCharged": "a21789e18ef91b0c44ec1c8dd3d1d1fffb8d3c11",
+    "iansanQ": "aec4b7fc284e6577a4fc2224b0825cc73d6481aa",
+    "anemoAbsorption": "d4caea335b61121f29d2d735781859fa5e57b032"
+  },
+  "targetedTests": {
+    "aetherCharged": {
+      "path": "/tmp/GIDPS-aether-anemo-charged-evidence-20261023/after.json",
+      "sha256": "49c8ee5fb7ecc5730d0d2f864ef5e8f241a7d3de58fd7d5a4210be89b297566f",
+      "total": 29,
+      "passed": 26,
+      "failed": 0,
+      "pending": 3
+    },
+    "iansanQ": {
+      "path": "/tmp/GIDPS-iansan-active-burst-evidence-20261023/focused-final-bound-history.json",
+      "sha256": "5c44811a42f0b086ba14bb25e150202cd97c70f298823b608b3480c5f626acb4",
+      "total": 29,
+      "passed": 29,
+      "failed": 0,
+      "pending": 0
+    },
+    "iansanExistingSource": {
+      "path": "/tmp/GIDPS-iansan-active-burst-evidence-20261023/existing-resolved-source.json",
+      "sha256": "244d02eaf420890678b7d20bc240c42f2f918cf907df738da7ad159c546fd2a3",
+      "total": 2,
+      "passed": 1,
+      "failed": 0,
+      "pending": 1
+    },
+    "anemoAbsorption": {
+      "passed": 55,
+      "failed": 0,
+      "path": "/tmp/GIDPS-traveler-anemo-absorption-evidence-20261023/focused.log",
+      "sha256": "5bb5c5073dc4fe3e7acf4c613cd352321dad8e1463a6baa7d6e349efeaaa4427"
+    },
+    "sharedIntegration": {
+      "path": "/tmp/GIDPS-anemo-iansan-20261023/integration-tests.json",
+      "sha256": "37ac8b8176ca60556c6fde5a9c5455fd8bb55d9cd80bc939952ff63653a7e7f7",
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "browser": {
+    "platform": "Linux Chromium 154.0.8037.57",
+    "windowsVerified": false,
+    "nativeOrTeamRuns": 0,
+    "cases": [
+      {
+        "action": "Iansan C0 Swift normal T10 + independent Q10 feedback",
+        "totals": {
+          "nonCritical": 1902.2949,
+          "critical": 4185.048780000001,
+          "expected": 3500.222616
+        },
+        "unknownQBlocked": true,
+        "points41And42": [
+          1804.93335,
+          1902.2949
+        ],
+        "q1WithNormalT10": 1745.01855,
+        "savedAndReopened": true,
+        "evidence": {
+          "path": "/tmp/GIDPS-anemo-iansan-20261023/browser/failure.json",
+          "sha256": "1a36d73416099b9ca3c76cfee9300e295087c9576c7d045693585a25850b24a4"
+        },
+        "receiptNote": "Iansan case completed all assertions before a later Anemo case was rejected for insufficient observed frame; not an all-pass initial harness."
+      },
+      {
+        "action": "Aether C6 Q T10, 39f Pyro absorption, independent elemental bonuses",
+        "totals": {
+          "nonCritical": 19753.200000000004,
+          "critical": 43457.04,
+          "expected": 36345.88799999999
+        },
+        "hits": 18,
+        "noSelfDebuffOnFirstPair": true,
+        "missedFirstAbsorbDoesNotDebuff": true,
+        "nonCheckFrame94Blocked": true,
+        "maleLifecycleRequires336Frames": true,
+        "conservation": true,
+        "savedAndReopened": true,
+        "evidence": {
+          "path": "/tmp/GIDPS-anemo-iansan-20261023/anemo-browser-final/acceptance.json",
+          "sha256": "8614bdb6e283d407e9718b088908f77b7bbe394dc66aa59d304cc2779aecc15f"
+        }
+      },
+      {
+        "action": "Aether Anemo C6 physical charged first hit, normal T10",
+        "totals": {
+          "nonCritical": 994.5,
+          "critical": 2187.9,
+          "expected": 1829.8799999999999
+        },
+        "actualInfusionStillBlocked": true,
+        "savedAndReopened": true,
+        "evidence": {
+          "path": "/tmp/GIDPS-anemo-iansan-20261023/charged-browser/acceptance.json",
+          "sha256": "228325d8b661a050c590903707ccc03b5f95b4c444f3b4b63464e80f11383cf4"
+        }
+      }
+    ],
+    "latestDisplayCases": [
+      {
+        "action": "iansan-active-q saved calculation display",
+        "totals": {
+          "nonCritical": 1902.2949,
+          "critical": 4185.048780000001,
+          "expected": 3500.222616
+        },
+        "count": 1,
+        "hitListCollapsedByDefault": true,
+        "detailsCanBeOpened": true
+      },
+      {
+        "action": "aether-c6-absorbed-q saved calculation display",
+        "totals": {
+          "nonCritical": 19753.200000000004,
+          "critical": 43457.04,
+          "expected": 36345.88799999999
+        },
+        "count": 18,
+        "hitListCollapsedByDefault": true,
+        "detailsCanBeOpened": true
+      },
+      {
+        "action": "aether-c6-physical-charged saved calculation display",
+        "totals": {
+          "nonCritical": 994.5,
+          "critical": 2187.9,
+          "expected": 1829.8799999999999
+        },
+        "count": 1,
+        "excluded": 1,
+        "hitListCollapsedByDefault": true,
+        "detailsCanBeOpened": true
+      }
+    ],
+    "displayEvidence": [
+      {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/display-browser/failure.json",
+        "sha256": "7d4a4dfa32119c4fb4cf02a1250c8788a7f0c50b8d10598feccc41b7a85bcc1a"
+      },
+      {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/charged-display-final/acceptance.json",
+        "sha256": "780c9df58ce1b0ae521bf36c02b164716ceb2945f96356c23f02d9e0a69a5e9e"
+      }
+    ],
+    "displayNote": "First two saved display cases passed; the physical single-hit fixture wrongly expected zero excluded components. Actual second hit is excluded. Fixed exact expectation to one and reran only that case.",
+    "screenshots": {
+      "iansan-active-q": {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/display-browser/iansan-active-q.png",
+        "sha256": "138311b08ed6a269328c5965a6456054c583d1eb9622671702b7af7b80a34b8d"
+      },
+      "aether-c6-absorbed-q": {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/display-browser/aether-c6-absorbed-q.png",
+        "sha256": "ac6859415e472ebc22a9cd55c9937ef0102b02e5188997c2a622c1d580a4444a"
+      },
+      "aether-c6-physical-charged": {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/charged-display-final/aether-c6-physical-charged.png",
+        "sha256": "684bce3bc7c62ef01054ce34a636955d90844286d7bd891cfc634e2f3c6468ed"
+      }
+    }
+  },
+  "build": {
+    "typecheckAndBuild": "passed",
+    "finalDisplayBundle": "passed",
+    "evidence": [
+      {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/build.log",
+        "sha256": "40e6c2e593144cb40fc9afd74f24c8ab39065f0f8249f8a47cfce217bb826e2b"
+      },
+      {
+        "path": "/tmp/GIDPS-anemo-iansan-20261023/display-build.log",
+        "sha256": "4a06613f976aa7ba257c57fa8b03399ae3be6784c96485cd64e83c25a3c9a0dc"
+      }
+    ],
+    "note": "One initial TS2379 missing narrowing was fixed with an explicit element guard. No numerical rule or tolerance changed."
+  },
+  "preservedInitialFailures": [
+    {
+      "path": "/tmp/GIDPS-anemo-iansan-20261023/integration-tests-first.json",
+      "sha256": "244fdfe5651744049f6c7dbac4f387856b192e10e55cf720973b7bc6b916ed65",
+      "note": "Four fixture-context initialization failures; two assertions exposed one real raw-template Q talent binding gap. Binding now initializes only exact Iansan source identity before independent Q assignment."
+    },
+    {
+      "path": "/tmp/GIDPS-anemo-iansan-20261023/anemo-browser/last-calculation.json",
+      "sha256": "e39904255027efcc985be6859dace42bafd4be4e8481b2b33d4189f6012e1f99",
+      "note": "F334 observation was below male source lifecycle F336. Correct rejection retained; final browser also rejects F335."
+    },
+    {
+      "path": "/tmp/GIDPS-anemo-iansan-20261023/build-first.log",
+      "sha256": "4a0eab4c351b6bb8934ee7425a87ed4d80b0c003636c0c2cef70d7342311f044"
+    }
+  ],
+  "production": {
+    "state": "paused-after-prior-denial",
+    "attemptedThisTurn": false
+  },
+  "fullSuite": {
+    "state": "not-rerun",
+    "previousBaseline": {
+      "passed": 3196,
+      "failed": 79,
+      "skipped": 1
+    },
+    "currentFailuresInferred": false
+  },
+  "limits": [
+    "Fixed third-party numerical and behavior evidence, provisional; no new official-game measurement.",
+    "Anemo full C6 requires initial absence of the same constellation debuff; unknown old expiry uses actual single-hit inputs.",
+    "Shared target resistance input; differing elemental resistances require separate elemental single-hit calculations.",
+    "No automatic geometric contact, absorption eligibility, Swirl/ICD/reaction entity or full-team simulation from these calculator branches.",
+    "Iansan Swift remains C0; actual previous Q refresh inputs are required; no invented movement, Nightsoul or energy timeline.",
+    "No real account, login, UID smoke, Windows runtime or 120s native acceptance was added this turn."
+  ]
+}

@@ -5,6 +5,8 @@ import {captureKazuhaImportedDamageBonuses} from '../../../packages/sim-core/src
 import {renderTighnariControls} from './calculator-tighnari-controls';
 import { mountObservedSkillComposition } from "./calculator-observed-composition";
 import { collectCalculatorRequirements } from "./calculator-requirements";
+import { calculatorActionDisplayName, calculatorResultDisplayName } from "./calculator-action-display";
+import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
 import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { parseObservedSkillComposition, type ObservedSkillCompositionDocument } from "../../../packages/sim-core/src/observed-skill-composition";
 import { renderArtifactUtilityCalculator } from "./artifact-utility-calculator";
@@ -716,6 +718,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (context.hutaoDamage && skillLevel !== undefined) context.hutaoDamage.skillTalentLevel = skillLevel;
       const burstId = talentSet?.abilities.find(ability => ability.kind === "burst")?.id;
       const burstLevel = burstId ? equipmentTalentBinding.levels.get(burstId) : undefined;
+      bindIansanSwiftBurstTalent(next, burstLevel);
       if (burstLevel !== undefined) {
         if (context.xiaoDamage) context.xiaoDamage.burstTalentLevel = burstLevel;
         if (context.noelleBurst) context.noelleBurst.effectiveTalentLevel = burstLevel;
@@ -730,6 +733,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (next.gameContext.hutaoDamage) next.gameContext.hutaoDamage.skillTalentLevel = importedManualTalents.skill;
       const burstLevel = importedManualTalents.burst;
       if (next.gameContext.xiaoDamage) next.gameContext.xiaoDamage.burstTalentLevel = burstLevel;
+      bindIansanSwiftBurstTalent(next, burstLevel);
       if (next.gameContext.noelleBurst) next.gameContext.noelleBurst.effectiveTalentLevel = burstLevel;
       if (next.gameContext.ittoCharged) next.gameContext.ittoCharged.burst.effectiveTalentLevel = burstLevel;
       if (next.gameContext.yanfeiCharged) next.gameContext.yanfeiCharged.brilliance.effectiveTalentLevel = burstLevel;
@@ -885,7 +889,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const group = kind === "normal" ? "普通攻击 / 重击 / 下落" : kind === "skill" ? "元素战技" : kind === "burst" ? "元素爆发" : "已定义技能";
       groups.set(group, [...(groups.get(group) ?? []), entry]);
     }
-    get<HTMLSelectElement>("#calc-skill").innerHTML = [...groups].map(([group, documents]) => `<optgroup label="${esc(group)}">${documents.map(({document, index}) => `<option value="${index}">${esc(document.gameContext?.skillName ?? document.label)}${document.gameContext?.scopeCoverage === "selected-components" ? " · 已定义部分" : ""}</option>`).join("")}</optgroup>`).join("");
+    get<HTMLSelectElement>("#calc-skill").innerHTML = [...groups].map(([group, documents]) => `<optgroup label="${esc(group)}">${documents.map(({document, index}) => `<option value="${index}">${esc(calculatorActionDisplayName(document))}${document.gameContext?.scopeCoverage === "selected-components" ? " · 已定义部分" : ""}</option>`).join("")}</optgroup>`).join("");
     const selected = entries.find(({ document }) => actionKey(document) === preferredKey) ?? entries[0];
     renderCharacterOutputOverview();
     return selected?.index ?? 0;
@@ -986,17 +990,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const conditionLinks = inlineFields.length ? `<section class="calculator-inline-conditions" data-calculator-inline-conditions><h4>${requiredFields.length ? "补齐本次命中的条件" : "本次命中的条件"}</h4><p class="calculator-hint">填写后自动重算；已填写的选项可继续修改。</p>${inlineFields.map(({field,required},index)=>`<div class="calculator-inline-condition" data-calculator-required-field="${required}" data-calculator-condition-id="${esc(field.id)}"><span class="calculator-hint">${field.hitIds.length===1 ? esc(current!.hits.find(hit=>hit.id===field.hitIds[0])?.label??"") : "本次所选命中"}${required?" · 待填写":""}</span><div data-calculator-inline-control="${index}"></div><button type="button" data-calculator-requirement="${esc(field.controlSelector)}">填写：${esc(field.label)}</button><small>${esc(field.explanation)}</small></div>`).join("")}</section>` : "";
       const unlinked = requirements.blockers.filter(blocker=>blocker.status!=="linked-controls");
       const blockerPanel = result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>${requiredFields.length ? "请填写下方条件" : "此动作尚缺少以下支持或证据"}</strong>${unlinked.length ? `<p>${[...new Set(unlinked.map(blocker=>blocker.reason))].map(esc).join("；")}</p>` : ""}<details><summary>查看具体原因与支持范围</summary><ul>${result.blockers.map(b=>`<li>${esc(b)}</li>`).join("")}</ul></details>${unsupportedIdleConstellation ? '<p>此有限姿态分支只支持 C0。可选择已支持的单次命中，或使用动作执行器。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "";
-      const game = current.gameContext;
-      // The saved label identifies the source template. A selected tick must
-      // not be presented to a player as the whole burst; leave the file intact.
-      const resultLabel = current.scope === "single-hit" && game?.travelerCrossEntityCast
-        ? `${game.characterName} · ${game.skillName.split("·")[0]} · 单次命中（C${game.constellation}） · 有效天赋等级 ${game.effectiveTalentLevel}`
-        : current.label;
+      const resultLabel = calculatorResultDisplayName(current);
       get("#calc-results").innerHTML = `<section class="card"><h3 class="calculator-result-header" tabindex="-1">${esc(resultLabel)}</h3><span class="calculator-badge ${esc(data.releaseStatus)}">${esc(releaseLabels[data.releaseStatus])}</span><span class="calculator-badge ${esc(result.verification)}">${esc(evidenceLabels[result.verification])}</span>` +
         blockerPanel + conditionLinks + '<div data-cast-aggregation-host></div>' +
         `<p class="calculator-hint">${result.hits.some(hit => hit.nonCriticalComparisonOnly) ? "弱点来源保证暴击的命中，其期望等于暴击伤害；非暴击数值仅为移除该条件后的教学对照，本条件下不会发生。其他命中仍按各自概率计算。" : "期望值是概率加权的平均结果，不是保证出现的单次伤害数字。"}</p>` +
         (current.assumptions.length || distinctWarnings.length ? `<details class="calculator-status"><summary>计算条件与支持范围</summary><ul>${[...current.assumptions, ...distinctWarnings].map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>` : "") +
-        `<p class="calculator-hint">纳入：${result.includedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}；排除：${result.excludedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}。</p>` +
+        `<details class="calculator-hit-selection-details"><summary>命中范围：计入 ${result.includedHitIds.length} 段 · 排除 ${result.excludedHitIds.length} 段</summary><p class="calculator-hint">纳入：${result.includedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}；排除：${result.excludedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}。</p></details>` +
         `<details class="calculator-method-details" data-detail-id="calculation-method"${activeExampleId !== null ? " open" : ""}><summary>计算依据与逐步公式</summary><p class="calculator-hint">数据集 ${esc(data.datasetId)} · 版本 ${esc(data.gameVersion)} · 公式 ${esc(current.ruleVersion)}</p>${documentIdentity(current, result)}` +
         renderTraceHtml(result.trace.filter(node => ["total.", "subtotal.", "neferResources.", "alyoshaObserved.", "neferObserved.", "linneaObserved.", "sandroneObserved.", "zibaiResources."].some(prefix => node.id.startsWith(prefix)) || (node.id.startsWith("build.") && (usesBuild || (usesBuildCritical && /critRate|critDamage/.test(node.id)))))) +
         result.hits.map((hit, index) => `<details class="calculator-hit-card" data-detail-id="hit-card:${esc(hit.id)}"${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? " open" : ""}><summary>${esc(hit.label)} · ${hit.status === "blocked" ? "阻塞" : hit.status === "non-damaging" ? "非伤害状态" : hit.sampled ? `本次抽样 ${number(hit.sampled.damage)} · 解析期望 ${number(hit.expected)}` : ` ${hit.castContribution ? "本次施放期望贡献" : "期望"} ${number(hit.castContribution?.expected ?? hit.expected)}`}</summary>${hit.blockers.length ? `<p class="calculator-error">${hit.blockers.map(esc).join("；")}</p>` : ""}${hit.sampled ? `<section class="calculator-status" data-special-sampled><div class="calculator-summary"><div class="metric"><div class="label">本次抽样实际伤害</div><div class="value" data-testid="calc-sampled">${number(hit.sampled.damage)}</div></div><div class="metric"><div class="label">解析期望对照</div><div class="value" data-testid="calc-sampled-expected">${number(hit.expected)}</div></div></div><p class="calculator-hint">实际值来自本次记录的逐贡献者暴击结果，再经共享公式排序和加权；解析期望仍按原始面板计算所有暴击组合。${hit.sampled.displayedCritical === "ambiguous-tie" ? "最高贡献并列，暴击标记不唯一。" : hit.sampled.displayedCritical === "critical" ? "最高贡献显示暴击。" : "最高贡献显示非暴击。"}完整随机数、比较与排序见下方计算轨迹。</p></section>` : ""}${hit.nonCriticalComparisonOnly ? `<p class="calculator-hint" data-weak-point-comparison>本击按明确弱点来源规则必定暴击，实际期望 ${number(hit.expected)}；非暴击 ${number(hit.nonCritical)} 仅作教学对照，面板暴击率没有被改写。</p>` : ""}${hit.castContribution ? `<p class="calculator-hint">触发后实际一击：非暴击 ${number(hit.nonCritical)}，暴击 ${number(hit.critical)}，期望 ${number(hit.expected)}；主击暴击触发概率 ${number(hit.castContribution.triggerProbability)}，本次施放期望贡献 ${number(hit.castContribution.expected)}。计算过程见下方共享轨迹。</p>` : ""}<div data-hit-trace-index="${index}"${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? ' data-trace-mounted="true"' : ""}>${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? renderTraceHtml(hit.trace) : ""}</div></details>`).join("") +

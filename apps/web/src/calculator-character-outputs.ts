@@ -1,5 +1,6 @@
 import type { GameDataCatalog } from "@genshin-dps-lab/schemas";
 import type { CalculatorAggregation, CalculatorDocument, CalculatorResult } from "../../../packages/sim-core/src/calculator-model";
+import { calculatorActionDisplayName } from "./calculator-action-display";
 import "./calculator-character-outputs.css";
 
 export interface CharacterOutputObservation {
@@ -113,7 +114,7 @@ export function buildCharacterOutputs(candidates: readonly CalculatorDocument[],
     const status = observed?.status === "blocked" ? "blocked" : nonDamaging ? "non-damaging" : damage ? "calculated" : observed ? "unavailable" : unavailable ? "unavailable" : "pending";
     const knownSubtotal = observed?.aggregation.components.some(component => component.damage && component.status === "calculated") ? observed.aggregation.knownSubtotal : undefined;
     const item: CharacterOutputItem = {
-      candidateIndex, actionKey, title: document.gameContext!.skillName,
+      candidateIndex, actionKey, title: calculatorActionDisplayName(document),
       ...(document.gameContext?.variantName ? { variantLabel: document.gameContext.variantName } : {}),
       conditions: explicitConditions(document), selected: options.selectedCandidateIndex === candidateIndex,
       scope, scopeLabel: scopes[scope] + (scope === "single-hit" && document.gameContext?.scopeCoverage === "selected-components" ? "（部分已定义范围）" : ""), status,

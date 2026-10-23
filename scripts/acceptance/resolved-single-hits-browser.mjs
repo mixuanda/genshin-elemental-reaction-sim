@@ -77,10 +77,10 @@ try {
   assert.deepEqual((await roundtrip()).result.totals, priorBuff.result.totals);
   await page.locator('#calc-results').screenshot({ path: resolve(output, 'iansan-single-hit.png') });
   results.push({ action: 'Iansan C0 Swift T10', initial: initial.result.totals, priorBuff: priorBuff.result.totals,
-    actualZeroAccepted: true, unknownAccountingBlocked: true, unsupportedBurstFeedbackBlocked: true, multiDigitInputsPreserved: true, savedAndReopened: true });
+    actualZeroAccepted: true, unknownAccountingBlocked: true, missingBurstRefreshEvidenceBlocked: true, multiDigitInputsPreserved: true, savedAndReopened: true });
 
   for (const [characterId, gender] of [['character:10000005', 'aether'], ['character:10000007', 'lumine']]) {
-    await choose(characterId, '风息激荡·无吸收完整施放', `${gender}-anemo`);
+    await choose(characterId, '风息激荡 · 风伤与元素吸收', `${gender}-anemo`);
     const story = await inline(state('gameContext.travelerCrossEntityCast.trueMoonStoryBuffInactive'));
     await story.selectOption('0');
     assert.equal((await audit()).result.status, 'blocked');

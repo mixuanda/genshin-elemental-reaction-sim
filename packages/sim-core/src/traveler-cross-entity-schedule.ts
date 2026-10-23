@@ -75,7 +75,7 @@ export function compileTravelerCrossEntitySchedule(kind: TravelerCrossEntityCast
     const pair: TravelerCrossEntityHitInstance[] = [{id: `tick-${index + 1}`, templateRole: "tick", frame, snapshotFrame: source.snapshotFrame,
       snapshotId: `snapshot-${source.snapshotFrame}`, targetId: context.targetId ?? "unknown-target",
       ...(source.dendro && context.dendro?.noTransformation === true ? {untransformedAtHit: true} : {})}];
-    if (validAbsorption && frame >= absorption!.absorptionStartFrame!) pair.push({id: `absorb-${index + 1}`, templateRole: "absorbed-tick", frame,
+    if (validAbsorption && absorption?.absorptionElement !== undefined && frame >= absorption.absorptionStartFrame!) pair.push({id: `absorb-${index + 1}`, templateRole: "absorbed-tick", frame,
       snapshotFrame: 0, snapshotId: `snapshot-0-absorbed-${absorption!.absorptionElement}`, targetId: context.targetId ?? "unknown-target", absorbedElement: absorption!.absorptionElement});
     const callbacks: string[] = [];
     for (const event of pair) {

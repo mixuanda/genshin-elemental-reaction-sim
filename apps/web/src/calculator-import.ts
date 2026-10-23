@@ -8,6 +8,7 @@ import { resetCharlottePanelAccounting } from "./collei-charlotte-calculation-co
 import { resetBaizhuPanelAccounting } from "./baizhu-calculation-context";
 import { applyCharacterConstellationScope, resetKeqingPanelAccounting, resetKukiPanelAccounting } from "./character-calculations";
 import { hasKnownImportedTalent, requireImportedTalentLevel } from "./imported-talents";
+import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
 
 export function requireImportedNumber(value: number | null | undefined, field: string): number {
   if (value === null || value === undefined || !Number.isFinite(value)) throw new Error(`导入缺少 ${field}；请补齐原始数据或重新导入，不能以 0 / 默认等级代替。`);
@@ -58,6 +59,10 @@ export function applyImportedCalculatorPanel(
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:xiao:combat3");
     if (burst && hasKnownImportedTalent(burst)) context.xiaoDamage.burstTalentLevel = burst.effectiveLevel;
     else delete context.xiaoDamage.burstTalentLevel;
+  }
+  if (talentPolicy === "imported-effective") {
+    const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:iansan:combat3");
+    bindIansanSwiftBurstTalent(doc, burst && hasKnownImportedTalent(burst) ? burst.effectiveLevel : undefined);
   }
   if (context.noelleBurst) {
     context.noelleBurst.accounting = "already-in-final-panel";

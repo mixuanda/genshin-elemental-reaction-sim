@@ -11,6 +11,7 @@ import {jeanRequirementAdapter} from './calculator-jean-requirements';
 import {observedPlungeRequirementAdapter} from './calculator-observed-plunge-requirements';
 import {travelerCrossRequirementAdapter} from './calculator-traveler-cross-requirements';
 import {iansanSwiftRequirementAdapter} from './calculator-iansan-requirements';
+import {travelerMaleChargedRequirementAdapter} from './calculator-traveler-male-charged-requirements';
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
 
 export interface CalculatorFieldRequirement {
@@ -188,7 +189,7 @@ const durinAdapter: CalculatorRequirementAdapter = {
 };
 
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [alhaithamRequirementAdapter,arlecchinoRequirementAdapter,hutaoRequirementAdapter,keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter,jeanRequirementAdapter,observedPlungeRequirementAdapter,travelerCrossRequirementAdapter,iansanSwiftRequirementAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [alhaithamRequirementAdapter,arlecchinoRequirementAdapter,hutaoRequirementAdapter,keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter,jeanRequirementAdapter,observedPlungeRequirementAdapter,travelerCrossRequirementAdapter,iansanSwiftRequirementAdapter,travelerMaleChargedRequirementAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a
