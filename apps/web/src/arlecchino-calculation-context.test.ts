@@ -19,13 +19,13 @@ describe('Arlecchino integrated Red Death output',()=>{
     const r=calculateDocument(fixture());expect(r.status).toBe('calculated');expect(r.totals!.nonCritical).toBeCloseTo(5681.29086,8);
     expect(r.totals!.expected).toBeCloseTo(8521.93629,8);expect(r.totals!.critical).toBeCloseTo(11362.58172,8);
   });
-  it('requires actual pre-hit bond, preserves a valid 30% boundary and rejects C1',()=>{
+  it('requires actual pre-hit bond, preserves a valid 30% boundary and rejects unsupported C6',()=>{
     const d=fixture();delete d.gameContext!.arlecchinoDamage!.bondOfLifePercent;
     const field=collectCalculatorRequirements(d).fields.find(f=>f.fieldPath==='gameContext.arlecchinoDamage.bondOfLifePercent')!;
     expect(field).toBeDefined();expect(renderSourceCastControls(d)).toContain('data-field="'+field.fieldPath+'"');expect(calculateDocument(d).status).toBe('blocked');
     d.gameContext!.arlecchinoDamage!.bondOfLifePercent=30;expect(calculateDocument(d).status).toBe('calculated');
     d.gameContext!.arlecchinoDamage!.bondOfLifePercent=29.999;expect(calculateDocument(d).status).toBe('blocked');
-    d.gameContext!.arlecchinoDamage!.bondOfLifePercent=150;d.gameContext!.constellation=1;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('blocked');
+    d.gameContext!.arlecchinoDamage!.bondOfLifePercent=150;d.gameContext!.constellation=6;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('blocked');
   });
   it('deduces fresh-equipment accounting and preserves legal equipment conversion and strict JSON',()=>{
     const d=fixture(),preset=getCharacterBuildPreset('character:10000096','starter')!;expect(preset).toBeDefined();

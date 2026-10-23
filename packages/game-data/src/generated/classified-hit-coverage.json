@@ -1,5 +1,5 @@
 {
-  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+cyno.1+kazuha-q.1+hutao.2+arlecchino.1+alhaitham.1+durin.8",
+  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+cyno.1+kazuha-q.1+hutao.2+arlecchino.2+alhaitham.1+durin.8",
   "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
   "scope": "pinned-source-provisional-conditioned-hit-fields",
   "charactersWithHits": 124,
@@ -3638,7 +3638,7 @@
       "format": "gidps-arlecchino-primary-source-v1",
       "repository": "genshinsim/gcsim",
       "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-      "status": "fixed-source-reviewed-c0-selected-normal-hit",
+      "status": "fixed-source-reviewed-c0-c5-selected-normal-hit",
       "numericEvidenceStatus": "single-source-extracted",
       "upstreamLicense": {
         "spdx": "MIT",
@@ -3690,6 +3690,12 @@
           "path": "internal/template/character/hp.go",
           "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
           "gitBlob": "287f1dfe98e3af969e0113877ed329e52e799f38"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "pkg/core/player/character/character.go",
+          "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+          "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
         }
       ],
       "coefficients": [
@@ -3893,7 +3899,12 @@
       ],
       "contract": {
         "supportedConstellations": [
-          0
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
         ],
         "normalHitFrames": [
           [
@@ -3918,7 +3929,17 @@
         ],
         "redDeathMinimumBondRatio": 0.3,
         "maximumBondRatio": 2,
-        "bondBaseFormula": "masque[effective normal talent] * (current HP debt / current MaxHP) * current TotalAtk",
+        "bondBaseFormula": "(masque[effective normal talent] + (constellation >= 1 ? 1.0 : 0)) * (current HP debt / current MaxHP) * current TotalAtk",
+        "c1BondCoefficient": 1,
+        "effectiveTalentPolicy": "C3 adds 3 to normal talent in the native wrapper. The calculator consumes the already-effective normal talent exactly once and does not add it again.",
+        "constellationScope": {
+          "c1": "Adds 1.0 to the masque coefficient, not a multiplier of two on the entire bond bonus or ordinary normal ATK term.",
+          "c2": "Blood Debt Due absorption-triggered 900% ATK attack is a separate event, excluded from this selected normal hit.",
+          "c3": "Native NormalCon=3; effective normal talent changes both ordinary and masque table indices once.",
+          "c4": "Absorption grants energy and reduces Q cooldown; neither is part of this normal hit.",
+          "c5": "Native BurstCon=5; Q talent bonus is unrelated to the selected normal talent.",
+          "c6": "Normal conditional crit rate/crit damage after E is not implemented. C6 is blocked rather than approximated as C5."
+        },
         "bondBaseSampling": "Each selected normal sub-hit reads its actual pre-consumption ratio and TotalAtk at its hit/snapshot frame.",
         "infusion": "At bond ratio >=0.3, native Red Death state makes the ordinary normal Pyro with IgnoreInfusion=true.",
         "passivePyroBonus": 0.4,
@@ -3926,7 +3947,7 @@
         "consumption": "7.5% of current debt is consumed only by the later on-hit callback (2f ICD); not simulated by this selected-hit module.",
         "exclusions": [
           "No debt collection/lifecycle, normal-chain consumption or rotation simulation.",
-          "No C1+ damage, Q healing, enemy collisions or reaction application simulation."
+          "No C2 absorption-triggered attack, C4 energy/Q cooldown, Q healing, C6 conditional critical state, enemy collisions or reaction application simulation."
         ]
       },
       "crossVariant": {
@@ -3974,6 +3995,12 @@
             "path": "internal/template/character/hp.go",
             "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
             "gitBlob": "287f1dfe98e3af969e0113877ed329e52e799f38"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "pkg/core/player/character/character.go",
+            "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+            "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
           }
         ],
         "meaning": "Same gcsim implementation chain; agreement is not independent mechanism evidence."
@@ -4017,6 +4044,11 @@
             "matchesOriginal": true
           },
           {
+            "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "path": "pkg/core/player/character/character.go",
+            "matchesOriginal": false
+          },
+          {
             "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
             "path": "internal/characters/arlecchino/attack.go",
             "matchesOriginal": false
@@ -4050,6 +4082,11 @@
             "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
             "path": "internal/template/character/hp.go",
             "matchesOriginal": true
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "pkg/core/player/character/character.go",
+            "matchesOriginal": false
           }
         ]
       }

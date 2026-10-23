@@ -1,7 +1,7 @@
 import {extendAlhaithamDocuments} from './alhaitham-calculation-context';
 import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/alhaitham-damage-formulas';
 import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
-import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
+import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS,ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
 import {applyHutaoDamageContext,createHutaoExampleContext} from './hutao-calculation-context';
 import {isHutaoPrimaryDocument,HUTAO_DAMAGE_SOURCE_REFS,HUTAO_PRIMARY_MAX_CONSTELLATION} from '../../../packages/sim-core/src/hutao-damage-formulas';
 import {extendKinichDocuments} from './kinich-calculation-context';
@@ -148,8 +148,8 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       allowed=context.constellation===0;sourceRefs=[...sourceRefs,...ALHAITHAM_DAMAGE_SOURCE_REFS];
       reason=allowed?"艾尔海森C0所选镜投射：触发时精通加算与各命中A4分别取样，镜数、资格和接触独立核对；不代算完整镜生命周期。":"镜投射此入口只审阅C0，不省略更高命座机制。";
     } else if(isArlecchinoDamageAction(result)) {
-      allowed=context.constellation===0;sourceRefs=[...sourceRefs,...ARLECCHINO_DAMAGE_SOURCE_REFS];
-      reason=allowed?"阿蕾奇诺C0红死之宴所选一击：独立普攻倍率、扣契前生命之契附伤及固有火伤记账分别核对；不代算耗契或整轮。":"红死之宴此入口只审阅C0，不能省略更高命座的附伤或条件暴击。";
+      allowed=context.constellation<=ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION;sourceRefs=[...sourceRefs,...ARLECCHINO_DAMAGE_SOURCE_REFS];
+      reason=allowed?"阿蕾奇诺C0–C5红死之宴所选一击：C1给附伤系数加1.0，C3按独立有效普攻等级一次处理，扣契前生命之契及固有火伤记账分别核对；不追加C2吸收事件或代算整轮。":"此红死之宴单击尚缺C6实际条件暴击机制，不按低命座代算。";
     } else if(isHutaoPrimaryDocument(result)) {
       allowed=context.constellation<=HUTAO_PRIMARY_MAX_CONSTELLATION;sourceRefs=[...sourceRefs,...HUTAO_DAMAGE_SOURCE_REFS];
       reason=allowed?"胡桃C0–C6彼岸蝶舞所选火普攻或重击：有效普攻/E等级不重复增加命座，E快照、A4和C6实际生效及暴击率已含量分别核对；不追加血梅香或队友增益。":"此彼岸蝶舞单击超出已审阅命座范围，不能静默降级。";
