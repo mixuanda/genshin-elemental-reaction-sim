@@ -24,7 +24,7 @@ export function renderTravelerCrossEntityControls(document: CalculatorDocument):
   const context: Context = document.gameContext!.travelerCrossEntityCast ?? {}, complete = document.scope !== "single-hit";
   const dendro = kind.includes("-dendro-"), template = travelerCrossSourceTemplates.find(cast => cast.skillId === kind);
   const schedule = complete ? compileTravelerCrossEntitySchedule(kind, context) : undefined;
-  const common = state("trueMoonStoryBuffInactive", "真月剧情增益已关闭", context.trueMoonStoryBuffInactive) +
+  const common = state("trueMoonStoryBuffInactive", "本击没有「真月」剧情限定增益", context.trueMoonStoryBuffInactive) +
     textField("targetId", complete ? "本次所选敌人标识" : "已明确的目标标识（可留空；填写时须与本击一致）", context.targetId) +
     (complete ? textField("casterId", "本次施放者标识", context.casterId) +
       state("freshCastConfirmed", "本次为新施放，未混入前次实体或伤害", context.freshCastConfirmed) +

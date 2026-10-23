@@ -20,7 +20,7 @@ function fixture(talent = 10): CalculatorDocument {
   return applyCharacterConstellationScope(document);
 }
 const requirements = (document: CalculatorDocument, options: CalculatorRequirementOptions = {}) =>
-  collectCalculatorRequirements(document, { ...options, adapters: [iansanSwiftRequirementAdapter] });
+  collectCalculatorRequirements(document, options);
 
 function answer(document: CalculatorDocument, key: string, value: string, numeric = false): CalculatorDocument {
   applySourceCastControl(document, {

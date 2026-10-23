@@ -55,12 +55,12 @@ export function renderTravelerHydroResolvedControls(document: CalculatorDocument
 }
 
 function swiftStateFields(key: string, value: NonNullable<SwiftContext["sharedState"]>, single: boolean): string {
-  return state(SWIFT, `${key}.swiftQualifiedAtCast`, single ? "这记已发生命中在起手时满足雷霆飞缒资格" : "已保存的本击起手资格覆盖（留空时采用完整动作判定）", value.swiftQualifiedAtCast) +
-    state(SWIFT, `${key}.burstInactiveAtSnapshot`, "第 25 帧取样时 Q 攻击力反馈状态未生效", value.burstInactiveAtSnapshot) +
-    state(SWIFT, `${key}.a1ActiveAtSnapshot`, "第 25 帧取样时先前 A1 已经有效", value.a1ActiveAtSnapshot) +
-    numberField(SWIFT, `${key}.includedA1Attack`, "输入攻击力中已包含的先前 A1 攻击力数值", value.includedA1Attack) +
-    numberField(SWIFT, `${key}.baseAttack`, "先前 A1 有效时的实际基础攻击力（手动面板适用）", value.baseAttack) +
-    state(SWIFT, `${key}.snapshotIncludesActualA1`, "提供的历史最终快照已经包含当时实际 A1 状态", value.snapshotIncludesActualA1);
+  return state(SWIFT, `${key}.swiftQualifiedAtCast`, single ? "这次命中已满足雷霆飞缒触发条件" : "本击起手条件已确认（留空时采用完整动作判定）", value.swiftQualifiedAtCast) +
+    state(SWIFT, `${key}.burstInactiveAtSnapshot`, "本击取样时，Q的攻击力加成未生效", value.burstInactiveAtSnapshot) +
+    state(SWIFT, `${key}.a1ActiveAtSnapshot`, "本击取样前，已有的天赋攻击力加成仍有效", value.a1ActiveAtSnapshot) +
+    numberField(SWIFT, `${key}.includedA1Attack`, "面板已计入的这项天赋增攻（未计入填0）", value.includedA1Attack) +
+    numberField(SWIFT, `${key}.baseAttack`, "角色与武器的基础攻击力之和（白字）", value.baseAttack) +
+    state(SWIFT, `${key}.snapshotIncludesActualA1`, "历史面板已包含当时实际的天赋增攻", value.snapshotIncludesActualA1);
 }
 
 export function renderIansanSwiftResolvedControls(document: CalculatorDocument): string {

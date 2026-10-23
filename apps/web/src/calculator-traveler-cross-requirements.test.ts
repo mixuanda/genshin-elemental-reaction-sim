@@ -23,11 +23,8 @@ function fixture(character = "character:10000005", gender = "aether"): Calculato
   return applyCharacterConstellationScope(document);
 }
 
-// Existing adapter injection keeps this module independent of root's registry.
-// Shared preparation/calculation, conversion, JSON and input handlers stay real.
-const requirements = (document: CalculatorDocument) => collectCalculatorRequirements(document, {
-  adapters: [travelerCrossRequirementAdapter],
-});
+// Default registration is the path used by the actual calculator page.
+const requirements = (document: CalculatorDocument) => collectCalculatorRequirements(document);
 function answer(document: CalculatorDocument, value: "unknown" | "0" | "1"): CalculatorDocument {
   applySourceCastControl(document, { dataset: { sourceCastStateField: STORY }, value } as unknown as HTMLSelectElement);
   return applyCharacterConstellationScope(document);
