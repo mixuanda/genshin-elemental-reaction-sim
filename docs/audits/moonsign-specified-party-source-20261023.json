@@ -1,0 +1,662 @@
+{
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "sourceKind": "existing modified Stellar source archive, read only; not a new native build or live-game test",
+  "archiveSha256": "0abc7303d20799121ff936305ca6cf6d1ab0171591a4f15e9fca8d5974c25817",
+  "archiveMatchesExistingManifest": true,
+  "reviewedCharacterFamilies": [
+    "wanderer",
+    "faruzan",
+    "nicole",
+    "durin"
+  ],
+  "allGoMoonsignMentions": [
+    {
+      "path": "pkg/simulation/setup.go",
+      "matches": [
+        {
+          "line": 488,
+          "source": "count += char.Moonsign"
+        },
+        {
+          "line": 540,
+          "source": "if char.Moonsign != 0 {"
+        }
+      ]
+    },
+    {
+      "path": "pkg/core/player/character/sourcehost_phase_state.go",
+      "matches": [
+        {
+          "line": 126,
+          "source": "\"isHexerei\": c.IsHexerei, \"moonsign\": c.Moonsign,"
+        }
+      ]
+    },
+    {
+      "path": "pkg/core/player/character/character.go",
+      "matches": [
+        {
+          "line": 103,
+          "source": "Moonsign  int"
+        }
+      ]
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "matches": [
+        {
+          "line": 364,
+          "source": "func (h *Handler) GetMoonsignLevel() int {"
+        },
+        {
+          "line": 367,
+          "source": "count += c.Moonsign"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/sword/serenityscall/zz_serenityscall.dm.go",
+      "matches": [
+        {
+          "line": 5,
+          "source": "//\tUpon causing an Elemental Reaction, increases Max HP by 16% for 12s. Moonsign: Ascendant"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/sword/serenityscall/serenityscall.go",
+      "matches": [
+        {
+          "line": 23,
+          "source": "// Moonsign: Ascendant Gleam: Max HP from this effect is further increased by 16%/20%/24%/28%/32%"
+        },
+        {
+          "line": 47,
+          "source": "if c.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/claymore/masterkey/masterkey.go",
+      "matches": [
+        {
+          "line": 23,
+          "source": "// Moonsign: Ascendant Gleam: Elemental Mastery from this effect is further increased by 60/75/90/105/120."
+        },
+        {
+          "line": 47,
+          "source": "if c.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/claymore/masterkey/zz_masterkey.dm.go",
+      "matches": [
+        {
+          "line": 5,
+          "source": "//\tUpon causing an Elemental Reaction, increases Elemental Mastery by 60 for 12s. Moonsign:"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/bow/snarehook/zz_snarehook.dm.go",
+      "matches": [
+        {
+          "line": 5,
+          "source": "//\tUpon causing an Elemental Reaction, increases Elemental Mastery by 60 for 12s. Moonsign:"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/bow/snarehook/snarehook.go",
+      "matches": [
+        {
+          "line": 23,
+          "source": "// Moonsign: Ascendant Gleam: Elemental Mastery from this effect is further increased by 60/75/90/105/120."
+        },
+        {
+          "line": 47,
+          "source": "if c.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/catalyst/blackmarrowlantern/zz_blackmarrowlantern.dm.go",
+      "matches": [
+        {
+          "line": 5,
+          "source": "//\tBloom DMG is increased by 48%, and Lunar-Bloom DMG is increased by 12%. Moonsign:"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/catalyst/blackmarrowlantern/blackmarrowlantern.go",
+      "matches": [
+        {
+          "line": 19,
+          "source": "// Moonsign: Ascendant Gleam: Lunar-Bloom DMG is increased by an additional 12%."
+        },
+        {
+          "line": 32,
+          "source": "if c.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/spear/prospectorsshovel/zz_prospectorsshovel.dm.go",
+      "matches": [
+        {
+          "line": 6,
+          "source": "//\tMoonsign: Ascendant Gleam: Lunar-Charged DMG is increased by an additional 12%."
+        }
+      ]
+    },
+    {
+      "path": "internal/weapons/spear/prospectorsshovel/prospectorsshovel.go",
+      "matches": [
+        {
+          "line": 19,
+          "source": "// Moonsign: Ascendant Gleam: Lunar-Charged DMG is increased by an additional 12%."
+        },
+        {
+          "line": 32,
+          "source": "if c.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/artifacts/silkenmoonsserenade/zz_silkenmoonsserenade.dm.go",
+      "matches": [
+        {
+          "line": 10,
+          "source": "//\tall party members' Elemental Mastery by 60/120 when the party's Moonsign is Nascent"
+        }
+      ]
+    },
+    {
+      "path": "internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go",
+      "matches": [
+        {
+          "line": 52,
+          "source": "moonsignLevel := s.core.Player.GetMoonsignLevel()"
+        }
+      ]
+    },
+    {
+      "path": "internal/artifacts/aubade/aubade.go",
+      "matches": [
+        {
+          "line": 27,
+          "source": "// NewSet is called before all characters added, so we don't initialize buffs there due to MoonsignLevel being incorrect"
+        },
+        {
+          "line": 28,
+          "source": "// Init gets called after all characters added, so MoonsignLevel is correct."
+        },
+        {
+          "line": 51,
+          "source": "moonsignLevel := s.core.Player.GetMoonsignLevel()"
+        }
+      ]
+    },
+    {
+      "path": "internal/artifacts/aubade/zz_aubadeofmorningstarandmoon.dm.go",
+      "matches": [
+        {
+          "line": 10,
+          "source": "//\tWhen the party's Moonsign Level is at least Ascendant Gleam, Lunar Reaction DMG will"
+        }
+      ]
+    },
+    {
+      "path": "internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go",
+      "matches": [
+        {
+          "line": 53,
+          "source": "moonsignLevel := s.core.Player.GetMoonsignLevel()"
+        }
+      ]
+    },
+    {
+      "path": "internal/artifacts/nightoftheskysunveiling/zz_nightoftheskysunveiling.dm.go",
+      "matches": [
+        {
+          "line": 11,
+          "source": "//\t15%/30% when the party's Moonsign is Nascent Gleam/Ascendant Gleam. All party members'"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/flins/burst.go",
+      "matches": [
+        {
+          "line": 78,
+          "source": "if c.Core.Player.GetMoonsignLevel() >= 2 {"
+        },
+        {
+          "line": 123,
+          "source": "if c.Core.Player.GetMoonsignLevel() >= 2 && c.Core.Status.Duration(reactable.LcKey) > 0 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/flins/cons.go",
+      "matches": [
+        {
+          "line": 98,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        },
+        {
+          "line": 162,
+          "source": "if c.Core.Player.GetMoonsignLevel() >= 2 {"
+        },
+        {
+          "line": 180,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        },
+        {
+          "line": 198,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/flins/flins.go",
+      "matches": [
+        {
+          "line": 25,
+          "source": "c.Moonsign = 1"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/flins/asc.go",
+      "matches": [
+        {
+          "line": 28,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/aino/aino.go",
+      "matches": [
+        {
+          "line": 24,
+          "source": "c.Moonsign = 1"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/aino/cons.go",
+      "matches": [
+        {
+          "line": 174,
+          "source": "moonsign := c.Core.Player.GetMoonsignLevel()"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/aino/asc.go",
+      "matches": [
+        {
+          "line": 9,
+          "source": "if c.Base.Ascension < 1 || c.Core.Player.GetMoonsignLevel() < 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/ineffa/ineffa.go",
+      "matches": [
+        {
+          "line": 27,
+          "source": "c.Moonsign = 1"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/jahoda/burst.go",
+      "matches": [
+        {
+          "line": 156,
+          "source": "if c.Core.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/jahoda/jahoda.go",
+      "matches": [
+        {
+          "line": 47,
+          "source": "c.Moonsign = 1"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/jahoda/cons.go",
+      "matches": [
+        {
+          "line": 76,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        },
+        {
+          "line": 103,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        },
+        {
+          "line": 123,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        },
+        {
+          "line": 149,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        },
+        {
+          "line": 154,
+          "source": "if char.Moonsign < 1 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/jahoda/skill.go",
+      "matches": [
+        {
+          "line": 262,
+          "source": "if c.Core.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/lauma/lauma.go",
+      "matches": [
+        {
+          "line": 37,
+          "source": "w.Moonsign = 1"
+        },
+        {
+          "line": 48,
+          "source": "count += ch.Moonsign"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/columbina/columbina.go",
+      "matches": [
+        {
+          "line": 37,
+          "source": "c.Moonsign = 1"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/columbina/cons.go",
+      "matches": [
+        {
+          "line": 128,
+          "source": "if c.Core.Player.GetMoonsignLevel() < 2 {"
+        }
+      ]
+    },
+    {
+      "path": "internal/characters/columbina/skill.go",
+      "matches": [
+        {
+          "line": 342,
+          "source": "if c.Core.Player.GetMoonsignLevel() >= 2 {"
+        }
+      ]
+    }
+  ],
+  "reviewedFiles": {
+    "pkg/core/player/character/character.go": {
+      "sha256": "ec110e40097bb5efbec5d7be02bc32f434c60243b4fd08c93a937ad1f78a6f2b",
+      "bytes": 7494,
+      "moonsignMentions": [
+        {
+          "line": 103,
+          "source": "Moonsign  int"
+        }
+      ]
+    },
+    "pkg/core/player/player.go": {
+      "sha256": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46",
+      "bytes": 8881,
+      "moonsignMentions": [
+        {
+          "line": 364,
+          "source": "func (h *Handler) GetMoonsignLevel() int {"
+        },
+        {
+          "line": 367,
+          "source": "count += c.Moonsign"
+        }
+      ]
+    },
+    "internal/template/character/character.go": {
+      "sha256": "fbe3acbcc6a667a23faf13ef881adbf62aa958d0e13d5621c6dcf36f26be07a7",
+      "bytes": 5775,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/faruzan.go": {
+      "sha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+      "bytes": 1082,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/burst.go": {
+      "sha256": "e45db11cca4ad597e1e16f0b7a48b2b1d6c114a49fb91936e0721173d0a38529",
+      "bytes": 5331,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/attack.go": {
+      "sha256": "fb7eea9f55c1fd7ffa7aa6ae3435ba367cabe3e602a2ba16fc182f128d95caf3",
+      "bytes": 2550,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/aimed.go": {
+      "sha256": "e8da30b99fdbe04c3d48c50f459c001a03ebfa2fecf8fffcd496aad426d0cabc",
+      "bytes": 4149,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/cons.go": {
+      "sha256": "d6b5d3fb21a1fb2df85bb137894886d760d48fdbae59262345bf806eb74da392",
+      "bytes": 2568,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/skill.go": {
+      "sha256": "e12a2a64f33a22713b966d3f69fd3679730684e5ec53c10184f3a8819caccf67",
+      "bytes": 5044,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/zz_faruzan.dm.go": {
+      "sha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+      "bytes": 3079,
+      "moonsignMentions": []
+    },
+    "internal/characters/faruzan/asc.go": {
+      "sha256": "d4c7e7282b19336ad2ffe06790c20914fdee58d33a115d57966f28a296ea686f",
+      "bytes": 2324,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/charge.go": {
+      "sha256": "7b302685211551478b8d79a525da186463fe721c178da2ffc39487cb17e6c016",
+      "bytes": 2171,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/burst.go": {
+      "sha256": "1a5a92a0c7a7dd82f7af56536325e0620c30f7bddc15523ff6a270034109980a",
+      "bytes": 6130,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/attack.go": {
+      "sha256": "65499ee69d4f0e40014ca14dbfcda71d71db4c4897894d24be0f2c61c3b3c4f5",
+      "bytes": 3538,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/cons.go": {
+      "sha256": "c2a5658b4f5cc43db492af0df4845be12581d7da1917d1baecfdd73a60c16444",
+      "bytes": 5512,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/skill.go": {
+      "sha256": "559004d99f628e7e9f4a51241fc92a027d539fd0ee3836e225ac7bfe478fcfa2",
+      "bytes": 3872,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/zz_nicole.dm.go": {
+      "sha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+      "bytes": 3435,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/nicole.go": {
+      "sha256": "1512ebb20b5b1c9df1bebb5a9b941fc5352693f5f00e85acc42c71e8bd5cf820",
+      "bytes": 1453,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/shield.go": {
+      "sha256": "736d5128039d861f5d02d8046dcf53d38f3dd19bb4ea3a2e7ed17f3c9f359036",
+      "bytes": 1193,
+      "moonsignMentions": []
+    },
+    "internal/characters/nicole/asc.go": {
+      "sha256": "bc8ac462f3ea1dbbe14b34153305ae0b849a9bf24af206b8b5d8f727a65094c2",
+      "bytes": 3297,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/charge.go": {
+      "sha256": "d78259718fb4dcc6cec51d171dda7d1445d215b1530543d35cc7a7173e877829",
+      "bytes": 2002,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/burst.go": {
+      "sha256": "ce9c4986c6d2acbac402dbf32b5884506e6a9576384557895e6f7a2bd07315c7",
+      "bytes": 7063,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/durin.go": {
+      "sha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+      "bytes": 1408,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/attack.go": {
+      "sha256": "6096455affcc68c239d41f8c78c714bc080227129f25fc0d0e9f01574593a7ad",
+      "bytes": 3748,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/zz_durin.dm.go": {
+      "sha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+      "bytes": 5927,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/cons.go": {
+      "sha256": "0518f4b34349b0593a9f1c6466df4b6bc18c492bc65b97bfacbb62123ab868cf",
+      "bytes": 6615,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/skill.go": {
+      "sha256": "7040e6f340b9524cb5c8459d5d0e0ce83f40ca5981ec2706afe7fe4fe92286fc",
+      "bytes": 5767,
+      "moonsignMentions": []
+    },
+    "internal/characters/durin/asc.go": {
+      "sha256": "aab76718e1157ea5d42e09ccad4c3c1d2e10ff31f95ce9d8a390769f247ba5c0",
+      "bytes": 3530,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/charge.go": {
+      "sha256": "b24b74588c4c42e9cb57f974ae8cecf22224de35753da205fb53353d3bbc722d",
+      "bytes": 5451,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/burst.go": {
+      "sha256": "503d903e4add652d7ff8d06497f8d5ef326a875dad41c95f4dc527cbd08e4f63",
+      "bytes": 4512,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/attack.go": {
+      "sha256": "f6f123c75bc782da30da170d1a280a0dddb1e68cfc2ee626f0a716469cb83d8b",
+      "bytes": 8283,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/cons.go": {
+      "sha256": "b9eb5043728a3585f9eed1fd8033a47ce431add22f0cc847f7cfc08de11a996f",
+      "bytes": 2926,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/dash.go": {
+      "sha256": "d4714a3e7aedf2d515b4e9dac21804754e81ab0f0a71d831b8945af72082cd2e",
+      "bytes": 1580,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/zz_wanderer.dm.go": {
+      "sha256": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+      "bytes": 3729,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/skill.go": {
+      "sha256": "a1b5e3ca7e56afcfe8e41c3c089a22d48df9b80f6bfd26efd4587b0ca20fa4bf",
+      "bytes": 4248,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/wanderer.go": {
+      "sha256": "5b99342d4adb30f912712499fe973b11bde4b9466d80ebf7b16363990c6d8051",
+      "bytes": 1987,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/plunge.go": {
+      "sha256": "4dfa676312896b94f1ea9c5d7c868b8e645afa8733fc54b7696531ffafe855db",
+      "bytes": 3451,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/asc.go": {
+      "sha256": "d9ce452cb6010019cc70b3fd3115df224931079903839e53a7930ad3a5cf725c",
+      "bytes": 6544,
+      "moonsignMentions": []
+    },
+    "internal/characters/wanderer/jump.go": {
+      "sha256": "f3335ed9222957b263b374a74527de75049711884e0d8a31bbb8e861c61c0ff4",
+      "bytes": 1109,
+      "moonsignMentions": []
+    }
+  },
+  "wrapperCreationExcerpts": [
+    {
+      "path": "internal/template/character/character.go",
+      "line": 38,
+      "excerpt": [
+        "func NewWithWrapper(c *core.Core, w *character.CharWrapper) *Character {",
+        "\tr := newChar(c)",
+        "\tr.CharWrapper = w",
+        "",
+        "\tc.Events.SubscribeWithPhase(event.OnStellarVortexDetonate, func(args ...any) {",
+        "\t\tap, ok := args[2].(*info.AttackPattern)",
+        "\t\tif !ok {",
+        "\t\t\treturn",
+        "\t\t}",
+        "\t\tif !c.Combat.Player().IsWithinArea(*ap) {",
+        "\t\t\treturn",
+        "\t\t}",
+        "\t\tif c.Player.CurrentState() != action.JumpState {",
+        "\t\t\treturn",
+        "\t\t}",
+        ""
+      ]
+    }
+  ],
+  "claims": {
+    "fixedSourceGrantPerCharacter": {
+      "wanderer": 0,
+      "faruzan": 0,
+      "nicole": 0,
+      "durin": 0
+    },
+    "isHexereiIsIndependentOfMoonsign": true,
+    "unreviewedCharactersRemainUnknown": true,
+    "doesNotClaimReactionTriggered": true
+  },
+  "sourceRefs": [
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/faruzan/faruzan.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/nicole/nicole.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/durin/durin.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/wanderer/wanderer.go"
+  ]
+}

@@ -3,6 +3,23 @@ import { resolveSpecialConversion, createSpecialReactionState, transitionSpecial
 import { capturedLunarPanelMoonsign, deriveLunarPanelMoonsign } from "./lunar-panel-moonsign";
 
 describe("new-run Moonsign derived from actual party identity", () => {
+  it("recognizes the specified Wanderer party's sourced zero grants without treating Hexerei as Moonsign", () => {
+    const party = ["wanderer", "faruzan", "nicole", "durin"].map(characterKey => ({ actorId: characterKey, characterKey }));
+    const resolved = deriveLunarPanelMoonsign(party);
+    expect(resolved).toMatchObject({ origin: "party", level: 0, unknownActorIds: [] });
+    for (const key of ["wanderer", "faruzan", "nicole", "durin"])
+      expect(resolved.sourceRefs).toContain(`https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/${key}/${key}.go`);
+    expect(resolveSpecialConversion(party, "electroCharged")).toMatchObject({ normalFallback: true, enablerActorIds: [] });
+  });
+
+  it("does not turn one known contributor and three sourced zero grants into an unknown or two-level party", () => {
+    const resolved = deriveLunarPanelMoonsign([
+      { actorId: "i", characterKey: "ineffa" }, { actorId: "w", characterKey: "wanderer" },
+      { actorId: "n", characterKey: "nicole" }, { actorId: "d", characterKey: "durin" },
+    ]);
+    expect(resolved).toMatchObject({ level: 1, unknownActorIds: [] });
+  });
+
   it("derives 0/1/2 from bounded positive and negative facts without any user eligibility choice", () => {
     expect(deriveLunarPanelMoonsign([{ actorId: "f", characterKey: "fischl" }, { actorId: "n", characterKey: "nahida" }])).toMatchObject({ level: 0, unknownActorIds: [] });
     expect(deriveLunarPanelMoonsign([{ actorId: "a", characterKey: "aino" }, { actorId: "n", characterKey: "nahida" }])).toMatchObject({ level: 1, unknownActorIds: [] });

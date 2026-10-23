@@ -17,7 +17,13 @@ const sourceRoot = "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035
 const extraContributors = new Set(["aino", "jahoda"]);
 // Bounded negatives: these pinned character implementations never assign a
 // Moonsign grant to their default-zero CharWrapper. Unreviewed keys stay unknown.
-const knownNonContributors = new Set(["barbara", "fischl", "kaeya", "lisa", "nahida", "noelle", "sucrose"]);
+// The specified Wanderer/Faruzan/Nicole/Durin party has also been checked in
+// this exact a7 source: NewChar keeps CharWrapper.Moonsign at zero throughout
+// Init. Nicole/Durin's independently assigned IsHexerei flag is not a grant.
+const knownNonContributors = new Set([
+  "barbara", "fischl", "kaeya", "lisa", "nahida", "noelle", "sucrose",
+  "wanderer", "faruzan", "nicole", "durin",
+]);
 const registeredContributors = new Set<string>([
   ...SPECIAL_STATE_REGISTRY["lunar-charged"].enablers,
   ...SPECIAL_STATE_REGISTRY["lunar-bloom"].enablers,
@@ -46,7 +52,7 @@ export function deriveLunarPanelMoonsign(party: readonly PartyIdentity[]): Lunar
     // establish that value even if another member's grant is not yet known.
     level: resolved.unknownActorIds.length === 0 || resolved.level === 2 ? resolved.level : undefined,
     unknownActorIds: resolved.unknownActorIds,
-    sourceRefs: [...new Set([`${sourceRoot}pkg/core/player/player.go`, ...constructorRefs, ...registryRefs])],
+    sourceRefs: [...new Set([`${sourceRoot}pkg/core/player/player.go`, `${sourceRoot}pkg/core/player/character/character.go`, ...constructorRefs, ...registryRefs])],
   };
 }
 
