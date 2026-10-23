@@ -40,5 +40,9 @@
     "Fixed b4 community implementation, E shield/buff/hit order has upstream TODO; not game validation",
     "C2 ascension below4 remains blocked",
     "R1 first shield refresh only, no ongoing refresh or energy model in this calculator"
-  ]
+  ],
+  "strictOptionalTypesFixed": true,
+  "affectedTestsAfterTypeFix": 15,
+  "typecheck": "passed",
+  "webBuild": "passed"
 }

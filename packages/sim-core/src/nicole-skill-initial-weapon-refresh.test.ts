@@ -39,7 +39,7 @@ describe("Nicole first-shield signature refresh", () => {
   it("refreshes the generated clause rather than only changing its context", () => {
     const doc = fixture(); if (doc.build.mode !== "equipment-derived") throw new Error("equipment fixture");
     const original = structuredClone(doc);
-    const bound = deriveNicoleSkillInitialWeaponContext(doc, doc.build.equipment!.effectContext!);
+    const bound = deriveNicoleSkillInitialWeaponContext(doc, equipmentInput().effectContext!);
     expect(bound.derived).toBe(true);
     doc.build.equipment!.effectContext = bound.effectContext;
     expect(bonus(doc)).toBe(0); // retained reproducer: context alone leaves an inactive generated clause
@@ -50,7 +50,7 @@ describe("Nicole first-shield signature refresh", () => {
     expect(bonus(original)).toBe(0);
     expect(resolveCalculatorStats(out.build).atk).toBe(2000);
     const expected = structuredClone(original);
-    if (out.build.mode !== "equipment-derived" || expected.build.mode !== "equipment-derived") throw new Error("equipment");
+    if (out.build.mode !== "equipment-derived" || expected.build.mode !== "equipment-derived" || original.build.mode !== "equipment-derived") throw new Error("equipment");
     expected.build.equipment!.effectContext = out.build.equipment!.effectContext;
     expected.build.equipment!.dynamicHitBonuses = out.build.equipment!.dynamicHitBonuses;
     expect(out).toEqual(expected); // no field, manual delta, artifact or constant ATK is rebuilt

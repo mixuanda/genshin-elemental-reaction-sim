@@ -20,3 +20,5 @@ node scripts/acceptance/nicole-initial-browser.mjs http://127.0.0.1:4205 /tmp/ne
 证据 JSON 为同目录 `NICOLE-C2-INITIAL-20261023.json`；详细浏览器文件 `/tmp/GIDPS-specified-team-20261023/nicole-signature-browser/`，单元原始报告 `nicole-integration-weapon.json`（25通过/1样例失败）与 `nicole-public-final.json`（修正样例后5通过）。本块未跑新的原生120秒模拟。
 
 尚未开放此单技能页的C1协同造影、完整Q日程、精1后续0.5秒刷新/回能；现有真实队伍逐帧结果另行保留，不用此单击结果冒充完整循环。
+
+整批类型检查发现新武器桥接的 exactOptionalPropertyTypes 边界及 flatMap 推断错误，已保留所有运行时键值、改为已证明一条对一条的 map，并补齐测试构建模式缩窄。15项受影响测试复查通过；全项目 typecheck 和 web build 均退出0，未放宽 tsconfig。

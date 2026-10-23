@@ -1,4 +1,5 @@
 import type { CalculatorDocument } from "./calculator-model";
+import type { ArtifactConditionalContext } from "../../game-data/src/artifact-conditional-effects";
 import { resolveEquipmentBuild, type EquipmentBuildInput, type EquipmentDataset } from "../../game-data/src/equipment-build";
 import { resolveWeaponCatalystEffects } from "../../game-data/src/weapon-catalyst-effects";
 import { deriveNicoleSkillInitialWeaponContext, isNicoleSkillInitialAction, isNicoleSkillInitialHit,
@@ -54,12 +55,16 @@ export function refreshNicoleSkillInitialWeaponEffects(document: CalculatorDocum
     || metadata.weaponType !== "catalyst") return result("blocked", "尘光自动刷新需要当前妮可法器配装的明确来源记账。");
 
   try {
-    const bound = deriveNicoleSkillInitialWeaponContext(document, metadata.effectContext ?? {});
+    // The document schema spells optional values as T | undefined; the resolver
+    // interface uses exact optional properties. Undefined still means unknown in
+    // that resolver. Keep every saved key/value intact at this type boundary.
+    const oldContext = (metadata.effectContext ?? {}) as ArtifactConditionalContext;
+    const bound = deriveNicoleSkillInitialWeaponContext(document, oldContext);
     if (!bound.derived) return result("blocked", bound.reason ?? "尚未证明本次尘光首次取样。");
     const resolve = (effectContext: typeof bound.effectContext) => resolveWeaponCatalystEffects({
       weaponId: metadata.weaponId, refinement: metadata.refinement, characterId: metadata.characterId,
       enabled: true, context: effectContext, ...(dataset ? { dataset } : {}) });
-    const before = resolve(metadata.effectContext ?? {}), after = resolve(bound.effectContext);
+    const before = resolve(oldContext), after = resolve(bound.effectContext);
     if (before.missingConditions.length || after.missingConditions.length)
       return result("blocked", [...before.missingConditions, ...after.missingConditions].join("；"));
     const statRules = (metadata.statModifiers ?? []).filter(signatureRule);
@@ -90,9 +95,9 @@ export function refreshNicoleSkillInitialWeaponEffects(document: CalculatorDocum
     if (sameEvidence(metadata.effectContext, bound.effectContext) && sameEvidence(hitRules, after.dynamicHitBonuses))
       return result("unchanged");
     let replaced = false;
-    const dynamicHitBonuses = (metadata.dynamicHitBonuses ?? []).flatMap(row => {
-      if (!signatureRule(row)) return [row];
-      replaced = true; return after.dynamicHitBonuses;
+    const dynamicHitBonuses = (metadata.dynamicHitBonuses ?? []).map(row => {
+      if (!signatureRule(row)) return row;
+      replaced = true; return after.dynamicHitBonuses[0]!;
     });
     // The complete old R1 state necessarily has one hit clause, including an
     // explicitly inactive zero; the equality guard above rejects missing ones.
