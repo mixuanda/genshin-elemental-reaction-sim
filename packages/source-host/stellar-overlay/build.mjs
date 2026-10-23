@@ -188,6 +188,10 @@ const phaseCompletionPatches = [
   '../patches/136-normal-attack-speed-context.patch',
   // Cross-pin correctness fixes use the exact same patch bytes as Classic.
   ...sharedCharacterFixes.map(name => `../patches/${name}`),
+  // Stellar-only Swift correction: keep original E-index receipts as history.
+  'patches/138-iansan-swift-normal-talent.patch',
+  // C1 counts actual Nightsoul consumed, with a bounded float threshold guard.
+  'patches/139-iansan-c1-consumption-threshold.patch',
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');

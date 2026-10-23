@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "status": "fixed-community-source-correction; not-game-verified",
+  "patch": {
+    "path": "packages/source-host/stellar-overlay/patches/138-iansan-swift-normal-talent.patch",
+    "name": "138-iansan-swift-normal-talent.patch",
+    "sha256": "cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538"
+  },
+  "archive": {
+    "path": "packages/game-data/sources/iansan-swift-resolved-casts/source.json.gz",
+    "sha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec",
+    "preservedUnchanged": true
+  },
+  "legacySite": {
+    "id": "internal/characters/iansan/charge.go:95:21",
+    "definition": {
+      "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    "meaning": "原a7实际E索引，已知与固定Optimizer普通攻击绑定冲突；仅验证历史实际计算，不视为修正后或游戏正确。",
+    "constellationUnlock": 3
+  },
+  "correctedSite": {
+    "id": "internal/characters/iansan/charge.go:98:21",
+    "definition": {
+      "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    "meaning": "补丁138增加真实来源纠正注释后，Swift实际读取普通攻击getter；NA基础等级、Childe被动和NormalCon0按原getter独立回放。",
+    "constellationUnlock": 0
+  },
+  "table": {
+    "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+    "values": [
+      0.84194,
+      0.91047,
+      0.979,
+      1.0769,
+      1.14543,
+      1.22375,
+      1.33144,
+      1.43913,
+      1.54682,
+      1.6643,
+      1.78178,
+      1.89926,
+      2.01674,
+      2.13422,
+      2.2517
+    ]
+  },
+  "numericalWitness": {
+    "attackLevel1SkillLevel10": {
+      "oldCoefficient": 1.6643,
+      "correctedCoefficient": 0.84194,
+      "oldNonCriticalAt2000Atk90v90ResPoint1": 1497.87,
+      "correctedNonCriticalAt2000Atk90v90ResPoint1": 757.746
+    },
+    "c3BaseAttack10BaseSkill10": {
+      "oldEffectiveIndex": 12,
+      "oldCoefficient": 2.01674,
+      "correctedEffectiveIndex": 9,
+      "correctedCoefficient": 1.6643
+    }
+  },
+  "sourceFiles": [
+    {
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "sha256": "aa1a04be529dc04322a02e11a667fb92313f8c647aab71b54d982548d6e03738",
+      "gitBlob": "d1878b74dfe3fbd488bcbfddb961ff2c2bc59b53",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Iansan/index.tsx"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "gitBlob": "736a1229592f4afead151920884dbccd5c5e22cb",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+      "sha256": "f74ce3aab15e228fba93d391ac13b03c5bcf21fc7bb1718971792f8277ad2c1a",
+      "gitBlob": "4b80dc92dc003969fe8f28e35a67ad5b0a2b7263",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Iansan/skillParam.json"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/stats/src/allStat_gen.json",
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/stats/src/allStat_gen.json",
+      "sha256": "6776559bb8844a091052bcb580ad9e13370e22509c9b4682e5a829b52c7d3ee9",
+      "gitBlob": "2396c725aa66bdf0148bc2ec708604b972e46b1a",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/charge.go",
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/iansan/charge.go",
+      "sha256": "af3cedb1a1b13a26b09e901d942de0ede63a1a4dcdd7afe1449bd4246c9cae91",
+      "gitBlob": "240d95690c0e3e5cbde03b67b4e743265f713b85",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/charge.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/iansan.go",
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/iansan/iansan.go",
+      "sha256": "0a405ccf6284d152820171b59d4619eb4c253e7aff0d3b2b3edfb17848461f22",
+      "gitBlob": "9a0672064215a6a40c29bae9401975b02eb80c16",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/iansan.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/zz_iansan.dm.go",
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/iansan/zz_iansan.dm.go",
+      "sha256": "7ee6b65bcbdc6816139dd07cf5c5b4f582181efae11c8356f46b55f8635f074d",
+      "gitBlob": "99ca2bfe2a27e38bcd9ae85571fa3eb8cc1e11eb",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/zz_iansan.dm.go"
+    }
+  ],
+  "unchangedSemantics": [
+    "Swift snapshot/impact25f, actual charged and Nightsoul tags, source action qualification and target geometry.",
+    "A1 created only by the successful hit callback after damage; Q18f refresh, Extra exclusion, active beneficiary and Q cap unchanged.",
+    "C2/C6 vector amounts, their original native gates and expiry remain unchanged.",
+    "Classic has no Iansan producer at b4 and does not register this Stellar-only patch."
+  ],
+  "scopeLimits": [
+    "Old source archive and E-index conflict remain immutable. Historical alias is exact pin/table/site/kind, never numeric matching.",
+    "C1 floating-point energy qualification is audited separately; no claim that this patch fixes all Iansan mechanics."
+  ]
+}

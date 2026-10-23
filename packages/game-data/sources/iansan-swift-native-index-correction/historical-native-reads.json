@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "kind": "immutable-excerpt-of-root-native-before-captures",
+  "notANewRunByThisAgent": true,
+  "host": {
+    "host": "/workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host-stellar",
+    "wasmSha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
+    "bytes": 72152682,
+    "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "startedAt": "2026-10-23T14:35:23.676Z"
+  },
+  "hostSha256": "d182d3660f47cfce32e45f480ea5666c669f780a5991406cc8f4299d8fe0cba5",
+  "cases": [
+    {
+      "case": "na1-e10-c0",
+      "sourceFile": "/tmp/GIDPS-iansan-team-20261023/before/na1-e10-c0.native.json",
+      "sha256": "fbcde8c16fe7142d59fca955e5a1d22de402d90110efd5a2f28ff2a426842736",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "actorIndex": 0,
+      "hitFrame": 163,
+      "read": {
+        "schemaVersion": 1,
+        "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+        "indices": [
+          9
+        ],
+        "indexSources": [
+          {
+            "position": 0,
+            "kind": "skill",
+            "baseTalent": 10,
+            "constellation": 0,
+            "constellationUnlock": 3,
+            "passiveTagValue": 0,
+            "value": 9
+          }
+        ],
+        "value": 1.6643,
+        "actorIndex": 0,
+        "frame": 138,
+        "siteId": "internal/characters/iansan/charge.go:95:21"
+      },
+      "expectedNormalTalent": 1,
+      "expectedCoefficient": 0.84194,
+      "observedOldCoefficient": 1.6643
+    },
+    {
+      "case": "na10-e1-c0",
+      "sourceFile": "/tmp/GIDPS-iansan-team-20261023/before/na10-e1-c0.native.json",
+      "sha256": "10c52805225e18beab909f6ca2d8b2d55d3fdf299c175470cd0321a1545ffd9f",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "actorIndex": 0,
+      "hitFrame": 163,
+      "read": {
+        "schemaVersion": 1,
+        "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+        "indices": [
+          0
+        ],
+        "indexSources": [
+          {
+            "position": 0,
+            "kind": "skill",
+            "baseTalent": 1,
+            "constellation": 0,
+            "constellationUnlock": 3,
+            "passiveTagValue": 0,
+            "value": 0
+          }
+        ],
+        "value": 0.84194,
+        "actorIndex": 0,
+        "frame": 138,
+        "siteId": "internal/characters/iansan/charge.go:95:21"
+      },
+      "expectedNormalTalent": 10,
+      "expectedCoefficient": 1.6643,
+      "observedOldCoefficient": 0.84194
+    },
+    {
+      "case": "na10-e10-c3",
+      "sourceFile": "/tmp/GIDPS-iansan-team-20261023/before/na10-e10-c3.native.json",
+      "sha256": "df140a42d69df1c462ab62c63f0e768730878b01b5e64b62c4289edec013860f",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "actorIndex": 0,
+      "hitFrame": 163,
+      "read": {
+        "schemaVersion": 1,
+        "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+        "indices": [
+          12
+        ],
+        "indexSources": [
+          {
+            "position": 0,
+            "kind": "skill",
+            "baseTalent": 10,
+            "constellation": 3,
+            "constellationUnlock": 3,
+            "passiveTagValue": 0,
+            "value": 12
+          }
+        ],
+        "value": 2.01674,
+        "actorIndex": 0,
+        "frame": 138,
+        "siteId": "internal/characters/iansan/charge.go:95:21"
+      },
+      "expectedNormalTalent": 10,
+      "expectedCoefficient": 1.6643,
+      "observedOldCoefficient": 2.01674
+    }
+  ]
+}
