@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-22T16:54:22.402Z",
+  "builtAt": "2026-10-23T11:29:49.761Z",
   "source": {
     "repository": "https://github.com/genshinsim/gcsim",
     "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
@@ -8,12 +8,8 @@
     "verifiedBlobCount": 4021,
     "exportedOnlyTrackedBlobs": true,
     "preparation": {
-      "sourceUrl": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-      "archiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
-      "archiveBytes": 56440121,
-      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
-      "verifiedBlobCount": 4021
+      "kind": "explicit-local-source",
+      "trackedBytesVerified": true
     }
   },
   "sourceInventory": {
@@ -2846,8 +2842,8 @@
     },
     "report": {
       "path": "talent-read-instrumentation.json",
-      "sha256": "64f467cd4e6b7117c54986c6079478af56bb1fb267063098d4cffe635b1ab7de",
-      "size": 370205
+      "sha256": "297d4c3e53fd87b06e9022eff0670a8bb474fc88f4a4e9a4a306603e235f9903",
+      "size": 370207
     },
     "host": {
       "goos": "linux",
@@ -3641,6 +3637,11 @@
       "path": "136-normal-attack-speed-context.patch",
       "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
       "size": 5729
+    },
+    {
+      "path": "137-wanderer-c2-burst-snapshot-scope.patch",
+      "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+      "size": 9512
     }
   ],
   "bridge": [
@@ -4080,8 +4081,8 @@
   "artifacts": [
     {
       "path": "source-host.wasm",
-      "sha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
-      "size": 47084616
+      "sha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "size": 47084886
     },
     {
       "path": "wasm_exec.js",
@@ -4105,12 +4106,12 @@
     },
     {
       "path": "talent-read-instrumentation.json",
-      "sha256": "64f467cd4e6b7117c54986c6079478af56bb1fb267063098d4cffe635b1ab7de",
-      "size": 370205
+      "sha256": "297d4c3e53fd87b06e9022eff0670a8bb474fc88f4a4e9a4a306603e235f9903",
+      "size": 370207
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "dd53f6e16245ccf34d6ea933fb74e11ea534b1b9e8e2204000039f8c85b5b13b",
+      "sha256": "c518f93cdab88931f7c459b0dd24e50c2672cffec0ce7c4e87038fcad87b73ef",
       "size": 1810182
     }
   ],
