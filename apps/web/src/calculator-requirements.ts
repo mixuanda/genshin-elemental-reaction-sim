@@ -17,6 +17,7 @@ import {travelerCrossRequirementAdapter} from './calculator-traveler-cross-requi
 import {iansanSwiftRequirementAdapter} from './calculator-iansan-requirements';
 import {travelerMaleChargedRequirementAdapter} from './calculator-traveler-male-charged-requirements';
 import { kukiCastRequirementAdapter, charlotteCastRequirementAdapter } from "./calculator-conditional-cast-requirements";
+import { neuvilletteProjectileRequirementAdapter } from "./calculator-projectile-requirements";
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
 
 export interface CalculatorFieldRequirement {
@@ -194,7 +195,7 @@ const durinAdapter: CalculatorRequirementAdapter = {
 };
 
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [nicoleSkillInitialRequirementAdapter,wandererPrimaryRequirementAdapter,durinBurstRequirementAdapter,faruzanBurstInitialRequirementAdapter,alhaithamRequirementAdapter,arlecchinoRequirementAdapter,hutaoRequirementAdapter,keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter,jeanRequirementAdapter,observedPlungeRequirementAdapter,travelerCrossRequirementAdapter,iansanSwiftRequirementAdapter,travelerMaleChargedRequirementAdapter,kukiCastRequirementAdapter,charlotteCastRequirementAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [nicoleSkillInitialRequirementAdapter,wandererPrimaryRequirementAdapter,durinBurstRequirementAdapter,faruzanBurstInitialRequirementAdapter,alhaithamRequirementAdapter,arlecchinoRequirementAdapter,hutaoRequirementAdapter,keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter,jeanRequirementAdapter,observedPlungeRequirementAdapter,travelerCrossRequirementAdapter,iansanSwiftRequirementAdapter,travelerMaleChargedRequirementAdapter,kukiCastRequirementAdapter,charlotteCastRequirementAdapter,neuvilletteProjectileRequirementAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a

@@ -89,3 +89,40 @@ test("Charlotte E exposes team count, then only the selected C2 hit; zero and un
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test("Neuvillette C0 E asks for this hit's HP and A4 share without requiring a whole future cast", async ({ page }, testInfo) => {
+  const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
+  await page.goto("/calculator");
+  await page.locator("#calc-character").selectOption("character:10000087");
+  const option = page.locator("#calc-skill option").filter({ hasText: "泪水啊，我必偿还·初击" });
+  await expect(option).toHaveCount(1);
+  await page.locator("#calc-skill").selectOption((await option.getAttribute("value"))!);
+  const panel = page.locator("[data-calculator-inline-conditions]");
+  const hp = panel.locator('[data-field$=".actualHpRatio"]');
+  const included = panel.locator('[data-field$=".includedHydroBonus"]');
+  await expect(hp).toBeVisible(); await expect(included).toBeVisible();
+  expect((await audit(page)).result.status).toBe("blocked");
+  await hp.fill("0.5"); await hp.blur();
+  await included.fill("0"); await included.blur();
+  let data = await audit(page);
+  const expected = 20000 * .231552 * 1.12 * .5 * .9;
+  expect(data.result.status).toBe("calculated");
+  expect(data.result.totals.nonCritical).toBeCloseTo(expected, 8);
+  expect(data.document.scope).toBe("single-hit");
+  // The same 12% A4 is now included in the explicit input bonus. Its accounting
+  // declaration removes the duplicated share, preserving the original damage.
+  await page.locator('[data-field="hits.0.damageBonus"]').fill("0.12");
+  await page.locator('[data-field="hits.0.damageBonus"]').blur();
+  await openAnsweredConditions(page);
+  await included.fill("0.12"); await included.blur();
+  data = await audit(page);
+  expect(data.result.totals.nonCritical).toBeCloseTo(expected, 8);
+  await openAnsweredConditions(page);
+  await hp.fill(""); await hp.blur();
+  expect((await audit(page)).result.status).toBe("blocked");
+  await hp.fill("0.5"); await hp.blur();
+  await page.screenshot({ path: testInfo.outputPath("neuvillette-e-a4.png"), fullPage: true });
+  data = await roundtrip(page, testInfo.outputPath("neuvillette-e.calculator.json"));
+  expect(data.result.totals.nonCritical).toBeCloseTo(expected, 8);
+  expect(errors).toEqual([]);
+});
