@@ -9,6 +9,7 @@ import {
   type TravelerMaleChargedCastKind, type TravelerMaleChargedHitInstance,
 } from "./traveler-male-charged-schedule";
 import { expr, TraceBuilder, traceInput, type CalculationTraceNode } from "./calculation-trace";
+import { travelerMaleChargedConstellationScope, TRAVELER_MALE_CHARGED_ANEMO_CONSTELLATION_SOURCE_REFS } from "./traveler-male-charged-constellations";
 
 type OrdinaryHit = Extract<CalculatorHit, { kind: "ordinary" }>;
 const prefix = "traveler-male-charged:", sourceId = `${prefix}source`;
@@ -53,7 +54,8 @@ function canonicalHit(doc: CalculatorDocument, cast: TravelerMaleChargedTemplate
     terms: [{ stat: "atk", coefficient: role.values[doc.gameContext!.effectiveTalentLevel - 1] ?? 0 }],
     additiveBaseDamage: previous?.additiveBaseDamage ?? 0, damageBonus: previous?.damageBonus ?? 0,
     critEligible: true, reaction: previous?.reaction ?? "none", reactionBonus: previous?.reactionBonus ?? 0,
-    groupMultiplier: previous?.groupMultiplier ?? 1, dependencies: [sourceId], sourceRefs: [...cast.sourceRefs],
+    groupMultiplier: previous?.groupMultiplier ?? 1, dependencies: [sourceId], sourceRefs: [...cast.sourceRefs,
+      ...(cast.element === "anemo" ? TRAVELER_MALE_CHARGED_ANEMO_CONSTELLATION_SOURCE_REFS : [])],
   };
   delete hit.baseDamageFormula; delete hit.additiveBaseFormula; delete hit.damageBonusFormula;
   delete hit.resistanceReductionFormula; delete hit.critRateFormula; delete hit.critDamageFormula;
@@ -92,10 +94,11 @@ export function prepareTravelerMaleChargedCastDocument(document: CalculatorDocum
   if (game.characterId !== "character:10000005" || game.variantId !== cast.variantId || game.abilityId !== `talent:traveler${cast.element}:combat1`) {
     missing.push("男性重击必须绑定空的精确身份、对应元素形态与普攻能力，不能借用荧或其他形态。");
   }
-  if (game.constellation !== 0) missing.push("此男性基础重击分支仅支持明确 C0；高命座转换不在本次协议内。");
+  const constellationScope = travelerMaleChargedConstellationScope(result)!;
+  if (!constellationScope.allowed) missing.push(constellationScope.reason);
   if (!Number.isInteger(game.effectiveTalentLevel) || game.effectiveTalentLevel < 1 || game.effectiveTalentLevel > 15) missing.push("男性专属参数只核准有效天赋等级 1–15。");
   result.dependencies = result.dependencies.filter(row => !row.id.startsWith(prefix));
-  result.dependencies.push({ id: sourceId, status: "provisional", reason: "固定 Optimizer 男性专属精确倍率与 gcsim 两段行为；共享女性参数不作为男性计算输入。", sourceRefs: cast.sourceRefs });
+  result.dependencies.push({ id: sourceId, status: "provisional", reason: "固定 Optimizer 男性专属精确倍率与 gcsim 两段行为；共享女性参数不作为男性计算输入。", sourceRefs: [...constellationScope.sourceRefs] });
 
   if (result.scope === "single-hit") {
     const restored = [...old.values()].flatMap(hit => {
@@ -158,9 +161,10 @@ export function prepareTravelerMaleChargedCastDocument(document: CalculatorDocum
   const complete = result.scope === "one-cast" && result.selectedHitIds.length === result.hits.length
     && !result.dependencies.some(row => row.id.startsWith(prefix) && row.status === "missing");
   game.scopeCoverage = result.scope === "single-hit" ? "single-hit" : complete ? "complete-cast" : "selected-components";
-  game.attributionPolicy = "空在合法普攻后发动的两段C0基础物理重击；前置普攻另计。第9/20帧候选分别确认接触并取实际快照；独立已发生单击不要求未来另一段记录。";
+  game.attributionPolicy = `空在合法普攻后发动的两段${cast.element === "anemo" ? "C0–C6" : "C0"}基础物理重击；前置普攻另计。第9/20帧候选分别确认接触并取实际快照；独立已发生单击不要求未来另一段记录。`;
   result.assumptions = [...result.assumptions.filter(note => !note.startsWith("男性重击：")),
-    "男性重击：男性专属来源与共享女性参数分别保留；完整两段伤害尾部到第20帧，未取消动画长55帧，不据此推断完整循环DPS。"];
+    "男性重击：男性专属来源与共享女性参数分别保留；完整两段伤害尾部到第20帧，未取消动画长55帧，不据此推断完整循环DPS。",
+    ...(cast.element === "anemo" ? [`男性重击：${constellationScope.reason}`] : [])];
   return result;
 }
 
