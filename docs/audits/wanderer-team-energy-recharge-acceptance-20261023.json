@@ -1,0 +1,1073 @@
+{
+  "schema": "wanderer-recharge-energy-evidence-matrix-v1",
+  "scope": "Independent energy/CD acceptance for exactly six completed root-run 120-second captures, two declared legal candidates and two paired seeds. Not infinite steady state or an independently replayed particle-generation RNG. Character-state qualification is a separate audit.",
+  "nativeRunsExecutedByThisAuditor": 0,
+  "fixedUpstreamCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "historicalCaptureSha256": "5d737b64f5e5f73fe22508a3bc0ad38e50525be9c74b875a482e0936b89587e8",
+  "baselineRequestSha256": "8525b56ad48e33c7e3ad0a232cb63169074aa1ffbbfd6bbd563a8fe4cfaad1e0",
+  "baselineBuildsSha256": "0bf3ee31a9be6c242d98e3f0a4ab66394351691e58703b273db589fb87b512e4",
+  "artifactTableSha256": {
+    "artifact_main.json": "b4ac7d336caa5298e6f78921e2790042592f8ae70ff2e2428f2a23d594783ab4",
+    "artifact_sub.json": "5507dff48dc632ee6401adc518a6290d4607264738624ec51308ac7a2cb7e3e8"
+  },
+  "executionArtifact": {
+    "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "buildManifest": {
+      "path": "/tmp/GIDPS-wanderer-c2-build-20261023/dist/manifest.json",
+      "sha256": "a1227b856daffaea61b62a76872fec76741958a713e4e9b729a001fe20130440",
+      "bytes": 160130
+    },
+    "wasmFile": {
+      "path": "/tmp/GIDPS-wanderer-c2-build-20261023/dist/source-host.wasm",
+      "sha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "bytes": 47084886
+    },
+    "patchedRoot": "/tmp/GIDPS-wanderer-c2-build-20261023/cache/build-ImmxbI/source"
+  },
+  "runs": [
+    {
+      "variant": "original",
+      "seed": "20261022",
+      "candidateId": "baseline",
+      "actualWandererER": 1.1424,
+      "capture": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/run.result.json",
+        "sha256": "64b645c87a56c6d23a9d29678c139778134deb3d8c3b01fd83bc3e690d87e8ea",
+        "bytes": 51852932
+      },
+      "contract": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/wanderer-team-energy-contract.json",
+        "sha256": "3a1aae28522051cb12fbe9955547d9679b3c6ce61a44dd9908aca98170d2510e",
+        "bytes": 3612
+      },
+      "audit": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/wanderer-team-energy-audit.json",
+        "sha256": "09da2fb126f2b8cade8e48bf124184c28da6b7e4cd1ef415efa7eebc3ca2e77b",
+        "bytes": 294723
+      },
+      "completionReceipt": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/run.complete.json",
+        "sha256": "e72ca8feb8061227c2bcbe77302bd164309051076e9ca5ae90e0fe3400716ee1",
+        "bytes": 829
+      },
+      "writes": 375,
+      "formulaCounts": {
+        "flat-change": 106,
+        "consume": 21,
+        "particle-amount": 248,
+        "particle-apply": 248
+      },
+      "cooldownRecasts": 45,
+      "statusSamplesChecked": 28800,
+      "Q": {
+        "wanderer": {
+          "decisions": 5,
+          "ready": 3,
+          "accepted": 3,
+          "skipped": 2
+        },
+        "faruzan": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        }
+      },
+      "allReachedQDecisionsReady": false,
+      "skips": [
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "logIndex": 3056,
+          "replayedEnergy": 50.497279999999996,
+          "cost": 60.0,
+          "remainingCD": 0,
+          "eligible": false,
+          "deficit": 9.502720000000004,
+          "priorSpendWriteId": 56,
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 42.49728,
+          "actualNextActionSequence": 72,
+          "actualNextAction": "skill",
+          "actualAcceptance": "skipped"
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6329,
+          "logIndex": 7930,
+          "replayedEnergy": 53.239039999999996,
+          "cost": 60.0,
+          "remainingCD": 0,
+          "eligible": false,
+          "deficit": 6.760960000000004,
+          "priorSpendWriteId": 256,
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 45.23904,
+          "actualNextActionSequence": 183,
+          "actualNextAction": "skill",
+          "actualAcceptance": "skipped"
+        }
+      ],
+      "completeRotations": 5,
+      "lastRotation": {
+        "startFrame": 6368,
+        "endFrame": 7200,
+        "complete": false,
+        "missingQNodeAtCutoff": [
+          "wanderer"
+        ]
+      },
+      "WandererQDecisions": [
+        {
+          "frame": 1164,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 40.440960000000004
+        },
+        {
+          "frame": 2485,
+          "replayedEnergy": 50.497279999999996,
+          "remainingCD": 0,
+          "eligible": false,
+          "actualAcceptance": "skipped",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 42.49728
+        },
+        {
+          "frame": 3687,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 15.0,
+          "sinceSpendParticleRequested": 83.62368000000001
+        },
+        {
+          "frame": 5008,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 52.09344
+        },
+        {
+          "frame": 6329,
+          "replayedEnergy": 53.239039999999996,
+          "remainingCD": 0,
+          "eligible": false,
+          "actualAcceptance": "skipped",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 45.23904
+        }
+      ],
+      "WandererIncome": {
+        "requested": 302.95648,
+        "credited": 180.0,
+        "wasted": 122.95647999999998
+      },
+      "finalEnergy": {
+        "wanderer": 60,
+        "faruzan": 42.67133978639999,
+        "nicole": 45.2746,
+        "durin": 27.909
+      }
+    },
+    {
+      "variant": "original",
+      "seed": "20261023",
+      "candidateId": "baseline",
+      "actualWandererER": 1.1424,
+      "capture": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/run.result.json",
+        "sha256": "169022bb22aa49ea077074136e6852053607d6f56e12e3d8c3445866beb391b9",
+        "bytes": 51918536
+      },
+      "contract": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/wanderer-team-energy-contract.json",
+        "sha256": "5ab3f2749d9e5942d4d24cbc55c8527ea510deb3faba3a8c1a6eefa181a910d3",
+        "bytes": 3612
+      },
+      "audit": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/wanderer-team-energy-audit.json",
+        "sha256": "1b7d2dc344235b127c644e823a96455135976b967afe2b2b8aa818519504abff",
+        "bytes": 304404
+      },
+      "completionReceipt": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/run.complete.json",
+        "sha256": "28238dcec303b406ac7a3cfd6fd7ef3eb5aa5b9525e9cc993bafcaf243c90178",
+        "bytes": 829
+      },
+      "writes": 402,
+      "formulaCounts": {
+        "flat-change": 133,
+        "consume": 21,
+        "particle-amount": 248,
+        "particle-apply": 248
+      },
+      "cooldownRecasts": 45,
+      "statusSamplesChecked": 28800,
+      "Q": {
+        "wanderer": {
+          "decisions": 5,
+          "ready": 3,
+          "accepted": 3,
+          "skipped": 2
+        },
+        "faruzan": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        }
+      },
+      "allReachedQDecisionsReady": false,
+      "skips": [
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "logIndex": 3093,
+          "replayedEnergy": 49.497279999999996,
+          "cost": 60.0,
+          "remainingCD": 0,
+          "eligible": false,
+          "deficit": 10.502720000000004,
+          "priorSpendWriteId": 73,
+          "sinceSpendFixedRequested": 7.0,
+          "sinceSpendParticleRequested": 42.49728,
+          "actualNextActionSequence": 72,
+          "actualNextAction": "skill",
+          "actualAcceptance": "skipped"
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6329,
+          "logIndex": 8008,
+          "replayedEnergy": 51.497279999999996,
+          "cost": 60.0,
+          "remainingCD": 0,
+          "eligible": false,
+          "deficit": 8.502720000000004,
+          "priorSpendWriteId": 292,
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 42.49728,
+          "actualNextActionSequence": 183,
+          "actualNextAction": "skill",
+          "actualAcceptance": "skipped"
+        }
+      ],
+      "completeRotations": 5,
+      "lastRotation": {
+        "startFrame": 6368,
+        "endFrame": 7200,
+        "complete": false,
+        "missingQNodeAtCutoff": [
+          "wanderer"
+        ]
+      },
+      "WandererQDecisions": [
+        {
+          "frame": 1164,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 22.2,
+          "sinceSpendParticleRequested": 40.440960000000004
+        },
+        {
+          "frame": 2485,
+          "replayedEnergy": 49.497279999999996,
+          "remainingCD": 0,
+          "eligible": false,
+          "actualAcceptance": "skipped",
+          "sinceSpendFixedRequested": 7.0,
+          "sinceSpendParticleRequested": 42.49728
+        },
+        {
+          "frame": 3687,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 15.0,
+          "sinceSpendParticleRequested": 83.62368000000001
+        },
+        {
+          "frame": 5008,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 22.2,
+          "sinceSpendParticleRequested": 52.09344
+        },
+        {
+          "frame": 6329,
+          "replayedEnergy": 51.497279999999996,
+          "remainingCD": 0,
+          "eligible": false,
+          "actualAcceptance": "skipped",
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 42.49728
+        }
+      ],
+      "WandererIncome": {
+        "requested": 318.47296,
+        "credited": 180.0,
+        "wasted": 138.47296
+      },
+      "finalEnergy": {
+        "wanderer": 60,
+        "faruzan": 49.33885611119999,
+        "nicole": 45.2746,
+        "durin": 27.909
+      }
+    },
+    {
+      "variant": "er140",
+      "seed": "20261022",
+      "candidateId": "wanderer-er140",
+      "actualWandererER": 1.4016,
+      "capture": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/run.result.json",
+        "sha256": "501872e80a60dbc4dd143282f6552325d807a032afc4fedb57dc1f1b53355b9c",
+        "bytes": 49997018
+      },
+      "contract": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/wanderer-team-energy-contract.json",
+        "sha256": "2843643c6237385a429a4e6b27c3a7b48b2052960a629445ca2f0d626b73e0cf",
+        "bytes": 4021
+      },
+      "audit": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/wanderer-team-energy-audit.json",
+        "sha256": "b6e6d83d6e958bd87f5fba5f7422b7d2070cb44b472a000a658636311c6ecadd",
+        "bytes": 301868
+      },
+      "completionReceipt": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/run.complete.json",
+        "sha256": "676c74b5983071befff30a23af767e8db1f6312b12e8ee0d760a4c7055845ca0",
+        "bytes": 829
+      },
+      "writes": 403,
+      "formulaCounts": {
+        "flat-change": 136,
+        "consume": 23,
+        "particle-amount": 244,
+        "particle-apply": 244
+      },
+      "cooldownRecasts": 45,
+      "statusSamplesChecked": 28800,
+      "Q": {
+        "wanderer": {
+          "decisions": 5,
+          "ready": 5,
+          "accepted": 5,
+          "skipped": 0
+        },
+        "faruzan": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        }
+      },
+      "allReachedQDecisionsReady": true,
+      "skips": [],
+      "completeRotations": 5,
+      "lastRotation": {
+        "startFrame": 6606,
+        "endFrame": 7200,
+        "complete": false,
+        "missingQNodeAtCutoff": [
+          "wanderer"
+        ]
+      },
+      "WandererQDecisions": [
+        {
+          "frame": 1164,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 49.61664
+        },
+        {
+          "frame": 2485,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 52.13952
+        },
+        {
+          "frame": 3806,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 67.2768
+        },
+        {
+          "frame": 5127,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 24.2,
+          "sinceSpendParticleRequested": 55.503359999999994
+        },
+        {
+          "frame": 6448,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 23.2,
+          "sinceSpendParticleRequested": 63.91296
+        }
+      ],
+      "WandererIncome": {
+        "requested": 389.76000000000005,
+        "credited": 267.91072,
+        "wasted": 121.84927999999996
+      },
+      "finalEnergy": {
+        "wanderer": 27.910719999999998,
+        "faruzan": 37.337581623999995,
+        "nicole": 44.964499999999994,
+        "durin": 26.0484
+      },
+      "equipment": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er140.equipment.json",
+        "sha256": "f63d6fdd62a87f40da28ccf3eb2606b39f9068ef7c97b50a2aff911793ce6510",
+        "bytes": 3587
+      },
+      "candidateReport": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er140.report.json",
+        "sha256": "99d6482bf1c57362997481f8ea60c3bb630c624952123609297bec00362d00a9",
+        "bytes": 20878
+      }
+    },
+    {
+      "variant": "er140",
+      "seed": "20261023",
+      "candidateId": "wanderer-er140",
+      "actualWandererER": 1.4016,
+      "capture": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/run.result.json",
+        "sha256": "4ee7f9909e5e089bf3e5a87aeba9845f6bf1973808c6874e90f8e73f1e4db596",
+        "bytes": 50709144
+      },
+      "contract": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/wanderer-team-energy-contract.json",
+        "sha256": "d7650dd624a842e0a9055d5bd286e477b697858d5ef81a2902b55c06601e449b",
+        "bytes": 4021
+      },
+      "audit": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/wanderer-team-energy-audit.json",
+        "sha256": "c58afd500072474c1c1b3487abedb72f3f367be04964c6aecff5726ca67e1166",
+        "bytes": 303598
+      },
+      "completionReceipt": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/run.complete.json",
+        "sha256": "278642e6331fc993655a4d6e5dfa7a7f37695a880e3686f98331f60083ea94ef",
+        "bytes": 829
+      },
+      "writes": 402,
+      "formulaCounts": {
+        "flat-change": 132,
+        "consume": 22,
+        "particle-amount": 248,
+        "particle-apply": 248
+      },
+      "cooldownRecasts": 45,
+      "statusSamplesChecked": 28800,
+      "Q": {
+        "wanderer": {
+          "decisions": 5,
+          "ready": 4,
+          "accepted": 4,
+          "skipped": 1
+        },
+        "faruzan": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        }
+      },
+      "allReachedQDecisionsReady": false,
+      "skips": [
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "logIndex": 3093,
+          "replayedEnergy": 59.13951999999999,
+          "cost": 60.0,
+          "remainingCD": 0,
+          "eligible": false,
+          "deficit": 0.8604800000000097,
+          "priorSpendWriteId": 73,
+          "sinceSpendFixedRequested": 7.0,
+          "sinceSpendParticleRequested": 52.13952,
+          "actualNextActionSequence": 72,
+          "actualNextAction": "skill",
+          "actualAcceptance": "skipped"
+        }
+      ],
+      "completeRotations": 5,
+      "lastRotation": {
+        "startFrame": 6487,
+        "endFrame": 7200,
+        "complete": false,
+        "missingQNodeAtCutoff": [
+          "wanderer"
+        ]
+      },
+      "WandererQDecisions": [
+        {
+          "frame": 1164,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 22.2,
+          "sinceSpendParticleRequested": 49.61664
+        },
+        {
+          "frame": 2485,
+          "replayedEnergy": 59.13951999999999,
+          "remainingCD": 0,
+          "eligible": false,
+          "actualAcceptance": "skipped",
+          "sinceSpendFixedRequested": 7.0,
+          "sinceSpendParticleRequested": 52.13952
+        },
+        {
+          "frame": 3687,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 15.0,
+          "sinceSpendParticleRequested": 102.59711999999999
+        },
+        {
+          "frame": 5008,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 22.2,
+          "sinceSpendParticleRequested": 63.91296
+        },
+        {
+          "frame": 6329,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 52.13952
+        }
+      ],
+      "WandererIncome": {
+        "requested": 382.55520000000007,
+        "credited": 223.88896,
+        "wasted": 158.66624
+      },
+      "finalEnergy": {
+        "wanderer": 43.88895999999999,
+        "faruzan": 35.670702542799994,
+        "nicole": 44.6544,
+        "durin": 30.0797
+      },
+      "equipment": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er140.equipment.json",
+        "sha256": "f63d6fdd62a87f40da28ccf3eb2606b39f9068ef7c97b50a2aff911793ce6510",
+        "bytes": 3587
+      },
+      "candidateReport": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er140.report.json",
+        "sha256": "99d6482bf1c57362997481f8ea60c3bb630c624952123609297bec00362d00a9",
+        "bytes": 20878
+      }
+    },
+    {
+      "variant": "er150",
+      "seed": "20261022",
+      "candidateId": "wanderer-er150",
+      "actualWandererER": 1.5181999999999998,
+      "capture": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.result.json",
+        "sha256": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+        "bytes": 50219676
+      },
+      "contract": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/wanderer-team-energy-contract.json",
+        "sha256": "ebe2ed337a34e263db258eaa59a00246aafdca7324b0e2ad9c19674c5fcd9756",
+        "bytes": 4020
+      },
+      "audit": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/wanderer-team-energy-audit.json",
+        "sha256": "d3bcecdbd28a34e4c990705dce150c3552b8754e287f6d21c439c68feb7a074c",
+        "bytes": 304043
+      },
+      "completionReceipt": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.complete.json",
+        "sha256": "578e39259b9134e035bc911dbde6453b0054b4551525d1bbf6cfd4e1942bde7d",
+        "bytes": 829
+      },
+      "writes": 403,
+      "formulaCounts": {
+        "flat-change": 136,
+        "consume": 23,
+        "particle-amount": 244,
+        "particle-apply": 244
+      },
+      "cooldownRecasts": 45,
+      "statusSamplesChecked": 28800,
+      "Q": {
+        "wanderer": {
+          "decisions": 5,
+          "ready": 5,
+          "accepted": 5,
+          "skipped": 0
+        },
+        "faruzan": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        }
+      },
+      "allReachedQDecisionsReady": true,
+      "skips": [],
+      "completeRotations": 5,
+      "lastRotation": {
+        "startFrame": 6606,
+        "endFrame": 7200,
+        "complete": false,
+        "missingQNodeAtCutoff": [
+          "wanderer"
+        ]
+      },
+      "WandererQDecisions": [
+        {
+          "frame": 1164,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 9.0,
+          "sinceSpendParticleRequested": 53.74427999999999
+        },
+        {
+          "frame": 2485,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 56.47703999999999
+        },
+        {
+          "frame": 3806,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 72.87359999999998
+        },
+        {
+          "frame": 5127,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 24.2,
+          "sinceSpendParticleRequested": 60.120719999999984
+        },
+        {
+          "frame": 6448,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 23.2,
+          "sinceSpendParticleRequested": 69.22991999999998
+        }
+      ],
+      "WandererIncome": {
+        "requested": 415.99499999999995,
+        "credited": 270.14944,
+        "wasted": 145.84555999999998
+      },
+      "finalEnergy": {
+        "wanderer": 30.14943999999999,
+        "faruzan": 37.337581623999995,
+        "nicole": 44.964499999999994,
+        "durin": 26.0484
+      },
+      "equipment": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er150.equipment.json",
+        "sha256": "9b2ebaf2f0276e3a41252ed658c9f5ae534f6c5b696d6a153fbc35c75555cd6a",
+        "bytes": 3587
+      },
+      "candidateReport": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er150.report.json",
+        "sha256": "1419c1aaf0cc9404279e8d383b0005714bd832592c983edd2fa992fb242dbc89",
+        "bytes": 21229
+      }
+    },
+    {
+      "variant": "er150",
+      "seed": "20261023",
+      "candidateId": "wanderer-er150",
+      "actualWandererER": 1.5181999999999998,
+      "capture": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/run.result.json",
+        "sha256": "7c32f95c00d823872a7f3ca93d1e55789b82ea540f334759f3fdd8201eb8d58e",
+        "bytes": 50310893
+      },
+      "contract": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/wanderer-team-energy-contract.json",
+        "sha256": "7eae6b1f9b18d3912975c82bf391e6a04bbd59e61cdb9554fc6a39db12a9e3a0",
+        "bytes": 4020
+      },
+      "audit": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/wanderer-team-energy-audit.json",
+        "sha256": "f92dcaac76e0b4ff218a08b96325e0bf78054b4e2c97f206f81509eee69dc829",
+        "bytes": 302716
+      },
+      "completionReceipt": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/run.complete.json",
+        "sha256": "eb63d5a195ced2143c5400e31c7ef718fc39ed918c64a0a653feb1cde3e89bbe",
+        "bytes": 829
+      },
+      "writes": 399,
+      "formulaCounts": {
+        "flat-change": 132,
+        "consume": 23,
+        "particle-amount": 244,
+        "particle-apply": 244
+      },
+      "cooldownRecasts": 45,
+      "statusSamplesChecked": 28800,
+      "Q": {
+        "wanderer": {
+          "decisions": 5,
+          "ready": 5,
+          "accepted": 5,
+          "skipped": 0
+        },
+        "faruzan": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "decisions": 6,
+          "ready": 6,
+          "accepted": 6,
+          "skipped": 0
+        }
+      },
+      "allReachedQDecisionsReady": true,
+      "skips": [],
+      "completeRotations": 5,
+      "lastRotation": {
+        "startFrame": 6606,
+        "endFrame": 7200,
+        "complete": false,
+        "missingQNodeAtCutoff": [
+          "wanderer"
+        ]
+      },
+      "WandererQDecisions": [
+        {
+          "frame": 1164,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 22.2,
+          "sinceSpendParticleRequested": 53.74427999999999
+        },
+        {
+          "frame": 2485,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 7.0,
+          "sinceSpendParticleRequested": 56.47703999999999
+        },
+        {
+          "frame": 3806,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 69.22991999999998
+        },
+        {
+          "frame": 5127,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 23.2,
+          "sinceSpendParticleRequested": 56.47703999999999
+        },
+        {
+          "frame": 6448,
+          "replayedEnergy": 60,
+          "remainingCD": 0,
+          "eligible": true,
+          "actualAcceptance": "accepted",
+          "sinceSpendFixedRequested": 8.0,
+          "sinceSpendParticleRequested": 69.22991999999998
+        }
+      ],
+      "WandererIncome": {
+        "requested": 404.7076399999999,
+        "credited": 269.14943999999997,
+        "wasted": 135.55819999999997
+      },
+      "finalEnergy": {
+        "wanderer": 29.14943999999999,
+        "faruzan": 37.337581623999995,
+        "nicole": 44.964499999999994,
+        "durin": 26.0484
+      },
+      "equipment": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er150.equipment.json",
+        "sha256": "9b2ebaf2f0276e3a41252ed658c9f5ae534f6c5b696d6a153fbc35c75555cd6a",
+        "bytes": 3587
+      },
+      "candidateReport": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-er150.report.json",
+        "sha256": "1419c1aaf0cc9404279e8d383b0005714bd832592c983edd2fa992fb242dbc89",
+        "bytes": 21229
+      }
+    }
+  ],
+  "pairedReports": [
+    {
+      "candidateId": "wanderer-er140",
+      "seed": "20261022",
+      "report": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-paired-seed-20261022.json",
+        "sha256": "f386e74fea9d35b8949f0abe5e57b84150238d80b16d962e062c5891afc1faaa",
+        "bytes": 2713
+      }
+    },
+    {
+      "candidateId": "wanderer-er140",
+      "seed": "20261023",
+      "report": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-paired-seed-20261023.json",
+        "sha256": "586ca96a448420ec3838085f961f9a4045381cf9b66cfd4a4d59a548468ae1f7",
+        "bytes": 2702
+      }
+    },
+    {
+      "candidateId": "wanderer-er150",
+      "seed": "20261022",
+      "report": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-er150-paired-seed-20261022.json",
+        "sha256": "23b2e3def9f95c5869372d97d409ac120c2683fb41b028b2830a3ebdf5e36f05",
+        "bytes": 2712
+      }
+    },
+    {
+      "candidateId": "wanderer-er150",
+      "seed": "20261023",
+      "report": {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-er150-paired-seed-20261023.json",
+        "sha256": "f378f109e1f234d24089c3298a529b7d7e6a77fc79060cd28c754a9b85f6c7b3",
+        "bytes": 2712
+      }
+    }
+  ],
+  "frozenAuditFiles": [
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/wanderer-team-energy-contract.json",
+      "sha256": "3a1aae28522051cb12fbe9955547d9679b3c6ce61a44dd9908aca98170d2510e",
+      "bytes": 3612
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/wanderer-team-energy-audit.json",
+      "sha256": "09da2fb126f2b8cade8e48bf124184c28da6b7e4cd1ef415efa7eebc3ca2e77b",
+      "bytes": 294723
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/wanderer-team-energy-contract.json",
+      "sha256": "5ab3f2749d9e5942d4d24cbc55c8527ea510deb3faba3a8c1a6eefa181a910d3",
+      "bytes": 3612
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/wanderer-team-energy-audit.json",
+      "sha256": "1b7d2dc344235b127c644e823a96455135976b967afe2b2b8aa818519504abff",
+      "bytes": 304404
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/wanderer-team-energy-contract.json",
+      "sha256": "2843643c6237385a429a4e6b27c3a7b48b2052960a629445ca2f0d626b73e0cf",
+      "bytes": 4021
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/wanderer-team-energy-audit.json",
+      "sha256": "b6e6d83d6e958bd87f5fba5f7422b7d2070cb44b472a000a658636311c6ecadd",
+      "bytes": 301868
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/wanderer-team-energy-contract.json",
+      "sha256": "d7650dd624a842e0a9055d5bd286e477b697858d5ef81a2902b55c06601e449b",
+      "bytes": 4021
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/wanderer-team-energy-audit.json",
+      "sha256": "c58afd500072474c1c1b3487abedb72f3f367be04964c6aecff5726ca67e1166",
+      "bytes": 303598
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/wanderer-team-energy-contract.json",
+      "sha256": "ebe2ed337a34e263db258eaa59a00246aafdca7324b0e2ad9c19674c5fcd9756",
+      "bytes": 4020
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/wanderer-team-energy-audit.json",
+      "sha256": "d3bcecdbd28a34e4c990705dce150c3552b8754e287f6d21c439c68feb7a074c",
+      "bytes": 304043
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/wanderer-team-energy-contract.json",
+      "sha256": "7eae6b1f9b18d3912975c82bf391e6a04bbd59e61cdb9554fc6a39db12a9e3a0",
+      "bytes": 4020
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/wanderer-team-energy-audit.json",
+      "sha256": "f92dcaac76e0b4ff218a08b96325e0bf78054b4e2c97f206f81509eee69dc829",
+      "bytes": 302716
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-paired-seed-20261022.json",
+      "sha256": "f386e74fea9d35b8949f0abe5e57b84150238d80b16d962e062c5891afc1faaa",
+      "bytes": 2713
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-paired-seed-20261023.json",
+      "sha256": "586ca96a448420ec3838085f961f9a4045381cf9b66cfd4a4d59a548468ae1f7",
+      "bytes": 2702
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-er150-paired-seed-20261022.json",
+      "sha256": "23b2e3def9f95c5869372d97d409ac120c2683fb41b028b2830a3ebdf5e36f05",
+      "bytes": 2712
+    },
+    {
+      "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/wanderer-team-energy-er150-paired-seed-20261023.json",
+      "sha256": "f378f109e1f234d24089c3298a529b7d7e6a77fc79060cd28c754a9b85f6c7b3",
+      "bytes": 2712
+    }
+  ],
+  "result": {
+    "wanderer-er140": {
+      "bothSeedsAllReachedQReady": false,
+      "counterexample": {
+        "seed": "20261023",
+        "frame": 2485,
+        "energy": 59.13951999999999,
+        "cost": 60,
+        "remainingCD": 0,
+        "deficit": 0.8604800000000097
+      }
+    },
+    "wanderer-er150": {
+      "bothSeedsAllReachedQReady": true,
+      "observedWandererQAcceptedPerSeed": 5,
+      "observedTeamQAcceptedPerSeed": 23,
+      "completeRotationsPerSeed": 5,
+      "sixthWandererQReached": false
+    },
+    "steadyStateProven": false
+  }
+}
