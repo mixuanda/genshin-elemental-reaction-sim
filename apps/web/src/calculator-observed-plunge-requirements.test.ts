@@ -19,7 +19,7 @@ function fixture(height: "low" | "high" = "low"): CalculatorDocument {
 const prepare = (document: CalculatorDocument) => prepareSourceCastDocument(document);
 const report = (document: CalculatorDocument) => {
   const html = renderObservedPlungeControls(document);
-  return collectCalculatorRequirements(document, { adapters: [observedPlungeRequirementAdapter],
+  return collectCalculatorRequirements(document, {
     isControlAvailable(selector) {
       const match = /\[(data-[a-z-]+)="([^"]+)"\]/.exec(selector);
       return Boolean(match && html.includes(`${match[1]}="${match[2]}"`));

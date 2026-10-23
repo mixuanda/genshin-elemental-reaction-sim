@@ -19,10 +19,9 @@ function fixture(talentLevel = 10): CalculatorDocument {
   return applyCharacterConstellationScope(document);
 }
 
-// The existing registry injection interface tests this new adapter while root
-// alone owns default registration. No calculator validation is bypassed.
+// Exercise default registration, as used by the calculator page.
 const requirements = (document: CalculatorDocument, options: CalculatorRequirementOptions = {}) =>
-  collectCalculatorRequirements(document, { adapters: [jeanRequirementAdapter], ...options });
+  collectCalculatorRequirements(document, options);
 
 function answer(document: CalculatorDocument, path: string, value: "unknown" | "0" | "1"): CalculatorDocument {
   applySourceCastControl(document, {
