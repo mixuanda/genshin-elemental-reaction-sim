@@ -72,7 +72,7 @@ import { completeFollowupSkillMappings, completeFollowupSkillSourceEvidence, rep
 
 import { colleiCharlotteSkillMappings, colleiCharlotteSkillSourceEvidence, replacedColleiCharlottePartialMappingIds } from "./character-mappings/collei-charlotte-skill-mappings";
 
-export const CLASSIFIED_HIT_MAPPING_VERSION = "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+cyno.1+kazuha-q.1+hutao.1+arlecchino.1+alhaitham.1+durin.8";
+export const CLASSIFIED_HIT_MAPPING_VERSION = "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+cyno.1+kazuha-q.1+hutao.2+arlecchino.1+alhaitham.1+durin.8";
 export const CLASSIFIED_SOURCE_COMMIT = "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541";
 export const classifiedHitSourceRefs = [
   "https://github.com/theBowja/genshin-db/blob/1bab2cdba4d218fd5caa46b5f54e7884ee8359a2/src/min/data.min.json",

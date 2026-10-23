@@ -3,7 +3,7 @@ import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS} from '../../../pac
 import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
 import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
 import {applyHutaoDamageContext,createHutaoExampleContext} from './hutao-calculation-context';
-import {isHutaoPrimaryDocument,HUTAO_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/hutao-damage-formulas';
+import {isHutaoPrimaryDocument,HUTAO_DAMAGE_SOURCE_REFS,HUTAO_PRIMARY_MAX_CONSTELLATION} from '../../../packages/sim-core/src/hutao-damage-formulas';
 import {extendKinichDocuments} from './kinich-calculation-context';
 import {initializeKazuhaBurstDocument} from './kazuha-calculation-context';
 import {isKazuhaBurstAction} from '../../../packages/sim-core/src/kazuha-burst-formulas';
@@ -151,8 +151,8 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       allowed=context.constellation===0;sourceRefs=[...sourceRefs,...ARLECCHINO_DAMAGE_SOURCE_REFS];
       reason=allowed?"阿蕾奇诺C0红死之宴所选一击：独立普攻倍率、扣契前生命之契附伤及固有火伤记账分别核对；不代算耗契或整轮。":"红死之宴此入口只审阅C0，不能省略更高命座的附伤或条件暴击。";
     } else if(isHutaoPrimaryDocument(result)) {
-      allowed=context.constellation<=1;sourceRefs=[...sourceRefs,...HUTAO_DAMAGE_SOURCE_REFS];
-      reason=allowed?"胡桃C0/C1彼岸蝶舞所选火普攻或重击：独立普攻/E天赋、施放E最大生命和400%白值上限、本击半血火伤分别核对；不含血梅香或整轮。":"此彼岸蝶舞单击入口只审阅C0/C1，不能省略更高命座状态。";
+      allowed=context.constellation<=HUTAO_PRIMARY_MAX_CONSTELLATION;sourceRefs=[...sourceRefs,...HUTAO_DAMAGE_SOURCE_REFS];
+      reason=allowed?"胡桃C0–C6彼岸蝶舞所选火普攻或重击：有效普攻/E等级不重复增加命座，E快照、A4和C6实际生效及暴击率已含量分别核对；不追加血梅香或队友增益。":"此彼岸蝶舞单击超出已审阅命座范围，不能静默降级。";
     } else if(isKazuhaBurstAction(result)) {
       allowed=context.constellation<=1;sourceRefs=[...sourceRefs,...KAZUHA_BURST_SOURCE_REFS];
       reason=allowed?"万叶C0/C1所选Q直接伤害：元素转化时点、逐元素增伤和81f前A4单独检查；C1不增加Q直接命中，不含扩散实体。":"万叶Q此入口尚未接入C2以上的精通与命座快照，不以低命座代算。";

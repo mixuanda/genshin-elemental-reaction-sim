@@ -22,13 +22,13 @@ describe('Hu Tao integrated primary outputs',()=>{
     const result=calculateDocument(fixture());expect(result.status).toBe('calculated');
     expect(result.totals!.nonCritical).toBeCloseTo(5628.15031212,9);expect(result.totals!.expected).toBeCloseTo(8442.22546818,9);
   });
-  it('links unknown independent E and actual HP to usable controls and refuses unsupported C2',()=>{
+  it('links independent E and HP to controls and refuses C6 with unknown actual buff state',()=>{
     const d=fixture();delete d.gameContext!.hutaoDamage!.skillTalentLevel;
     const field=collectCalculatorRequirements(d).fields.find(f=>f.fieldPath==='gameContext.hutaoDamage.skillTalentLevel')!;
     expect(field).toBeDefined();expect(renderSourceCastControls(d)).toContain('data-field="'+field.fieldPath+'"');
     expect(calculateDocument(d).status).toBe('blocked');d.gameContext!.hutaoDamage!.skillTalentLevel=10;
     d.gameContext!.constellation=1;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('calculated');
-    d.gameContext!.constellation=2;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('blocked');
+    d.gameContext!.constellation=6;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('blocked');
   });
   it('binds imported E7 independently from NA10 without inventing battle state, and preserves missing E',()=>{
     const raw=JSON.parse(readFileSync(new URL('../e2e/fixtures/player-import/kaeya-enka-panel.json',import.meta.url),'utf8'));
