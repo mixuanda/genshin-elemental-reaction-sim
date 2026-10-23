@@ -240,6 +240,67 @@ describe("Kazuha missing input and historical snapshot integrity", () => {
     expect(calculate(changedBranch).status).toBe("blocked");
     const changedTalent = structuredClone(converted); changedTalent.gameContext.effectiveTalentLevel = 13;
     expect(calculate(changedTalent).status).toBe("blocked");
+    const changedLevel = structuredClone(converted); changedLevel.characterLevel = 100;
+    expect(issues(changedLevel)).toContain("历史快照");
+    expect(calculate(changedLevel).status).toBe("blocked");
+  });
+});
+
+describe("Kazuha fixed-source contract", () => {
+  const externalFormula = (ruleId: string) => ({ruleId, label: "Explicit external formula", expression: expr.value(123456), inputs: [], sourceRefs: KAZUHA_BURST_SOURCE_REFS});
+
+  it.each(["kazuha-burst-slash", "kazuha-burst-anemo-dot", "kazuha-burst-complete"])("rejects a foreign base formula overriding the ATK coefficient in %s", skillId => {
+    const document = fixture(skillId), hit = document.hits[0]!;
+    if (hit.kind !== "ordinary") throw new Error("ordinary source hit");
+    hit.baseDamageFormula = externalFormula("foreign-base-override");
+    const prepared = prepareKazuhaBurstDocument(document);
+    expect(prepared.hits[0]).toMatchObject({baseDamageFormula: hit.baseDamageFormula});
+    expect(issues(prepared)).toContain("不接受基础伤害公式覆盖");
+    expect(calculate(prepared).status).toBe("blocked");
+    expect(calculate(prepared).totals).toBeUndefined();
+  });
+
+  it.each(["slash", "anemo-dot", "absorbed-dot"] as const)("rejects a group multiplier duplicating the declared %s hit", role => {
+    const document = prepareKazuhaBurstDocument(fixture("kazuha-burst-complete", absorbed()));
+    const event = Object.entries(kazuhaBurstContext(document)!.hitEvents!).find(([, row]) => row.role === role)!;
+    const hit = document.hits.find(row => row.id === event[0])!;
+    if (hit.kind !== "ordinary") throw new Error("ordinary source hit");
+    hit.groupMultiplier = 2;
+    document.scope = "single-hit"; document.selectedHitIds = [hit.id];
+    expect(issues(document)).toContain("命中倍率必须为1");
+    expect(calculate(document).totals).toBeUndefined();
+  });
+
+  it.each([0, .5])("rejects unsupported fixed-source group multiplier %s", multiplier => {
+    const document = fixture("kazuha-burst-slash"), hit = document.hits[0]!;
+    if (hit.kind !== "ordinary") throw new Error("ordinary source hit");
+    hit.groupMultiplier = multiplier;
+    expect(calculate(document).status).toBe("blocked");
+  });
+
+  it.each(["foreign-damage-bonus", "kazuha-burst-foreign-damage-bonus"])("retains and rejects conflicting absorbed A4-slot formula %s", ruleId => {
+    const document = prepareKazuhaBurstDocument(fixture("kazuha-burst-complete", absorbed()));
+    const hit = document.hits.find(row => row.kind === "ordinary" && row.element === "pyro")!;
+    if (hit.kind !== "ordinary") throw new Error("ordinary absorbed hit");
+    const foreign = externalFormula(ruleId);
+    hit.damageBonusFormula = foreign;
+    const prepared = prepareKazuhaBurstDocument(document), preparedHit = prepared.hits.find(row => row.id === hit.id)!;
+    expect(preparedHit).toMatchObject({damageBonusFormula: foreign});
+    expect(issues(prepared)).toContain("增伤公式槽");
+    expect(calculate(prepared).status).toBe("blocked");
+  });
+
+  it("preserves a legal external attack adjustment in its separate slot", () => {
+    const document = fixture("kazuha-burst-slash"), hit = document.hits[0]!;
+    if (hit.kind !== "ordinary") throw new Error("ordinary source hit");
+    hit.attackAdjustment = {accounting: "add-to-panel", formula: {
+      ruleId: "external-flat-attack", label: "Explicit external ATK +250", expression: expr.value(250), inputs: [], sourceRefs: KAZUHA_BURST_SOURCE_REFS,
+    }};
+    const prepared = prepareKazuhaBurstDocument(document);
+    expect(prepared.hits[0]).toMatchObject({attackAdjustment: hit.attackAdjustment});
+    const result = calculate(prepared);
+    expect(result.blockers).toEqual([]);
+    expect(result.totals!.nonCritical).toBeCloseTo(2250 * 4.7232 * 1.466 * .5 * .9, 9);
   });
 });
 

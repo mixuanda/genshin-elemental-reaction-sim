@@ -19,6 +19,7 @@ export interface KazuhaBurstHitEvent {
   tick?: number;
 }
 const prefix = "kazuha-burst:";
+const a4RuleId = "kazuha-burst-prior-swirl-a4-b4ae769";
 const dynamicId = /^kazuha-burst-complete-absorb-(?:pyro|hydro|electro|cryo)-[1-5]$/;
 const names = {anemo: "风", pyro: "火", hydro: "水", electro: "雷", cryo: "冰"};
 
@@ -56,7 +57,7 @@ export function kazuhaBurstHitPlan(skillId: string, context: KazuhaBurstContext 
 
 export function createKazuhaA4DamageBonusFormula(nonExtraEm: number, priorA4Active: boolean, included: number): CalculatorFormula {
   return {
-    ruleId: "kazuha-burst-prior-swirl-a4-b4ae769", label: "81f前同元素扩散A4：前序NonExtraEM×0.04%－已含份额",
+    ruleId: a4RuleId, label: "81f前同元素扩散A4：前序NonExtraEM×0.04%－已含份额",
     expression: expr.sub(expr.mul(expr.input("kazuhaPriorA4Active"), expr.input("kazuhaPriorSwirlNonExtraEm"), expr.value(.0004)), expr.input("kazuhaIncludedA4DamageBonus")),
     inputs: [
       {key: "kazuhaPriorA4Active", value: Number(priorA4Active), unit: "boolean", meaningKey: "同元素前序扩散A4在81f仍生效", origin: "explicit-prior-swirl-state", allowedValues: [0, 1]},
@@ -89,7 +90,7 @@ function makeAbsorbedHit(event: KazuhaBurstHitEvent, talentLevel: number, contex
 }
 function finalizedState(document: CalculatorDocument, event: KazuhaBurstHitEvent, context: KazuhaBurstContext): string {
   const game = document.gameContext!;
-  return JSON.stringify([game.characterId, game.abilityId, game.skillId, game.effectiveTalentLevel, game.constellation, ascensionOf(document),
+  return JSON.stringify([game.characterId, document.characterLevel, game.abilityId, game.skillId, game.effectiveTalentLevel, game.constellation, ascensionOf(document),
     event.id, event.frame, event.snapshotFrame, event.role, event.element,
     ...(game.skillId === "kazuha-burst-complete" ? [context.absorptionElement, context.absorptionStartFrame] : []),
     ...(event.role === "absorbed-dot" ? [context.absorptionElement, context.absorptionStartFrame, context.priorA4Active,
@@ -141,12 +142,15 @@ export function prepareKazuhaBurstDocument(document: CalculatorDocument): Calcul
     hit.dependencies = hit.dependencies.filter(id => !id.startsWith(prefix));
     const issues = [...commonIssues], event = plan.find(row => row.id === hit.id);
     if (hit.kind === "ordinary" && event) {
-      if (hit.damageBonusFormula?.ruleId.startsWith("kazuha-burst-")) delete hit.damageBonusFormula;
+      if (hit.damageBonusFormula?.ruleId === a4RuleId) delete hit.damageBonusFormula;
+      if (hit.baseDamageFormula) issues.push("固定来源Q使用已声明的ATK天赋倍率，不接受基础伤害公式覆盖。");
+      if (hit.groupMultiplier !== 1) issues.push("固定来源Q已逐段声明实际命中，命中倍率必须为1，不能复制或缩放未声明实例。");
       hit.label = hitLabel(event); hit.attackTag = "burst"; hit.element = event.element;
       const coefficient = kazuhaBurstCoefficient(event.role, game.effectiveTalentLevel);
       if (coefficient === undefined) issues.push("缺少固定来源有效Q天赋倍率；有效等级应为1–15，不自动再加命座天赋等级。");
       else hit.terms = [{stat: "atk", coefficient}];
       if (event.role === "absorbed-dot") {
+        if (hit.damageBonusFormula) issues.push("染色段的增伤公式槽用于来源A4；外来同槽公式尚未定义合并规则，不能静默覆盖。");
         const ascension = ascensionOf(result), element = event.element as KazuhaAbsorbedElement;
         if (ascension === undefined) issues.push("请提供突破阶段以确定是否解锁风物之诗咏。");
         const bonus = context.elementDamageBonuses?.[element];
@@ -165,7 +169,7 @@ export function prepareKazuhaBurstDocument(document: CalculatorDocument): Calcul
       const saved = context.finalizedHitStates?.[hit.id];
       if (hit.finalSnapshot && (hit.finalSnapshot.origin !== "equipment-conversion" || saved !== finalizedState(result, event, context))) {
         issues.push("历史快照的万叶Q状态与当前分支不一致；请重新应用来源配装或使用本击实际面板，不能改写81f历史。");
-        delete hit.damageBonusFormula;
+        if (hit.damageBonusFormula?.ruleId === a4RuleId) delete hit.damageBonusFormula;
       }
       hit.sourceRefs = [...new Set([...hit.sourceRefs, ...KAZUHA_BURST_SOURCE_REFS])];
     } else issues.push(hit.kind === "blocked" && dynamicId.test(hit.id)
