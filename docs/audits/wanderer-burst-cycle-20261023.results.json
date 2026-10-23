@@ -1,0 +1,359 @@
+{
+  "schema": "wanderer-burst-cycle-final-evidence-v1",
+  "scope": "Six actual Classic120 captures from root; offline C2/C4 qualification only",
+  "classicCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+  "patchCommit": "0e6e191",
+  "auditCommit": "5a16a81",
+  "native120RunsByThisAgent": 0,
+  "reports": [
+    {
+      "case": "baselineA",
+      "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/corrected-baseline-audit.json",
+      "sha256": "5a2f5d1f1c4bcc6439226ed5075b087b8a50936904a20869f00e7055196004b1",
+      "capturePath": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261022-c2fixed/run.result.json",
+      "captureSha256": "64b645c87a56c6d23a9d29678c139778134deb3d8c3b01fd83bc3e690d87e8ea",
+      "applications": 619,
+      "QCount": 3,
+      "QHits": 15,
+      "C6Hits": 129,
+      "nonQReturnedNilC2Reads": 5,
+      "nonQC2Leaks": 0,
+      "electroWriteCount": 8,
+      "electroRequested": 6.4,
+      "electroRetained": 0,
+      "electroWasted": 6.4,
+      "QResourceChecks": [
+        {
+          "castFrame": 1169,
+          "skillFrame": 537,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 3692,
+          "skillFrame": 3060,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 5013,
+          "skillFrame": 4381,
+          "maximum": 120,
+          "current": 31
+        }
+      ],
+      "failures": []
+    },
+    {
+      "case": "baselineB",
+      "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/baseline-b-audit.json",
+      "sha256": "615451eaabb45e13af0754beffb55b66235e19bd5d8f9188c6a924f2a1d419cf",
+      "capturePath": "/tmp/GIDPS-legal-recharge-evidence-20261023/original-seed-20261023-c2fixed/run.result.json",
+      "captureSha256": "169022bb22aa49ea077074136e6852053607d6f56e12e3d8c3445866beb391b9",
+      "applications": 619,
+      "QCount": 3,
+      "QHits": 15,
+      "C6Hits": 129,
+      "nonQReturnedNilC2Reads": 5,
+      "nonQC2Leaks": 0,
+      "electroWriteCount": 38,
+      "electroRequested": 30.400000000000002,
+      "electroRetained": 11.999999999999968,
+      "electroWasted": 18.400000000000034,
+      "QResourceChecks": [
+        {
+          "castFrame": 1169,
+          "skillFrame": 537,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 3692,
+          "skillFrame": 3060,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 5013,
+          "skillFrame": 4381,
+          "maximum": 100,
+          "current": 15
+        }
+      ],
+      "failures": []
+    },
+    {
+      "case": "er140A",
+      "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/er140-audit.json",
+      "sha256": "24f564a25b9d0c185aa3a7ee0baa00a8078ae89adebf53ad0357acbbdd4d678a",
+      "capturePath": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261022-c2fixed/run.result.json",
+      "captureSha256": "501872e80a60dbc4dd143282f6552325d807a032afc4fedb57dc1f1b53355b9c",
+      "applications": 610,
+      "QCount": 5,
+      "QHits": 25,
+      "C6Hits": 120,
+      "nonQReturnedNilC2Reads": 8,
+      "nonQC2Leaks": 0,
+      "electroWriteCount": 38,
+      "electroRequested": 30.400000000000002,
+      "electroRetained": 15.99999999999995,
+      "electroWasted": 14.400000000000052,
+      "QResourceChecks": [
+        {
+          "castFrame": 1169,
+          "skillFrame": 537,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 2490,
+          "skillFrame": 1858,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 3811,
+          "skillFrame": 3179,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 5132,
+          "skillFrame": 4500,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 6453,
+          "skillFrame": 5821,
+          "maximum": 100,
+          "current": 15
+        }
+      ],
+      "failures": []
+    },
+    {
+      "case": "er140B",
+      "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/er140-b-audit.json",
+      "sha256": "70d4eec22be5469fa90064b013a72c428dacdb091d539f9c14417baf47093dd9",
+      "capturePath": "/tmp/GIDPS-legal-recharge-evidence-20261023/er140-seed-20261023-c2fixed/run.result.json",
+      "captureSha256": "4ee7f9909e5e089bf3e5a87aeba9845f6bf1973808c6874e90f8e73f1e4db596",
+      "applications": 613,
+      "QCount": 4,
+      "QHits": 20,
+      "C6Hits": 123,
+      "nonQReturnedNilC2Reads": 6,
+      "nonQC2Leaks": 0,
+      "electroWriteCount": 38,
+      "electroRequested": 30.400000000000002,
+      "electroRetained": 8.906240000000011,
+      "electroWasted": 21.49375999999999,
+      "QResourceChecks": [
+        {
+          "castFrame": 1169,
+          "skillFrame": 537,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 3692,
+          "skillFrame": 3060,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 5013,
+          "skillFrame": 4381,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 6334,
+          "skillFrame": 5702,
+          "maximum": 100,
+          "current": 15
+        }
+      ],
+      "failures": []
+    },
+    {
+      "case": "er150A",
+      "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/er150-a-audit.json",
+      "sha256": "911fd515960c098b0159718f12cc54a1769c41f894ec3343b75ae542f02536da",
+      "capturePath": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.result.json",
+      "captureSha256": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+      "applications": 610,
+      "QCount": 5,
+      "QHits": 25,
+      "C6Hits": 120,
+      "nonQReturnedNilC2Reads": 8,
+      "nonQC2Leaks": 0,
+      "electroWriteCount": 38,
+      "electroRequested": 30.400000000000002,
+      "electroRetained": 13.599999999999952,
+      "electroWasted": 16.80000000000005,
+      "QResourceChecks": [
+        {
+          "castFrame": 1169,
+          "skillFrame": 537,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 2490,
+          "skillFrame": 1858,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 3811,
+          "skillFrame": 3179,
+          "maximum": 120,
+          "current": 31
+        },
+        {
+          "castFrame": 5132,
+          "skillFrame": 4500,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 6453,
+          "skillFrame": 5821,
+          "maximum": 100,
+          "current": 15
+        }
+      ],
+      "failures": []
+    },
+    {
+      "case": "er150B",
+      "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/er150-b-audit.json",
+      "sha256": "a50303a158a886e72f9d0dcb8c4d29f7e2c798aee744a4a546987b39fa4d22b2",
+      "capturePath": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261023-c2fixed/run.result.json",
+      "captureSha256": "7c32f95c00d823872a7f3ca93d1e55789b82ea540f334759f3fdd8201eb8d58e",
+      "applications": 610,
+      "QCount": 5,
+      "QHits": 25,
+      "C6Hits": 120,
+      "nonQReturnedNilC2Reads": 8,
+      "nonQC2Leaks": 0,
+      "electroWriteCount": 38,
+      "electroRequested": 30.400000000000002,
+      "electroRetained": 7.999999999999979,
+      "electroWasted": 22.400000000000023,
+      "QResourceChecks": [
+        {
+          "castFrame": 1169,
+          "skillFrame": 537,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 2490,
+          "skillFrame": 1858,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 3811,
+          "skillFrame": 3179,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 5132,
+          "skillFrame": 4500,
+          "maximum": 100,
+          "current": 15
+        },
+        {
+          "castFrame": 6453,
+          "skillFrame": 5821,
+          "maximum": 120,
+          "current": 31
+        }
+      ],
+      "failures": []
+    }
+  ],
+  "sourceFiles": {
+    "packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+    "scripts/wanderer-burst-cycle-audit.py": "90ffbff7490a112732180a356115cc93c702b0801a1df8ac31615797d6bdb151",
+    "scripts/wanderer-burst-cycle-test.py": "487f678852ffad232a610224c899aa34b9864fccb1d9d5c961f77fef70953ecd",
+    "scripts/fixtures/wanderer-burst-cycle-baseline.json": "0a30173ef2d82501616110158d3fdab06900814762c762d5cee18137d44326bc",
+    "docs/audits/wanderer-burst-cycle-20261023.sources.json": "209b2e4e3c90a91b1fc846040e38c5da3856db8264e895f0b08a671d51576f3c",
+    "docs/audits/wanderer-burst-cycle-go-test-before.log": "ae2f0e0012651cdf751a170afeca292dd7bf670341c49192b2b83225a8b3b99e",
+    "docs/audits/wanderer-burst-cycle-go-test-after.log": "71681f97584fa8f380b34f2bbe4253610db96bd557f52b48ca90c2a9b02f5724",
+    "docs/audits/wanderer-burst-cycle-go-test-commands.json": "3671bad880c701006352b9b33652a39211ea930b1dc675346871cf39438d3cc3"
+  },
+  "limits": [
+    "Stellar not patched/rebuilt/verified in this change",
+    "No full Aura/ICD or in-game frame certification",
+    "Actual C4 random choices are capture facts; no all-seed or ER-only Q guarantee",
+    "Original five-leak fixture and full original capture preserved unchanged"
+  ],
+  "baselineComparison": {
+    "semanticHitsUnchanged": 619,
+    "damageDifferences": [
+      {
+        "identity": [
+          1177,
+          111,
+          1,
+          "wanderer",
+          "Shugen: The Curtains’ Melancholic Sway"
+        ],
+        "before": 41685.58831971607,
+        "after": 28059.507313026177
+      },
+      {
+        "identity": [
+          1291,
+          123,
+          1,
+          "wanderer",
+          "Arcane Projection: Unity"
+        ],
+        "before": 196980.87272355004,
+        "after": 109404.62609754133
+      },
+      {
+        "identity": [
+          3700,
+          370,
+          1,
+          "wanderer",
+          "Shugen: The Curtains’ Melancholic Sway"
+        ],
+        "before": 44744.160795638214,
+        "after": 30118.30125632688
+      },
+      {
+        "identity": [
+          5021,
+          505,
+          1,
+          "wanderer",
+          "Shugen: The Curtains’ Melancholic Sway"
+        ],
+        "before": 44744.160795638214,
+        "after": 30118.30125632688
+      },
+      {
+        "identity": [
+          5135,
+          517,
+          1,
+          "wanderer",
+          "Arcane Projection: Unity"
+        ],
+        "before": 196980.87272355004,
+        "after": 109404.62609754133
+      }
+    ],
+    "energyApplicationsUnchanged": true,
+    "abilityInvocationsUnchanged": true
+  }
+}
