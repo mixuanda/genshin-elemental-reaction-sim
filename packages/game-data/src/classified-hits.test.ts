@@ -4,6 +4,7 @@ import { getClassifiedCharacterHits, getClassifiedHitCoverage, resolveClassified
 import { getCharacterDocuments } from "../../../apps/web/src/character-calculations";
 import { calculateDocument } from "../../sim-core/src/calculator";
 import { calculatorDocumentSchema, parseCalculatorDocument, serializeCalculatorDocument } from "../../sim-core/src/calculator-model";
+import { releasedRuntimeWorkspace } from "./runtime-workspace";
 
 const characterId = (slug: string) => gameDataCatalog.characters.find((entry) => entry.slug === slug)!.id;
 
@@ -75,11 +76,30 @@ describe("source-classified field-level character calculations", () => {
       const resolved = resolveClassifiedCharacterHits(characterId("kaeya"), 1);
       expect(resolved.blockers.some((entry) => entry.id === "kaeya-skill-hit")).toBe(true);
       expect(resolved.hits.some((entry) => entry.id === "kaeya-normal-1-hit-1")).toBe(true);
-      const docs = getCharacterDocuments(characterId("kaeya"), 1);
+      // UI documents use their explicitly selected, separately parsed runtime
+      // workspace. Mutating the legacy catalog must not contaminate that data.
+      const released = getCharacterDocuments(characterId("kaeya"), 1);
+      const releasedSkill = released.find((doc) => doc.gameContext?.skillId === "kaeya-skill")!;
+      expect(calculateDocument(releasedSkill).totals!.nonCritical).toBeCloseTo(2000 * original[0]! * 0.5 * 0.9, 10);
+
+      const workspace = structuredClone(releasedRuntimeWorkspace);
+      const runtimeAbility = workspace.catalog.talentSets.find((entry) => entry.id === "talent-set:kaeya")!.abilities.find((entry) => entry.key === "combat2")!;
+      runtimeAbility.parameters.param1 = [...runtimeAbility.parameters.param1!];
+      runtimeAbility.parameters.param1[0] = original[0]! + 0.001;
+      const runtimeResolved = resolveClassifiedCharacterHits(characterId("kaeya"), 1, workspace);
+      expect(runtimeResolved.blockers.some((entry) => entry.id === "kaeya-skill-hit")).toBe(true);
+      expect(runtimeResolved.hits.some((entry) => entry.id === "kaeya-normal-1-hit-1")).toBe(true);
+      const docs = getCharacterDocuments(characterId("kaeya"), 1, workspace);
       const blocked = docs.find((doc) => doc.gameContext?.skillId === "kaeya-skill")!;
       expect(calculateDocument(blocked)).toMatchObject({ status: "blocked", verification: "blocked" });
       expect(calculateDocument(blocked).totals).toBeUndefined();
       expect(calculateDocument(docs.find((doc) => doc.gameContext?.skillId === "kaeya-normal-1")!).status).toBe("calculated");
+      expect(calculateDocument(parseCalculatorDocument(serializeCalculatorDocument(blocked))).status).toBe("blocked");
+      expect(calculateDocument(getCharacterDocuments(characterId("kaeya"), 1).find((doc) => doc.gameContext?.skillId === "kaeya-skill")!).totals)
+        .toEqual(calculateDocument(releasedSkill).totals);
+      runtimeAbility.parameters.param1 = [...original];
+      expect(calculateDocument(getCharacterDocuments(characterId("kaeya"), 1, workspace).find((doc) => doc.gameContext?.skillId === "kaeya-skill")!).totals)
+        .toEqual(calculateDocument(releasedSkill).totals);
     } finally { ability.parameters.param1 = original; }
   });
 
