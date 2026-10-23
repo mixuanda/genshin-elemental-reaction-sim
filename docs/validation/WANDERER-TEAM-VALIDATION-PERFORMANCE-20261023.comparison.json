@@ -1,0 +1,3509 @@
+{
+  "status": "combat-equivalent-with-observer-order-limit",
+  "before": {
+    "gitHead": "9d8a7dc798274e88bf383568d6b53a292f153b4b",
+    "applicationPatchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "startedAt": "2026-10-23T18:28:22.006Z",
+    "timing": {
+      "clickToPaintMs": 36318.7998046875,
+      "workerElapsedMs": 33554.79999999702,
+      "nativeIncludingCallbacksMs": 26866.09999999404,
+      "formulaCallbacksMs": 14413.400000885129,
+      "nativeBridgeAndSerializationResidualMs": 12452.69999910891,
+      "requestSerializeMs": 1,
+      "nativeTextChars": 49677378,
+      "callbackRequestParseMs": 341.199999794364,
+      "callbackCalculateAndExplainMs": 11811.60000088811,
+      "callbackCaptureMs": 2214.7000000178814,
+      "callbackResponseSerializeMs": 40.10000014305115,
+      "nativeResponseParseMs": 237.70000000298023,
+      "resultValidationMs": 6449.29999999702,
+      "transferAndQueueMs": 899.69970703125,
+      "renderMs": 1007.9000000059605,
+      "setupMs": 428.6000000089407,
+      "workerBootstrapMs": 300.40000000596046
+    }
+  },
+  "after": {
+    "gitHead": "d86563f403792b6b6fd3ccd51c7ec5073861e41b",
+    "applicationPatchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "startedAt": "2026-10-23T19:04:04.258Z",
+    "timing": {
+      "clickToPaintMs": 30450.5,
+      "workerElapsedMs": 27753.09999999404,
+      "nativeIncludingCallbacksMs": 23854,
+      "formulaCallbacksMs": 12653.700001299381,
+      "nativeBridgeAndSerializationResidualMs": 11200.299998700619,
+      "requestSerializeMs": 0,
+      "nativeTextChars": 49677378,
+      "callbackRequestParseMs": 326.60000029206276,
+      "callbackCalculateAndExplainMs": 10303.400000795722,
+      "callbackCaptureMs": 1981.0999999791384,
+      "callbackResponseSerializeMs": 37.000000178813934,
+      "nativeResponseParseMs": 225.20000000298023,
+      "resultValidationMs": 3673.4000000059605,
+      "transferAndQueueMs": 833.39990234375,
+      "renderMs": 988.0999999940395,
+      "setupMs": 444.6000000089407,
+      "workerBootstrapMs": 301.79999999701977
+    }
+  },
+  "improvement": {
+    "savedClickToPaintMs": 5868.2998046875,
+    "percent": 16.157747051790256
+  },
+  "sameConfigSeedAndEveryCombatRecord": true,
+  "everyResultByteIdentical": false,
+  "files": [
+    {
+      "stage": "before",
+      "path": "/tmp/GIDPS-team-performance-20261023/after-final/run.result.json",
+      "sha256": "a4a9d351b51da080c007ee15895d239575640f205056b32d8d5e995c922784cd",
+      "bytes": 119455012
+    },
+    {
+      "stage": "before",
+      "path": "/tmp/GIDPS-team-performance-20261023/after-final/run.reopened.json",
+      "sha256": "a4a9d351b51da080c007ee15895d239575640f205056b32d8d5e995c922784cd",
+      "bytes": 119455012
+    },
+    {
+      "stage": "after",
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/run.result.json",
+      "sha256": "e122d548b348db78d27567056755d629ab847cfab02bc9abdcca07e670d14e04",
+      "bytes": 119455012
+    },
+    {
+      "stage": "after",
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/run.reopened.json",
+      "sha256": "e122d548b348db78d27567056755d629ab847cfab02bc9abdcca07e670d14e04",
+      "bytes": 119455012
+    }
+  ],
+  "fullResultFields": {
+    "exactlyEqual": [
+      "taskLifecycle",
+      "lifecycleObservationFrame",
+      "statusInstances",
+      "pendingAttackStages",
+      "attackObservations",
+      "abilityInvocations",
+      "abilityProducers",
+      "ownedGenerators",
+      "ownedGeneratorTriggers",
+      "ownedEntities",
+      "ownedEntityTriggers",
+      "ownedEntityProducers",
+      "shieldInstances",
+      "shieldHooks",
+      "shieldProducers",
+      "hitCallbackBatches",
+      "hitCallbacks",
+      "eventRegistrations",
+      "eventEmissions",
+      "eventListenerCalls",
+      "eventProducers",
+      "attackDispatchCompletions",
+      "protocol",
+      "sourceCommit",
+      "observationWindow",
+      "targetScene",
+      "randomness",
+      "config",
+      "seed",
+      "phaseObservation",
+      "calculations",
+      "executionMode",
+      "initialEnergy",
+      "startupState",
+      "applications",
+      "playerApplications",
+      "drainApplications",
+      "energyApplications",
+      "healingApplications",
+      "result",
+      "capabilities",
+      "executionArtifact",
+      "schemaVersion",
+      "formulaVersion",
+      "verification",
+      "explanationStatus",
+      "explanationGaps"
+    ],
+    "different": [
+      "phaseObservations",
+      "logs"
+    ]
+  },
+  "observerOrderLimit": {
+    "initialLogMembersUnchanged": true,
+    "everyPostFrameZeroLogExactlyEqual": true,
+    "phaseDifferences": [
+      {
+        "frame": 1,
+        "actor": 0,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          }
+        ]
+      },
+      {
+        "frame": 1,
+        "actor": 1,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          }
+        ]
+      },
+      {
+        "frame": 1,
+        "actor": 2,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          }
+        ]
+      },
+      {
+        "frame": 1,
+        "actor": 3,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          }
+        ]
+      },
+      {
+        "frame": 1,
+        "subscription": 12,
+        "kind": "raw-statistics-hook-registration-order",
+        "before": [
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          }
+        ],
+        "after": [
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          }
+        ]
+      },
+      {
+        "frame": 1322,
+        "actor": 0,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          }
+        ]
+      },
+      {
+        "frame": 1322,
+        "actor": 1,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ]
+      },
+      {
+        "frame": 1322,
+        "actor": 2,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ]
+      },
+      {
+        "frame": 1322,
+        "actor": 3,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ]
+      },
+      {
+        "frame": 1322,
+        "subscription": 12,
+        "kind": "raw-statistics-hook-registration-order",
+        "before": [
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          }
+        ],
+        "after": [
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          }
+        ]
+      },
+      {
+        "frame": 2643,
+        "actor": 0,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ]
+      },
+      {
+        "frame": 2643,
+        "actor": 1,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ]
+      },
+      {
+        "frame": 2643,
+        "actor": 2,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ]
+      },
+      {
+        "frame": 2643,
+        "actor": 3,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ]
+      },
+      {
+        "frame": 2643,
+        "subscription": 12,
+        "kind": "raw-statistics-hook-registration-order",
+        "before": [
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          }
+        ],
+        "after": [
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          }
+        ]
+      },
+      {
+        "frame": 3964,
+        "actor": 0,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ]
+      },
+      {
+        "frame": 3964,
+        "actor": 1,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ]
+      },
+      {
+        "frame": 3964,
+        "actor": 2,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ]
+      },
+      {
+        "frame": 3964,
+        "actor": 3,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ]
+      },
+      {
+        "frame": 3964,
+        "subscription": 12,
+        "kind": "raw-statistics-hook-registration-order",
+        "before": [
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          }
+        ],
+        "after": [
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          }
+        ]
+      },
+      {
+        "frame": 5285,
+        "actor": 0,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a1-electro-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a1-electro-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ]
+      },
+      {
+        "frame": 5285,
+        "actor": 1,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ]
+      },
+      {
+        "frame": 5285,
+        "actor": 2,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ]
+      },
+      {
+        "frame": 5285,
+        "actor": 3,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ]
+      },
+      {
+        "frame": 5285,
+        "subscription": 12,
+        "kind": "raw-statistics-hook-registration-order",
+        "before": [
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          }
+        ],
+        "after": [
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          }
+        ]
+      },
+      {
+        "frame": 6606,
+        "actor": 0,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a1-electro-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "tulaytullahsremembrance-atkspd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "tulaytullahsremembrance-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-c6-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-plunge-available"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "wanderer-a1-electro-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "desert-4pc-spd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "desert-4pc-dmg"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "wanderer-c2-burstbonus"
+          }
+        ]
+      },
+      {
+        "frame": 6606,
+        "actor": 1,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.AttackMod",
+            "key": "nob-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-e"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "favonius-cd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-particle-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-a4-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "faruzan-c6-icd"
+          }
+        ]
+      },
+      {
+        "frame": 6606,
+        "actor": 2,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "angelos-heptades-atk"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "angelos-heptades-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-c1-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "nicole-burst-projection-icd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nicole-c2"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "grace-of-kenosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "guidance-of-theosis"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "athameartis-team-buff"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "silent-contemplation"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "nob-4pc"
+          }
+        ]
+      },
+      {
+        "frame": 6606,
+        "actor": 3,
+        "kind": "raw-modifier-container-order",
+        "before": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ],
+        "after": [
+          {
+            "kind": "*character.StatMod",
+            "key": "glad-2pc"
+          },
+          {
+            "kind": "*character.CooldownMod",
+            "key": "anemo-res-cd"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "pyro-res"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "pathfinders-light"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-burst-cd"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "athame-trigger-hit-atk"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "glad-4pc"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "confirmation-of-purity"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-skill-energy-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-particle-icd"
+          },
+          {
+            "kind": "*character.Status",
+            "key": "durin-burst-white"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "blade-of-the-daylight-hours-buff"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-anemo"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "durin-c2-pyro"
+          },
+          {
+            "kind": "*character.StatMod",
+            "key": "faruzan-q-dmg-bonus"
+          },
+          {
+            "kind": "*character.AttackMod",
+            "key": "faruzan-c6"
+          }
+        ]
+      },
+      {
+        "frame": 6606,
+        "subscription": 12,
+        "kind": "raw-statistics-hook-registration-order",
+        "before": [
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          }
+        ],
+        "after": [
+          {
+            "capture": {
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-shield-tick-log",
+            "source": "pkg/stats/shield/shield.go:NewStat/OnTick"
+          },
+          {
+            "capture": {
+              "combatStateOwner": "targets",
+              "maxEnemyLevel": 100,
+              "playerStateOwner": "player+characters+effects"
+            },
+            "enabled": true,
+            "key": "stats-status-log",
+            "source": "pkg/stats/status/status.go:NewStat/OnTick"
+          }
+        ]
+      }
+    ],
+    "meaning": "Actual resonance-container initialization and OnTick execution order may differ. Only the source-audited exchange for this fixed team is accepted here; all raw lists remain recorded. This is not a universal nonsemantic-order claim or a certificate of raw phase/archive reproducibility. No source or saved result is normalized."
+  },
+  "result": {
+    "seed": "20261022",
+    "frames": 7200,
+    "hits": 610,
+    "total": 27069474.337322712,
+    "dps": 225578.9528110226,
+    "byActor": {
+      "nicole": 921151.0747939858,
+      "durin": 4621465.1979512945,
+      "faruzan": 1851300.261779438,
+      "wanderer": 19675557.80279801
+    }
+  },
+  "callbackCount": 19602,
+  "traceNodeReferences": 557747,
+  "limitations": [
+    "One final matched browser pair, not a statistically stable performance guarantee.",
+    "nativeMs contains shared TS callbacks. The residual still combines mechanics, Go request/result JSON and cross-runtime conversion; it is not pure mechanics time.",
+    "Callback and subphase timings are nested; do not add all table rows.",
+    "Browser click-to-paint is separate from tool/polling wall-clock, screenshots, export and reopen work.",
+    "No lowered precision, fewer actions, synthetic damage, changed random draws or omitted result records."
+  ]
+}
