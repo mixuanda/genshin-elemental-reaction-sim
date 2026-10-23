@@ -9,6 +9,7 @@ import { calculatorActionDisplayName, calculatorResultDisplayName } from "./calc
 import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
 import { bindFaruzanHurricaneTalent } from "./faruzan-calculation-talents";
 import type { SourceCharacterActionKind } from "./source-action-capabilities";
+import { applyFaruzanEPanelExcludesOwnEffectsDeclaration } from "./calculator-faruzan-panel-declaration";
 import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { parseObservedSkillComposition, type ObservedSkillCompositionDocument } from "../../../packages/sim-core/src/observed-skill-composition";
 import { renderArtifactUtilityCalculator } from "./artifact-utility-calculator";
@@ -1011,7 +1012,17 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       // An observed count regenerates hit IDs within the same action. Keep its
       // answered controls editable; changing action or scope still resets them.
       const inlineFields = inlineRequirements.fields(JSON.stringify([current.id,current.scope,current.gameContext?.observedPlunge ? current.gameContext.skillId : current.selectedHitIds,current.gameContext?.constellation]),requiredFields);
-      const conditionRows = inlineFields.map(({field,required},index)=>`<div class="calculator-inline-condition" data-calculator-required-field="${required}" data-calculator-condition-id="${esc(field.id)}"><span class="calculator-hint">${field.hitIds.length===1 ? esc(current!.hits.find(hit=>hit.id===field.hitIds[0])?.label??"") : "本次所选命中"}${required?" · 待填写":""}</span><div data-calculator-inline-control="${index}"></div><button type="button" data-calculator-requirement="${esc(field.controlSelector)}">填写：${esc(field.label)}</button><small>${esc(field.explanation)}</small></div>`).join("");
+      const panelDeclaration = root.querySelector<HTMLButtonElement>('[data-source-cast-controls="finite-followup"] [data-faruzan-e-panel-declaration]');
+      const needsPanelDeclaration = Boolean(panelDeclaration && requiredFields.some(field => field.adapterId === "faruzan-hurricane-conditions" && field.fieldPath.includes(".hitStates.")));
+      let declarationAction = "";
+      if (panelDeclaration) {
+        panelDeclaration.hidden = needsPanelDeclaration;
+        if (needsPanelDeclaration) {
+          const button = panelDeclaration.cloneNode(true) as HTMLButtonElement; button.hidden = false;
+          declarationAction = `<div class="calculator-inline-condition">${button.outerHTML}<small>仅在确实未计入时确认；也可逐项填写已经计入的实际份额。</small></div>`;
+        }
+      }
+      const conditionRows = declarationAction + inlineFields.map(({field,required},index)=>`<div class="calculator-inline-condition" data-calculator-required-field="${required}" data-calculator-condition-id="${esc(field.id)}"><span class="calculator-hint">${field.hitIds.length===1 ? esc(current!.hits.find(hit=>hit.id===field.hitIds[0])?.label??"") : "本次所选命中"}${required?" · 待填写":""}</span><div data-calculator-inline-control="${index}"></div><button type="button" data-calculator-requirement="${esc(field.controlSelector)}">填写：${esc(field.label)}</button><small>${esc(field.explanation)}</small></div>`).join("");
       const conditionLinks = !inlineFields.length ? "" : requiredFields.length
         ? `<section class="calculator-inline-conditions" data-calculator-inline-conditions><h4>补齐本次命中的条件</h4>${conditionRows}</section>`
         : `<details class="calculator-inline-conditions" data-calculator-inline-conditions data-detail-id="answered-conditions"${inlineRequirements.hasActiveControl() ? " open" : ""}><summary>已填写 ${inlineFields.length} 项战斗条件 · 修改</summary>${conditionRows}</details>`;
@@ -1891,6 +1902,14 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (action === "source-single-skill") {
       const preferred = target.dataset.sourceAction;
       void showSourceSingleSkill(preferred === "charge" || preferred === "burst" ? preferred : undefined); return;
+    }
+    if (action === "faruzan-e-panel-excludes-own-effects" && current) {
+      const declared = applyFaruzanEPanelExcludesOwnEffectsDeclaration(current);
+      if (!declared) { message("此声明只适用于珐露珊C0本次E的已选命中，不修改历史快照。", true); return; }
+      current = declared;
+      refreshPassiveSkillContext(); markEditedSourceExample(current); renderControls(); renderResults();
+      message("已按你的声明将所选当前面板的三项已含份额设为0；其余属性和战斗条件保持不变。");
+      return;
     }
     if (action === "observed-composition" || action === "composition-cancel-component") { loadObservedComposition(); return; }
     if (action === "composition-save-component") {

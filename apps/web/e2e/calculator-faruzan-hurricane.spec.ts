@@ -22,10 +22,12 @@ async function answer(page: Page, normal?: number) {
   await frame.fill("35"); await frame.blur();
   if (normal !== undefined) await panel.locator(`select[data-source-cast-value-field="${prefix}.normalTalentLevel"]`).selectOption(String(normal));
   data = await audit(page);
-  for (const hit of data.document.hits) for (const key of ["includedDamageBonus", "includedAdditiveBase", "includedResistanceReduction"]) {
-    const input = panel.locator(`input[data-field="${prefix}.hitStates.${hit.id}.${key}"]`);
-    await input.fill("0"); await input.blur();
-  }
+  const beforeStats = data.document.build, beforeEnemy = data.document.enemy;
+  const declare = panel.locator('[data-action="faruzan-e-panel-excludes-own-effects"]');
+  await expect(declare).toBeVisible();
+  await declare.click(); data = await audit(page);
+  expect(data.document.build).toEqual(beforeStats); expect(data.document.enemy).toEqual(beforeEnemy);
+  for (const hit of data.document.hits) expect(data.document.gameContext.finiteFollowupCast.hitStates[hit.id]).toMatchObject({ includedDamageBonus: 0, includedAdditiveBase: 0, includedResistanceReduction: 0 });
 }
 
 test("Faruzan C0 E offers local conditions, three independent damage rows and save/reopen without inventing future state", async ({ page }, testInfo) => {
