@@ -10,6 +10,8 @@ import { isSourceHostCharacterModifierDynamicRuleId, sourceHostCharacterModifier
 import { isSourceHostCharacterScalarRuleId, resolveSourceHostCharacterScalarInput, sourceHostCharacterScalarRuleDescriptor } from "./source-host-character-scalar-formula";
 import { resolveSourceHostCharacterAdditiveInput, sourceHostCharacterAdditiveRuleDescriptor } from "./source-host-character-additive-formula";
 import { resolveSourceHostCharacterFlatInput, sourceHostCharacterFlatRuleDescriptor } from "./source-host-character-flat-formula";
+import { sourceHostAttackTagMatches } from "./source-host-attack-tag";
+import { SourceHostWandererC2ScopeError } from "./source-host-wanderer-c2-scope";
 import { SOURCE_HOST_COMMIT, type SourceHostCalculationRecord, type SourceHostCalculationRequest, type SourceHostCharacterScalarRequest, type SourceHostCharacterAdditiveRequest, type SourceHostCharacterFlatRequest } from "./source-host-wire";
 
 type SupportRecords = ReadonlyMap<number, SourceHostCalculationRecord>;
@@ -300,6 +302,15 @@ export function verifySourceHostArtifactSupport(request: SourceHostCalculationRe
         if ((record.request.sourceCommit ?? SOURCE_HOST_COMMIT) !== (request.sourceCommit ?? SOURCE_HOST_COMMIT)) throw new Error(`角色 modifier 公式 #${id} 的固定源码与读取不一致`);
         const computed = resolveSourceHostCharacterModifierInput(input, record.request.sourceCommit ?? SOURCE_HOST_COMMIT, `characterModifier.${id}`);
         close(record.value, computed.value, `character-modifier #${id}`);
+        // C2 is a creation-time stored vector, scoped by Wanderer.Snapshot to
+        // this attack's Burst tag. A matching scalar/slot alone cannot verify
+        // a non-Q hit, another actor, or an inconsistent numeric/name tag pair.
+        if (input.ruleId === "char-dyn-wanderer-c2"
+          && (request.kind !== "damage" || request.actorKey !== descriptor.character || request.actorIndex !== input.sourceHolderIndex
+            || ref.actorIndex !== input.sourceHolderIndex || request.attackTag !== 6
+            || !sourceHostAttackTagMatches(request.attackTagName, "AttackTagElementalBurst"))) {
+          throw new SourceHostWandererC2ScopeError(id, request.id);
+        }
         sums.set(consumedStatIndex, (sums.get(consumedStatIndex) ?? 0) + record.value);
         link(`${ref.readId}/${ref.index}/${consumedStatIndex}`, `characterModifier.${id}.${input.ruleId}`);
         continue;
