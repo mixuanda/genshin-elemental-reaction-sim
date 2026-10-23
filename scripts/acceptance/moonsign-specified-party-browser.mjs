@@ -94,6 +94,8 @@ try {
   await expect(page.locator('[data-lunar-moonsign]')).toHaveAttribute('data-moonsign-origin', 'capture');
   const reopenedBytes = await download(), reopened = JSON.parse(reopenedBytes.toString());
   assert.deepEqual(reopened.request, captured.request); assert.deepEqual(reopened.result, captured.result);
+  assert.deepEqual(reopened.ui, captured.ui, 'Opening a capture must not reconstruct its saved identity provenance.');
+  assert.deepEqual(reopenedBytes, bytes, 'Read-only re-export must preserve the complete original JSON.');
   assert.deepEqual(await readFile(path), bytes, 'Opening the saved capture must not change its original file.');
   await writeFile(resolve(output, 'one-grant-identity-only-reopened.json'), reopenedBytes, { flag: 'wx' });
   await page.locator('[data-lunar-panel]').screenshot({ path: resolve(output, 'one-grant-readonly.png') });
@@ -105,7 +107,7 @@ try {
   const summary = { status: 'passed', gitHead, applicationPatchSha256, browser: await browser.version(),
     scope: 'Specified party qualification 0 and rejection without an enabler; separate one-grant empty-axis input roundtrip, no invented character attacks; not a new native 120-second sample.',
     identities, specifiedPartyAutomaticMoonsign: 0, noEnablerRunRejected: true, qualifiedInputAutomaticMoonsign: 1, actualSpecialDamageEvents: captured.result.specialDamageEvents.length,
-    savedRequestAndCompleteResultExactlyPreserved: true, originalFileUnchanged: true, reopenedOrigin: 'capture',
+    savedRequestAndCompleteResultExactlyPreserved: true, completeJsonAndProvenancePreserved: true, originalFileUnchanged: true, reopenedOrigin: 'capture',
     accessibleAfterReadOnlyImportWithoutOrdinarySimulation: true, desktopAndNarrowEntryVisible: true,
     captureSha256: sha(bytes), reopenedSha256: sha(reopenedBytes), errors };
   await writeFile(resolve(output, 'acceptance.json'), JSON.stringify(summary, null, 2), { flag: 'wx' });

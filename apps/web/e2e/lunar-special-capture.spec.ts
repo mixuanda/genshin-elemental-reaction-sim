@@ -11,11 +11,15 @@ type UiCapture<T extends CapturedSpecialSimulation["result"]> = CapturedSpecialS
   ui?: { explicitConfigurationChanges: string[] };
 };
 
-async function downloadCapture<T extends CapturedSpecialSimulation["result"]>(page: Page): Promise<UiCapture<T>> {
+async function downloadCaptureJson(page: Page): Promise<string> {
   const pending = page.waitForEvent("download");
   await page.locator('[data-lunar-action="export"]').click();
   const download = await pending;
-  return JSON.parse(await readFile((await download.path())!, "utf8")) as UiCapture<T>;
+  return readFile((await download.path())!, "utf8");
+}
+
+async function downloadCapture<T extends CapturedSpecialSimulation["result"]>(page: Page): Promise<UiCapture<T>> {
+  return JSON.parse(await downloadCaptureJson(page)) as UiCapture<T>;
 }
 
 test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
@@ -55,12 +59,14 @@ test("special result capture roundtrips through the normal page and rejects a ch
 
   const expectedTotal = await page.locator('[data-testid="lunar-total-damage"]').textContent();
   const expectedEventIds = await page.locator("[data-lunar-event]").evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.lunarEvent));
+  const savedJson = JSON.stringify(capture, null, 2) + "\n";
   await page.locator('.tab[data-tab="special"]').click();
-  await page.locator("[data-lunar-import]").setInputFiles({ name: "complete-special-capture.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(capture)) });
+  await page.locator("[data-lunar-import]").setInputFiles({ name: "complete-special-capture.json", mimeType: "application/json", buffer: Buffer.from(savedJson) });
   await expect(page.locator("[data-lunar-status]")).toContainText("捕获记录可复现");
   await expect(page.locator("[data-lunar-profile]")).toHaveValue("lunar-bloom");
   await expect(page.locator('[data-testid="lunar-total-damage"]')).toHaveText(expectedTotal!);
   expect(await page.locator("[data-lunar-event]").evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.lunarEvent))).toEqual(expectedEventIds);
+  expect(await downloadCaptureJson(page), "Read-only re-export must preserve identity provenance, configuration changes and original JSON.").toBe(savedJson);
 
   const changed = JSON.parse(JSON.stringify(capture)) as UiCapture<LunarBloomSimulationResult>;
   changed.result.specialDamageEvents[0]!.damage += 1;
@@ -68,6 +74,7 @@ test("special result capture roundtrips through the normal page and rejects a ch
   await page.locator("[data-lunar-import]").setInputFiles({ name: "changed-special-result.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(changed)) });
   await expect(page.locator("[data-lunar-status]")).toContainText("未通过完整重放");
   await expect(page.locator('[data-testid="lunar-total-damage"]')).toHaveText(expectedTotal!);
+  expect(await downloadCaptureJson(page), "A rejected import must retain the last valid capture, including its original annotations.").toBe(savedJson);
 
   const firstEventId = expectedEventIds[0]!;
   await page.locator('[data-lunar-event="' + firstEventId + '"] > summary').click();

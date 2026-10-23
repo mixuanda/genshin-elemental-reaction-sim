@@ -155,6 +155,9 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
   let importReadEpoch = 0;
   let result: LunarSimulationResult | null = null;
   let capture: CapturedSpecialSimulation | null = null;
+  // Keep read-only source annotations and formatting opaque. Active identities
+  // still come from the request verified by complete Worker re-execution.
+  let importedCaptureJson: string | null = null;
   let profile: LunarProfile = "lunar-charged";
   let mappings: PartyMapping[] = [];
   let runMappings: PartyMapping[] = [];
@@ -502,7 +505,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
   function refresh(preserveStellarArtifactDraft = false): void {
     if (disposed) return;
     importReadEpoch++;
-    finish(); result = null; capture = null; runInputKey = null; runExecutionBaseline = null; runArtifactOptions = null; runStellarArtifactModel = null; runMoonlightArtifactModel = null;
+    finish(); result = null; capture = null; importedCaptureJson = null; runInputKey = null; runExecutionBaseline = null; runArtifactOptions = null; runStellarArtifactModel = null; runMoonlightArtifactModel = null;
     drawProfile();
     get("[data-lunar-output]").innerHTML = "";
     get("[data-lunar-input-notice]").hidden = true;
@@ -823,6 +826,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
       runExecutionBaseline = null;
       result = null;
       capture = null;
+      importedCaptureJson = null;
       runInputKey = currentInputKey;
       get("[data-lunar-output]").innerHTML = "";
       get("[data-lunar-input-notice]").hidden = true;
@@ -927,6 +931,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
         if (message.data.type === "error") { status("导入结果未通过完整重放：" + message.data.message); return; }
         if (message.data.type !== "imported") { status("特殊反应 Worker 返回了不适用于导入的消息。"); return; }
         restoreCaptureView(message.data.capture);
+        importedCaptureJson = json;
         drawResult();
         updateInputNotice();
         status("已导入并在相同引擎完整重执行，结果一致。此项只确认捕获记录可复现，不代表游戏机制已核验。");
@@ -981,7 +986,7 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
           ...(runExecutionBaseline === null ? {} : { executionBaseline: clone(runExecutionBaseline) }),
         },
       };
-      const url = URL.createObjectURL(new Blob([serializeSpecialSimulation(exportCapture)], { type: "application/json" }));
+      const url = URL.createObjectURL(new Blob([importedCaptureJson ?? serializeSpecialSimulation(exportCapture)], { type: "application/json" }));
       const link = document.createElement("a"); link.href = url; link.download = branch + "-complete-simulation.json"; link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
