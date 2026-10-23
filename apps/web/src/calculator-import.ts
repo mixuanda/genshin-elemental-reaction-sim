@@ -92,6 +92,11 @@ export function applyImportedCalculatorPanel(
   resetBaizhuPanelAccounting(doc, "imported-final");
   resetCharlottePanelAccounting(doc, "imported-final");
   resetSourceCastPanelAccounting(doc, "imported-final");
+  if (context.hutaoDamage && talentPolicy === "imported-effective") {
+    const skill = character.resolvedSkills.find(entry => entry.abilityId === "talent:hutao:combat2");
+    if (skill && hasKnownImportedTalent(skill)) context.hutaoDamage.skillTalentLevel = skill.effectiveLevel;
+    else delete context.hutaoDamage.skillTalentLevel;
+  }
   resetIncomingThrillingTalesPanelAccounting(doc, "imported-final");
   if (context.xingqiuSkill) context.xingqiuSkill.a4IncludedInPanel = character.ascension !== undefined && character.ascension !== null && character.ascension >= 4;
   doc.hits = doc.hits.map(original => {

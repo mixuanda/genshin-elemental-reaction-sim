@@ -1,3 +1,4 @@
+import {prepareHutaoDamageDocument,resetHutaoPanelAccounting,finalizeHutaoPanelAccounting} from './hutao-damage-formulas';
 import {prepareKinichDamageDocument,resetKinichPanelAccounting,finalizeKinichPanelAccounting} from './kinich-damage-formulas';
 import {prepareCynoDamageDocument,resetCynoPanelAccounting,finalizeCynoPanelAccounting} from './cyno-damage-formulas';
 import {prepareKazuhaBurstDocument,resetKazuhaBurstPanelAccounting,finalizeKazuhaBurstPanelAccounting} from './kazuha-burst-formulas';
@@ -39,6 +40,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareHutaoDamageDocument(document);
   document = prepareKazuhaBurstDocument(document);
   document = prepareCynoDamageDocument(document);
   document = prepareKinichDamageDocument(document);
@@ -67,6 +69,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetHutaoPanelAccounting(document, mode);
   resetKazuhaBurstPanelAccounting(document, mode);
   resetCynoPanelAccounting(document, mode);
   resetKinichPanelAccounting(document, mode);
@@ -102,6 +105,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  finalizeHutaoPanelAccounting(document);
   finalizeKazuhaBurstPanelAccounting(document);
   finalizeCynoPanelAccounting(document);
   finalizeKinichPanelAccounting(document);

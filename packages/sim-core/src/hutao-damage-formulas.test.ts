@@ -31,19 +31,9 @@ function fixture(action = 'charged', normalLevel = 10): HutaoCalculatorDocument 
   };
 }
 
-/** Temporary, explicit adapter while the root owns shared-schema registration. It removes only
- * the unregistered context after preparation; every formula, blocker and assertion stays intact.
- * Once formally wired, root can replace run(doc) with calculateDocument(doc), and conversion
- * with convertCalculatorToFinalPanel(doc). No production parser or engine is changed here. */
-function compatible(document: CalculatorDocument): CalculatorDocument {
-  const copy = structuredClone(document) as HutaoCalculatorDocument; delete copy.gameContext.hutaoDamage; return copy;
-}
-const run = (document: CalculatorDocument) => calculateDocument(compatible(prepareHutaoDamageDocument(document)));
-function convert(document: CalculatorDocument): CalculatorDocument {
-  const prepared = prepareHutaoDamageDocument(document), context = structuredClone(hutaoContext(prepared)!);
-  const converted = convertCalculatorToFinalPanel(compatible(prepared)) as HutaoCalculatorDocument;
-  converted.gameContext.hutaoDamage = context; finalizeHutaoDamageContextSnapshot(converted); return converted;
-}
+/** Use the registered public calculation and conversion paths. */
+const run = (document: CalculatorDocument) => calculateDocument(document);
+const convert = (document: CalculatorDocument) => convertCalculatorToFinalPanel(document);
 
 describe('Hu Tao C0/C1 Paramita selected primary contacts', () => {
   it.each([
