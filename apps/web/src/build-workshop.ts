@@ -1,5 +1,6 @@
 import type { CatalogResolvedShowcaseCharacter } from '@genshin-dps-lab/schemas';
 import { mountPlayerImportPreview } from './player-import-preview';
+import type { ManualEffectiveTalents } from './player-import-manual-talents';
 import { resolveCalculatorBuildTrace } from "@genshin-dps-lab/sim-core";
 import { renderTraceHtml } from "./calculator-trace-view";
 import { gameDataCatalog } from '@genshin-dps-lab/game-data/catalog';
@@ -15,7 +16,7 @@ const esc = (value: unknown): string => String(value ?? '').replace(/[&<>"']/g, 
 export interface BuildHandoffMetadata { constellation: number; baseTalentLevels: { auto: number; skill: number; burst: number }; label?: string; favoniusParticleDelayFrames?: number; noblesseSelfDelayFrames?: 0 | 1 }
 interface SavedBuild { version: 'editable-build-v1'; name: string; input: EquipmentBuildInput; metadata: BuildHandoffMetadata }
 interface WorkshopOptions {
-  openImportedPanel(character: CatalogResolvedShowcaseCharacter, source: string): Promise<void>;
+  openImportedPanel(character: CatalogResolvedShowcaseCharacter, source: string, manualEffectiveTalents?: ManualEffectiveTalents): Promise<void>;
   openCalculator(input: EquipmentBuildInput, metadata: BuildHandoffMetadata): Promise<void>;
   addToTeam(input: EquipmentBuildInput, metadata: BuildHandoffMetadata, source: { hostVariant: SourceHostVariant; characterKey: string }): Promise<void>;
   addRosterToTeam(entries: ImportedRosterEntry[], source: { hostVariant: SourceHostVariant; revision: string }, mode: 'merge' | 'replace'): Promise<void>;

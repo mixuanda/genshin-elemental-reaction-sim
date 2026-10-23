@@ -1,7 +1,8 @@
 import { importPlayerInput, applyPreview, type ImportSnapshot } from '../../../packages/player-import/src/index';
 import { preparePlayerEquipment, preparePlayerPanel } from './player-import-handoff';
+import { preparePlayerPanelWithManualTalents, type ManualEffectiveTalents } from './player-import-manual-talents';
 
-export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (input: ReturnType<typeof preparePlayerEquipment>['input'], metadata: ReturnType<typeof preparePlayerEquipment>['metadata']) => Promise<void>, openPanel: (character: ReturnType<typeof preparePlayerPanel>['character'], source: string) => Promise<void>): void {
+export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (input: ReturnType<typeof preparePlayerEquipment>['input'], metadata: ReturnType<typeof preparePlayerEquipment>['metadata']) => Promise<void>, openPanel: (character: ReturnType<typeof preparePlayerPanel>['character'], source: string, manualEffectiveTalents?: ManualEffectiveTalents) => Promise<void>): void {
   root.innerHTML = `<details open><summary>玩家配装预览 → 单技能计算</summary><p>本地解析 GOOD / Enka JSON / 配装纯文本。装备推导与 Enka 最终面板是互斥路线；不会重复叠加装备。公开展柜不能还原条件增益、附着或历史快照，所选技能仍需满足计算器条件。装备路线的条件效果关闭。未知机制仍由计算器提示。这里不提供账号登录。</p><label>本地配装文件<input data-player-file type="file" accept=".json,.txt,application/json,text/plain"></label><label>或粘贴配装文本<textarea data-player-input rows="5"></textarea></label><label><input data-player-fixture type="checkbox">这是合成测试数据</label><button data-player-preview>预览导入</button><button data-player-restore hidden>返回上次完整预览</button><p data-player-status role="status" aria-live="polite"></p><div data-player-builds></div></details>`;
   const text = root.querySelector<HTMLTextAreaElement>('[data-player-input]')!;
   const status = root.querySelector<HTMLElement>('[data-player-status]')!;
@@ -46,7 +47,33 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
         catch(error) { status.textContent = `面板未载入：${error instanceof Error ? error.message : String(error)}。原预览保留。`; }
         finally { busy = false;panelButton.disabled = !panelReady; }
       };
-      box.append(title, detail, button, panelNote, panelButton);list.append(box);
+      box.append(title, detail, button, panelNote, panelButton);
+      if (!panelReady && (snapshot.source.kind === 'enka-json' || snapshot.source.kind === 'enka-uid')) {
+        const manual = document.createElement('details'), summary = document.createElement('summary'), note = document.createElement('p');
+        summary.textContent = '补充有效天赋等级后计算';
+        note.textContent = '按游戏内显示填写，包含已有加级；这些数值记为手填，原始导入不变。';
+        manual.append(summary, note);
+        const fields = {} as Record<keyof ManualEffectiveTalents, HTMLInputElement>;
+        for (const [key, labelText] of [['auto','普攻有效等级'],['skill','E有效等级'],['burst','Q有效等级']] as const) {
+          const label = document.createElement('label'), field = document.createElement('input');
+          label.textContent = labelText;field.type = 'number';field.min = '1';field.max = '15';field.step = '1';field.required = true;
+          field.placeholder = '请明确填写';field.setAttribute(`data-player-talent-${key}`, build.key);label.append(field);manual.append(label);fields[key] = field;
+        }
+        const proceed = document.createElement('button');proceed.textContent = '用面板和手填天赋计算';proceed.dataset.playerManualPanel = build.key;proceed.disabled = true;
+        const ready = () => Object.values(fields).every(field => field.value !== '' && field.checkValidity() && Number.isInteger(field.valueAsNumber));
+        Object.values(fields).forEach(field => field.addEventListener('input', () => { proceed.disabled = busy || !ready(); }));
+        proceed.onclick = async () => {
+          if (busy || !ready()) return;
+          busy = true;proceed.disabled = true;
+          try {
+            const checked = preparePlayerPanelWithManualTalents(raw, build, snapshot.source, { auto: fields.auto.valueAsNumber, skill: fields.skill.valueAsNumber, burst: fields.burst.valueAsNumber });
+            await openPanel(checked.character, checked.source, checked.manualEffectiveTalents);
+          } catch (error) { status.textContent = `面板未载入：${error instanceof Error ? error.message : String(error)}。原预览保留。`; }
+          finally { busy = false;proceed.disabled = !ready(); }
+        };
+        manual.append(proceed);box.append(manual);
+      }
+      list.append(box);
     }
   }
   function preview() {

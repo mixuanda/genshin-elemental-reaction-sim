@@ -23,6 +23,13 @@ export function applyImportedCalculatorPanel(
   const doc = structuredClone(document);
   const context = doc.gameContext;
   if (!context || character.catalog.characterId !== context.characterId) throw new Error("导入角色身份与当前真实命中定义不一致，不能借用其他角色天赋。");
+  const bonuses = character.stats.damageBonuses;
+  context.importedPanelDamageBonuses = {
+    physical: bonuses.physical ?? null, pyro: bonuses.pyro ?? null,
+    hydro: bonuses.hydro ?? null, cryo: bonuses.cryo ?? null,
+    electro: bonuses.electro ?? null, anemo: bonuses.anemo ?? null,
+    geo: bonuses.geo ?? null, dendro: bonuses.dendro ?? null,
+  };
   if (!Number.isInteger(character.constellation) || character.constellation < 0 || character.constellation > 6) throw new Error("导入命座缺失或非法；不会假定为 C0。");
   if (character.ascension !== undefined && character.ascension !== null && (!Number.isInteger(character.ascension) || character.ascension < 0 || character.ascension > 6)) throw new Error("导入突破阶段非法；不会依据等级猜测。");
   if (talentPolicy === "imported-effective") {

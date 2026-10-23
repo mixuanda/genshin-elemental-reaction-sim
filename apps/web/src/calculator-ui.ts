@@ -1,4 +1,5 @@
 import {applyTighnariDamageContext,resetTighnariPanelAccounting} from './tighnari-calculation-context';
+import type { ManualEffectiveTalents } from './player-import-manual-talents';
 import {renderTighnariControls} from './calculator-tighnari-controls';
 import { mountObservedSkillComposition } from "./calculator-observed-composition";
 import { collectCalculatorRequirements } from "./calculator-requirements";
@@ -185,7 +186,7 @@ export interface CalculatorController {
   loadExample(id: string): void;
   loadSimulationCapture(capture: CapturedSimulationHit): void;
   loadSourceHostCapture(capture: SourceHostHitCapture | SourceHostEditableCalculation | SourceHostActionCollection | SourceHostEventCollection | SourceHostPlayerIncomingCapture | SourceHostPlayerIncomingEditable | SourceHostEnergyCapture | SourceHostEnergyEditable | SourceHostCooldownCapture | SourceHostCooldownEditable | SourceHostHealingCapture | SourceHostHealingEditable | SourceHostCharacterShieldCapture | SourceHostCharacterShieldEditable | SourceHostDrainCapture | SourceHostDrainEditable): void;
-  loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source?: string): Promise<void>;
+  loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source?: string, manualEffectiveTalents?: ManualEffectiveTalents): Promise<void>;
   loadEquipmentBuild(input: EquipmentBuildInput, meta: CalculatorEquipmentBuildMeta): Promise<void>;
   renderExamples(container: HTMLElement): void;
   getDocument(): CalculatorDocument | null;
@@ -205,6 +206,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   let candidateDocuments: CalculatorDocument[] = [];
   let importedCharacter: CatalogResolvedShowcaseCharacter | null = null;
   let importedTalentBinding = false;
+  let importedManualTalents: ManualEffectiveTalents | null = null;
   let equipmentTalentBinding: EquipmentTalentBinding | null = null;
   let importedSource = "";
   let selectionRequest = 0;
@@ -290,6 +292,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   function applyEquipmentResolution(resolution: EquipmentBuildResolution): void {
     if (!current || current.dataIdentity.releaseStatus === "synthetic" || characterId !== resolution.build.equipment.characterId) throw new Error("请先选择具有已分类命中定义的正式角色技能。装备属性不会替代缺失的角色天赋。");
     const next = clone(current);
+    if (next.gameContext) {
+      delete next.gameContext.manualEffectiveTalents;
+      delete next.gameContext.importedPanelDamageBonuses;
+    }
     markEditedSourceExample(next, true);
     next.build = resolution.build;
     next.characterLevel = resolution.characterLevel;
@@ -334,7 +340,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     clearPreviousEquipmentEffects(next);
     for (const draft of actionDrafts.values()) if (draft.gameContext?.characterId === characterId) clearPreviousEquipmentEffects(draft);
     equipmentDrafts.delete(equipmentKey(next));
-    importedCharacter = null; importedTalentBinding = false;
+    importedCharacter = null; importedTalentBinding = false; importedManualTalents = null;
     get("#calc-imported-binding").hidden = !equipmentTalentBinding;
     get<HTMLInputElement>("#calc-talent-level").disabled = equipmentTalentBinding !== null;
     loadDocument(applyCharacterConstellationScope(next, workspace), true);
@@ -405,7 +411,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       window.history.replaceState(window.history.state, "", url);
       ++selectionRequest;
       current = null; currentResult = null; capturedHit = null; characterId = ""; candidateDocuments = []; activeExampleId = null;
-      importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+      importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
       characterDrafts.clear(); actionDrafts.clear(); noelleContextDrafts.clear(); equipmentDrafts.clear(); invalidFields.clear();
       equipmentControls = null;
       get("#calc-equipment-controls").innerHTML = "<legend>装备基础推导</legend>";
@@ -631,6 +637,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         else next.gameContext.ascension = buildDraft.gameContext.ascension;
       }
     }
+    if (buildDraft?.build.mode === 'imported-final' && !importedCharacter) {
+      // A saved panel cannot turn teaching defaults into observed battle state.
+      // The exact action's saved conditions are restored below, when present.
+      resetSourceCastPanelAccounting(next, 'imported-final');
+    }
     if (actionDraft?.incomingThrillingTales) next.incomingThrillingTales = clone(actionDraft.incomingThrillingTales);
     else if (buildDraft?.incomingThrillingTales) next.incomingThrillingTales = { ...clone(buildDraft.incomingThrillingTales), hitStates: {} };
     next = prepareIncomingThrillingTales(next);
@@ -704,6 +715,22 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       }
       next.assumptions = [...next.assumptions.filter(value => !value.startsWith("配装天赋绑定：") && !value.startsWith("配装来源：") && value !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。").map(value => value.startsWith("C0；只使用列出的伤害表达式。") ? value.replace("C0；", `C${context.constellation} 配装；`) : value), ...equipmentTalentBinding.assumptions];
       if (equipmentTalentBinding.meta.label) next.label = `${equipmentTalentBinding.meta.label} · ${context.skillName} · 有效天赋等级 ${context.effectiveTalentLevel}`;
+    }
+    if (importedManualTalents && next.gameContext) {
+      next.gameContext.manualEffectiveTalents = clone(importedManualTalents);
+      const burstLevel = importedManualTalents.burst;
+      if (next.gameContext.xiaoDamage) next.gameContext.xiaoDamage.burstTalentLevel = burstLevel;
+      if (next.gameContext.noelleBurst) next.gameContext.noelleBurst.effectiveTalentLevel = burstLevel;
+      if (next.gameContext.ittoCharged) next.gameContext.ittoCharged.burst.effectiveTalentLevel = burstLevel;
+      if (next.gameContext.yanfeiCharged) next.gameContext.yanfeiCharged.brilliance.effectiveTalentLevel = burstLevel;
+    }
+    if (next.build.mode === 'imported-final' && next.gameContext && buildDraft?.gameContext?.importedPanelDamageBonuses && !importedCharacter) {
+      next.gameContext.importedPanelDamageBonuses = clone(buildDraft.gameContext.importedPanelDamageBonuses);
+      for (const hit of next.hits) if (hit.kind === 'ordinary') {
+        const bonus = next.gameContext.importedPanelDamageBonuses[hit.element];
+        if (bonus === null) { blockCharacter(`保存的导入面板缺少${hit.element}伤害加成，请补齐后重新导入。`); return; }
+        hit.damageBonus = bonus;
+      }
     }
     next = applyCharacterConstellationScope(next, workspace);
     for (const hit of next.hits) {
@@ -790,20 +817,21 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if ((!next.gameContext?.cynoDamage && !next.gameContext?.kinichDamage && !next.gameContext?.gamingDamage && !next.gameContext?.xiaoDamage && !next.gameContext?.coordinatedCast && !next.gameContext?.heldLifecycleCast && !next.gameContext?.finiteFollowupCast && !next.gameContext?.observedEntityCast && !next.gameContext?.travelerMaleChargedCast && !next.gameContext?.periodicOrdinaryCast && !next.gameContext?.idleStanceCast && !next.gameContext?.entityFollowupCast && !next.gameContext?.extendedStanceCast && !next.gameContext?.mixedSourceCast && !next.gameContext?.noellePlungeCast && !next.gameContext?.observedPlunge && !next.gameContext?.travelerCryoStateCast && !next.gameContext?.travelerCrossEntityCast && !next.gameContext?.travelerHydroResolvedCast && !next.gameContext?.iansanSwiftResolvedCast && !next.gameContext?.observedSpecialComponent && !next.gameContext?.neferPhantasmCast && !next.gameContext?.zibaiFiniteCast) || materializingEquipment) finalizeSourceCastPanelAccounting(next);
     get<HTMLSelectElement>("#calc-skill").value = String(index);
     if (next.gameContext) get<HTMLInputElement>("#calc-talent-level").value = String(next.gameContext.effectiveTalentLevel);
-    get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || equipmentTalentBinding !== null;
-    get("#calc-imported-binding").hidden = !importedTalentBinding && !equipmentTalentBinding;
+    get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || importedManualTalents !== null || equipmentTalentBinding !== null;
+    get("#calc-imported-binding").hidden = !importedTalentBinding && !importedManualTalents && !equipmentTalentBinding;
     loadDocument(next, true);
   }
 
   function restoreIdentityControls(doc: CalculatorDocument): void {
     const request = ++selectionRequest;
-    importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+    importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+    importedManualTalents = doc.gameContext?.manualEffectiveTalents ? clone(doc.gameContext.manualEffectiveTalents) : null;
     get("#calc-imported-binding").hidden = true;
     selectedForm = doc.gameContext?.variantId ?? "";
     characterId = doc.gameContext?.characterId ?? "";
     candidateDocuments = doc.gameContext ? [clone(doc)] : [];
     get<HTMLSelectElement>("#calc-character").value = characterId;
-    get<HTMLInputElement>("#calc-talent-level").disabled = !doc.gameContext || detachedPreview();
+    get<HTMLInputElement>("#calc-talent-level").disabled = !doc.gameContext || detachedPreview() || importedManualTalents !== null;
     if (doc.gameContext && !detachedPreview()) {
       get<HTMLInputElement>("#calc-talent-level").value = String(doc.gameContext.effectiveTalentLevel);
       renderCandidateSelectors(actionKey(doc));
@@ -811,7 +839,9 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       characterDrafts.set(characterId, clone(doc));
       actionDrafts.set(actionKey(doc), clone(doc));
       void (async () => {
-        const alternatives = await readCharacterDocuments(doc.gameContext!.characterId, doc.gameContext!.effectiveTalentLevel);
+        const alternatives = doc.gameContext!.manualEffectiveTalents
+          ? await readManualTalentDocuments(doc.gameContext!.characterId, doc.gameContext!.manualEffectiveTalents)
+          : await readCharacterDocuments(doc.gameContext!.characterId, doc.gameContext!.effectiveTalentLevel);
         if (request !== selectionRequest || current?.id !== doc.id) return;
         const preserved = clone(current);
         const key = actionKey(preserved);
@@ -1176,7 +1206,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const doc = loadWorkedExample(id);
       activeExampleId = id;
       const synthetic = doc.dataIdentity.releaseStatus === "synthetic";
-      characterId = ""; candidateDocuments = []; importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+      characterId = ""; candidateDocuments = []; importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
       get("#calc-imported-binding").hidden = true;
       void refreshEquipment();
       ++selectionRequest;
@@ -1219,6 +1249,14 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     return applyImportedCalculatorPanel(doc, importedCharacter, importedSource, importedTalentBinding ? "imported-effective" : "manual-effective");
   }
 
+  async function readManualTalentDocuments(id: string, levels: ManualEffectiveTalents): Promise<CalculatorDocument[]> {
+    const byLevel = await Promise.all([...new Set(Object.values(levels))].map(level => readCharacterDocuments(id, level)));
+    return byLevel.flat().filter(doc => {
+      const match = doc.gameContext?.abilityId.match(/:combat([123])$/);
+      return match && levels[(['auto','skill','burst'] as const)[Number(match[1])-1]!] === doc.gameContext!.effectiveTalentLevel;
+    }).map(doc => { doc.gameContext!.manualEffectiveTalents = clone(levels);return doc; });
+  }
+
   async function selectCharacter(id: string): Promise<void> {
     activeExampleId = null;
     const request = ++selectionRequest;
@@ -1245,7 +1283,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         if (!mapped.length) throw new Error("导入天赋的基础／额外／有效等级证据缺失或尚未映射；保留最终面板，请补齐后重新导入，不使用默认等级。");
         const byLevel = await Promise.all([...new Set(mapped.map(skill => skill.effectiveLevel))].map(value => readCharacterDocuments(id, value)));
         documents = byLevel.flat().filter(doc => doc.gameContext && mapped.some(skill => skill.abilityId === doc.gameContext!.abilityId && skill.effectiveLevel === doc.gameContext!.effectiveTalentLevel));
-      } else if (equipmentTalentBinding) {
+      } else if (importedManualTalents) documents = await readManualTalentDocuments(id, importedManualTalents);
+      else if (equipmentTalentBinding) {
         const binding = equipmentTalentBinding;
         const byLevel = await Promise.all([...new Set(binding.levels.values())].map(value => readCharacterDocuments(id, value)));
         documents = byLevel.flat().filter(doc => doc.gameContext && binding.levels.get(doc.gameContext.abilityId) === doc.gameContext.effectiveTalentLevel);
@@ -1257,7 +1296,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         const abilities = workspace.index.talentSets.filter(t => character.talentSetIds.includes(t.id)).flatMap(t => t.abilities);
         skill.innerHTML = abilities.map(a => `<option value="${esc(a.id)}">${esc(a.name)} · 缺少已分类命中定义</option>`).join("") || '<option value="">尚无可执行命中定义</option>';
         get("#calc-form-control").hidden = true;
-        get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || equipmentTalentBinding !== null;
+        get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || importedManualTalents !== null || equipmentTalentBinding !== null;
         get("#calc-character-status").textContent = "目录名称已匹配；所选等级的倍率含义、伤害命中分类或适用机制尚未核实。";
         blockCharacter(`${character.name} 缺少所选等级或导入技能匹配的已分类命中定义；不会套用其他角色、技能或教学例题的天赋。`);
         return;
@@ -1276,7 +1315,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (workspace.channel === "preview") await selectWorkspace("released");
     rememberCurrent();
     current = null; currentResult = null; characterId = "";
-    importedCharacter = null; importedTalentBinding = false;
+    importedCharacter = null; importedTalentBinding = false; importedManualTalents = null;
     equipmentTalentBinding = binding;
     characterDrafts.delete(input.characterId);
     equipmentDrafts.delete(input.characterId);
@@ -1291,11 +1330,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     message(`已载入${meta.label ?? "角色配装"}。武器与圣遗物可继续调整；切换动作会保留配装并使用该动作的有效天赋等级。无需创建队伍。`);
   }
 
-  async function loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source = "Enka 公开展示柜最终面板"): Promise<void> {
+  async function loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source = "Enka 公开展示柜最终面板", manualEffectiveTalents?: ManualEffectiveTalents): Promise<void> {
+    if (manualEffectiveTalents && Object.values(manualEffectiveTalents).some(level => !Number.isInteger(level) || level < 1 || level > 15)) throw new Error('手填有效天赋须为1–15的整数。');
     if (workspace.channel === "preview") await selectWorkspace("released");
     rememberCurrent();
     current = null; currentResult = null; characterId = "";
-    importedCharacter = character; importedSource = source; importedTalentBinding = true; equipmentTalentBinding = null;
+    importedCharacter = character; importedSource = source; importedTalentBinding = !manualEffectiveTalents; importedManualTalents = manualEffectiveTalents ? clone(manualEffectiveTalents) : null; equipmentTalentBinding = null;
     candidateDocuments = [];
     get<HTMLSelectElement>("#calc-skill").innerHTML = '<option value="">等待导入技能与等级匹配</option>';
     get<HTMLInputElement>("#calc-talent-level").disabled = true;
@@ -1305,12 +1345,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     void refreshEquipment();
     if (!id) { blockCharacter(`导入 avatarId ${character.avatarId} 无对应正式目录身份，不能借用其他角色天赋。`); return; }
     const skill = character.resolvedSkills.find(hasKnownImportedTalent);
-    if (!skill) { blockCharacter("导入缺少有效的基础／额外天赋等级证据；请补齐后重新导入，不能假定额外等级为0。最终面板已保留。"); return; }
+    if (!skill && !manualEffectiveTalents) { blockCharacter("导入缺少有效的基础／额外天赋等级证据；请补齐后重新导入，不能假定额外等级为0。最终面板已保留。"); return; }
     characterDrafts.delete(id);
     const equipmentDraft = equipmentDrafts.get(id);
     if (equipmentDraft) equipmentDraft.finalized = false;
     for (const [key, doc] of actionDrafts) if (doc.gameContext?.characterId === id) actionDrafts.delete(key);
-    get<HTMLInputElement>("#calc-talent-level").value = String(skill.effectiveLevel);
+    get<HTMLInputElement>("#calc-talent-level").value = String(manualEffectiveTalents?.auto ?? skill!.effectiveLevel);
     await selectCharacter(id);
   }
 
@@ -1319,7 +1359,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     rememberCurrent();
     capturedHit = replay.captured; current = null; currentResult = null;
     invalidFields.clear();
-    characterId = ""; importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null; ++selectionRequest;
+    characterId = ""; importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null; ++selectionRequest;
     get("#calc-imported-binding").hidden = true;
     get("#calc-form-control").hidden = true;
     void refreshEquipment();
@@ -1530,7 +1570,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       renderControls(); renderResults();
       return;
     }
-    if (input.id === "calc-character") { importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null; get("#calc-imported-binding").hidden = true; void selectCharacter(input.value); return; }
+    if (input.id === "calc-character") { importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null; get("#calc-imported-binding").hidden = true; void selectCharacter(input.value); return; }
     if (input.id === "calc-talent-level" && characterId) {
       if (current?.gameContext?.skillId === "noelle-burst-cast" && current.gameContext.noelleBurst && input instanceof HTMLInputElement && input.checkValidity() && Number.isFinite(input.valueAsNumber)) {
         current.gameContext.noelleBurst.effectiveTalentLevel = input.valueAsNumber;
@@ -1635,8 +1675,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       refreshNoelleContext(); markEditedSourceExample(current); renderControls(); renderResults();
     } else if (input.id === "calc-constellation" && current.gameContext) {
       equipmentTalentBinding = null;
-      get("#calc-imported-binding").hidden = !importedTalentBinding;
-      get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding;
+      get("#calc-imported-binding").hidden = !importedTalentBinding && !importedManualTalents;
+      get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || importedManualTalents !== null;
       current.gameContext.constellation = Number(input.value);
       current = applyCharacterConstellationScope(current, workspace);
       refreshPassiveSkillContext();
@@ -1718,7 +1758,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
           resetSourceCastPanelAccounting(current, "fresh-equipment");
           refreshPassiveSkillContext();
           original.finalized = false;
-          importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+          importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
           get("#calc-imported-binding").hidden = true;
           get<HTMLInputElement>("#calc-talent-level").disabled = false;
         }
@@ -1937,7 +1977,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       }
     }
     else if (action === "manual-talents") {
-      importedTalentBinding = false; equipmentTalentBinding = null;
+      importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+      if (current?.gameContext) delete current.gameContext.manualEffectiveTalents;
       get("#calc-imported-binding").hidden = true;
       get<HTMLInputElement>("#calc-talent-level").disabled = false;
       message("已允许手动选择有效天赋等级；当前配装与面板继续保留。只有显式修改等级才读取另一条来源倍率。");
