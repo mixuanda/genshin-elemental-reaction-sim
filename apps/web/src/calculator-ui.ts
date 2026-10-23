@@ -7,6 +7,7 @@ import { mountObservedSkillComposition } from "./calculator-observed-composition
 import { collectCalculatorRequirements } from "./calculator-requirements";
 import { calculatorActionDisplayName, calculatorResultDisplayName } from "./calculator-action-display";
 import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
+import { bindFaruzanHurricaneTalent } from "./faruzan-calculation-talents";
 import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { parseObservedSkillComposition, type ObservedSkillCompositionDocument } from "../../../packages/sim-core/src/observed-skill-composition";
 import { renderArtifactUtilityCalculator } from "./artifact-utility-calculator";
@@ -719,12 +720,21 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const previous = actionDraft?.gameContext?.[key];
       if (next.gameContext && previous) next.gameContext = { ...next.gameContext, [key]: clone(previous) };
     }
+    // Known imported levels win. When the normal talent was not exported, an
+    // answer entered after import belongs to the exact action draft and stays.
+    // Applying a fresh panel already clears old evidence before draft restore.
+    if (importedCharacter && importedTalentBinding) {
+      const normal = importedCharacter.resolvedSkills.find(skill => skill.abilityId === "talent:faruzan:combat1");
+      if (normal && hasKnownImportedTalent(normal)) bindFaruzanHurricaneTalent(next, normal.effectiveLevel);
+    }
     if (equipmentTalentBinding && next.gameContext) {
       const context = next.gameContext;
       context.constellation = equipmentTalentBinding.meta.constellation;
       const talentSet = workspace.catalog.talentSets.find(set => set.abilities.some(ability => ability.id === context.abilityId));
       const skillId = talentSet?.abilities.find(ability => ability.kind === "skill")?.id;
       const skillLevel = skillId ? equipmentTalentBinding.levels.get(skillId) : undefined;
+      const normalId = talentSet?.abilities.find(ability => ability.kind === "normal")?.id;
+      bindFaruzanHurricaneTalent(next, normalId ? equipmentTalentBinding.levels.get(normalId) : undefined);
       if (context.hutaoDamage && skillLevel !== undefined) context.hutaoDamage.skillTalentLevel = skillLevel;
       if (context.wandererPrimary) { if (skillLevel === undefined) delete context.wandererPrimary.skillTalentLevel; else context.wandererPrimary.skillTalentLevel = skillLevel; }
       const burstId = talentSet?.abilities.find(ability => ability.kind === "burst")?.id;
@@ -741,6 +751,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     }
     if (importedManualTalents && next.gameContext) {
       next.gameContext.manualEffectiveTalents = clone(importedManualTalents);
+      bindFaruzanHurricaneTalent(next, importedManualTalents.auto);
       if (next.gameContext.hutaoDamage) next.gameContext.hutaoDamage.skillTalentLevel = importedManualTalents.skill;
       if (next.gameContext.wandererPrimary) next.gameContext.wandererPrimary.skillTalentLevel = importedManualTalents.skill;
       const burstLevel = importedManualTalents.burst;
