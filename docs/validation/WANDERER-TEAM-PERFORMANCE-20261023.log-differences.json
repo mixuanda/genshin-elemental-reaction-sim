@@ -1,0 +1,311 @@
+{
+  "beforeRows": 8825,
+  "afterRows": 8825,
+  "differentIndices": 9,
+  "firstDifferences": [
+    {
+      "index": 7,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": -1,
+        "msg": "stam mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "anemo-res-stam",
+          "expiry": -1
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 0,
+        "msg": "stat mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "pyro-res",
+          "expiry": -1
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      }
+    },
+    {
+      "index": 8,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 0,
+        "msg": "cd mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "anemo-res-cd",
+          "expiry": -1
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 1,
+        "msg": "stat mod added",
+        "logs": {
+          "expiry": -1,
+          "overwrite": false,
+          "key": "pyro-res"
+        },
+        "ordering": {
+          "key": 1,
+          "expiry": 2,
+          "overwrite": 0
+        }
+      }
+    },
+    {
+      "index": 9,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 1,
+        "msg": "cd mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "anemo-res-cd",
+          "expiry": -1
+        },
+        "ordering": {
+          "key": 1,
+          "expiry": 2,
+          "overwrite": 0
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 2,
+        "msg": "stat mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "pyro-res",
+          "expiry": -1
+        },
+        "ordering": {
+          "key": 1,
+          "expiry": 2,
+          "overwrite": 0
+        }
+      }
+    },
+    {
+      "index": 10,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 2,
+        "msg": "cd mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "anemo-res-cd",
+          "expiry": -1
+        },
+        "ordering": {
+          "key": 1,
+          "expiry": 2,
+          "overwrite": 0
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 3,
+        "msg": "stat mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "pyro-res",
+          "expiry": -1
+        },
+        "ordering": {
+          "expiry": 2,
+          "overwrite": 0,
+          "key": 1
+        }
+      }
+    },
+    {
+      "index": 11,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 3,
+        "msg": "cd mod added",
+        "logs": {
+          "expiry": -1,
+          "overwrite": false,
+          "key": "anemo-res-cd"
+        },
+        "ordering": {
+          "expiry": 2,
+          "overwrite": 0,
+          "key": 1
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": -1,
+        "msg": "stam mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "anemo-res-stam",
+          "expiry": -1
+        },
+        "ordering": {
+          "key": 1,
+          "expiry": 2,
+          "overwrite": 0
+        }
+      }
+    },
+    {
+      "index": 12,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 0,
+        "msg": "stat mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "pyro-res",
+          "expiry": -1
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 0,
+        "msg": "cd mod added",
+        "logs": {
+          "key": "anemo-res-cd",
+          "expiry": -1,
+          "overwrite": false
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      }
+    },
+    {
+      "index": 13,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 1,
+        "msg": "stat mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "pyro-res",
+          "expiry": -1
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 1,
+        "msg": "cd mod added",
+        "logs": {
+          "overwrite": false,
+          "key": "anemo-res-cd",
+          "expiry": -1
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      }
+    },
+    {
+      "index": 14,
+      "before": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 2,
+        "msg": "stat mod added",
+        "logs": {
+          "expiry": -1,
+          "overwrite": false,
+          "key": "pyro-res"
+        },
+        "ordering": {
+          "overwrite": 0,
+          "key": 1,
+          "expiry": 2
+        }
+      },
+      "after": {
+        "event": "status",
+        "frame": 0,
+        "ended": -1,
+        "char_index": 2,
+        "msg": "cd mod added",
+        "logs": {
+          "key": "anemo-res-cd",
+          "expiry": -1,
+          "overwrite": false
+        },
+        "ordering": {
+          "expiry": 2,
+          "overwrite": 0,
+          "key": 1
+        }
+      }
+    }
+  ],
+  "allRowsSameAsMultiset": true,
+  "everyFramePreservesExactLogMultiset": true,
+  "reorderedEventPairs": {
+    "('status', 'stam mod added', 'status', 'stat mod added')": 1,
+    "('status', 'cd mod added', 'status', 'stat mod added')": 3,
+    "('status', 'cd mod added', 'status', 'stam mod added')": 1,
+    "('status', 'stat mod added', 'status', 'cd mod added')": 4
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "status": "combat-equivalent-with-observer-order-limit",
+  "baselineCommit": "35ee5e41f55fb6dbfe5c154ea7218ac9f50fd0bb",
+  "optimizedCommit": "9d8a7dc798274e88bf383568d6b53a292f153b4b",
+  "machineReceipts": [
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.comparison.json",
+      "bytes": 93217,
+      "sha256": "b02b02dc120ab35f787d9294f94e22ad367d1f1684e5d3647acc96a7a1956c06"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.before-browser.json",
+      "bytes": 6641,
+      "sha256": "20b450e5c722d0630f0f651045d5bde806d06a87d7d8dd5df6140793341ffd4c"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.after-browser.json",
+      "bytes": 6681,
+      "sha256": "cc7c0535135d813633ce35adfaea6721b9b4f6ec16c832ee4a80b5dbf4421f71"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.before-resolver.json",
+      "bytes": 1367,
+      "sha256": "c1e78d1a0da8fedd373d0266315190de76c555af2d4096d822077e0caacd60f7"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.after-resolver.json",
+      "bytes": 1367,
+      "sha256": "ef59727965ed42f1789eca598a02f3655505214e37407f8b60fde44505b46d8c"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.field-comparison.json",
+      "bytes": 1366,
+      "sha256": "f8f1d67fe7ac2cc837f9d55c13eebb30bc1bbf1434ca6577641793a30e384673"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.log-differences.json",
+      "bytes": 6561,
+      "sha256": "5454929a19e4d8ff1c277253d2a97a72f7a69df779a84e92e951d705a2b8e28d"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.cache-key-before.log",
+      "bytes": 3411,
+      "sha256": "87c3f06445187190ab45dac2726deb7cd068189f7c1340bf6d1e9277a10f8b3f"
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-PERFORMANCE-20261023.baseline-instrumentation.patch",
+      "bytes": 9754,
+      "sha256": "10e150d45075cf8befa237fb246d0861c0c7434856e5b074b6982be3c06e263f"
+    }
+  ],
+  "privateRawEvidence": "/tmp/GIDPS-team-performance-20261023",
+  "nativeRunsThisTask": {
+    "baseline": 1,
+    "intermediateBeforeSignedZeroGuard": 1,
+    "finalCleanCommit": 1
+  },
+  "checks": [
+    {
+      "command": "vitest run calculation-trace.test.ts source-host-live-memo.test.ts source-host-validation-memo.test.ts",
+      "passed": 34,
+      "scope": "initial clone experiment"
+    },
+    {
+      "command": "vitest run calculation-trace-copy.test.ts source-host-formula-profile.test.ts source-host-worker-client.test.ts",
+      "passed": 23,
+      "scope": "timing and worker interface"
+    },
+    {
+      "command": "vitest run source-host-base-panel.test.ts calculation-trace-copy.test.ts calculation-trace.test.ts source-host-live-memo.test.ts source-host-validation-memo.test.ts",
+      "passed": 43,
+      "scope": "final immutable-template implementation"
+    },
+    {
+      "command": "vitest run source-host-base-panel.test.ts",
+      "passed": 4,
+      "failed": 1,
+      "scope": "new negative-zero cache-key assertion, before correction"
+    },
+    {
+      "command": "vitest run source-host-base-panel.test.ts calculation-trace-copy.test.ts",
+      "passed": 10,
+      "scope": "final signed-zero guard"
+    },
+    {
+      "command": "npm run typecheck && npm run build --workspace @genshin-dps-lab/web",
+      "exitCode": 0,
+      "buildSeconds": 3.88
+    }
+  ],
+  "countingNote": "Targeted checks overlap; do not add them into a new unique suite count. No full regression was rerun.",
+  "fullArchiveComparison": "Cross-run full bytes differ; exact gameplay records pass. Each file reopens byte-identically. Diagnostic differences are retained, not normalized away.",
+  "oldFullSuite": {
+    "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerun": false
+  },
+  "notPerformed": [
+    "production deployment",
+    "Library upload",
+    "WASM rebuild",
+    "new credentials",
+    "paid services",
+    "game frame timing changes"
+  ],
+  "completeExplanationComparison": {
+    "records": 19602,
+    "traceNodeReferences": 557747,
+    "allRecordValuesAndFullExplanationHashesEqual": true,
+    "sequenceSha256": "dee0750f66230beb5da48e3c71ade9c5ed13d12fcf8f2cbed0c2d1b53751d3a4"
+  },
+  "baselineCpuSelfSamplesMs": [
+    [
+      "freeze calculation-trace.ts:402",
+      3999.2349999999956
+    ],
+    [
+      "freeze source-host-formula.ts:1648",
+      3066.1410000000005
+    ],
+    [
+      "(garbage collector) :0",
+      2872.0870000000095
+    ],
+    [
+      "structuredClone js_transferable:113",
+      2849.199000000008
+    ],
+    [
+      "(anonymous) :1",
+      1163.6799999999998
+    ],
+    [
+      "add calculation-trace.ts:437",
+      830.7670000000006
+    ],
+    [
+      "RegExp: [\\u0000-\\u001f\\u007f] :0",
+      740.2860000000004
+    ],
+    [
+      "inst._zod.parse schemas.js:1424",
+      689.5160000000002
+    ],
+    [
+      "resolve source-host-formula.ts:1658",
+      479.4360000000001
+    ],
+    [
+      "(anonymous) schemas.js:966",
+      472.4020000000001
+    ],
+    [
+      "inst._zod.run schemas.js:92",
+      398.1450000000004
+    ],
+    [
+      "(anonymous) GIDPS-profile-resolver-20261023.mjs:0",
+      307.42300000000023
+    ]
+  ],
+  "cpuProfileNote": "Sampled attribution, not exact phase accounting. The weak generic-clone attempt was discarded; final change caches validated base-panel graphs.",
+  "intermediateRuns": [
+    {
+      "directory": "/tmp/GIDPS-team-performance-20261023/after",
+      "note": "34.26s intermediate browser run before signed-zero guard; not the final result."
+    },
+    {
+      "directory": "/tmp/GIDPS-team-performance-20261023/resolver-after",
+      "note": "Discarded generic-clone experiment."
+    },
+    {
+      "directory": "/tmp/GIDPS-team-performance-20261023/resolver-template",
+      "note": "Transitional template implementation; not the final code."
+    }
+  ]
+}
