@@ -1,0 +1,267 @@
+diff --git a/internal/characters/wanderer/wanderer.go b/internal/characters/wanderer/wanderer.go
+--- a/internal/characters/wanderer/wanderer.go
++++ b/internal/characters/wanderer/wanderer.go
+@@ -4,6 +4,7 @@
+ 	tmpl "github.com/genshinsim/gcsim/internal/template/character"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
++	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+@@ -16,6 +17,7 @@
+ 	a1ValidBuffs        []attributes.Element
+ 	a4Prob              float64
+ 	c6Count             int
++	c2SnapshotBurst     bool
+ }
+ 
+ func NewChar(s *core.Core, w *character.CharWrapper, _ info.CharacterProfile) error {
+@@ -30,6 +32,17 @@
+ 	w.Character = &c
+ 
+ 	return nil
++}
++
++// Snapshot scopes the stored C2 vector to this attack's snapshot, not the
++// current animation. Pending C6 hits and Nicole projections can snapshot while
++// the burst animation is running. Keep the original delayed snapshot and C2
++// lifetime, and restore the outer context for nested reads and panics.
++func (c *char) Snapshot(a *info.AttackInfo) info.Snapshot {
++	previous := c.c2SnapshotBurst
++	c.c2SnapshotBurst = a.AttackTag == attacks.AttackTagElementalBurst
++	defer func() { c.c2SnapshotBurst = previous }()
++	return c.Character.Snapshot(a)
+ }
+ 
+ func (c *char) Init() error {
+diff --git a/internal/characters/wanderer/cons.go b/internal/characters/wanderer/cons.go
+--- a/internal/characters/wanderer/cons.go
++++ b/internal/characters/wanderer/cons.go
+@@ -51,6 +51,9 @@
+ 	c.AddStatMod(character.StatMod{
+ 		Base: modifier.NewBaseWithHitlag("wanderer-c2-burstbonus", burstFramesE[action.InvalidAction]),
+ 		Amount: func() []float64 {
++			if !c.c2SnapshotBurst {
++				return nil
++			}
+ 			if c.Core.SourceHost != nil {
+ 				return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
+ 			}
+diff --git a/internal/characters/wanderer/wanderer_burst_cycle_test.go b/internal/characters/wanderer/wanderer_burst_cycle_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/characters/wanderer/wanderer_burst_cycle_test.go
+@@ -0,0 +1,150 @@
++package wanderer
++
++import (
++	"math"
++	"testing"
++
++	"github.com/genshinsim/gcsim/pkg/core/action"
++	"github.com/genshinsim/gcsim/pkg/core/attacks"
++	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/modifier"
++)
++
++func TestWandererC2SnapshotScopeAndFiveHits(t *testing.T) {
++	c := newC2SnapshotChar(t, 6)
++	c.maxSkydwellerPoints, c.skydwellerPoints = 120, 31
++	c.c2()
++	// Q resets the live resource immediately. Its stored C2 vector must not
++	// recompute at +55f or depend on whether E has already been removed.
++	c.skydwellerPoints = 0
++	c.Core.F = 8
++	for _, ai := range []info.AttackInfo{
++		c2SnapshotAttack(attacks.AttackTagNormal, "Yuuban Meigen (Windfavored): 1"),
++		c2SnapshotAttack(attacks.AttackTagNormal, "Shugen: The Curtains’ Melancholic Sway"),
++		c2SnapshotAttack(attacks.AttackTagNone, "Arcane Projection: Unity"),
++		c2SnapshotAttack(attacks.AttackTagNone, "Arcane Projection"),
++		c2SnapshotAttack(attacks.AttackTagNormal, "Kyougen: Five Ceremonial Plays (Windfavored)"),
++	} {
++		// Dispatch through the real embedded Character interface used by core.
++		snap := c.CharWrapper.Character.Snapshot(&ai)
++		if got := snap.Stats[attributes.DmgP]; got != 0 {
++			t.Fatalf("non-Q %q received C2: %v", ai.Abil, got)
++		}
++		if c.c2SnapshotBurst {
++			t.Fatal("non-Q snapshot leaked its context")
++		}
++	}
++	if got := c.Stat(attributes.DmgP); got != 0 {
++		t.Fatalf("plain stat read received C2: %v", got)
++	}
++	c.Core.F = burstSnapshotDelay
++	ai := c2SnapshotAttack(attacks.AttackTagElementalBurst, "Kyougen: Five Ceremonial Plays (Windfavored)")
++	var snapshots [5]info.Snapshot
++	for i := range snapshots {
++		snapshots[i] = c.CharWrapper.Character.Snapshot(&ai)
++		if snapshots[i].SourceFrame != 55 || snapshots[i].Stats[attributes.DmgP] != 2 || c.c2SnapshotBurst {
++			t.Fatalf("Q hit %d lost original +55f C2 context: %+v", i, snapshots[i])
++		}
++	}
++	// Expiry affects future reads, not the five existing Q snapshots.
++	c.Core.F = burstFramesE[action.InvalidAction]
++	if c.Core.F != 145 {
++		t.Fatalf("unexpected Q lifetime %d", c.Core.F)
++	}
++	if got := c.CharWrapper.Character.Snapshot(&ai).Stats[attributes.DmgP]; got != 0 {
++		t.Fatalf("C2 survived exact expiry: %v", got)
++	}
++	for i, snapshot := range snapshots {
++		if snapshot.Stats[attributes.DmgP] != 2 {
++			t.Fatalf("Q hit %d snapshot changed after expiry", i)
++		}
++	}
++}
++
++func TestWandererC2SnapshotBoundaries(t *testing.T) {
++	for _, tc := range []struct {
++		maximum, current int
++		want             float64
++	}{
++		{100, 100, 0}, {100, 99, .04}, {100, 51, 1.96},
++		{100, 50, 2}, {100, 49, 2}, {120, 31, 2},
++	} {
++		c := newC2SnapshotChar(t, 2)
++		c.maxSkydwellerPoints, c.skydwellerPoints = tc.maximum, tc.current
++		c.c2()
++		ai := c2SnapshotAttack(attacks.AttackTagElementalBurst, "Q")
++		got := c.Snapshot(&ai).Stats[attributes.DmgP]
++		if math.Abs(got-tc.want) > 1e-12 {
++			t.Fatalf("%d/%d got %v want %v", tc.current, tc.maximum, got, tc.want)
++		}
++	}
++	for _, cons := range []int{0, 1, 2, 6} {
++		c := newC2SnapshotChar(t, cons)
++		c.BaseStats[attributes.DmgP] = .25
++		ai := c2SnapshotAttack(attacks.AttackTagElementalBurst, "Q outside E")
++		if got := c.Snapshot(&ai).Stats[attributes.DmgP]; got != .25 {
++			t.Fatalf("C%d outside E created C2: %v", cons, got)
++		}
++		if cons < 2 {
++			c.maxSkydwellerPoints, c.skydwellerPoints = 120, 31
++			c.c2()
++			if got := c.Snapshot(&ai).Stats[attributes.DmgP]; got != .25 {
++				t.Fatalf("C%d acquired C2: %v", cons, got)
++			}
++		}
++	}
++}
++
++func TestWandererC2SnapshotNestedAndPanicRestore(t *testing.T) {
++	c := newC2SnapshotChar(t, 6)
++	c.maxSkydwellerPoints, c.skydwellerPoints = 120, 31
++	c.c2()
++	inside, calls := false, 0
++	c.AddStatMod(character.StatMod{
++		Base: modifier.NewBase("nested-probe", -1),
++		Amount: func() []float64 {
++			if inside {
++				return nil
++			}
++			inside = true
++			defer func() { inside = false }()
++			calls++
++			if !c.c2SnapshotBurst {
++				t.Fatal("outer Q scope absent")
++			}
++			ai := c2SnapshotAttack(attacks.AttackTagNormal, "queued C6")
++			if got := c.Snapshot(&ai).Stats[attributes.DmgP]; got != 0 {
++				t.Fatalf("nested non-Q acquired C2: %v", got)
++			}
++			if !c.c2SnapshotBurst {
++				t.Fatal("nested read lost outer Q scope")
++			}
++			return nil
++		},
++	})
++	ai := c2SnapshotAttack(attacks.AttackTagElementalBurst, "Q")
++	if got := c.Snapshot(&ai).Stats[attributes.DmgP]; got != 2 || calls != 1 || c.c2SnapshotBurst {
++		t.Fatalf("nested restoration failed: damage=%v calls=%d scope=%v", got, calls, c.c2SnapshotBurst)
++	}
++	for _, previous := range []bool{false, true} {
++		c := newC2SnapshotChar(t, 6)
++		c.c2SnapshotBurst = previous
++		c.AddStatMod(character.StatMod{
++			Base:   modifier.NewBase("panic-probe", -1),
++			Amount: func() []float64 { panic("snapshot probe") },
++		})
++		func() {
++			defer func() {
++				if recover() != "snapshot probe" {
++					t.Fatal("expected snapshot panic")
++				}
++				if c.c2SnapshotBurst != previous {
++					t.Fatal("panic failed to restore prior scope")
++				}
++			}()
++			c.Snapshot(&ai)
++		}()
++	}
++}
+diff --git a/internal/characters/wanderer/wanderer_burst_cycle_negative_test.go b/internal/characters/wanderer/wanderer_burst_cycle_negative_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/characters/wanderer/wanderer_burst_cycle_negative_test.go
+@@ -0,0 +1,57 @@
++package wanderer
++
++import (
++	"testing"
++
++	"github.com/genshinsim/gcsim/pkg/core"
++	"github.com/genshinsim/gcsim/pkg/core/attacks"
++	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/keys"
++	"github.com/genshinsim/gcsim/pkg/core/player/character"
++)
++
++func newC2SnapshotChar(t *testing.T, cons int) *char {
++	t.Helper()
++	s, err := core.New(core.Opt{Seed: 1})
++	if err != nil {
++		t.Fatal(err)
++	}
++	p := info.CharacterProfile{
++		Base:    info.CharacterBase{Key: keys.Wanderer, Cons: cons, Level: 100},
++		Talents: info.TalentProfile{Attack: 10, Skill: 10, Burst: 10},
++		Stats:   make([]float64, attributes.EndStatType),
++	}
++	w, err := character.New(p, &s.F, false, s.Log, s.Events, s.Tasks)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = NewChar(s, w, p); err != nil {
++		t.Fatal(err)
++	}
++	return w.Character.(*char)
++}
++
++func c2SnapshotAttack(tag attacks.AttackTag, name string) info.AttackInfo {
++	return info.AttackInfo{AttackTag: tag, Abil: name, IgnoreInfusion: true}
++}
++
++// This regression compiles against both pre-137 and post-137 source. It must
++// fail numerically (2 != 0) before the fix, not fail to compile on a new field.
++func TestWandererC2RejectsNonQ(t *testing.T) {
++	for _, ai := range []info.AttackInfo{
++		c2SnapshotAttack(attacks.AttackTagNormal, "Shugen: The Curtains’ Melancholic Sway"),
++		c2SnapshotAttack(attacks.AttackTagNone, "Arcane Projection: Unity"),
++	} {
++		t.Run(ai.Abil, func(t *testing.T) {
++			c := newC2SnapshotChar(t, 6)
++			c.maxSkydwellerPoints, c.skydwellerPoints = 120, 31
++			c.c2()
++			c.Core.F = 8
++			got := c.CharWrapper.Character.Snapshot(&ai).Stats[attributes.DmgP]
++			if got != 0 {
++				t.Fatalf("Q-only C2 leaked into non-Q snapshot: got %v, want 0", got)
++			}
++		})
++	}
++}
