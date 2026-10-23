@@ -1,0 +1,8 @@
+=== RUN   TestIansanC2RejectsOffFieldRecipient
+    c2_active_recipient_sourcehost_test.go:80: native ATKP=0.55, want 0.25
+    c2_active_recipient_sourcehost_test.go:80: native TotalAtk=720, want 600
+    c2_active_recipient_sourcehost_test.go:83: off-field snapshot ATK=720, want600
+--- FAIL: TestIansanC2RejectsOffFieldRecipient (0.00s)
+FAIL
+FAIL	github.com/genshinsim/gcsim/internal/characters/iansan	0.005s
+FAIL
