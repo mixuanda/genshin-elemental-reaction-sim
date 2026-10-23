@@ -1,0 +1,371 @@
+{
+  "goal": "/goal Actual Iansan C4/Q/C6 resource lifecycle",
+  "sourceFixes": [
+    "a1bc223",
+    "88a5822"
+  ],
+  "source": {
+    "repository": "genshinsim/gcsim",
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6"
+  },
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+    "bytes": 72155762
+  },
+  "verifiedBlobs": null,
+  "newPatches": [
+    {
+      "path": "141-iansan-burst-expiry.patch",
+      "sha256": "eae7cd8d42351bb3ccfd764aa30a74fd7c4db767fde22f20427518001bc8d626",
+      "bytes": 1197
+    },
+    {
+      "path": "142-iansan-c6-burst-entry-overflow.patch",
+      "sha256": "9ea33ee62b0f957a644ac14724b54aacee71eafc91095d92a482b7f7c474a221",
+      "bytes": 404
+    }
+  ],
+  "officialBuild": {
+    "exitCode": 0,
+    "command": "env GOMAXPROCS=2 node packages/source-host/stellar-overlay/build.mjs --cache-dir /tmp/GIDPS-iansan-team-20261023/build-cache --output-dir /tmp/GIDPS-iansan-c4-20261023/built",
+    "rebuilds": 1,
+    "log": {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/build.log",
+      "bytes": 314,
+      "sha256": "67871196aab45d5acb691a3510148956537ddb6c07bf83dfa255ed975abfb0b9"
+    }
+  },
+  "native": {
+    "qEntryC6": {
+      "before": {
+        "qStartFrame": 32,
+        "regeneration": {
+          "event": "character",
+          "frame": 72,
+          "ended": 72,
+          "char_index": 0,
+          "msg": "generate nightsoul points",
+          "logs": {
+            "previous points": 47.399999999999984,
+            "amount": 15,
+            "final": 54
+          },
+          "ordering": {
+            "previous points": 0,
+            "amount": 1,
+            "final": 2
+          }
+        },
+        "overflow": 8.399999999999984,
+        "firstC6": {
+          "event": "status",
+          "frame": 92,
+          "ended": 275,
+          "char_index": 0,
+          "msg": "attack mod added",
+          "logs": {
+            "overwrite": false,
+            "key": "iansan-c6",
+            "expiry": 272
+          },
+          "ordering": {
+            "overwrite": 0,
+            "key": 1,
+            "expiry": 2
+          }
+        },
+        "expectedGrantFrame": 72,
+        "scope": "Actual E to Q with legal starter equipment and default CR; Q15 is not a Scale restoration or C4 overflow input."
+      },
+      "after": {
+        "qStartFrame": 32,
+        "regeneration": {
+          "event": "character",
+          "frame": 72,
+          "ended": 72,
+          "char_index": 0,
+          "msg": "generate nightsoul points",
+          "logs": {
+            "amount": 15,
+            "final": 54,
+            "previous points": 47.399999999999984
+          },
+          "ordering": {
+            "previous points": 0,
+            "amount": 1,
+            "final": 2
+          }
+        },
+        "overflow": 8.399999999999984,
+        "firstC6": {
+          "event": "status",
+          "frame": 72,
+          "ended": 275,
+          "char_index": 0,
+          "msg": "attack mod added",
+          "logs": {
+            "overwrite": false,
+            "key": "iansan-c6",
+            "expiry": 252
+          },
+          "ordering": {
+            "overwrite": 0,
+            "key": 1,
+            "expiry": 2
+          }
+        },
+        "expectedGrantFrame": 72,
+        "scope": "Actual E to Q with legal starter equipment and default CR; Q15 is not a Scale restoration or C4 overflow input."
+      }
+    },
+    "markerExpiry": {
+      "before": {
+        "marker": {
+          "actorIndex": 0,
+          "statusKey": "iansan-burst",
+          "instanceId": 1,
+          "createdFrame": 1,
+          "creationActionSequence": 1,
+          "initialExpiryFrame": 721,
+          "finalExpiryFrame": 726,
+          "endState": "removed",
+          "endFrame": 807,
+          "nativeOverwrite": false
+        },
+        "exit": {
+          "event": "character",
+          "frame": 807,
+          "ended": 807,
+          "char_index": 0,
+          "msg": "exit nightsoul blessing",
+          "logs": {},
+          "ordering": {}
+        },
+        "clear": {
+          "event": "character",
+          "frame": 807,
+          "ended": 807,
+          "char_index": 0,
+          "msg": "clear nightsoul points",
+          "logs": {
+            "previous points": 0
+          },
+          "ordering": {
+            "previous points": 0
+          }
+        },
+        "qConsumes": [
+          {
+            "id": 1,
+            "calculationId": 7,
+            "frame": 7,
+            "actorIndex": 0,
+            "actorKey": "iansan",
+            "source": "iansan-burst-energy-drain",
+            "operation": "consume",
+            "energyBefore": 70,
+            "energyAfter": 0,
+            "requestedAmount": 70,
+            "energyMax": 70
+          },
+          {
+            "id": 5,
+            "calculationId": 51,
+            "frame": 268,
+            "actorIndex": 1,
+            "actorKey": "kaeya",
+            "source": "kaeya-burst-energy-drain",
+            "operation": "consume",
+            "energyBefore": 60,
+            "energyAfter": 0,
+            "requestedAmount": 60,
+            "energyMax": 60
+          }
+        ],
+        "scope": "One real Q/E/Swift to teammate Q; no movement override or artificial energy. Not a repeated rotation."
+      },
+      "after": {
+        "marker": {
+          "actorIndex": 0,
+          "statusKey": "iansan-burst",
+          "instanceId": 1,
+          "createdFrame": 1,
+          "creationActionSequence": 1,
+          "initialExpiryFrame": 721,
+          "finalExpiryFrame": 726,
+          "endState": "removed",
+          "endFrame": 727,
+          "nativeOverwrite": false
+        },
+        "exit": {
+          "event": "character",
+          "frame": 727,
+          "ended": 727,
+          "char_index": 0,
+          "msg": "exit nightsoul blessing",
+          "logs": {},
+          "ordering": {}
+        },
+        "clear": {
+          "event": "character",
+          "frame": 727,
+          "ended": 727,
+          "char_index": 0,
+          "msg": "clear nightsoul points",
+          "logs": {
+            "previous points": 8.399999999999872
+          },
+          "ordering": {
+            "previous points": 0
+          }
+        },
+        "qConsumes": [
+          {
+            "id": 1,
+            "calculationId": 7,
+            "frame": 7,
+            "actorIndex": 0,
+            "actorKey": "iansan",
+            "source": "iansan-burst-energy-drain",
+            "operation": "consume",
+            "energyBefore": 70,
+            "energyAfter": 0,
+            "requestedAmount": 70,
+            "energyMax": 70
+          },
+          {
+            "id": 5,
+            "calculationId": 51,
+            "frame": 268,
+            "actorIndex": 1,
+            "actorKey": "kaeya",
+            "source": "kaeya-burst-energy-drain",
+            "operation": "consume",
+            "energyBefore": 60,
+            "energyAfter": 0,
+            "requestedAmount": 60,
+            "energyMax": 60
+          }
+        ],
+        "scope": "One real Q/E/Swift to teammate Q; no movement override or artificial energy. Not a repeated rotation."
+      },
+      "contributions": {
+        "byActor": {
+          "iansan": 2895.936386938658,
+          "kaeya": 6118.340420493392
+        },
+        "total": 9014.276807432048,
+        "window": {
+          "policy": "duration-or-native",
+          "configuredEndFrame": 1020,
+          "actualEndFrame": 1020,
+          "endReason": "duration"
+        },
+        "freshAfterExit": [
+          {
+            "frame": 857,
+            "snapshotFrame": 857,
+            "atkPct": 0,
+            "flatAtk": 0
+          }
+        ],
+        "frozenAfterExit": [
+          {
+            "frame": 750,
+            "snapshotFrame": 217,
+            "atkPct": 0.3,
+            "flatAtk": 108.95948940441599
+          }
+        ]
+      }
+    },
+    "scope": "Real 3-second E to Q and 17-second Q/E/Swift to Kaeya Q; default CR and legal starter weapons, no artifacts or movement override. Not a repeated rotation."
+  },
+  "validation": [
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-before-tests.json",
+      "bytes": 4692,
+      "sha256": "42d2fe26673987529a404eaa5861fd48fcec6076893edb67cdca0047e5dabf47",
+      "passed": 0,
+      "failed": 2,
+      "notSelected": 5
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-after-tests.json",
+      "bytes": 3541,
+      "sha256": "abd9bccfa45cb139ca0374dcbff42f41eda0a9715d3017d1480084e3566a45c7",
+      "passed": 1,
+      "failed": 1,
+      "notSelected": 5
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-c4-replay-tests.json",
+      "bytes": 2519,
+      "sha256": "82682094e945d57fb59d8f34a403f0b380e1592fcabe6328756a49211f153bd4",
+      "passed": 1,
+      "failed": 0,
+      "notSelected": 6
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/typecheck.log",
+      "bytes": 426,
+      "sha256": "a335af3d948aa795f09046e2e7e7a6d2e7fc3b42cb557030c183a51c175f75a4"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/web-build.log",
+      "bytes": 8519,
+      "sha256": "5bd6b780f186c25e817e8c0de9000ca1e39fc2cc3e1f909ac14ea826443865fe"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/go-related-after.log",
+      "bytes": 6792,
+      "sha256": "28f482e8442ea0adf4692ed4efed34e8adef31e75e6c89599c19104f5866a9f2"
+    }
+  ],
+  "initialAfterFailure": {
+    "reason": "A new assertion incorrectly treated queue sourceFrame as snapshotFrame and expected old Kaeya Q snapshots to lose buffs. The existing capture showed F750 Q damage uses F217 snapshot; corrected test requires frozen buffs to remain and fresh F857 normal snapshots to be unbuffed.",
+    "nativeRerun": false,
+    "correctedRun": "Trace replay from matching saved host SHA and exact request, no new engine call."
+  },
+  "fullSuite": {
+    "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerunThisBatch": false
+  },
+  "release": {
+    "productionAttempted": false,
+    "productionPublished": false,
+    "status": "Prior deployment denial remains paused; work branch only."
+  },
+  "limits": [
+    "C4 same-marker layers and chained50% overflow verified in separate real Go fixture. Cross-marker overflow reset lacks conclusive source evidence and is unchanged.",
+    "No measured movement trajectory, Natlan phlogiston, Windows or in-game validation is claimed.",
+    "120-second baseline/candidate and browser evidence are reported separately."
+  ],
+  "rawCaptureHashes": [
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-before/c4-marker-expiry.native.json",
+      "bytes": 709492,
+      "sha256": "8fe52e4eb14977c77cbf944e325beae252f08687c065c75d97aae5d635710c83"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-before/c6-q-entry-overflow.native.json",
+      "bytes": 163685,
+      "sha256": "cc152ec2a1b6e5d497b52279149d85f197b3a358fde7a2b9afc5fc124a873c90"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-after/c4-marker-expiry.native.json",
+      "bytes": 702432,
+      "sha256": "82fdc17ddb90192a75cf3f25825ed5d5bcb8fbeb2752b571a1c4e3c1eebb0d42"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/native-after/c6-q-entry-overflow.native.json",
+      "bytes": 164041,
+      "sha256": "99d429c8f780f3b8e25f7ecad4556e6bdf06fd0de59726d79da7d1c55a17e854"
+    }
+  ]
+}

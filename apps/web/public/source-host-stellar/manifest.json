@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "e607f7cfe90b778cbd95ba4fa1d0184c00464ac187f2bc8f65a20834ec0fbc45",
-      "bytes": 72153797
+      "sha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+      "bytes": 72155762
     },
     {
       "path": "wasm_exec.js",
@@ -3470,7 +3470,7 @@
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "3486a741570f48b7cd4662c2ac30a5f8def92b94cf5d3ca8a2bcd6073accf9e2",
+      "sha256": "35e9b36785df3c9dd51c38307be1a925e56d63a8b01ff78020887598ad3adbea",
       "bytes": 1883017
     }
   ],
@@ -4304,6 +4304,16 @@
       "path": "140-iansan-c2-active-recipient.patch",
       "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f",
       "bytes": 457
+    },
+    {
+      "path": "141-iansan-burst-expiry.patch",
+      "sha256": "eae7cd8d42351bb3ccfd764aa30a74fd7c4db767fde22f20427518001bc8d626",
+      "bytes": 1197
+    },
+    {
+      "path": "142-iansan-c6-burst-entry-overflow.patch",
+      "sha256": "9ea33ee62b0f957a644ac14724b54aacee71eafc91095d92a482b7f7c474a221",
+      "bytes": 404
     }
   ],
   "supportedFormulaFamilies": [

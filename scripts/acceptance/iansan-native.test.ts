@@ -29,6 +29,11 @@ beforeAll(async () => {
   const runtime = readFileSync(resolve(host, "wasm_exec.js"));
   expect(manifest.files.find((file: {path: string}) => file.path === "wasm_exec.js")?.sha256).toBe(sha(runtime));
   write("host.json", { host, wasmSha256, bytes: bytes.length, sourceRevision: revision, startedAt: new Date().toISOString() });
+  if (process.env.GIDPS_IANSAN_REPLAY) {
+    const captured = JSON.parse(readFileSync(resolve(process.env.GIDPS_IANSAN_REPLAY, "host.json"), "utf8"));
+    expect(captured.wasmSha256).toBe(wasmSha256);
+    return; // Revalidate a saved real capture without running the engine again.
+  }
   runInThisContext(runtime.toString());
   const go = new (globalThis as any).Go();
   const wasm = await WebAssembly.instantiate(bytes, go.importObject);
@@ -43,10 +48,19 @@ function run(name: string, script: string, initialEnergy: "full" | "zero" = "zer
   write(`${name}.request.json`, request);
   const resolver = createSourceHostFormulaResolver();
   const start = performance.now();
-  const native = JSON.parse((globalThis as any).gidpsSourceHostRun(JSON.stringify(request), resolver.resolve));
+  let native;
+  if (process.env.GIDPS_IANSAN_REPLAY) {
+    const captured = (suffix: string) => JSON.parse(readFileSync(resolve(process.env.GIDPS_IANSAN_REPLAY!, `${name}.${suffix}.json`), "utf8"));
+    expect(captured("request")).toEqual(request);
+    native = captured("native");
+    resolver.calculations.push(...captured("formula-callbacks"));
+  } else {
+    native = JSON.parse((globalThis as any).gidpsSourceHostRun(JSON.stringify(request), resolver.resolve));
+  }
   write(`${name}.native.json`, native);
   write(`${name}.formula-callbacks.json`, resolver.calculations);
-  write(`${name}.time.json`, { nativeAndSharedFormulaMs: performance.now() - start, wasmSha256 });
+  write(`${name}.time.json`, { nativeAndSharedFormulaMs: process.env.GIDPS_IANSAN_REPLAY ? null : performance.now() - start,
+    replayed: Boolean(process.env.GIDPS_IANSAN_REPLAY), wasmSha256 });
   expect(native.error).toBeUndefined();
   return { native, resolver };
 }
@@ -220,4 +234,93 @@ wait(1200);
     qUpdateAtSwift: { frame: qAtSwift.request.frame, state: qAtSwift.request.input.state, value: qAtSwift.value },
     swiftSnapshot: swift.request.snapshot, kaeya: kaeya.map((row: any) => ({ frame: row.request.frame, input: row.request.input, snapshot: row.request.snapshot })),
     energyConsumption: consume, perActor, observationWindow: result.observationWindow });
+});
+
+it("grants C6 for the actual Q entry restoration overflow without treating it as C4 Scale overflow", () => {
+  const script = config(6, 10, 10, 3, "iansan skill;\niansan burst;\niansan charge;\nwait(180);")
+    .replace("iansan add stats cr=-0.05;", "");
+  const { native, resolver } = run("c6-q-entry-overflow", script, "full");
+  const q = native.abilityInvocations.find((row: any) => row.characterKey === "iansan" && row.action === "burst" && row.success);
+  expect(q).toBeDefined();
+  const regeneration = native.logs.find((row: any) => row.msg === "generate nightsoul points"
+    && row.char_index === 0 && row.frame === q.startedFrame + 40 && row.logs.amount === 15);
+  expect(regeneration).toBeDefined();
+  const overflow = regeneration.logs["previous points"] + 15 - 54;
+  const firstC6 = native.logs.find((row: any) => row.msg === "attack mod added" && row.logs.key === "iansan-c6");
+  write("c6-q-entry-overflow.independent.json", { qStartFrame: q.startedFrame,
+    regeneration, overflow, firstC6, expectedGrantFrame: q.startedFrame + 40,
+    scope: "Actual E to Q with legal starter equipment and default CR; Q15 is not a Scale restoration or C4 overflow input." });
+  expect(overflow).toBeGreaterThan(0);
+  expect(regeneration.logs.final).toBe(54);
+  expect(firstC6).toMatchObject({ frame: q.startedFrame + 40, char_index: 0 });
+  const damage = native.calculations.filter((row: any) => row.request.kind === "damage");
+  const swift = damage.find((row: any) => row.request.ability === "Swift Stormflight");
+  expect(swift).toBeDefined();
+  expect(swift.request.input.damageBonus).toBe(.25);
+  const input = swift.request.input;
+  const independent = input.scalingValue * 1.6643 * 1.25 * .5 * .9 * (input.isCrit ? 1 + input.critDamage : 1);
+  expect(swift.value).toBeCloseTo(independent, 9);
+  const result = createSourceHostResult(native, resolver.calculations);
+  expect(result.applications.filter(row => row.calculationId === swift.request.id)).toHaveLength(1);
+});
+
+it("ends positive Nightsoul and the C4 marker at its actual expiry in a real no-movement team sequence", () => {
+  const script = `options iteration=1 duration=17;
+iansan char lvl=90/90 cons=4 talent=10,10,10;
+iansan add weapon="beginnersprotector" refine=1 lvl=1/20;
+kaeya char lvl=90/90 cons=0 talent=10,10,10;
+kaeya add weapon="dullblade" refine=1 lvl=1/20;
+target lvl=90 resist=0.1 radius=2 pos=0,2.4 hp=1000000000;
+active iansan;
+iansan burst;
+iansan skill;
+iansan charge;
+kaeya burst;
+kaeya attack;
+wait(540);
+kaeya attack;
+wait(180);
+kaeya attack;
+wait(1020);
+`;
+  const { native, resolver } = run("c4-marker-expiry", script, "full");
+  const marker = native.statusInstances.find((row: any) => row.actorIndex === 0 && row.statusKey === "iansan-burst");
+  const exit = native.logs.find((row: any) => row.char_index === 0 && row.msg === "exit nightsoul blessing");
+  const clear = native.logs.find((row: any) => row.char_index === 0 && row.msg === "clear nightsoul points");
+  const qConsumes = native.energyApplications.filter((row: any) => row.operation === "consume");
+  write("c4-marker-expiry.independent.json", { marker, exit, clear, qConsumes,
+    scope: "One real Q/E/Swift to teammate Q; no movement override or artificial energy. Not a repeated rotation." });
+  expect(qConsumes.map((row: any) => [row.actorKey, row.requestedAmount])).toEqual([["iansan", 70], ["kaeya", 60]]);
+  expect(native.abilityInvocations.filter((row: any) => row.characterKey === "kaeya" && row.action === "burst" && row.success)).toHaveLength(1);
+  expect(marker).toBeDefined();
+  expect(exit).toBeDefined();
+  expect(exit.frame).toBe(marker.finalExpiryFrame + 1);
+  expect(marker.endFrame).toBe(exit.frame);
+  expect(clear.logs["previous points"]).toBeGreaterThan(0);
+  expect(native.logs.filter((row: any) => row.char_index === 0 && row.msg === "generate nightsoul points" && row.frame > exit.frame)).toHaveLength(0);
+  const damage = native.calculations.filter((row: any) => row.request.kind === "damage");
+  const laterKaeya = damage.filter((row: any) => row.request.actorKey === "kaeya" && row.request.snapshotFrame > exit.frame);
+  expect(laterKaeya.length).toBeGreaterThan(0);
+  for (const row of laterKaeya) {
+    expect(row.request.snapshot.atkPct).toBe(0);
+    expect(row.request.snapshot.flatAtk).toBe(0);
+  }
+  // Existing Q snapshots retain their original buffs even if their attack is
+  // queued/applied after the marker ends; only fresh snapshots lose the buffs.
+  const frozenKaeya = damage.filter((row: any) => row.request.actorKey === "kaeya"
+    && row.request.frame > exit.frame && row.request.snapshotFrame <= exit.frame);
+  expect(frozenKaeya.length).toBeGreaterThan(0);
+  for (const row of frozenKaeya) {
+    expect(row.request.ability).toBe("Glacial Waltz");
+    expect(row.request.snapshot.atkPct).toBe(.3);
+    expect(row.request.snapshot.flatAtk).toBeGreaterThan(0);
+  }
+  const result = createSourceHostResult(native, resolver.calculations);
+  const byActor: Record<string, number> = {};
+  for (const row of damage) byActor[row.request.actorKey] = (byActor[row.request.actorKey] ?? 0) + row.value;
+  const total = result.applications.reduce((sum, row) => sum + row.appliedDamage, 0);
+  expect(Object.values(byActor).reduce((sum, value) => sum + value, 0)).toBeCloseTo(total, 9);
+  write("c4-marker-expiry.contributions.json", { byActor, total, window: result.observationWindow,
+    freshAfterExit: laterKaeya.map((row: any) => ({ frame: row.request.frame, snapshotFrame: row.request.snapshotFrame, atkPct: row.request.snapshot.atkPct, flatAtk: row.request.snapshot.flatAtk })),
+    frozenAfterExit: frozenKaeya.map((row: any) => ({ frame: row.request.frame, snapshotFrame: row.request.snapshotFrame, atkPct: row.request.snapshot.atkPct, flatAtk: row.request.snapshot.flatAtk })) });
 });
