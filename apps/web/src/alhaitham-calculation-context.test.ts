@@ -26,7 +26,7 @@ describe('Alhaitham integrated mirror projection',()=>{
     const id=d.hits[1]!.id;delete c.hitStates![id]!.connected;expect(calculateDocument(d).status).toBe('blocked');
     const f=collectCalculatorRequirements(d).fields.find(f=>f.fieldPath.endsWith(id+'.connected'))!;expect(f).toBeDefined();
     expect(renderSourceCastControls(d)).toContain('data-source-cast-state-field="'+f.fieldPath+'"');
-    c.hitStates![id]!.connected=true;d.gameContext!.constellation=1;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('blocked');
+    c.hitStates![id]!.connected=true;d.gameContext!.constellation=4;expect(calculateDocument(applyCharacterConstellationScope(d)).status).toBe('blocked');
   });
   it('preserves actual legal source equipment and public JSON conversion without adding an EM source twice',()=>{
     const d=fixture(),preset=getCharacterBuildPreset('character:10000078','starter')!;expect(preset).toBeDefined();
