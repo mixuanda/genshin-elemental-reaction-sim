@@ -22,6 +22,7 @@ import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-
 import { isDurinSkillAction } from "../../../packages/sim-core/src/durin-skill-formulas";
 import { travelerMaleChargedConstellationScope } from "../../../packages/sim-core/src/traveler-male-charged-constellations";
 import { travelerAnemoConstellationScope } from "../../../packages/sim-core/src/traveler-cross-entity-formulas";
+import { isIansanSwiftConstellationHit } from "../../../packages/sim-core/src/iansan-swift-resolved-formulas";
 import { resolveClassifiedCharacterHits } from "@genshin-dps-lab/game-data/classified-hits";
 import { releasedRuntimeWorkspace, type RuntimeWorkspace } from "@genshin-dps-lab/game-data";
 import { stampCalculatorWorkspaceEvidence } from "./calculator-workspace-trust";
@@ -140,6 +141,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       allowed = anemoBurstScope.allowed;
       reason = anemoBurstScope.reason;
       sourceRefs = [...sourceRefs, ...anemoBurstScope.sourceRefs];
+    } else if (isIansanSwiftConstellationHit(result, hit)) {
+      allowed = true;
+      reason = "伊安珊C0–C6本次雷霆飞缒：普攻等级与实际Q等级分别计算；本人不取得C2队友30%攻击加成，C6须核对本击实际收到的增伤及已含份额。夜魂、回能及后续队友动作由队伍引擎单独调度。";
     } else if(isTighnariDamageAction(result)) {
       allowed = context.skillId !== "tighnari-wreath-complete-c0-c5" || context.constellation <= 5;
       reason = "提纳里：C1只给重击暴击，C2草伤、C4精通按实际状态恢复；C3/C5由有效等级一次处理。C6花筥额外箭未混入C0–C5总数。";

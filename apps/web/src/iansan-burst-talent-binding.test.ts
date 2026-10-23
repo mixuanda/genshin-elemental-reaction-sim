@@ -62,12 +62,27 @@ describe("Iansan import binds Q independently from Swift's normal talent", () =>
     }
   });
 
-  it("retains effective Q evidence once while keeping unsupported high-constellation mechanics blocked", () => {
+  it("uses actual C5 effective Q evidence once and does not give the source her C2 ally-only 30%", () => {
     const character = source();
-    character.constellation = 3;
+    character.constellation = 5;
     Object.assign(character.resolvedSkills[1]!, { baseLevel: 7, bonusLevel: 3, effectiveLevel: 10 });
-    const document = declareActualHit(applyImportedCalculatorPanel(template(), character, "Synthetic C3 evidence, not C3 mechanic support"));
+    const document = declareActualHit(applyImportedCalculatorPanel(template(), character, "Synthetic C5 effective Q accounting"));
+    Object.assign(document.gameContext!.iansanSwiftResolvedCast!.sharedState!, { a1ActiveAtSnapshot: true, baseAttack: 1000 });
     expect(document.gameContext!.effectiveTalentLevel).toBe(10);
+    expect(document.gameContext!.iansanSwiftResolvedCast!.burstTalentLevel).toBe(10);
+    const result = calculateDocument(document);
+    expect(result.status).toBe("calculated");
+    // A1 contributes 20% of base ATK; Q10 cap is 690. Neither C3 nor C5
+    // changes normal T10, and the source never receives C2's ally-only 30%.
+    expect(result.totals!.nonCritical).toBeCloseTo((2000 + 200 + 690) * 1.6643 * .5 * .9, 9);
+    expect(calculateDocument(parseCalculatorDocument(serializeCalculatorDocument(document))).totals).toEqual(result.totals);
+  });
+
+  it("keeps missing C6 reception evidence blocked after binding the independent effective Q", () => {
+    const character = source();
+    character.constellation = 6;
+    Object.assign(character.resolvedSkills[1]!, { baseLevel: 7, bonusLevel: 3, effectiveLevel: 10 });
+    const document = declareActualHit(applyImportedCalculatorPanel(template(), character, "Synthetic C6 with unknown actual buff recipient"));
     expect(document.gameContext!.iansanSwiftResolvedCast!.burstTalentLevel).toBe(10);
     expect(calculateDocument(document).status).toBe("blocked");
   });

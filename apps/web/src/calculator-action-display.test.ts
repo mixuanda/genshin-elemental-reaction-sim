@@ -3,6 +3,16 @@ import { getCharacterDocuments } from "./character-calculations";
 import { calculatorActionDisplayName, calculatorResultDisplayName } from "./calculator-action-display";
 
 describe("resolved action labels preserve saved source identity", () => {
+  it("describes actual Iansan high-constellation Swift without changing a saved c0 identifier", () => {
+    const document = getCharacterDocuments("character:10000110", 10).find(row => row.gameContext?.skillId === "iansan-swift-resolved-c0")!;
+    document.gameContext!.constellation = 6;
+    document.scope = "single-hit";
+    const before = JSON.stringify(document);
+    expect(calculatorActionDisplayName(document)).toBe("雷霆飞缒 · 雷元素重击");
+    expect(calculatorResultDisplayName(document)).toContain("单次命中 · C6 · 有效普攻 Lv.10");
+    expect(calculatorResultDisplayName(document)).not.toContain("C0");
+    expect(JSON.stringify(document)).toBe(before);
+  });
   it.each(["aether", "lumine"] as const)("labels %s selected Anemo hits without claiming a whole no-absorption C0 burst", gender => {
     const document = getCharacterDocuments(gender === "aether" ? "character:10000005" : "character:10000007", 10)
       .find(row => row.gameContext?.skillId === `traveler-cross-${gender}-anemo-burst-c0`)!;

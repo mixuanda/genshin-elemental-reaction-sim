@@ -14,12 +14,16 @@ const elementNames: Readonly<Record<string, string>> = {
 export function calculatorActionDisplayName(document: CalculatorDocument): string {
   const game = document.gameContext;
   if (game && anemoBursts.has(game.skillId)) return "风息激荡 · 风伤与元素吸收";
+  if (game?.characterId === "character:10000110" && game.skillId === "iansan-swift-resolved-c0") return "雷霆飞缒 · 雷元素重击";
   return game?.skillName ?? document.label;
 }
 
 export function calculatorResultDisplayName(document: CalculatorDocument): string {
   const game = document.gameContext;
   if (!game) return document.label;
+  if (game.characterId === "character:10000110" && game.skillId === "iansan-swift-resolved-c0") {
+    return `${game.characterName} · 雷霆飞缒 · ${document.scope === "single-hit" ? "单次命中" : "本次完整重击"} · C${game.constellation} · 有效普攻 Lv.${game.effectiveTalentLevel}`;
+  }
   if (!anemoBursts.has(game.skillId)) return document.scope === "single-hit" && game.travelerCrossEntityCast
     ? `${game.characterName} · ${game.skillName.split("·")[0]} · 单次命中（C${game.constellation}） · 有效天赋等级 ${game.effectiveTalentLevel}`
     : document.label;

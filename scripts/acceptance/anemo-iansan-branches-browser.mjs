@@ -82,7 +82,7 @@ try {
     }
   }
   if (selected('iansan')) {
-  await choose('character:10000110', '雷霆飞缒·单次完整重击');
+  await choose('character:10000110', '雷霆飞缒 · 雷元素重击');
   await page.locator('#calc-scope').selectOption('single-hit');
   const swift = 'gameContext.iansanSwiftResolvedCast', sw = `${swift}.sharedState`;
   await setState(`${sw}.swiftQualifiedAtCast`, true);
