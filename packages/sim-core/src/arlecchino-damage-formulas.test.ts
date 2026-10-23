@@ -30,17 +30,8 @@ function fixture(suffix = "1", talent = 10): ArlecchinoCalculatorDocument {
   };
 }
 
-/** TEMPORARY UNWIRED ADAPTER: parent owns public schema/source-cast wiring.
- * Only remove this unregistered context AFTER real preparation; retain all
- * formulas, dependencies and numerical/negative assertions. Once registered,
- * parent must replace this adapter with calculateDocument(document) using the
- * actual source-cast path. No production file is changed for isolated tests. */
-function forUnwiredSharedCore(document: CalculatorDocument): CalculatorDocument {
-  const result = structuredClone(document) as ArlecchinoCalculatorDocument;
-  delete result.gameContext.arlecchinoDamage;
-  return result;
-}
-const calculate = (document: CalculatorDocument) => calculateDocument(forUnwiredSharedCore(prepareArlecchinoDamageDocument(document)));
+/** Exercise the registered public calculation path with the context intact. */
+const calculate = (document: CalculatorDocument) => calculateDocument(document);
 const reasons = (document: CalculatorDocument) => prepareArlecchinoDamageDocument(document).dependencies.filter(row => row.status === "missing").map(row => row.reason).join("；");
 const ordinary = (document: CalculatorDocument) => {
   const hit = document.hits[0]!;
@@ -68,13 +59,7 @@ function equipmentFixture(): ArlecchinoCalculatorDocument {
   return document;
 }
 function convertedFixture(): ArlecchinoCalculatorDocument {
-  const prepared = prepareArlecchinoDamageDocument(equipmentFixture());
-  const converted = convertCalculatorToFinalPanel(forUnwiredSharedCore(prepared)) as ArlecchinoCalculatorDocument;
-  // Parent wiring must replace this manual context transfer/finalize with the
-  // real convertCalculatorToFinalPanel(prepareArlecchinoDamageDocument(doc)).
-  converted.gameContext.arlecchinoDamage = structuredClone(arlecchinoContext(prepared)!);
-  finalizeArlecchinoPanelAccounting(converted);
-  return converted;
+  return convertCalculatorToFinalPanel(equipmentFixture()) as ArlecchinoCalculatorDocument;
 }
 
 describe("Arlecchino fixed C0 selected normal source vectors", () => {

@@ -1,3 +1,4 @@
+import {prepareArlecchinoDamageDocument,resetArlecchinoPanelAccounting,finalizeArlecchinoPanelAccounting} from './arlecchino-damage-formulas';
 import {prepareHutaoDamageDocument,resetHutaoPanelAccounting,finalizeHutaoPanelAccounting} from './hutao-damage-formulas';
 import {prepareKinichDamageDocument,resetKinichPanelAccounting,finalizeKinichPanelAccounting} from './kinich-damage-formulas';
 import {prepareCynoDamageDocument,resetCynoPanelAccounting,finalizeCynoPanelAccounting} from './cyno-damage-formulas';
@@ -40,6 +41,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareArlecchinoDamageDocument(document);
   document = prepareHutaoDamageDocument(document);
   document = prepareKazuhaBurstDocument(document);
   document = prepareCynoDamageDocument(document);
@@ -69,6 +71,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetArlecchinoPanelAccounting(document, mode);
   resetHutaoPanelAccounting(document, mode);
   resetKazuhaBurstPanelAccounting(document, mode);
   resetCynoPanelAccounting(document, mode);
@@ -105,6 +108,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  finalizeArlecchinoPanelAccounting(document);
   finalizeHutaoPanelAccounting(document);
   finalizeKazuhaBurstPanelAccounting(document);
   finalizeCynoPanelAccounting(document);
