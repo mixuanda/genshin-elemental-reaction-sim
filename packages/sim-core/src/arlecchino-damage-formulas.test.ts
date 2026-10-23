@@ -9,7 +9,7 @@ import { evaluateFormulaExpression, expr } from "./calculation-trace";
 import { arlecchinoDamageContextSchema } from "./arlecchino-damage-context";
 import {
   ARLECCHINO_DAMAGE_SOURCE_REFS, ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION, arlecchinoContext, canInferArlecchinoBondBaseZero,
-  createArlecchinoBondBaseFormula, createArlecchinoPassiveDamageBonusFormula, finalizeArlecchinoPanelAccounting,
+  createArlecchinoBondBaseFormula, createArlecchinoC6CriticalFormula, createArlecchinoPassiveDamageBonusFormula, finalizeArlecchinoPanelAccounting,
   isArlecchinoDamageAction, prepareArlecchinoDamageDocument, resetArlecchinoPanelAccounting, type ArlecchinoCalculatorDocument,
 } from "./arlecchino-damage-formulas";
 
@@ -60,6 +60,11 @@ function equipmentFixture(constellation = 0, talent = 10): ArlecchinoCalculatorD
 }
 function convertedFixture(constellation = 0, talent = 10): ArlecchinoCalculatorDocument {
   return convertCalculatorToFinalPanel(equipmentFixture(constellation, talent)) as ArlecchinoCalculatorDocument;
+}
+function c6Fixture(active = true, talent = 13): ArlecchinoCalculatorDocument {
+  const document = fixture("1", talent, 6);
+  Object.assign(arlecchinoContext(document)!, {c6Active: active, c6CritRateIncludedPercent: 0, c6CritDamageIncludedPercent: 0});
+  return document;
 }
 
 describe("Arlecchino fixed C0 selected normal source vectors", () => {
@@ -206,10 +211,11 @@ describe("Arlecchino actual pre-consumption bond state and accounting", () => {
 });
 
 describe("Arlecchino fixed-source contract and legal external adjustments", () => {
-  it.each([6])("rejects C%i without replacing its changes by a supported lower constellation", constellation => {
+  it.each([6])("rejects C%i with missing actual critical state instead of replacing it by a lower constellation", constellation => {
     const document = fixture(); document.gameContext.constellation = constellation;
     expect(calculate(document).status).toBe("blocked");
-    expect(reasons(document)).toContain("只审阅C0–C5");
+    expect(calculate(document).totals).toBeUndefined();
+    expect(reasons(document)).toContain("本击结算时C6双暴增益是否实际生效");
   });
 
   it.each(["talent:arlecchino:combat2", "talent:arlecchino:combat3"])("rejects borrowed ability identity %s", ability => {
@@ -320,11 +326,11 @@ describe("Arlecchino equipment conversion and historical state identity", () => 
 });
 
 describe("Arlecchino C1–C5 actual selected normals", () => {
-  it("publishes C0–C5 support with the same seven skill IDs and unchanged input schema", () => {
-    expect(ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION).toBe(5);
-    expect(arlecchinoPrimarySourceEvidence.contract.supportedConstellations).toEqual([0, 1, 2, 3, 4, 5]);
-    expect(Object.keys(arlecchinoDamageContextSchema.shape)).toEqual(["bondOfLifePercent", "passivePyroBonusIncluded", "includedBondBase", "finalizedHitStates"]);
-    expect(arlecchinoPrimaryMappings.every(row => row.skillLabel?.includes("C0–C5") && !row.completeAction)).toBe(true);
+  it("publishes C0–C6 support with the same seven skill IDs and backward-compatible optional state", () => {
+    expect(ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION).toBe(6);
+    expect(arlecchinoPrimarySourceEvidence.contract.supportedConstellations).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(Object.keys(arlecchinoDamageContextSchema.shape)).toEqual(["bondOfLifePercent", "passivePyroBonusIncluded", "includedBondBase", "c6Active", "c6CritRateIncludedPercent", "c6CritDamageIncludedPercent", "finalizedHitStates"]);
+    expect(arlecchinoPrimaryMappings.every(row => row.skillLabel?.includes("C0–C6") && !row.completeAction)).toBe(true);
     expect(arlecchinoPrimarySourceEvidence.files.some(row => row.path === "pkg/core/player/character/character.go")).toBe(true);
   });
 
@@ -364,7 +370,8 @@ describe("Arlecchino C1–C5 actual selected normals", () => {
     expect(evaluate(createArlecchinoBondBaseFormula(13, 150, 0, 3))).toBe(11652);
     expect(calculate(fixture("1", 10, 3)).totals).toEqual(calculate(fixture("1", 10, 1)).totals);
     expect(calculate(fixture("1", 13, 5)).totals).toEqual(calculate(fixture("1", 13, 3)).totals);
-    expect(() => createArlecchinoBondBaseFormula(13, 150, 0, 6)).toThrow("C6");
+    expect(evaluate(createArlecchinoBondBaseFormula(13, 150, 0, 6))).toBe(11652);
+    expect(() => createArlecchinoBondBaseFormula(13, 150, 0, 7)).toThrow("C0–C6");
   });
 
   it.each([[1, 10, 10140], [2, 10, 10140], [3, 13, 11652], [4, 13, 11652], [5, 13, 11652]])("C%i deducts already-included own bond and 40 percent shares once", (constellation, talent, flat) => {
@@ -460,5 +467,230 @@ describe("Arlecchino actual condition controls and requirements", () => {
     expect(arlecchinoContext(document)!.passivePyroBonusIncluded).toBeUndefined();
     expect(() => updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.bondOfLifePercent", "201")).toThrow();
     expect(updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.unowned", "1")).toBe(false);
+  });
+});
+
+describe("Arlecchino C6 actual selected normal critical modifier", () => {
+  it("pins the actual 20-second hitlag-aware source lifecycle and separately excludes Q", () => {
+    expect(arlecchinoPrimarySourceEvidence.contract.c6Critical).toMatchObject({critRateBonus: .1, critDamageBonus: .7,
+      triggerSkillTaskFrame: 38, triggerIcdFrames: 900, baseDurationFrames: 1200, affectedByHitlag: true});
+    expect(arlecchinoPrimarySourceEvidence.files.find(file => file.path.endsWith("/burst.go"))!.sha256)
+      .toBe("6bf3e4030fbd50aaa7ad76d31161789ed458d67c0aa2759d14a50bc3668dafa6");
+    const lifecycle = arlecchinoPrimarySourceEvidence.c6LifecycleSources;
+    expect(lifecycle.allFilesByteIdentical).toBe(false);
+    expect(lifecycle.files.find(file => file.path.endsWith("/mods.go"))!.sha256)
+      .toBe("4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1");
+    expect(lifecycle.crossVariantFiles.find(file => file.path.endsWith("/mods.go"))!.sha256)
+      .toBe("1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4");
+    const normal = prepareArlecchinoDamageDocument(c6Fixture());
+    expect(normal.gameContext!.attributionPolicy).toContain("C6的Q附伤");
+    const burst = c6Fixture(); burst.gameContext.skillId = "arlecchino-burst-burst"; burst.gameContext.abilityId = "talent:arlecchino:combat3";
+    expect(isArlecchinoDamageAction(burst)).toBe(false);
+    expect(prepareArlecchinoDamageDocument(burst)).toBe(burst);
+  });
+
+  it("keeps inactive or expired C6 at the exact C5 numerical result, without removing C1 or C3", () => {
+    const document = c6Fixture(false), output = calculate(document);
+    expect(output.blockers).toEqual([]);
+    expect(output.totals!.nonCritical).toBeCloseTo(8774.388, 8);
+    expect(output.totals!.critical).toBeCloseTo(17548.776, 8);
+    expect(output.totals!.expected).toBeCloseTo(13161.582, 8);
+    expect(output.totals).toEqual(calculate(fixture("1", 13, 5)).totals);
+    expect(evaluate(ordinary(prepareArlecchinoDamageDocument(document)).critRateFormula!)).toBe(0);
+    expect(evaluate(ordinary(prepareArlecchinoDamageDocument(document)).critDamageFormula!)).toBe(0);
+  });
+
+  it.each([
+    [10, 10140, 7571.29086, 20442.485322, 15294.0075372],
+    [13, 11652, 8774.388, 23690.8476, 17724.26376],
+  ])("C6 effective NA%i retains independent ATK/bond terms and exact three-column damage", (talent, flat, nonCritical, critical, expected) => {
+    const document = c6Fixture(true, talent), prepared = prepareArlecchinoDamageDocument(document), output = calculate(document);
+    expect(evaluate(ordinary(prepared).additiveBaseFormula!)).toBe(flat);
+    expect(evaluate(ordinary(prepared).critRateFormula!)).toBeCloseTo(.1, 12);
+    expect(evaluate(ordinary(prepared).critDamageFormula!)).toBeCloseTo(.7, 12);
+    expect(output.blockers).toEqual([]);
+    expect(output.totals!.nonCritical).toBeCloseTo(nonCritical, 8);
+    expect(output.totals!.critical).toBeCloseTo(critical, 8);
+    expect(output.totals!.expected).toBeCloseTo(expected, 8);
+    expect(document.gameContext.effectiveTalentLevel).toBe(talent);
+  });
+
+  it.each([[0, 0], [10, 70], [4, 20], [10, 0], [0, 70]])("deducts independently included CR %s and CD %s percentage points once", (rate, damage) => {
+    const document = c6Fixture();
+    if (document.build.mode === "equipment-derived") throw new Error("manual");
+    document.build.stats.critRate = .5 + rate / 100; document.build.stats.critDamage = 1 + damage / 100;
+    ordinary(document).damageBonus = .4; ordinary(document).additiveBaseDamage = 11652;
+    Object.assign(arlecchinoContext(document)!, {passivePyroBonusIncluded: true, includedBondBase: 11652,
+      c6CritRateIncludedPercent: rate, c6CritDamageIncludedPercent: damage});
+    const output = calculate(document);
+    expect(output.blockers).toEqual([]);
+    expect(output.totals!.nonCritical).toBeCloseTo(8774.388, 8);
+    expect(output.totals!.critical).toBeCloseTo(23690.8476, 8);
+    expect(output.totals!.expected).toBeCloseTo(17724.26376, 8);
+  });
+
+  it.each([[10, 70], [4, 20]])("removes old included CR %s and CD %s shares when the actual buff is inactive", (rate, damage) => {
+    const document = c6Fixture(false);
+    if (document.build.mode === "equipment-derived") throw new Error("manual");
+    document.build.stats.critRate = .5 + rate / 100; document.build.stats.critDamage = 1 + damage / 100;
+    Object.assign(arlecchinoContext(document)!, {c6CritRateIncludedPercent: rate, c6CritDamageIncludedPercent: damage});
+    const output = calculate(document);
+    expect(output.blockers).toEqual([]);
+    expect(output.totals!.critical).toBeCloseTo(17548.776, 8);
+    expect(output.totals!.expected).toBeCloseTo(13161.582, 8);
+  });
+
+  it.each([[.95, 1, 23690.8476], [-.2, 0, 8774.388]])("lets the shared probability clamp handle input CR %s after the real addition", (rate, expectedRate, expected) => {
+    const document = c6Fixture();
+    if (document.build.mode === "equipment-derived") throw new Error("manual");
+    document.build.stats.critRate = rate;
+    const output = calculate(document);
+    expect(output.blockers).toEqual([]);
+    expect(output.hits[0]!.effectiveCritRate).toBe(expectedRate);
+    expect(output.totals!.expected).toBeCloseTo(expected, 8);
+    expect(evaluate(ordinary(prepareArlecchinoDamageDocument(document)).critRateFormula!)).toBeCloseTo(.1, 12);
+  });
+
+  it.each(["c6Active", "c6CritRateIncludedPercent", "c6CritDamageIncludedPercent"] as const)("blocks missing %s without substituting C5", key => {
+    const document = c6Fixture(); delete arlecchinoContext(document)![key];
+    expect(calculate(document).status).toBe("blocked");
+    expect(calculate(document).totals).toBeUndefined();
+    expect(ordinary(prepareArlecchinoDamageDocument(document)).critRateFormula).toBeUndefined();
+    expect(arlecchinoRequirementAdapter.collect(document).some(field => field.fieldPath.endsWith(key))).toBe(true);
+  });
+
+  it.each([{c6Active: "yes"}, {c6CritRateIncludedPercent: -.1}, {c6CritRateIncludedPercent: 10.0001},
+    {c6CritDamageIncludedPercent: 70.0001}, {c6CritDamageIncludedPercent: Number.NaN}])("rejects invalid critical state/accounting %o", context => {
+    expect(arlecchinoDamageContextSchema.safeParse(context).success).toBe(false);
+  });
+
+  it("never gives an untriggered lower constellation a C6 state or C6 included share", () => {
+    const document = c6Fixture(); document.gameContext.constellation = 5;
+    expect(calculate(document).status).toBe("blocked");
+    expect(reasons(document)).toContain("当前命座未解锁C6");
+    arlecchinoContext(document)!.c6Active = false;
+    arlecchinoContext(document)!.c6CritDamageIncludedPercent = 20;
+    expect(calculate(document).status).toBe("blocked");
+  });
+
+  it.each(["baseDamageFormula", "additiveBaseFormula", "damageBonusFormula", "critRateFormula", "critDamageFormula"] as const)("C6 retains and blocks unmerged external %s", slot => {
+    const document = c6Fixture(), foreign = foreignFormula(); ordinary(document)[slot] = foreign;
+    const prepared = prepareArlecchinoDamageDocument(document);
+    expect(ordinary(prepared)[slot]).toEqual(foreign);
+    expect(calculate(prepared).status).toBe("blocked");
+    expect(calculate(prepared).totals).toBeUndefined();
+  });
+
+  it("preserves independent legal ATK/EM adjustments and rejects a copied C6 hit", () => {
+    const document = c6Fixture();
+    ordinary(document).attackAdjustment = {accounting: "add-to-panel", formula: {ruleId: "legal-external-atk", label: "External ATK +250", expression: expr.value(250), inputs: [], sourceRefs: ARLECCHINO_DAMAGE_SOURCE_REFS}};
+    ordinary(document).elementalMasteryAdjustment = {accounting: "add-to-panel", formula: {ruleId: "legal-external-em", label: "External EM +300", expression: expr.value(300), inputs: [], sourceRefs: ARLECCHINO_DAMAGE_SOURCE_REFS}};
+    const prepared = prepareArlecchinoDamageDocument(document);
+    expect(ordinary(prepared).attackAdjustment).toEqual(ordinary(document).attackAdjustment);
+    expect(ordinary(prepared).elementalMasteryAdjustment).toEqual(ordinary(document).elementalMasteryAdjustment);
+    expect(calculate(prepared).totals!.expected).toBeCloseTo(2250 * (1.1378 + 3.884 * 1.5) * .63 * 2.02, 8);
+    ordinary(document).groupMultiplier = 2;
+    expect(calculate(document).status).toBe("blocked");
+    expect(calculate(document).totals).toBeUndefined();
+  });
+
+  it("keeps the exact 30 percent boundary and separately rejects disabled critical eligibility", () => {
+    const document = c6Fixture(); arlecchinoContext(document)!.bondOfLifePercent = 30;
+    expect(calculate(document).totals!.nonCritical).toBeCloseTo(2901.78, 8);
+    expect(calculate(document).totals!.expected).toBeCloseTo(5861.5956, 8);
+    arlecchinoContext(document)!.bondOfLifePercent = 29.999999;
+    expect(calculate(document).status).toBe("blocked");
+    const noCrit = c6Fixture(); ordinary(noCrit).critEligible = false;
+    expect(calculate(noCrit).status).toBe("blocked");
+  });
+
+  it.each([false, true])("preserves real equipment conversion and JSON with actual C6 active=%s", active => {
+    const document = equipmentFixture(6, 13); arlecchinoContext(document)!.c6Active = active;
+    const before = calculate(document), converted = convertCalculatorToFinalPanel(document);
+    expect(before.blockers).toEqual([]);
+    expect(before.totals!.nonCritical).toBeCloseTo(2010 * (1.1378 + 3.884 * 1.5) * 1.866 * .5 * .9, 8);
+    expect(before.totals!.expected).toBeCloseTo(before.totals!.nonCritical * (active ? 2.02 : 1.5), 8);
+    expect(ordinary(converted).effectiveCritRate).toBeCloseTo(active ? .6 : .5, 12);
+    expect(ordinary(converted).effectiveCritDamage).toBeCloseTo(active ? 1.7 : 1, 12);
+    expect(calculate(converted).totals).toEqual(before.totals);
+    expect(calculate(parseCalculatorDocument(serializeCalculatorDocument(converted))).totals).toEqual(before.totals);
+  });
+
+  it.each(["c6Active", "c6CritRateIncludedPercent", "c6CritDamageIncludedPercent", "character-level", "final-crit-rate", "final-crit-damage"] as const)("rejects changed converted C6 %s rather than replaying an old crit panel", change => {
+    const document = equipmentFixture(6, 13); arlecchinoContext(document)!.c6Active = true;
+    const converted = convertCalculatorToFinalPanel(document);
+    if (change === "c6Active") arlecchinoContext(converted)!.c6Active = false;
+    else if (change === "character-level") converted.characterLevel = 100;
+    else if (change === "final-crit-rate") ordinary(converted).effectiveCritRate = .7;
+    else if (change === "final-crit-damage") ordinary(converted).effectiveCritDamage = 2;
+    else arlecchinoContext(converted)![change] = 1;
+    expect(reasons(converted)).toContain("历史快照");
+    expect(calculate(converted).status).toBe("blocked");
+    expect(calculate(converted).totals).toBeUndefined();
+  });
+
+  it("keeps the pre-C6 converted identity and reads old C6 JSON as missing actual state", () => {
+    const old = convertedFixture(5, 13), expected = calculate(old).totals;
+    delete arlecchinoContext(old)!.c6Active; delete arlecchinoContext(old)!.c6CritRateIncludedPercent; delete arlecchinoContext(old)!.c6CritDamageIncludedPercent;
+    const context = arlecchinoContext(old)!, game = old.gameContext;
+    expect(context.finalizedHitStates![ordinary(old).id]).toBe(JSON.stringify([game.characterId, old.characterLevel, game.abilityId, game.skillId,
+      game.effectiveTalentLevel, game.constellation, 6, ordinary(old).id, context.bondOfLifePercent, context.passivePyroBonusIncluded, context.includedBondBase]));
+    expect(calculate(parseCalculatorDocument(serializeCalculatorDocument(old))).totals).toEqual(expected);
+    const unknown = fixture("1", 13, 6), restored = parseCalculatorDocument(serializeCalculatorDocument(unknown));
+    expect(calculate(restored).status).toBe("blocked");
+    expect(calculate(restored).totals).toBeUndefined();
+  });
+
+  it("rebuilds owned crit formulas idempotently and never treats a familiar prefix as ownership", () => {
+    const document = prepareArlecchinoDamageDocument(c6Fixture());
+    ordinary(document).critRateFormula!.inputs[0]!.value = 0;
+    ordinary(document).critDamageFormula!.inputs[1]!.value = 70;
+    const prepared = prepareArlecchinoDamageDocument(document);
+    expect(evaluate(ordinary(prepared).critRateFormula!)).toBeCloseTo(.1, 12);
+    expect(evaluate(ordinary(prepared).critDamageFormula!)).toBeCloseTo(.7, 12);
+    expect(prepareArlecchinoDamageDocument(prepared)).toEqual(prepared);
+    ordinary(document).critDamageFormula = foreignFormula("arlecchino-damage-c6-foreign");
+    expect(calculate(document).status).toBe("blocked");
+  });
+
+  it("renders and updates all C6 actual conditions with generic controls and no invented trigger", () => {
+    const document = initializeArlecchinoDamageDocument(fixture("1", 13, 6));
+    expect(arlecchinoContext(document)!.c6Active).toBeUndefined();
+    expect(arlecchinoContext(document)!.c6CritRateIncludedPercent).toBe(0);
+    expect(calculate(document).status).toBe("blocked");
+    const html = renderArlecchinoControls(document);
+    expect(html).toContain('data-source-cast-state-field="gameContext.arlecchinoDamage.c6Active"');
+    expect(html).toContain('data-field="gameContext.arlecchinoDamage.c6CritRateIncludedPercent"');
+    expect(html).toContain('data-field="gameContext.arlecchinoDamage.c6CritDamageIncludedPercent"');
+    expect(html).toContain("20秒");
+    expect(updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.c6Active", "1")).toBe(true);
+    updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.c6CritRateIncludedPercent", "3.5");
+    updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.c6CritDamageIncludedPercent", "20");
+    expect(arlecchinoContext(document)!).toMatchObject({c6Active: true, c6CritRateIncludedPercent: 3.5, c6CritDamageIncludedPercent: 20});
+    expect(() => updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.c6CritRateIncludedPercent", "11")).toThrow();
+    updateArlecchinoDamageControl(document, "gameContext.arlecchinoDamage.c6Active", "unknown");
+    expect(arlecchinoContext(document)!.c6Active).toBeUndefined();
+  });
+
+  it("clears unknown imported C6 accounting but derives fresh-equipment shares without triggering C6", () => {
+    const document = c6Fixture(); resetArlecchinoPanelAccounting(document, "imported-final");
+    expect(arlecchinoContext(document)!.c6Active).toBeUndefined();
+    expect(arlecchinoContext(document)!.c6CritRateIncludedPercent).toBeUndefined();
+    expect(arlecchinoContext(document)!.c6CritDamageIncludedPercent).toBeUndefined();
+    const html = renderArlecchinoControls(document), fields = arlecchinoRequirementAdapter.collect(document);
+    for (const key of ["c6Active", "c6CritRateIncludedPercent", "c6CritDamageIncludedPercent"]) {
+      expect(fields.some(field => field.fieldPath.endsWith(key))).toBe(true);
+      expect(html).toContain(`="gameContext.arlecchinoDamage.${key}"`);
+    }
+    resetArlecchinoPanelAccounting(document, "fresh-equipment");
+    expect(arlecchinoContext(document)!.c6CritRateIncludedPercent).toBe(0);
+    expect(arlecchinoContext(document)!.c6CritDamageIncludedPercent).toBe(0);
+    expect(arlecchinoContext(document)!.c6Active).toBeUndefined();
+  });
+
+  it("rejects out-of-source factory accounting", () => {
+    expect(() => createArlecchinoC6CriticalFormula("critRate", true, 10.1)).toThrow();
+    expect(() => createArlecchinoC6CriticalFormula("critDamage", false, -1)).toThrow();
+    expect(() => createArlecchinoC6CriticalFormula("critDamage", true, Number.NaN)).toThrow();
   });
 });

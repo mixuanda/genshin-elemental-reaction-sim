@@ -6,12 +6,15 @@ import { arlecchinoPrimaryMappings, arlecchinoPrimarySourceEvidence } from "../.
 export type ArlecchinoCalculatorDocument = CalculatorDocument & {
   gameContext: NonNullable<CalculatorDocument["gameContext"]> & {arlecchinoDamage?: ArlecchinoDamageContext};
 };
-export const ARLECCHINO_DAMAGE_SOURCE_REFS = arlecchinoPrimarySourceEvidence.files.map(file =>
+export const ARLECCHINO_DAMAGE_SOURCE_REFS = [...arlecchinoPrimarySourceEvidence.files,
+  ...arlecchinoPrimarySourceEvidence.c6LifecycleSources.files,
+  ...arlecchinoPrimarySourceEvidence.c6LifecycleSources.crossVariantFiles].map(file =>
   `https://github.com/genshinsim/gcsim/blob/${file.revision}/${file.path}`);
 export const ARLECCHINO_DAMAGE_DEPENDENCY_PREFIX = "arlecchino-damage:";
-export const ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION = 5;
+export const ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION = 6;
 const bondRuleId = "arlecchino-damage-pre-consumption-bond-base-b4ae769";
 const passiveRuleId = "arlecchino-damage-passive-pyro-accounting-b4ae769";
+const c6RuleIds = {critRate: "arlecchino-damage-c6-crit-rate-b4ae769", critDamage: "arlecchino-damage-c6-crit-damage-b4ae769"} as const;
 const masque = arlecchinoPrimarySourceEvidence.coefficients.find(row => row.sourceTable === "masque")!.values;
 
 export const arlecchinoContext = (document: CalculatorDocument): ArlecchinoDamageContext | undefined =>
@@ -32,7 +35,7 @@ export function canInferArlecchinoBondBaseZero(document: CalculatorDocument): bo
 
 export function createArlecchinoBondBaseFormula(effectiveNormalTalent: number, bondOfLifePercent: number, included: number, constellation = 0): CalculatorFormula {
   if (!Number.isInteger(constellation) || constellation < 0 || constellation > ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION)
-    throw new Error("红死之宴单击目前只支持C0–C5；C6条件暴击状态尚未实现。");
+    throw new Error("红死之宴单击目前只支持C0–C6；不能借用其他命座。");
   const coefficient = Number.isInteger(effectiveNormalTalent) ? masque[effectiveNormalTalent - 1] : undefined;
   if (coefficient === undefined || effectiveNormalTalent < 1 || effectiveNormalTalent > 15)
     throw new Error("生命之契附伤必须使用1–15级独立有效普攻天赋。");
@@ -60,13 +63,34 @@ export function createArlecchinoPassiveDamageBonusFormula(included: boolean): Ca
   };
 }
 
-function finalizedState(document: CalculatorDocument, hit: CalculatorHit, context: ArlecchinoDamageContext): string {
-  const game = document.gameContext!, ascension = (document.build.mode === "equipment-derived" ? document.build.equipment?.ascension : document.build.ascension) ?? game.ascension;
-  return JSON.stringify([game.characterId, document.characterLevel, game.abilityId, game.skillId, game.effectiveTalentLevel,
-    game.constellation, ascension, hit.id, context.bondOfLifePercent, context.passivePyroBonusIncluded, context.includedBondBase]);
+/** The modifier is conditional at damage evaluation. Its known contribution may
+ * be wholly or partly in the input panel, even if that old share must be removed. */
+export function createArlecchinoC6CriticalFormula(stat: "critRate" | "critDamage", active: boolean, includedPercent: number): CalculatorFormula {
+  const maximum = stat === "critRate" ? 10 : 70, label = stat === "critRate" ? "暴击率" : "暴击伤害";
+  if (typeof active !== "boolean" || !Number.isFinite(includedPercent) || includedPercent < 0 || includedPercent > maximum)
+    throw new Error(`C6须有本击实际生效状态及已含${label}的0–${maximum}个百分点。`);
+  return {
+    ruleId: c6RuleIds[stat], label: `C6 ${label}：本击实际${maximum}个百分点 − 输入已含份额`,
+    expression: expr.mul(expr.sub(expr.mul(expr.input("arlecchinoC6Active"), expr.value(maximum)), expr.input("arlecchinoC6IncludedPercent")), expr.value(.01)),
+    inputs: [
+      {key: "arlecchinoC6Active", value: active ? 1 : 0, unit: "boolean", meaningKey: "本击伤害结算前C6攻击修正实际生效；命座或一次E输入不能代替该状态", origin: "explicit-selected-hit-state", allowedValues: [0, 1]},
+      {key: "arlecchinoC6IncludedPercent", value: includedPercent, unit: "percent", meaningKey: `输入${label}已含C6份额，按百分点填写，允许部分包含`, origin: "explicit-panel-accounting", minimum: 0, maximum},
+    ],
+    requirements: {minimumConstellation: 6, maximumConstellation: 6, elements: ["pyro"], attackTags: ["normal"]}, sourceRefs: ARLECCHINO_DAMAGE_SOURCE_REFS,
+  };
 }
 
-/** Strict source contract: one actual C0–C5 Pyro normal, never a debt lifecycle. */
+function finalizedState(document: CalculatorDocument, hit: CalculatorHit, context: ArlecchinoDamageContext): string {
+  const game = document.gameContext!, ascension = (document.build.mode === "equipment-derived" ? document.build.equipment?.ascension : document.build.ascension) ?? game.ascension;
+  const state: unknown[] = [game.characterId, document.characterLevel, game.abilityId, game.skillId, game.effectiveTalentLevel,
+    game.constellation, ascension, hit.id, context.bondOfLifePercent, context.passivePyroBonusIncluded, context.includedBondBase];
+  // Do not change the existing C0–C5 saved identity with new optional fields.
+  if (game.constellation === 6) state.push(context.c6Active, context.c6CritRateIncludedPercent, context.c6CritDamageIncludedPercent,
+    hit.kind === "ordinary" ? hit.effectiveCritRate : undefined, hit.kind === "ordinary" ? hit.effectiveCritDamage : undefined);
+  return JSON.stringify(state);
+}
+
+/** Strict source contract: one actual C0–C6 Pyro normal, never a debt lifecycle. */
 export function prepareArlecchinoDamageDocument(document: CalculatorDocument): CalculatorDocument {
   if (!isArlecchinoDamageAction(document)) return document;
   const result = structuredClone(document) as ArlecchinoCalculatorDocument, game = result.gameContext;
@@ -81,7 +105,15 @@ export function prepareArlecchinoDamageDocument(document: CalculatorDocument): C
     if (result.dataIdentity.releaseStatus === "preview") issues.push("本入口只审阅固定Classic/Stellar已发布来源；预览规则不能借用此红死之宴公式。");
     if (result.scope !== "single-hit" || result.hits.length !== 1 || result.selectedHitIds.length !== 1 || hit.id !== mapping.id || result.selectedHitIds[0] !== mapping.id)
       issues.push("此入口只计算所选的一次实际普攻命中；第四段两击须分别选择，不能并成一段或整轮。");
-    if (game.constellation > ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION) issues.push("红死之宴此单击目前只审阅C0–C5；C6普攻条件暴击状态尚未实现，不能按低命座代算。");
+    if (!Number.isInteger(game.constellation) || game.constellation < 0 || game.constellation > ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION)
+      issues.push("红死之宴此单击目前只审阅C0–C6，不能按其他命座代算。");
+    const c6 = game.constellation === 6;
+    if (c6) {
+      if (context.c6Active === undefined) issues.push("请确认本击结算时C6双暴增益是否实际生效；仅有C6命座或施放过E不能证明当前状态。");
+      if (context.c6CritRateIncludedPercent === undefined) issues.push("请明确所填暴击率已包含C6的多少个百分点（0–10）；未含填0。");
+      if (context.c6CritDamageIncludedPercent === undefined) issues.push("请明确所填暴击伤害已包含C6的多少个百分点（0–70）；未含填0。");
+    } else if (context.c6Active === true || (context.c6CritRateIncludedPercent ?? 0) > 0 || (context.c6CritDamageIncludedPercent ?? 0) > 0)
+      issues.push("当前命座未解锁C6，不能声明C6双暴实际生效或输入已含C6份额。");
     if (game.abilityId !== "talent:arlecchino:combat1") issues.push("普通ATK项和生命之契附伤都使用独立有效普攻天赋，不能借用E或Q等级。");
     if (context.bondOfLifePercent === undefined) issues.push("请填写本击扣契前的实际生命之契百分比；公开展柜不包含这项战斗状态，不能猜测。");
     else if (context.bondOfLifePercent < 30) issues.push("生命之契低于最大生命的30%，红死之宴未生效；此火普攻入口不能静默改为物理伤害。");
@@ -94,6 +126,12 @@ export function prepareArlecchinoDamageDocument(document: CalculatorDocument): C
       else if (hit.additiveBaseFormula) issues.push("生命之契附加基伤公式槽已有外来公式；未定义合并规则，不能覆盖。");
       if (hit.damageBonusFormula?.ruleId === passiveRuleId) delete hit.damageBonusFormula;
       else if (hit.damageBonusFormula) issues.push("固有火伤增伤公式槽已有外来公式；未定义合并规则，不能覆盖。");
+      for (const stat of ["critRate", "critDamage"] as const) {
+        const slot = stat === "critRate" ? "critRateFormula" : "critDamageFormula";
+        if (hit[slot]?.ruleId === c6RuleIds[stat]) delete hit[slot];
+        else if (c6 && hit[slot]) issues.push(`C6${stat === "critRate" ? "暴击率" : "暴击伤害"}公式槽已有外来公式；未定义合并规则，不能覆盖。`);
+      }
+      if (c6 && !hit.critEligible) issues.push("固定来源的本次普攻可暴击，不能关闭暴击资格来绕过C6条件。");
       const coefficient = Number.isInteger(game.effectiveTalentLevel) ? mapping.sourceCoefficientValues?.[game.effectiveTalentLevel - 1] : undefined;
       if (coefficient === undefined || game.effectiveTalentLevel < 1 || game.effectiveTalentLevel > 15) issues.push("请提供1–15级的独立有效普攻天赋；不重复增加命座天赋等级。");
       else hit.terms = [{stat: "atk", coefficient}];
@@ -105,17 +143,21 @@ export function prepareArlecchinoDamageDocument(document: CalculatorDocument): C
       if (!issues.length) {
         hit.additiveBaseFormula = createArlecchinoBondBaseFormula(game.effectiveTalentLevel, context.bondOfLifePercent!, context.includedBondBase!, game.constellation);
         hit.damageBonusFormula = createArlecchinoPassiveDamageBonusFormula(context.passivePyroBonusIncluded!);
+        if (c6) {
+          hit.critRateFormula = createArlecchinoC6CriticalFormula("critRate", context.c6Active!, context.c6CritRateIncludedPercent!);
+          hit.critDamageFormula = createArlecchinoC6CriticalFormula("critDamage", context.c6Active!, context.c6CritDamageIncludedPercent!);
+        }
       }
     } else issues.push("此入口必须使用来源已审阅的普通伤害命中，不能替换为已结算伤害、反应或其他命中类型。");
     hit.sourceRefs = [...new Set([...hit.sourceRefs, ...ARLECCHINO_DAMAGE_SOURCE_REFS])];
     const id = ARLECCHINO_DAMAGE_DEPENDENCY_PREFIX + hit.id;
     hit.dependencies.push(id);
-    result.dependencies.push({id, status: issues.length ? "missing" : "provisional", reason: issues.join("；") || "C0–C5实际红死之宴单击：ATK普攻项、命中扣契前契附伤（C1倍率加1.0）、已含加级的有效普攻等级和40%固有火伤分别核验。", sourceRefs: ARLECCHINO_DAMAGE_SOURCE_REFS});
+    result.dependencies.push({id, status: issues.length ? "missing" : "provisional", reason: issues.join("；") || "C0–C6实际红死之宴单击：ATK普攻项、命中扣契前契附伤（C1倍率加1.0）、已含加级的有效普攻等级、40%固有火伤及C6实际双暴状态与已含份额分别核验。", sourceRefs: ARLECCHINO_DAMAGE_SOURCE_REFS});
   }
   game.scopeCoverage = "single-hit";
-  game.attributionPolicy = "仅所选C0–C5红死之宴火普攻的一次实际命中，使用已含C3加级的独立有效普攻天赋及本击扣契前生命之契；普通ATK项与（masque＋C1的1.0）×契比例×总ATK附加基伤分别计算。第四段两击分别取样；不含C2回收爆发、C4回能/Q冷却、C5的Q等级或耗契、回血、轮转。";
+  game.attributionPolicy = "仅所选C0–C6红死之宴火普攻的一次实际命中，使用已含C3加级的独立有效普攻天赋及本击扣契前生命之契；普通ATK项与（masque＋C1的1.0）×契比例×总ATK附加基伤分别计算。C6只补本击实际生效的10个百分点暴击率、70个百分点暴伤与输入已含份额之差。第四段两击分别取样；不含C2回收爆发、C4回能/Q冷却、C5的Q等级、C6的Q附伤或耗契、回血、轮转。";
   result.assumptions = result.assumptions.filter(value => !value.startsWith("阿蕾奇诺红死单击："));
-  result.assumptions.push("阿蕾奇诺红死单击：每次命中先取实际面板、契比例并结算伤害，随后原生回调才消耗当前契的7.5%；不从施放时契比例推算后续命中。固有40%火伤没有突破门。其他角色或装备的独立攻击/精通调整保留各自公式槽。");
+  result.assumptions.push("阿蕾奇诺红死单击：每次命中先取实际面板、契比例并结算伤害，随后原生回调才消耗当前契的7.5%；不从施放时契比例推算后续命中。固有40%火伤没有突破门。C6在E的38f任务触发，有15秒触发间隔；双暴持续20秒且受卡肉延长影响，伤害结算前检查有效性，到期帧不再应用；这里要求实际生效状态，不推算触发、刷新或到期。其他角色或装备的独立攻击/精通调整保留各自公式槽。");
   return result;
 }
 
@@ -123,9 +165,13 @@ export function resetArlecchinoPanelAccounting(document: CalculatorDocument, mod
   if (!isArlecchinoDamageAction(document)) return;
   const context = (document as ArlecchinoCalculatorDocument).gameContext.arlecchinoDamage ??= {};
   delete context.finalizedHitStates;
-  if (mode === "fresh-equipment") {context.passivePyroBonusIncluded = false; context.includedBondBase = 0;}
+  if (mode === "fresh-equipment") {
+    context.passivePyroBonusIncluded = false; context.includedBondBase = 0;
+    context.c6CritRateIncludedPercent = 0; context.c6CritDamageIncludedPercent = 0;
+  }
   else {
     delete context.bondOfLifePercent; delete context.passivePyroBonusIncluded; delete context.includedBondBase;
+    delete context.c6Active; delete context.c6CritRateIncludedPercent; delete context.c6CritDamageIncludedPercent;
     if (canInferArlecchinoBondBaseZero(document)) context.includedBondBase = 0;
   }
 }

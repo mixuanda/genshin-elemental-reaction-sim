@@ -2,7 +2,7 @@
   "format": "gidps-arlecchino-primary-source-v1",
   "repository": "genshinsim/gcsim",
   "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-  "status": "fixed-source-reviewed-c0-c5-selected-normal-hit",
+  "status": "fixed-source-reviewed-c0-c6-selected-normal-hit",
   "numericEvidenceStatus": "single-source-extracted",
   "upstreamLicense": {
     "spdx": "MIT",
@@ -42,6 +42,12 @@
       "path": "internal/characters/arlecchino/skill.go",
       "sha256": "9feb692a6e20d49d5430b5cccb0ae6b29d9699640c06bec31f72b32591a4e61e",
       "gitBlob": "f46739d2e55882aba2ab5db5ac032f8f119b710b"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/burst.go",
+      "sha256": "6bf3e4030fbd50aaa7ad76d31161789ed458d67c0aa2759d14a50bc3668dafa6",
+      "gitBlob": "ab6d824dcce8e93d8bb35e2b5915aa1e9e278290"
     },
     {
       "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
@@ -268,7 +274,8 @@
       2,
       3,
       4,
-      5
+      5,
+      6
     ],
     "normalHitFrames": [
       [
@@ -302,7 +309,20 @@
       "c3": "Native NormalCon=3; effective normal talent changes both ordinary and masque table indices once.",
       "c4": "Absorption grants energy and reduces Q cooldown; neither is part of this normal hit.",
       "c5": "Native BurstCon=5; Q talent bonus is unrelated to the selected normal talent.",
-      "c6": "Normal conditional crit rate/crit damage after E is not implemented. C6 is blocked rather than approximated as C5."
+      "c6": "Selected normal only: actual active C6 attack modifier adds 0.1 CR and 0.7 CD, minus separately declared included shares. Missing actual state blocks; C6 burst FlatDmg is excluded."
+    },
+    "c6Critical": {
+      "critRateBonus": 0.1,
+      "critDamageBonus": 0.7,
+      "triggerSkillTaskFrame": 38,
+      "triggerIcdFrames": 900,
+      "baseDurationFrames": 1200,
+      "affectedByHitlag": true,
+      "qualification": "Constellation 6 plus the actual post-E attack modifier active at this hit's damage evaluation. Constellation alone or elapsed wall time is not evidence of activation.",
+      "expiry": "AddAttackMod sets expiry to activation frame plus 1200; hitlag extends it. ApplyAttackMods rejects expiry <= current frame before adding stats to the target hit snapshot.",
+      "sampling": "Each selected NA queues snapshot and damage with zero delay at its hit task; per-target attack modifiers apply before damage and before the later bond-consumption callback.",
+      "accounting": "(actual active ? 10 or 70 : 0) minus explicitly included percentage points, multiplied by 0.01. CR probability is clamped by the shared formula after all applicable stats.",
+      "excludedBurst": "Q has a separate 7.0 * TotalAtk * current bond ratio FlatDmg, sampled at its 110f damage task; not implemented by this normal-hit entry."
     },
     "bondBaseSampling": "Each selected normal sub-hit reads its actual pre-consumption ratio and TotalAtk at its hit/snapshot frame.",
     "infusion": "At bond ratio >=0.3, native Red Death state makes the ordinary normal Pyro with IgnoreInfusion=true.",
@@ -311,7 +331,7 @@
     "consumption": "7.5% of current debt is consumed only by the later on-hit callback (2f ICD); not simulated by this selected-hit module.",
     "exclusions": [
       "No debt collection/lifecycle, normal-chain consumption or rotation simulation.",
-      "No C2 absorption-triggered attack, C4 energy/Q cooldown, Q healing, C6 conditional critical state, enemy collisions or reaction application simulation."
+      "No C2 absorption-triggered attack, C4 energy/Q cooldown, Q damage/healing or C6 activation/refresh/expiry timeline, enemy collisions or reaction application simulation."
     ]
   },
   "crossVariant": {
@@ -350,6 +370,12 @@
       },
       {
         "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/burst.go",
+        "sha256": "6bf3e4030fbd50aaa7ad76d31161789ed458d67c0aa2759d14a50bc3668dafa6",
+        "gitBlob": "ab6d824dcce8e93d8bb35e2b5915aa1e9e278290"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
         "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
         "sha256": "2378d34d08c259bedcda3fc95e8a64eb9de122e0f3934142ce40994922901c99",
         "gitBlob": "50a789c65eb189974d28b99cdaa998ab35e4c17a"
@@ -368,6 +394,86 @@
       }
     ],
     "meaning": "Same gcsim implementation chain; agreement is not independent mechanism evidence."
+  },
+  "c6LifecycleSources": {
+    "files": [
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/modifier/modifier.go",
+        "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+        "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/player/character/mods.go",
+        "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+        "gitBlob": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/player/character/hitlag.go",
+        "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+        "gitBlob": "3a31809c95a9599270b2c165a6a2309c193feda4"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/attack.go",
+        "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+        "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/enemy/attack.go",
+        "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+        "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/template/character/character.go",
+        "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+        "gitBlob": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+      }
+    ],
+    "crossVariantFiles": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/modifier/modifier.go",
+        "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+        "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/mods.go",
+        "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+        "gitBlob": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/hitlag.go",
+        "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+        "gitBlob": "3a31809c95a9599270b2c165a6a2309c193feda4"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/attack.go",
+        "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+        "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/enemy/attack.go",
+        "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+        "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/template/character/character.go",
+        "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+        "gitBlob": "f25b799d41269c2088e35e5668e20737d905f27e"
+      }
+    ],
+    "allFilesByteIdentical": false,
+    "meaning": "Original lifecycle files are separately pinned. Wrapper mods and template initialization differ between variants; reviewed expiry, hitlag extension, NA snapshot and pre-damage application paths agree. This is not independent game certification."
   },
   "nativeOverlayAudit": {
     "meaning": "Native build trees are SourceHost-instrumented; their hashes are not presented as unmodified upstream.",
@@ -399,6 +505,11 @@
       },
       {
         "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/burst.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
         "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
         "matchesOriginal": true
       },
@@ -435,6 +546,11 @@
       {
         "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
         "path": "internal/characters/arlecchino/skill.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/burst.go",
         "matchesOriginal": false
       },
       {

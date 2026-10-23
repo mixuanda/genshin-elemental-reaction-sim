@@ -12,5 +12,6 @@ export function applyArlecchinoDamageContext(document: CalculatorDocument, suppl
 /** Explicit zero accounting belongs to the unmaterialized teaching panel.
  * Actual bond state is never invented, including for teaching entries. */
 export function initializeArlecchinoDamageDocument(document: CalculatorDocument): CalculatorDocument {
-  return applyArlecchinoDamageContext(document, {passivePyroBonusIncluded: false, includedBondBase: 0});
+  return applyArlecchinoDamageContext(document, {passivePyroBonusIncluded: false, includedBondBase: 0,
+    c6CritRateIncludedPercent: 0, c6CritDamageIncludedPercent: 0});
 }
