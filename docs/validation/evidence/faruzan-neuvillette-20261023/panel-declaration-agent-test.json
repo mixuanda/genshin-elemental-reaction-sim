@@ -1,0 +1,9 @@
+{
+  "reportedBy": "/root/skill_condition_gaps",
+  "command": "./node_modules/.bin/vitest run apps/web/src/calculator-faruzan-panel-declaration.test.ts",
+  "passed": 1,
+  "failed": 0,
+  "reportedDurationSeconds": 10.2,
+  "scope": "explicit declaration, selected canonical C0 hits only; excludes historical snapshots and unrelated state",
+  "evidenceKind": "agent tool-result report; no duplicate root unit run"
+}

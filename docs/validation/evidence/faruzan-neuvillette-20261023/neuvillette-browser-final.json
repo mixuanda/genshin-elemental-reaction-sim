@@ -1,0 +1,120 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/GIDPS-cloud/player-import-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "calculator-neuvillette-native-outputs.spec.ts",
+      "--config",
+      "/tmp/GIDPS-faruzan-neuv-20261023/playwright.config.mjs",
+      "--workers",
+      "1",
+      "--output",
+      "/tmp/GIDPS-faruzan-neuv-20261023/neuvillette-browser-final-artifacts",
+      "--reporter=json"
+    ],
+    "configFile": "/tmp/GIDPS-faruzan-neuv-20261023/playwright.config.mjs",
+    "rootDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/GIDPS-faruzan-neuv-20261023/neuvillette-browser-final-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "calculator-neuvillette-native-outputs.spec.ts",
+      "file": "calculator-neuvillette-native-outputs.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Neuvillette main output buttons retain his real native charge/Q, energy and independent equipment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21446,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T20:25:34.817Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "74fa74df6d3e8f1df13a-ac6797891db858e75c45",
+          "file": "calculator-neuvillette-native-outputs.spec.ts",
+          "line": 13,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T20:25:33.593Z",
+    "duration": 23013.429,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
