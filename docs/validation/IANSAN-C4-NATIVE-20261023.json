@@ -14,7 +14,6 @@
     "sha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
     "bytes": 72155762
   },
-  "verifiedBlobs": null,
   "newPatches": [
     {
       "path": "141-iansan-burst-expiry.patch",
@@ -367,5 +366,6 @@
       "bytes": 164041,
       "sha256": "99d429c8f780f3b8e25f7ecad4556e6bdf06fd0de59726d79da7d1c55a17e854"
     }
-  ]
+  ],
+  "verifiedBlobCount": 4283
 }
