@@ -63,9 +63,10 @@ describe("Iansan existing Swift requirement links", () => {
     expect(report.blockers[0]).toMatchObject({ status: "linked-controls", fieldPaths: report.fields.map(row => row.fieldPath) });
   });
 
-  it.each(["swiftQualifiedAtCast", "burstInactiveAtSnapshot"])("keeps explicit false unsatisfied, and unknown unanswered: %s", key => {
+  it.each(["swiftQualifiedAtCast", "burstInactiveAtSnapshot"])("keeps missing actual evidence blocked, and unknown unanswered: %s", key => {
     let document = answer(qualified(), field(key), "0");
-    expect(requirements(document).fields).toMatchObject([{ fieldPath: field(key), status: "condition-not-satisfied" }]);
+    if (key === "swiftQualifiedAtCast") expect(requirements(document).fields).toMatchObject([{ fieldPath: field(key), status: "condition-not-satisfied" }]);
+    else expect(requirements(document).fields.map(row => row.fieldPath)).toEqual([field("ownerOnFieldAtSnapshot"), field("includedBurstAttack")]);
     expect(calculateDocument(document).status).toBe("blocked");
     document = applyCharacterConstellationScope(parseCalculatorDocument(serializeCalculatorDocument(document)));
     expect(document.gameContext!.iansanSwiftResolvedCast!.sharedState![key as "swiftQualifiedAtCast" | "burstInactiveAtSnapshot"]).toBe(false);
@@ -158,9 +159,9 @@ describe("Iansan existing Swift requirement links", () => {
 
   it("links an effective false template override instead of the shadowed shared value", () => {
     let document = qualified();
-    document.gameContext!.iansanSwiftResolvedCast!.hitStates = { [HIT]: { burstInactiveAtSnapshot: false } };
+    document.gameContext!.iansanSwiftResolvedCast!.hitStates = { [HIT]: { swiftQualifiedAtCast: false } };
     document = applyCharacterConstellationScope(document);
-    const override = `${ROOT}.hitStates.${HIT}.burstInactiveAtSnapshot`;
+    const override = `${ROOT}.hitStates.${HIT}.swiftQualifiedAtCast`;
     expect(requirements(document).fields).toMatchObject([{ fieldPath: override, status: "condition-not-satisfied" }]);
     expect(renderIansanSwiftResolvedControls(document)).toContain(`data-source-cast-state-field="${override}"`);
     document = answer(document, override, "1");
@@ -205,5 +206,54 @@ describe("Iansan existing Swift requirement links", () => {
     const empty = fixture();
     empty.selectedHitIds = [];
     expect(requirements(empty).fields).toEqual([]);
+  });
+
+  it("fills the active-Q branch through existing page controls, preserves zero/unknown and reopens the same result", () => {
+    let document = answer(qualified(), field("burstInactiveAtSnapshot"), "0");
+    expect(requirements(document).fields.map(row => row.fieldPath)).toEqual([field("ownerOnFieldAtSnapshot"), field("includedBurstAttack")]);
+    document = answer(document, field("ownerOnFieldAtSnapshot"), "1");
+    const fields = requirements(document).fields;
+    expect(fields.map(row => row.fieldPath)).toEqual([
+      `${ROOT}.burstTalentLevel`, field("burstUpdateNonExtraAttack"), field("burstUpdateNightsoulPoints"), field("includedBurstAttack"),
+    ]);
+    const rendered = renderIansanSwiftResolvedControls(document);
+    for (const row of fields) expect(rendered).toContain(`data-field="${row.fieldPath}"`);
+    document = answer(document, `${ROOT}.burstTalentLevel`, "10", true);
+    document = answer(document, field("burstUpdateNonExtraAttack"), "2000", true);
+    document = answer(document, field("burstUpdateNightsoulPoints"), "42", true);
+    expect(calculateDocument(document).status).toBe("blocked"); // included is still unknown
+    document = answer(document, field("includedBurstAttack"), "0", true);
+    expect(requirements(document)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(document).totals!.nonCritical).toBeCloseTo(1902.2949, 8);
+    const reopened = applyCharacterConstellationScope(parseCalculatorDocument(serializeCalculatorDocument(convertCalculatorToFinalPanel(document))));
+    expect(requirements(reopened)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(reopened).totals!.nonCritical).toBeCloseTo(1902.2949, 8);
+    document = answer(document, field("burstUpdateNightsoulPoints"), "0", true);
+    expect(requirements(document)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(document).totals!.nonCritical).toBeCloseTo(1497.87, 8);
+    document = answer(document, field("burstUpdateNightsoulPoints"), "", true);
+    expect(requirements(document).fields).toMatchObject([{ fieldPath: field("burstUpdateNightsoulPoints"), status: "input-required" }]);
+    expect(calculateDocument(document).status).toBe("blocked");
+  });
+
+  it("derives the Q recipient from a closed legal schedule, but rejects a conflicting explicit background state", () => {
+    let document = qualified();
+    document.scope = "one-cast";
+    Object.assign(document.gameContext!.iansanSwiftResolvedCast!, {
+      casterId: "iansan", targetId: "enemy", freshCastConfirmed: true, noHitlag: true, noInterruption: true,
+      noReplacement: true, fullObservedLifetime: true, observedThroughFrame: 25, statsStableAcrossHits: true,
+      inputKind: "normal", actionReadyConfirmed: true, groundedAtCast: true, fastSkillActiveAtCast: true,
+      targetContacts: { swift: true }, burstTalentLevel: 10,
+    });
+    Object.assign(document.gameContext!.iansanSwiftResolvedCast!.sharedState!, {
+      burstInactiveAtSnapshot: false, burstUpdateNonExtraAttack: 2000, burstUpdateNightsoulPoints: 42, includedBurstAttack: 0,
+    });
+    document = applyCharacterConstellationScope(document);
+    expect(document.gameContext!.iansanSwiftResolvedCast!.sharedState!.ownerOnFieldAtSnapshot).toBeUndefined();
+    expect(requirements(document)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(document).totals!.nonCritical).toBeCloseTo(1902.2949, 8);
+    document = answer(document, field("ownerOnFieldAtSnapshot"), "0");
+    expect(requirements(document).fields).toMatchObject([{ fieldPath: field("ownerOnFieldAtSnapshot"), status: "condition-not-satisfied" }]);
+    expect(calculateDocument(document).status).toBe("blocked");
   });
 });

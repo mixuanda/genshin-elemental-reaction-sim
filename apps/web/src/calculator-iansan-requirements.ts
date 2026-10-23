@@ -1,5 +1,6 @@
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
 import type { IansanSwiftResolvedHitState } from "../../../packages/sim-core/src/iansan-swift-resolved-context";
+import { iansanSwiftScheduleProvesOwnerOnField } from "../../../packages/sim-core/src/iansan-swift-resolved-schedule";
 import type { CalculatorFieldRequirementDraft, CalculatorRequirementAdapter } from "./calculator-requirements";
 
 const SKILL = "iansan-swift-resolved-c0";
@@ -55,8 +56,29 @@ export function collectIansanSwiftRequirements(document: CalculatorDocument): Ca
         "只确认已经发生的这一击；不能从雷伤结果推断起手资格，也不要求未来 E 或夜魂持续时间。", dependencies, hitIds,
         status(state.swiftQualifiedAtCast ?? hit.iansanSwiftResolvedEvent?.swiftQualifiedAtCast));
     }
-    if (state.burstInactiveAtSnapshot !== true) add(stateKey("burstInactiveAtSnapshot"), "本击取样时 Q 增攻未生效",
-      "本分支只覆盖 Q 攻击力反馈未生效的实际命中；已生效或未知时不能按关闭状态计算。", dependencies, hitIds, status(state.burstInactiveAtSnapshot));
+    if (state.burstInactiveAtSnapshot === undefined) add(stateKey("burstInactiveAtSnapshot"), "本击取样时 Q 增攻未生效",
+      "未生效选是；实际生效选否并填写本击采用的 Q 取值。未知不会自动按关闭或零增攻计算。", dependencies, hitIds);
+    if (state.burstInactiveAtSnapshot === false) {
+      const proven = iansanSwiftScheduleProvesOwnerOnField(document.scope, context);
+      const ownerOnField = state.ownerOnFieldAtSnapshot ?? (proven ? true : undefined);
+      if (ownerOnField === undefined || proven && ownerOnField === false) add(stateKey("ownerOnFieldAtSnapshot"), "本击取样时伊安珊本人正在前台",
+        proven ? "完整合法动作在第 25 帧取样、最早第 31 帧才能换人，本人后台与所声明的无中断日程冲突，不能把矛盾状态当成合法零增攻。"
+          : "Q 只增幅当前场上角色，也可增幅伊安珊自己。独立已发生命中须填写实际状态，明确本人在后台选否。",
+        dependencies, hitIds, proven ? "condition-not-satisfied" : "input-required");
+      if (ownerOnField === true) {
+        if (context.burstTalentLevel === undefined) add("burstTalentLevel", "Q 有效天赋等级（独立于普通攻击）",
+          "填写已经包含实际命座增级的有效 Q 等级 1–15，不再加级；雷霆飞缒本身仍使用普通攻击等级。", dependencies, hitIds, "input-required", "number");
+        if (state.burstUpdateNonExtraAttack === undefined) add(stateKey("burstUpdateNonExtraAttack"), "Q 增攻计算采用的攻击力",
+          "填写本击实际采用的那次 Q 刷新攻击力，排除 Q 自身等二次转换。不能用当前含 Q 的最终攻击力倒算；取值说明见 Q 详情。", dependencies, hitIds, "input-required", "number");
+        if (state.burstUpdateNightsoulPoints === undefined) add(stateKey("burstUpdateNightsoulPoints"), "Q 增攻计算采用的夜魂值（0–54）",
+          "填写同一次实际 Q 刷新采用的夜魂值，可含小数；0 是有效观察，留空才是未知。不能默认等于本击命中时的当前点数。", dependencies, hitIds, "input-required", "number");
+      }
+      if (hit.finalSnapshot) {
+        if (hit.finalSnapshot.origin !== "equipment-conversion" && state.snapshotIncludesActualBurst !== true) add(stateKey("snapshotIncludesActualBurst"), "历史面板已包含当时实际的 Q 增攻",
+          "只在历史最终攻击力确实已包含该次实际 Q 份额时确认，核心不再添加。未知或未含时应先提供真实最终快照。", dependencies, hitIds, status(state.snapshotIncludesActualBurst));
+      } else if (state.includedBurstAttack === undefined) add(stateKey("includedBurstAttack"), "面板已计入的 Q 增攻（未计入填 0）",
+        "填写输入攻击力中已经包含的自身 Q 固定攻击份额；核心计算实际份额后只补差一次。未计入填 0，不能把未知当作 0。", dependencies, hitIds, "input-required", "number");
+    }
     const ascension = hit.finalSnapshot?.ascension ?? (document.build.mode === "equipment-derived"
       ? document.build.equipment?.ascension : document.build.ascension) ?? document.gameContext!.ascension;
     if (ascension !== undefined && (ascension >= 1 && state.a1ActiveAtSnapshot === undefined

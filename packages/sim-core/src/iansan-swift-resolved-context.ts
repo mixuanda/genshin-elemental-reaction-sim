@@ -18,8 +18,17 @@ export const iansanSwiftResolvedHitStateSchema = z.strictObject({
   baseAttack: amount.optional(),
   /** Historical final snapshots already contain the actual pre-existing A1 state. */
   snapshotIncludesActualA1: bool.optional(),
-  /** This bounded action excludes Iansan's separate Q ATK-feedback state. */
+  /** Legacy true remains Q inactive; false now requires actual Q evidence. */
   burstInactiveAtSnapshot: bool.optional(),
+  /** Q only grants its flat ATK to the active character, including its owner. */
+  ownerOnFieldAtSnapshot: bool.optional(),
+  /** Actual latest Q update input, excluding ALL Extra stat conversions. */
+  burstUpdateNonExtraAttack: amount.optional(),
+  /** Actual points at that update; not necessarily points at this hit. */
+  burstUpdateNightsoulPoints: amount.max(54).optional(),
+  /** Q flat ATK already in the input; zero is known none, not unknown. */
+  includedBurstAttack: amount.max(890).optional(),
+  snapshotIncludesActualBurst: bool.optional(),
 });
 
 /** calculator-model adds snapshots using its common final-snapshot schema. */
@@ -28,6 +37,8 @@ export const iansanSwiftResolvedCastBaseSchema = z.strictObject({
   noHitlag: bool.optional(), noInterruption: bool.optional(), noReplacement: bool.optional(),
   fullObservedLifetime: bool.optional(), observedThroughFrame: frame.optional(),
   statsStableAcrossHits: bool.optional(),
+  /** Independent effective Q level; never borrow the Swift NA level. */
+  burstTalentLevel: z.number().int().min(1).max(15).optional(),
   inputKind: z.enum(["normal", "charged"]).optional(),
   actionReadyConfirmed: bool.optional(), groundedAtCast: bool.optional(),
   fastSkillActiveAtCast: bool.optional(), nightsoulBlessingAtCast: bool.optional(),
