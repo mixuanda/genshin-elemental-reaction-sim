@@ -1,0 +1,19 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > reproduces the unlinked supported E hit, then links its existing controls without mutating input 48ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > answers through the existing numeric controls and preserves explicit zero through JSON 20ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > does not use shared answers before stability is true (undefined) 4ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > does not use shared answers before stability is true (false) 2ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > coalesces eligible shared omissions and honors per-hit overrides 8ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > keeps a single selected hit independent of stability and unselected omissions 7ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > uses historical per-hit conditions and its own ascension rather than shared/current values 2ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > requires no HP condition before A4 is unlocked and retains unanswered accounting 1ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > coalesces unknown actual ascension and accepts an explicitly locked A4 without inventing HP 9ms
+ ✓ apps/web/src/calculator-projectile-requirements.test.ts > Neuvillette existing projectile requirement controls > reports missing rendered controls and does not claim Q, another actor, or unsupported constellations 3ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  20:01:36
+   Duration  12.20s (transform 9.32s, setup 0ms, import 11.96s, tests 106ms, environment 0ms)
+
