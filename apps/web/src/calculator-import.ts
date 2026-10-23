@@ -55,6 +55,11 @@ export function applyImportedCalculatorPanel(
     ...(character.ascension === undefined || character.ascension === null ? {} : { ascension: character.ascension }),
     stats: { atk: requireImportedNumber(character.stats.attack, "attack"), hp: requireImportedNumber(character.stats.maxHp, "maxHp"), def: requireImportedNumber(character.stats.defense, "defense"), em: requireImportedNumber(character.stats.elementalMastery, "elementalMastery"), critRate: requireImportedNumber(character.stats.critRate, "critRate"), critDamage: requireImportedNumber(character.stats.critDamage, "critDamage"), ...(character.stats.energyRecharge === null ? {} : { energyRecharge: character.stats.energyRecharge }) },
   };
+  if (context.wandererPrimary && talentPolicy === "imported-effective") {
+    const skill = character.resolvedSkills.find(row => row.abilityId === "talent:wanderer:combat2");
+    if (skill && hasKnownImportedTalent(skill)) context.wandererPrimary.skillTalentLevel = skill.effectiveLevel;
+    else delete context.wandererPrimary.skillTalentLevel;
+  }
   if (context.xiaoDamage && talentPolicy === "imported-effective") {
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:xiao:combat3");
     if (burst && hasKnownImportedTalent(burst)) context.xiaoDamage.burstTalentLevel = burst.effectiveLevel;

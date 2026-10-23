@@ -1,5 +1,9 @@
 import {extendAlhaithamDocuments} from './alhaitham-calculation-context';
 import { initializeFaruzanBurstInitialDocument, isFaruzanBurstInitialAction, isFaruzanBurstInitialHit, FARUZAN_BURST_INITIAL_SOURCE_REFS } from "../../../packages/sim-core/src/faruzan-burst-initial-formulas";
+import { initializeWandererPrimaryDocument } from "./wanderer-primary-calculation-context";
+import { initializeDurinBurstDocument } from "./durin-burst-calculation-context";
+import { isWandererPrimaryAction, WANDERER_PRIMARY_SOURCE_REFS } from "../../../packages/sim-core/src/wanderer-primary-formulas";
+import { isDurinBurstAction, DURIN_BURST_SOURCE_REFS } from "../../../packages/sim-core/src/durin-burst-formulas";
 import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS,ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/alhaitham-damage-formulas';
 import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
 import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS,ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
@@ -134,7 +138,13 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     const kaeyaTick = context.skillId === "kaeya-burst-burst" && hit.attackTag === "burst" && context.scopeCoverage === "selected-components";
     const maleChargedScope = travelerMaleChargedConstellationScope(result, hit);
     const anemoBurstScope = travelerAnemoConstellationScope(result, hit);
-    if (result.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialHit(result, hit)) {
+    if (isWandererPrimaryAction(result)) {
+      allowed = true; sourceRefs = [...sourceRefs, ...WANDERER_PRIMARY_SOURCE_REFS];
+      reason = "流浪者C0–C6空居普攻、独立C6追加或Q：NA/E/Q有效天赋分别处理，吸收、C6资格及C2取样按实际状态核对，不生成整轮或额外风矢。";
+    } else if (isDurinBurstAction(result)) {
+      allowed = context.constellation <= 2; sourceRefs = [...sourceRefs, ...DURIN_BURST_SOURCE_REFS];
+      reason = allowed ? "杜林C0–C2当前白Q一次追击：前10次A4按真实序号自动判断，C2按此前状态与已含份额核对，不添加本人不应取得的C1队友附伤。" : "杜林白Q此单次追击尚未审阅C3以上，不能用C2代算。";
+    } else if (result.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialHit(result, hit)) {
       allowed = true; sourceRefs = [...sourceRefs, ...FARUZAN_BURST_INITIAL_SOURCE_REFS];
       reason = "珐露珊C0–C6所选Q初击：祈风赐福、A4白字与C6暴伤分别恢复；本次Q减抗在初击之后生效。后续坍陷不属于本次单击。";
     } else if (maleChargedScope) {
@@ -306,6 +316,8 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isWandererPrimaryAction(document))return initializeWandererPrimaryDocument(document);
+    if(isDurinBurstAction(document))return initializeDurinBurstDocument(document);
     if(isFaruzanBurstInitialAction(document))return initializeFaruzanBurstInitialDocument(document);
     if(isArlecchinoDamageAction(document))return initializeArlecchinoDamageDocument(document);
     if(isHutaoPrimaryDocument(document))return applyHutaoDamageContext(document,createHutaoExampleContext());

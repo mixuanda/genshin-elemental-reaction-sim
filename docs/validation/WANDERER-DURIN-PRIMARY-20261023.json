@@ -1,0 +1,81 @@
+{
+  "status": "passed",
+  "production": "paused-not-deployed",
+  "moduleTests": 52,
+  "publicIntegrationTests": 5,
+  "browser": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "nativeRuns": 0,
+    "independentPanelsNotPlayerBuild": true,
+    "cases": [
+      {
+        "name": "Wanderer Windfavored N1",
+        "characterLevel": 100,
+        "constellation": 6,
+        "talent": 10,
+        "totals": {
+          "nonCritical": 2023.940139230769,
+          "critical": 4047.880278461538,
+          "expected": 3035.9102088461536
+        },
+        "hits": 1
+      },
+      {
+        "name": "Wanderer independent C6 N1",
+        "characterLevel": 100,
+        "constellation": 6,
+        "talent": 10,
+        "totals": {
+          "nonCritical": 809.5760556923077,
+          "critical": 1619.1521113846154,
+          "expected": 1214.3640835384615
+        },
+        "hits": 1
+      },
+      {
+        "name": "Wanderer Q five contacts / capped C2",
+        "characterLevel": 100,
+        "constellation": 6,
+        "talent": 13,
+        "totals": {
+          "nonCritical": 43310.76923076923,
+          "critical": 86621.53846153845,
+          "expected": 64966.153846153844
+        },
+        "hits": 5
+      },
+      {
+        "name": "Durin white Q tick 10 / A4",
+        "characterLevel": 90,
+        "constellation": 2,
+        "talent": 10,
+        "totals": {
+          "nonCritical": 3679.6032000000005,
+          "critical": 7359.206400000001,
+          "expected": 5519.4048
+        },
+        "hits": 1
+      },
+      {
+        "name": "Durin white Q tick 11 / no A4",
+        "characterLevel": 90,
+        "constellation": 2,
+        "talent": 10,
+        "totals": {
+          "nonCritical": 2299.752,
+          "critical": 4599.504,
+          "expected": 3449.6279999999997
+        },
+        "hits": 1
+      }
+    ],
+    "knownETalentPreservedAcrossOwnActions": true,
+    "missingEBlocksAndCorrectionRestores": true,
+    "savedReopenedContextAndDamageUnchanged": true,
+    "desktopAndNarrow": true,
+    "errors": []
+  },
+  "originalNumericalExpectations": "docs/audits/wanderer-durin-calculator-20261023.arithmetic.json",
+  "fullRegressionRerun": false
+}

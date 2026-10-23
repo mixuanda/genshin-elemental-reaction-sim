@@ -1,5 +1,7 @@
 import {gamingRequirementAdapter} from './calculator-gaming-controls';
 import { faruzanBurstInitialRequirementAdapter } from "./calculator-faruzan-burst-initial-controls";
+import { wandererPrimaryRequirementAdapter } from "./calculator-wanderer-primary-controls";
+import { durinBurstRequirementAdapter } from "./calculator-durin-burst-controls";
 import {xiaoRequirementAdapter} from "./calculator-xiao-controls";
 import {tighnariRequirementAdapter} from './calculator-tighnari-controls';
 import {kinichRequirementAdapter} from './calculator-kinich-controls';
@@ -190,7 +192,7 @@ const durinAdapter: CalculatorRequirementAdapter = {
 };
 
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [faruzanBurstInitialRequirementAdapter,alhaithamRequirementAdapter,arlecchinoRequirementAdapter,hutaoRequirementAdapter,keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter,jeanRequirementAdapter,observedPlungeRequirementAdapter,travelerCrossRequirementAdapter,iansanSwiftRequirementAdapter,travelerMaleChargedRequirementAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [wandererPrimaryRequirementAdapter,durinBurstRequirementAdapter,faruzanBurstInitialRequirementAdapter,alhaithamRequirementAdapter,arlecchinoRequirementAdapter,hutaoRequirementAdapter,keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter,jeanRequirementAdapter,observedPlungeRequirementAdapter,travelerCrossRequirementAdapter,iansanSwiftRequirementAdapter,travelerMaleChargedRequirementAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a
