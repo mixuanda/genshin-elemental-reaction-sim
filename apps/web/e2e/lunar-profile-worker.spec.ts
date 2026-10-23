@@ -33,6 +33,7 @@ test("lunar Worker applies the original runtime profile once and preserves an ap
   await expect(page.locator("#exportRunButton")).toBeEnabled();
   const ordinaryBeforeRefresh = await page.evaluate(() => window.GenshinDpsLab.getLastResult()!.reproducibilityKey);
   const workersBeforeRefresh = workers.length;
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await expect(page.locator("[data-lunar-config]")).toContainText(config.meta.name);
   await expect(page.locator("[data-lunar-status]")).toContainText("尚未运行");

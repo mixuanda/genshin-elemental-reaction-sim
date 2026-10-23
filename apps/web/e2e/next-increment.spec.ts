@@ -170,6 +170,7 @@ test("executed Stellar Conduct fields and the explicit Moondew ability restore t
   };
   await page.goto("/results");
   await importFixture(page, "stellar-conduct-reference.synthetic.json", "合成机制验证：星导领域");
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await expect(page.locator("[data-lunar-config]")).toContainText("合成机制验证：星导领域");
   await page.locator("#critModeInput").selectOption("average");
@@ -201,6 +202,7 @@ test("executed Stellar Conduct fields and the explicit Moondew ability restore t
   };
   await page.locator('.product-nav a[href="/results"]').click();
   await importFixture(page, "lunar-bloom-reference.synthetic.json", "合成机制验证：草露与月露涤荡");
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await expect(page.locator("[data-lunar-config]")).toContainText("合成机制验证：草露与月露涤荡");
   const original = await page.evaluate(() => window.GenshinDpsLab.getConfig());
@@ -254,6 +256,7 @@ test("Stellar Swirl guide profile discloses source conflicts and restores initia
   };
   await page.goto("/results");
   await importFixture(page, "stellar-swirl-reference.synthetic.json", "合成机制验证：星扩散指南参考");
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("#critModeInput").selectOption("average");
   await page.locator("[data-lunar-profile]").selectOption("stellar-swirl");

@@ -91,6 +91,7 @@
         <button class="tab active" data-tab="overview">总览</button>
         <button class="tab" data-tab="timeline">时间轴</button>
         <button class="tab" data-tab="hits">逐段伤害</button>
+        <button class="tab" data-tab="special">月／星反应</button>
         <button class="tab" data-tab="showcase">账号展示柜</button>
         <button class="tab" data-tab="config">高级配置</button>
       </nav>
@@ -111,7 +112,6 @@
           <div id="energyStatus" class="energy-grid"></div>
         </article>
         <div id="simulationAnalysis"></div>
-        <div id="lunarSimulationHost"></div>
         <article class="card legal-timeline-card" id="legalTimelineCard" hidden>
           <div class="section-title">
             <h2>合法帧行动队列</h2>
@@ -158,6 +158,10 @@
             </div>
           </div>
         </article>
+      </section>
+
+      <section class="tab-panel" id="specialPanel">
+        <div id="lunarSimulationHost"></div>
       </section>
 
       <section class="tab-panel" id="timelinePanel">

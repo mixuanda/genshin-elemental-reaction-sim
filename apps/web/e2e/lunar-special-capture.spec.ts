@@ -19,7 +19,7 @@ async function downloadCapture<T extends CapturedSpecialSimulation["result"]>(pa
 }
 
 test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
-test("special result capture roundtrips through the normal page and rejects a changed complete result", async ({ page }) => {
+test("special result capture roundtrips through the normal page and rejects a changed complete result", async ({ page }, testInfo) => {
   const pageErrors: string[] = [];
   page.on("pageerror", error => pageErrors.push(error.message));
   const config = JSON.parse(await readFile(new URL("../../../docs/fixtures/lunar-bloom-reference.synthetic.json", import.meta.url), "utf8")) as SimConfig;
@@ -27,6 +27,7 @@ test("special result capture roundtrips through the normal page and rejects a ch
   const inputRecord = { format: "simulation-record-v1", sourceConfig: config, options, iterations: 1, executionProfile: null, benchmark: null };
   await page.goto("/results");
   await page.locator("#importInput").setInputFiles({ name: "special-capture-input.record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(inputRecord)) });
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("[data-lunar-profile]").selectOption("lunar-bloom");
   await page.locator('[data-lunar-party-index="0"]').selectOption("columbina");
@@ -41,7 +42,8 @@ test("special result capture roundtrips through the normal page and rejects a ch
   await expect(page.locator("[data-lunar-status]")).toContainText("实际结算 3 条月绽放事件");
 
   const capture = await downloadCapture<LunarBloomSimulationResult>(page);
-  await writeFile("docs/validation/lunar-bloom-complete-capture-20260928.result.json", JSON.stringify(capture, null, 2) + "\n");
+  // New test evidence belongs to this run; never overwrite the historical capture.
+  await writeFile(testInfo.outputPath("lunar-bloom-complete-capture.result.json"), JSON.stringify(capture, null, 2) + "\n");
   expect(capture.schemaVersion).toBe("special-complete-reexecution-v1");
   expect(capture.request.profile).toBe("lunar-bloom");
   expect(capture.request.config).toBeDefined();
@@ -53,6 +55,7 @@ test("special result capture roundtrips through the normal page and rejects a ch
 
   const expectedTotal = await page.locator('[data-testid="lunar-total-damage"]').textContent();
   const expectedEventIds = await page.locator("[data-lunar-event]").evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.lunarEvent));
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator("[data-lunar-import]").setInputFiles({ name: "complete-special-capture.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(capture)) });
   await expect(page.locator("[data-lunar-status]")).toContainText("捕获记录可复现");
   await expect(page.locator("[data-lunar-profile]")).toHaveValue("lunar-bloom");
@@ -61,6 +64,7 @@ test("special result capture roundtrips through the normal page and rejects a ch
 
   const changed = JSON.parse(JSON.stringify(capture)) as UiCapture<LunarBloomSimulationResult>;
   changed.result.specialDamageEvents[0]!.damage += 1;
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator("[data-lunar-import]").setInputFiles({ name: "changed-special-result.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(changed)) });
   await expect(page.locator("[data-lunar-status]")).toContainText("未通过完整重放");
   await expect(page.locator('[data-testid="lunar-total-damage"]')).toHaveText(expectedTotal!);
@@ -77,6 +81,7 @@ test("special result capture roundtrips through the normal page and rejects a ch
     iterations: 1, executionProfile: null, benchmark: null };
   await page.goto("/results");
   await page.locator("#importInput").setInputFiles({ name: "stellar-conduct.record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(stellarRecord)) });
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("[data-lunar-profile]").selectOption("stellar-conduct");
   await page.locator('[data-lunar-party-index="0"]').selectOption("sandrone");
@@ -84,9 +89,10 @@ test("special result capture roundtrips through the normal page and rejects a ch
   await page.locator('[data-lunar-action="run"]').click();
   await expect(page.locator('[data-lunar-action="export"]')).toBeEnabled();
   const stellarCapture = await downloadCapture<StellarConductSimulationResult>(page);
-  await writeFile("docs/validation/stellar-conduct-complete-capture-20260928.result.json", JSON.stringify(stellarCapture, null, 2) + "\n");
+  await writeFile(testInfo.outputPath("stellar-conduct-complete-capture.result.json"), JSON.stringify(stellarCapture, null, 2) + "\n");
   expect(stellarCapture.request.profile).toBe("stellar-conduct");
   expect(stellarCapture.result.fieldInfluences.length).toBeGreaterThan(0);
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator("[data-lunar-import]").setInputFiles({ name: "stellar-conduct-capture.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(stellarCapture)) });
   await expect(page.locator("[data-lunar-status]")).toContainText("捕获记录可复现");
   await expect(page.locator("[data-lunar-profile]")).toHaveValue("stellar-conduct");

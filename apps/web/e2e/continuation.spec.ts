@@ -225,6 +225,7 @@ test("enemy resistances, execution delays and window-energy-steady analyses reta
   await page.locator("#importInput").setInputFiles({ name: "lunar-charged-reference.synthetic.json", mimeType: "application/json", buffer: lunarFixture });
   await expect(page.locator("#notice")).toContainText("合成机制验证：月感电");
   await waitForSimulation(page);
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await expect(page.locator("[data-lunar-config]")).toContainText("合成机制验证：月感电");
   await page.locator("#critModeInput").selectOption("average");
@@ -266,6 +267,7 @@ test("enemy resistances, execution delays and window-energy-steady analyses reta
   await page.locator("#importInput").setInputFiles({ name: "lunar-crystallize-reference.synthetic.json", mimeType: "application/json", buffer: crystalFixture });
   await expect(page.locator("#notice")).toContainText("合成机制验证：月结晶");
   await waitForSimulation(page);
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await expect(page.locator("[data-lunar-config]")).toContainText("合成机制验证：月结晶");
   await page.locator("#critModeInput").selectOption("average");

@@ -110,6 +110,7 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
   await expect(page.locator("#notice")).toContainText("合成机制验证：共享三类Lunar、草核与草露");
   await waitForSimulation(page);
   const original = await page.evaluate(() => window.GenshinDpsLab.getConfig());
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("#critModeInput").selectOption("average");
   await page.locator("[data-lunar-profile]").selectOption("lunar-mixed-v2");

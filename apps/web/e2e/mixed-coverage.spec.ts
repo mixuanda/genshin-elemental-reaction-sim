@@ -133,6 +133,7 @@ test("mixed Lunar reactions share one run, actual Geo budgets and both calculato
   await expect(page.locator("#cancelRunButton")).toBeHidden();
   await expect(page.locator("#simulationProgress")).toHaveText("");
   await expect(page.locator("#exportRunButton")).toBeEnabled();
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("#critModeInput").selectOption("average");
   await page.locator("[data-lunar-profile]").selectOption("lunar-mixed");

@@ -30,7 +30,7 @@ test("Moonlight 4pc callbacks flow from real ordinary and Lunar hits into a repl
   await page.locator("#importInput").setInputFiles({ name: "moonlight-artifact.record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
   await expect(page.locator('#documentNotice')).toContainText('打开不会运行模拟');
   await page.locator('#runButton').click();
-  await page.locator('[data-tab="overview"]').click();
+  await page.locator('[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("[data-lunar-profile]").selectOption("lunar-mixed");
   await page.locator('[data-lunar-party-index="0"]').selectOption("columbina");
@@ -78,6 +78,7 @@ test("Moonlight 4pc callbacks flow from real ordinary and Lunar hits into a repl
   ]));
 
   await page.goto("/results");
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator("[data-lunar-import]").setInputFiles({ name: "moonlight-artifact-complete.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(capture)) });
   await expect(page.locator("[data-lunar-status]")).toContainText("捕获记录可复现");
   const restored = await downloadCapture(page);
