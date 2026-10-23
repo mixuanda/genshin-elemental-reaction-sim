@@ -146,10 +146,10 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
     } else if(isAlhaithamDamageAction(result)) {
       allowed=context.constellation<=ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION;sourceRefs=[...sourceRefs,...ALHAITHAM_DAMAGE_SOURCE_REFS];
-      reason=allowed?"艾尔海森C0–C3所选镜投射：C1不改本击伤害，C2按实际及已含精通分别恢复触发、快照、命中状态，C3有效E等级不重复增加；不代算完整镜生命周期。":"此镜投射入口未实现C4以上的增伤及双暴机制，不按低命座代算。";
+      reason=allowed?"艾尔海森C0–C6所选镜投射：C2精通按实际阶段补差，C3直接使用有效E等级；C4自身草伤和C6双暴分别核对快照实际状态及已含份额，不把队友精通加给自身。不代算Q或完整镜生命周期。":"此镜投射入口超出已审阅命座范围，不能按低命座代算。";
     } else if(isArlecchinoDamageAction(result)) {
       allowed=context.constellation<=ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION;sourceRefs=[...sourceRefs,...ARLECCHINO_DAMAGE_SOURCE_REFS];
-      reason=allowed?"阿蕾奇诺C0–C5红死之宴所选一击：C1给附伤系数加1.0，C3按独立有效普攻等级一次处理，扣契前生命之契及固有火伤记账分别核对；不追加C2吸收事件或代算整轮。":"此红死之宴单击尚缺C6实际条件暴击机制，不按低命座代算。";
+      reason=allowed?"阿蕾奇诺C0–C6红死之宴所选一击：C1附伤系数加1.0，C3直接使用有效普攻等级；C6按本击实际生效及面板已含双暴补差。不追加C2吸收、Q或完整循环。":"此红死之宴单击超出已审阅命座范围，不能按低命座代算。";
     } else if(isHutaoPrimaryDocument(result)) {
       allowed=context.constellation<=HUTAO_PRIMARY_MAX_CONSTELLATION;sourceRefs=[...sourceRefs,...HUTAO_DAMAGE_SOURCE_REFS];
       reason=allowed?"胡桃C0–C6彼岸蝶舞所选火普攻或重击：有效普攻/E等级不重复增加命座，E快照、A4和C6实际生效及暴击率已含量分别核对；不追加血梅香或队友增益。":"此彼岸蝶舞单击超出已审阅命座范围，不能静默降级。";
