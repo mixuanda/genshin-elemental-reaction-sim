@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "numericEvidenceStatus": "single-source-extracted",
+  "status": "Fixed community source, not current-game certification",
+  "files": [
+    {
+      "path": "internal/characters/durin/durin.go",
+      "sha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+      "gitBlob": "1ded3df8c34a2c5d07ce92156d0553c0f1dcd4e4",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/durin.go"
+    },
+    {
+      "path": "internal/characters/durin/attack.go",
+      "sha256": "c993b02659dbee541c4cafc8c160a2e7791c846ec2885c9c3acd4441ae01a675",
+      "gitBlob": "dbf85200c3f3f9feeea9f86647ca6ecf7335cb3d",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/attack.go"
+    },
+    {
+      "path": "internal/characters/durin/skill.go",
+      "sha256": "14bded4b59a93b25f2ee7a49b7fa2bef2598054eddd411790ae7fd87120c256c",
+      "gitBlob": "f168c51ee7a58a05327d19e894513665e3380bcd",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/skill.go"
+    },
+    {
+      "path": "internal/characters/durin/burst.go",
+      "sha256": "1677ee3803d7da93ce283a77188eff52c0bb755c8aa6ad1cb25514315a068516",
+      "gitBlob": "fc86070225f212a346829ca24659ba24d8f0938f",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/burst.go"
+    },
+    {
+      "path": "internal/characters/durin/asc.go",
+      "sha256": "8e7fd4a8022ce67b80955fa95ace832746e5ff9bb01a9320c5482c14b273d972",
+      "gitBlob": "78ea926df4db86c4ea9a7deed9e8fc8363a2f587",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/asc.go"
+    },
+    {
+      "path": "internal/characters/durin/cons.go",
+      "sha256": "9c41cc8fef8675e31b508d789ddbe2c663ca8c2dbc80517285e2d01f0fbc8146",
+      "gitBlob": "ca453ed612e19919e761e587da00b7590fde7a2a",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/cons.go"
+    },
+    {
+      "path": "internal/characters/durin/zz_durin.dm.go",
+      "sha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+      "gitBlob": "946bff24f1b7d2dfa22c22da663ecae2b5a64558",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/zz_durin.dm.go"
+    },
+    {
+      "path": "internal/weapons/sword/athameartis/athameartis.go",
+      "sha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+      "gitBlob": "a2958bb374162b7ea377191d0d556df6c7d74236",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go"
+    }
+  ],
+  "tables": {
+    "burstWhiteDoT": [
+      0.9464,
+      1.01738,
+      1.08836,
+      1.183,
+      1.25398,
+      1.32496,
+      1.4196,
+      1.51424,
+      1.60888,
+      1.70352,
+      1.79816,
+      1.8928,
+      2.0111,
+      2.1294,
+      2.2477
+    ]
+  },
+  "rules": {
+    "whiteTick": "Selected current White Q tick1..20, not the3 initial hits or all20ticks; source multiplier burstWhiteDoT[effectiveQ-1]. Dynamic stats at tick creation/snapshot.",
+    "a4": "Q grants10 stacks at97f. Only white/black DoT calls consume a4Dmg; current burstSrc invalidates prior Q tasks. First10 actual current white ticks use1+min(currentTotalATK/100*.03,.75), later ticks1.",
+    "c1": "White Q C1 gives flat addition to other current on-field actors, never Durin own tick. Black C1 is outside this entry.",
+    "c2": "Actual prior50% Pyro bonus at this snapshot is separate from reaction selection and already-included input share.",
+    "weapon": "Athame R1 burst-onlyCD16% and established selfATK window remain existing equipment rules. This source retains its triggering-hit ATK TODO; not fixed here."
+  }
+}
