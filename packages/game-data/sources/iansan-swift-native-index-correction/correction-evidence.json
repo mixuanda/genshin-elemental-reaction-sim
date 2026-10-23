@@ -43,8 +43,8 @@
         }
       ]
     },
-    "meaning": "补丁138增加真实来源纠正注释后，Swift实际读取普通攻击getter；NA基础等级、Childe被动和NormalCon0按原getter独立回放。",
-    "constellationUnlock": 0
+    "meaning": "补丁138增加真实来源纠正注释后，Swift实际读取普通攻击getter；NA基础等级、Childe被动和原wrapper保留的NormalCon=-1按原getter独立回放。",
+    "constellationUnlock": -1
   },
   "table": {
     "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
@@ -143,6 +143,15 @@
       "sha256": "7ee6b65bcbdc6816139dd07cf5c5b4f582181efae11c8356f46b55f8635f074d",
       "gitBlob": "99ca2bfe2a27e38bcd9ae85571fa3eb8cc1e11eb",
       "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/zz_iansan.dm.go"
+    },
+    {
+      "archiveKey": "gcsim/pkg/core/player/character/character.go",
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/character.go"
     }
   ],
   "unchangedSemantics": [
@@ -154,5 +163,19 @@
   "scopeLimits": [
     "Old source archive and E-index conflict remain immutable. Historical alias is exact pin/table/site/kind, never numeric matching.",
     "C1 floating-point energy qualification is audited separately; no claim that this patch fixes all Iansan mechanics."
-  ]
+  ],
+  "normalConSourceContract": {
+    "wrapperArchiveKey": "gcsim/pkg/core/player/character/character.go",
+    "iansanArchiveKey": "gcsim/internal/characters/iansan/iansan.go",
+    "constructorNormalCon": -1,
+    "consCheck": "Exactly one of NormalCon/SkillCon/BurstCon is negative; validates but never rewrites the sentinel.",
+    "iansanSkillCon": 3,
+    "iansanBurstCon": 5,
+    "meaning": "Iansan leaves the constructor NormalCon=-1 unchanged; no constellation raises its normal talent. Exact -1 is source identity, not an arbitrary <=0 allowance.",
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/character.go#L159",
+      "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/character.go#L205",
+      "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/iansan.go#L32"
+    ]
+  }
 }

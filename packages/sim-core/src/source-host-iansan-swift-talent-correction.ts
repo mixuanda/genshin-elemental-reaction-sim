@@ -21,6 +21,7 @@ export function sourceHostIansanSwiftTalentSemantics(read: SourceHostTalentTable
   }
   const patchRef = `source-host-patch:${evidence.patch.name}:sha256:${evidence.patch.sha256}`;
   return {sourceRefs: [corrected ? patchRef : `source-host-known-conflict:${evidence.sourceCommit}:${evidence.legacySite.id}`,
+    ...(corrected ? evidence.normalConSourceContract.sourceRefs : []),
     ...evidence.sourceFiles.filter(file => file.repository === "frzyc/genshin-optimizer").map(file => file.sourceRef)],
     explanation: corrected ? `补丁138的实际新源码读取位置：${entry.meaning}` : `历史原生读取，已知未修正：${entry.meaning}`,
     explanationGaps: corrected ? [] : ["该历史Swift回执忠实验证原a7的E等级索引；此索引已知与固定Optimizer的NA绑定冲突，不代表修正后语义或游戏正确。"]};

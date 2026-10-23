@@ -33,8 +33,14 @@ Swift的倍率表读取在动作起手；进攻Snapshot和命中为相对25f。�
 
 138只把Swift getter改为Attack，并增加三行真实纠正注释，使新读取位置成为 `charge.go:98:21`；旧95:21并未伪造或重新解释。补丁SHA256为 `cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538`。数值/原源码摘要/完整15级向量在 `packages/game-data/sources/iansan-swift-native-index-correction/correction-evidence.json`，实际前测摘录在同目录 `historical-native-reads.json`。
 
-Stellar build.mjs登记138与夜魂线139；Classic不登记。官方构建会在补丁后生成新的Attack site。根线程随后运行既有 `generate-talent-registry.mjs` 更新generated.ts；本分支没有手写生成文件。新增generator窄validator只在a7、138 patch SHA、Swift表及新98 Attack site全部精确匹配时补原95 Skill别名；拒绝数值碰巧相等、错误kind或混合工件。旧捕获继续按E getter验证历史金额，但trace明确“已知未修正”，不标游戏正确。新NA回执必须携带Attack基础天赋/被动来源和NormalCon=0；通用getter回放验证基础等级、Childe被动及下标，不得带入E/C3加级。
+Stellar build.mjs登记138与夜魂线139；Classic不登记。官方构建会在补丁后生成新的Attack site。根线程随后运行既有 `generate-talent-registry.mjs` 更新generated.ts；本分支没有手写生成文件。新增generator窄validator只在a7、138 patch SHA、Swift表及新98 Attack site全部精确匹配时补原95 Skill别名；拒绝数值碰巧相等、错误kind或混合工件。旧捕获继续按E getter验证历史金额，但trace明确“已知未修正”，不标游戏正确。新NA回执必须携带Attack基础天赋/被动来源和NormalCon=-1；通用getter回放验证基础等级、Childe被动及下标，不得带入E/C3加级。
 
 本地必要验证：`node --test packages/source-host/scripts/iansan-swift-talent-correction.test.mjs` **8/8**；`node node_modules/vitest/vitest.mjs run packages/sim-core/src/source-host-iansan-swift-talent-correction.test.ts --reporter=verbose` **13/13**。包含三份实际旧回执、新NA/C3/Childe来源夹具、错误/缺失kind、别名篡改、原归档/补丁哈希与临时源文件git apply精确边界。新NA回执测试明确是源契约夹具，未冒充修后原生。证据目录 `/tmp/GIDPS-iansan-team-chain-evidence-20261023`。
 
 待根线程：一次已缓存官方Go1.27.1 Stellar构建（同时138/139）、生成registry、复用三条短轴做修后实际回执/金额验证。无须Classic构建或120秒轴。构建成本预计分钟级，尚未新测；已有三条短原生前测 native+shared formula 分别321.68/175.32/234.92ms，只是该云执行样本，不是浏览器性能或保证。
+
+## /goal 实际回执的 NormalCon 哨兵补正
+
+根线程新 WASM 的5例实际验收中，Swift四例被本次 TS 来源身份校验错误拒绝；零能量例已通过。修前报告保留 `/tmp/GIDPS-iansan-team-20261023/native-after-tests.json`（SHA256 `2bf7b3451e9e0bae967f91641119f6892c3bc7ab7b54c8db9f53e03635968e53`），没有改写该失败或重跑原生。错误是此前新回执夹具把未加级哨兵猜成0，原生NA计算和138字节没有问题。
+
+冻结归档的原 a7 wrapper构造把三个Con槽初始化为-1；`consCheck`仅要求恰有一个负值，不重写它；Iansan构造只设SkillCon3/BurstCon5，实际NormalCon因而保留精确-1。补充wrapper完整SHA/原Git blob与三处固定来源链接，均与固定source-tree一致。新NA来源校验改为精确-1，拒绝伪0、-2及C3；旧E索引的SkillCon3历史不变。新fixture保留全部原倍率断言与Childe来源，新增原构造/consCheck/Iansan初始化契约断言。定向验证记录 `/tmp/GIDPS-iansan-swift-sentinel-evidence-20261023/targeted-tests.log`；没有重建WASM、Go测试或native模拟，根线程可直接复用已编译正确NA的WASM复验。

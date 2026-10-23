@@ -16,7 +16,7 @@ const correctedSite = evidence.correctedSite.definition as SourceHostTalentSite;
 function expectedRead(baseTalent = 1, constellation = 0, passiveTagValue = 0): SourceHostTalentTableRead {
   const index = baseTalent - 1 + Number(passiveTagValue > 0);
   return {schemaVersion: 1, tableId: evidence.table.tableId, siteId: evidence.correctedSite.id, indices: [index],
-    indexSources: [{position: 0, kind: "attack", baseTalent, constellation, constellationUnlock: 0, passiveTagValue, value: index}],
+    indexSources: [{position: 0, kind: "attack", baseTalent, constellation, constellationUnlock: -1, passiveTagValue, value: index}],
     value: evidence.table.values[index]!, actorIndex: 0, frame: 138};
 }
 const semantics = (read: SourceHostTalentTableRead) => sourceHostIansanSwiftTalentSemantics(read, evidence.sourceCommit, correctedSite);
@@ -38,17 +38,20 @@ describe("Stellar Iansan Swift source correction and historical provenance", () 
       expect(note.explanation).toContain("实际新源码读取位置");
       expect(note.explanationGaps).toEqual([]);
       expect(note.sourceRefs).toContain(`source-host-patch:${evidence.patch.name}:sha256:${evidence.patch.sha256}`);
+      for (const ref of evidence.normalConSourceContract.sourceRefs) expect(note.sourceRefs).toContain(ref);
       const trace = new TraceBuilder();
       const index = appendSourceHostTalentIndexTrace(trace, {source: read.indexSources![0], expectedIndex: read.indices[0]!, nodePrefix: "new", sourceCommit: evidence.sourceCommit, actorIndex: 0, frame: read.frame});
       expect(evidence.table.values[index.index]).toBe(coefficient);
       expect(trace.nodes.find(node => node.id === "new.constellationBonus")!.result!.value).toBe(0);
       expect(trace.nodes.find(node => node.id === "new.passiveBonus")!.result!.value).toBe(childe);
     });
-  it.each(["missing", "skill-kind", "c3", "duplicate"])("rejects %s getter provenance, including equal-level numeric disguises", change => {
+  it.each(["missing", "skill-kind", "c3", "zero-sentinel", "other-negative-sentinel", "duplicate"])("rejects %s getter provenance, including equal-level numeric disguises", change => {
     const read = expectedRead(10);
     if (change === "missing") delete read.indexSources;
     if (change === "skill-kind") read.indexSources![0]!.kind = "skill";
     if (change === "c3") read.indexSources![0]!.constellationUnlock = 3;
+    if (change === "zero-sentinel") read.indexSources![0]!.constellationUnlock = 0;
+    if (change === "other-negative-sentinel") read.indexSources![0]!.constellationUnlock = -2;
     if (change === "duplicate") read.indexSources!.push(structuredClone(read.indexSources![0]!));
     expect(() => semantics(read)).toThrow(/对应NA\/E基础天赋/);
   });
@@ -61,6 +64,22 @@ describe("Stellar Iansan Swift source correction and historical provenance", () 
     // Generic getter replay, rather than coefficient equality, catches a forged base/index pair.
     expect(() => appendSourceHostTalentIndexTrace(new TraceBuilder(), {source: {...read.indexSources![0]!, value: 9}, expectedIndex: 9,
       nodePrefix: "forged", sourceCommit: evidence.sourceCommit, actorIndex: 0, frame: 138})).toThrow(/differ/);
+  });
+  it("pins the exact -1 NormalCon sentinel through the real wrapper constructor, consCheck and Iansan initializer", () => {
+    const archive = readFileSync(new URL(`../../game-data/sources/iansan-swift-resolved-casts/source.json.gz`, import.meta.url));
+    const files = (JSON.parse(gunzipSync(archive).toString()) as {files: Record<string, string>}).files;
+    const contract = evidence.normalConSourceContract, wrapper = files[contract.wrapperArchiveKey]!, iansan = files[contract.iansanArchiveKey]!;
+    expect(evidence.correctedSite.constellationUnlock).toBe(-1);
+    expect(evidence.legacySite.constellationUnlock).toBe(3);
+    expect(wrapper).toContain("c.NormalCon = -1\n\tc.SkillCon = -1\n\tc.BurstCon = -1");
+    const consCheck = wrapper.match(/func \(c \*CharWrapper\) consCheck\(\) \{[\s\S]*?\n\}/)![0];
+    for (const slot of ["NormalCon", "SkillCon", "BurstCon"]) expect(consCheck).toContain(`if c.${slot} < 0 {`);
+    expect(consCheck).toContain("if consUnset != 1 {");
+    expect(consCheck).not.toMatch(/c\.(NormalCon|SkillCon|BurstCon)\s*=/);
+    const initializer = iansan.match(/func NewChar\([\s\S]*?\n\}/)![0];
+    expect(initializer).toContain("c.SkillCon = 3\n\tc.BurstCon = 5");
+    expect(initializer).not.toContain("NormalCon");
+    expect(wrapper).toContain("if c.NormalCon > 0 && c.Base.Cons >= c.NormalCon {");
   });
   it("applies exactly the native getter correction at its actual new line, preserving pinned raw source and tables", () => {
     const archive = readFileSync(new URL(`../../game-data/sources/iansan-swift-resolved-casts/source.json.gz`, import.meta.url));
