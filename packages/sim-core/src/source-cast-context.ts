@@ -1,4 +1,5 @@
 import {prepareAlhaithamDamageDocument,resetAlhaithamPanelAccounting,finalizeAlhaithamPanelAccounting} from './alhaitham-damage-formulas';
+import { isFaruzanBurstInitialAction, prepareFaruzanBurstInitialDocument, resetFaruzanBurstInitialPanelAccounting, finalizeFaruzanBurstInitialPanelAccounting } from "./faruzan-burst-initial-formulas";
 import {prepareArlecchinoDamageDocument,resetArlecchinoPanelAccounting,finalizeArlecchinoPanelAccounting} from './arlecchino-damage-formulas';
 import {prepareHutaoDamageDocument,resetHutaoPanelAccounting,finalizeHutaoPanelAccounting} from './hutao-damage-formulas';
 import {prepareKinichDamageDocument,resetKinichPanelAccounting,finalizeKinichPanelAccounting} from './kinich-damage-formulas';
@@ -42,6 +43,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  if (document.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialAction(document)) return prepareFaruzanBurstInitialDocument(document);
   document = prepareAlhaithamDamageDocument(document);
   document = prepareArlecchinoDamageDocument(document);
   document = prepareHutaoDamageDocument(document);
@@ -73,6 +75,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  if (document.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialAction(document)) { resetFaruzanBurstInitialPanelAccounting(document, mode); return; }
   resetAlhaithamPanelAccounting(document, mode);
   resetArlecchinoPanelAccounting(document, mode);
   resetHutaoPanelAccounting(document, mode);
@@ -111,6 +114,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  if (document.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialAction(document)) { finalizeFaruzanBurstInitialPanelAccounting(document); return; }
   finalizeAlhaithamPanelAccounting(document);
   finalizeArlecchinoPanelAccounting(document);
   finalizeHutaoPanelAccounting(document);

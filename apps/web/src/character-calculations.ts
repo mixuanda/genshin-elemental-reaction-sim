@@ -1,4 +1,5 @@
 import {extendAlhaithamDocuments} from './alhaitham-calculation-context';
+import { initializeFaruzanBurstInitialDocument, isFaruzanBurstInitialAction, isFaruzanBurstInitialHit, FARUZAN_BURST_INITIAL_SOURCE_REFS } from "../../../packages/sim-core/src/faruzan-burst-initial-formulas";
 import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS,ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/alhaitham-damage-formulas';
 import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
 import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS,ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
@@ -133,7 +134,10 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     const kaeyaTick = context.skillId === "kaeya-burst-burst" && hit.attackTag === "burst" && context.scopeCoverage === "selected-components";
     const maleChargedScope = travelerMaleChargedConstellationScope(result, hit);
     const anemoBurstScope = travelerAnemoConstellationScope(result, hit);
-    if (maleChargedScope) {
+    if (result.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialHit(result, hit)) {
+      allowed = true; sourceRefs = [...sourceRefs, ...FARUZAN_BURST_INITIAL_SOURCE_REFS];
+      reason = "珐露珊C0–C6所选Q初击：祈风赐福、A4白字与C6暴伤分别恢复；本次Q减抗在初击之后生效。后续坍陷不属于本次单击。";
+    } else if (maleChargedScope) {
       allowed = maleChargedScope.allowed;
       reason = maleChargedScope.reason;
       sourceRefs = [...sourceRefs, ...maleChargedScope.sourceRefs];
@@ -302,6 +306,7 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isFaruzanBurstInitialAction(document))return initializeFaruzanBurstInitialDocument(document);
     if(isArlecchinoDamageAction(document))return initializeArlecchinoDamageDocument(document);
     if(isHutaoPrimaryDocument(document))return applyHutaoDamageContext(document,createHutaoExampleContext());
     if(isKazuhaBurstAction(document))return initializeKazuhaBurstDocument(document);

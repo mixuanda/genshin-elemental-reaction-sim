@@ -30,7 +30,7 @@ export function renderFaruzanBurstInitialControls(doc: CalculatorDocument): stri
   return `<fieldset data-source-cast-controls="faruzan-burst-initial"><legend>珐露珊 · 抟风秘道初击</legend><div class="calculator-fields">
 ${field("freshBurstNoPriorEffects", state.freshBurstNoPriorEffects)}${field("insideBurstArea", state.insideBurstArea)}
 ${a4 ? field("noOtherAnemoBeforeInitial", state.noOtherAnemoBeforeInitial) + field("baseAttack", equipmentWhite ?? state.baseAttack, equipmentWhite !== undefined) : ""}
-</div><details open><summary>输入已计入的自身增益</summary><div class="calculator-fields">
+</div><details><summary>高级：输入已计入的自身增益</summary><div class="calculator-fields">
 ${field("includedBurstDamageBonus", state.includedBurstDamageBonus)}${field("includedA4BaseDamage", state.includedA4BaseDamage)}
 ${doc.hits.some(h => h.kind === "ordinary" && h.effectiveResistance === undefined) ? field("includedResistanceReduction", state.includedResistanceReduction) : ""}
 ${doc.gameContext?.constellation === 6 || state.c6CritDamageIncludedInPanel ? field("c6CritDamageIncludedInPanel", state.c6CritDamageIncludedInPanel) : ""}

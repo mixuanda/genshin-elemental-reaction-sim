@@ -123,6 +123,7 @@ export function prepareFaruzanBurstInitialDocument(document: CalculatorDocument)
     reason: issues.join("；") || "C0–C6本次Q初击：43帧取得祈风状态，54帧初击；A4、C6及已含份额分别核对，不生成后续坍陷。", sourceRefs: FARUZAN_BURST_INITIAL_SOURCE_REFS });
   for (const selected of doc.hits) if (doc.selectedHitIds.includes(selected.id)) selected.dependencies.push(dependencyId);
   game.scopeCoverage = "single-hit";
+  game.skillName = "抟风秘道·初击";
   game.attributionPolicy = "只计算本次Q的54帧初击；C6风压坍陷、C1第二箭、回能及队友伤害不并入，不代表完整Q或轮转。";
   doc.label = `珐露珊 · 抟风秘道初击 · C${game.constellation} · 有效Q等级${game.effectiveTalentLevel}`;
   doc.assumptions = doc.assumptions.filter(row => !row.startsWith("有限后续协议：")

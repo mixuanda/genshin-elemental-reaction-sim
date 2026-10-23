@@ -1,3 +1,4 @@
+import { renderFaruzanBurstInitialControls } from "./calculator-faruzan-burst-initial-controls";
 import {renderAlhaithamControls} from './calculator-alhaitham-controls';
 import {renderArlecchinoControls} from './calculator-arlecchino-controls';
 import {renderHutaoControls} from './calculator-hutao-controls';
@@ -148,6 +149,7 @@ function durinControls(document: CalculatorDocument): string {
 
 /** These controls record context only; all source formulas are rebuilt by sim-core. */
 export function renderSourceCastControls(document: CalculatorDocument): string {
+  if (document.gameContext?.faruzanBurstInitial) return renderFaruzanBurstInitialControls(document);
   return renderAlhaithamControls(document) + renderArlecchinoControls(document) + renderHutaoControls(document) + renderKazuhaControls(document) + renderCynoControls(document) + renderKinichControls(document) + renderGamingControls(document) + renderXiaoControls(document) + durinControls(document) + travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
 }
 
