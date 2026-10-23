@@ -1,0 +1,14 @@
+=== RUN   TestWandererC2RejectsNonQ
+=== RUN   TestWandererC2RejectsNonQ/Shugen:_The_Curtains’_Melancholic_Sway
+=== RUN   TestWandererC2RejectsNonQ/Arcane_Projection:_Unity
+--- PASS: TestWandererC2RejectsNonQ (0.00s)
+    --- PASS: TestWandererC2RejectsNonQ/Shugen:_The_Curtains’_Melancholic_Sway (0.00s)
+    --- PASS: TestWandererC2RejectsNonQ/Arcane_Projection:_Unity (0.00s)
+=== RUN   TestWandererC2SnapshotScopeAndFiveHits
+--- PASS: TestWandererC2SnapshotScopeAndFiveHits (0.00s)
+=== RUN   TestWandererC2SnapshotBoundaries
+--- PASS: TestWandererC2SnapshotBoundaries (0.00s)
+=== RUN   TestWandererC2SnapshotNestedAndPanicRestore
+--- PASS: TestWandererC2SnapshotNestedAndPanicRestore (0.00s)
+PASS
+ok  	github.com/genshinsim/gcsim/internal/characters/wanderer	0.004s
