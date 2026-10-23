@@ -1,3 +1,4 @@
+import {isGamingDamageAction,prepareGamingDamageDocument,GAMING_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/gaming-damage-formulas';
 import {extendXiaoDocuments} from "./xiao-calculation-context";
 import {isXiaoDamageAction,XIAO_DAMAGE_SOURCE_REFS} from "../../../packages/sim-core/src/xiao-damage-formulas";
 import {applyTighnariDamageContext,isTighnariDamageAction} from './tighnari-calculation-context';
@@ -130,6 +131,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       reason = allowed
         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
+    } else if(isGamingDamageAction(result)) {
+      allowed=true;sourceRefs=[...sourceRefs,...GAMING_DAMAGE_SOURCE_REFS];
+      reason="嘉明所选自身一击：C2实际攻击增益、A4命中生命、C6专属双暴独立核对；有效E/Q等级已含C3/C5，不生成治疗/回能/循环。";
     } else if(isXiaoDamageAction(result)) {
       allowed=true;sourceRefs=[...sourceRefs,...XIAO_DAMAGE_SOURCE_REFS];
       reason="魈实际单击：C1/C2/C4及C6后续E资格不改本击；C3/C5由有效E/独立有效Q等级处理。Q状态、A1时间、E前A4层数与已含份额仍单独确认，不生成整轮。";
@@ -251,6 +255,7 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isGamingDamageAction(document)){document.gameContext!.gamingDamage={c2Included:false,a4Included:false,c6CritRateIncluded:false,c6CritDamageIncluded:false};return prepareGamingDamageDocument(document);}
     if(isTighnariDamageAction(document))return applyTighnariDamageContext(document,{priorA1Active:false,a1IncludedEm:0,c4IncludedEm:0,includedA4Bonus:0,includedC2Bonus:0,includedC1Crit:0,allHitsConnected:true,statsStableAcrossHits:true});
     if(isKukiDamageAction(document)){
       if(skillId === "kuki-skill-c2-complete-cast") document.gameContext!.constellation = 2;

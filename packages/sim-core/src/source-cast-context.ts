@@ -1,3 +1,4 @@
+import {prepareGamingDamageDocument,resetGamingPanelAccounting,finalizeGamingPanelAccounting} from './gaming-damage-formulas';
 import { prepareXiaoDamageDocument, resetXiaoPanelAccounting, finalizeXiaoPanelAccounting } from "./xiao-damage-formulas";
 import { prepareRawSourceStateDocument } from "./raw-source-state";
 import { prepareDurinSkillDocument, resetDurinSkillPanelAccounting } from "./durin-skill-formulas";
@@ -35,6 +36,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareGamingDamageDocument(document);
   document = prepareXiaoDamageDocument(document);
   document = prepareDurinSkillDocument(document);
   document = prepareRawSourceStateDocument(document);
@@ -59,6 +61,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetGamingPanelAccounting(document, mode);
   resetXiaoPanelAccounting(document, mode);
   resetDurinSkillPanelAccounting(document, mode);
   resetObservedPlungePanelAccounting(document, mode);
@@ -90,6 +93,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  finalizeGamingPanelAccounting(document);
   finalizeXiaoPanelAccounting(document);
   finalizeObservedPlungePanelAccounting(document);
   finalizeKachinaCastPanelAccounting(document);

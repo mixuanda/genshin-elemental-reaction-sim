@@ -1,3 +1,4 @@
+import {gamingRequirementAdapter} from './calculator-gaming-controls';
 import {xiaoRequirementAdapter} from "./calculator-xiao-controls";
 import {tighnariRequirementAdapter} from './calculator-tighnari-controls';
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
@@ -177,7 +178,7 @@ const durinAdapter: CalculatorRequirementAdapter = {
 };
 
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a

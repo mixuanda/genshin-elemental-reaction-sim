@@ -1,0 +1,30 @@
+import {test,expect,type Page} from '@playwright/test';
+import {readFile,writeFile} from 'node:fs/promises';
+const audit=async(p:Page)=>JSON.parse((await p.locator('#calc-results .calculator-audit pre').textContent())!);
+const choose=async(p:Page,text:string)=>{const o=p.locator('#calc-skill option').filter({hasText:text});await expect(o).toHaveCount(1);await p.locator('#calc-skill').selectOption((await o.getAttribute('value'))!);};
+const hp=async(p:Page,value:string)=>{const n=p.locator('[data-field="gameContext.gamingDamage.hpPercent"]');await n.fill(value);await n.blur();};
+const state=async(p:Page,key:string,value='0')=>{const e=p.locator(`[data-source-cast-state-field="gameContext.gamingDamage.${key}"]`);await expect(e).toBeVisible();await e.selectOption(value);};
+for(const width of [1440,390])test(`Gaming C6 real plunge, HP boundary and saved Q at ${width}px`,async({page},info)=>{
+ await page.setViewportSize({width,height:960});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/calculator');await page.locator('#calc-character').selectOption('character:10000092');await choose(page,'踏云献瑞');
+ let r=await audit(page);expect(r.result.status).toBe('blocked');await hp(page,'50');await page.locator('#calc-constellation').selectOption('6');await state(page,'c2Active');
+ r=await audit(page);expect(r.result.status).toBe('calculated');expect(r.document.hits[0]).toMatchObject({element:'pyro',attackTag:'plunge'});
+ expect(r.result.totals.nonCritical).toBeCloseTo(2000*4.1472*1.2*.5*.9,9);expect(r.result.totals.expected).toBeCloseTo(2000*4.1472*1.2*.5*.9*(1+.9*1.6),9);
+ await hp(page,'49.999');r=await audit(page);expect(r.result.totals.nonCritical).toBeCloseTo(2000*4.1472*.5*.9,9);
+ await choose(page,'猊兽初次冲击');await state(page,'c2Active');r=await audit(page);expect(r.result.status).toBe('calculated');expect(r.result.totals.expected).toBeCloseTo(2000*6.6672*.5*.9*(1+.7*1.2),9);
+ const expected=r.result.totals.expected;const downloading=page.waitForEvent('download');await page.locator('[data-action="export"]').click();const json=JSON.parse(await readFile((await (await downloading).path())!,'utf8'));
+ await page.reload();await page.locator('#calc-import').setInputFiles({name:'gaming.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(json))});r=await audit(page);expect(r.result.totals.expected).toBe(expected);expect(r.document.gameContext.constellation).toBe(6);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([]);await page.screenshot({path:info.outputPath(`gaming-${width}.png`),fullPage:true});
+});
+test('retained real Gaming keeps E8+3 and Q8+3 through final-panel calculation',async({page},info)=>{
+ const file=process.env.GIDPS_RETAINED_UID_RESPONSE;test.skip(!file,'Retained public player response stays private');const envelope=JSON.parse(await readFile(file!,'utf8')),raw=envelope.data??envelope;
+ await page.goto('/calculator');await page.locator('[data-action="import-build"]').click();await page.locator('[data-player-file]').setInputFiles({name:'retained-enka.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(raw))});
+ const role=page.locator('[data-player-builds] section').filter({has:page.getByRole('heading',{name:'嘉明',exact:true})});await expect(role).toHaveCount(1);await role.locator('[data-player-panel]').click();await choose(page,'踏云献瑞');
+ let r=await audit(page);expect(r.document.characterLevel).toBe(90);expect(r.document.gameContext.constellation).toBe(6);expect(r.document.gameContext.effectiveTalentLevel).toBe(11);expect(r.result.status).toBe('blocked');
+ await hp(page,'50');for(const key of ['c2Active','c2Included','a4Included','c6CritRateIncluded','c6CritDamageIncluded'])await state(page,key);
+ r=await audit(page);expect(r.result.status).toBe('calculated');expect(r.document.build.mode).toBe('imported-final');expect(r.document.build).not.toHaveProperty('equipment');
+ const s=r.document.build.stats,b=r.document.hits[0].damageBonus;const e=s.atk*4.3776*(1+b+.2)*.5*.9*(1+Math.min(1,s.critRate+.2)*(s.critDamage+.4));expect(r.result.totals.expected).toBeCloseTo(e,7);
+ await choose(page,'猊兽初次冲击');for(const key of ['c2Active','c2Included'])await state(page,key);r=await audit(page);expect(r.document.gameContext.effectiveTalentLevel).toBe(11);expect(r.result.status).toBe('calculated');
+ const q=s.atk*7.0376*(1+r.document.hits[0].damageBonus)*.5*.9*(1+Math.min(1,s.critRate)*s.critDamage);expect(r.result.totals.expected).toBeCloseTo(q,7);
+ await writeFile(info.outputPath('private-gaming-proof.json'),JSON.stringify({source:'Previously retained public response, no fresh account request',level:90,constellation:6,effectiveTalents:{skill:11,burst:11},state:'HP50%, C2inactive, original panel declared not to contain A4/C6; no reaction',plunge:e,burst:q},null,2));
+});
