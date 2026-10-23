@@ -1,5 +1,6 @@
 import {prepareKinichDamageDocument,resetKinichPanelAccounting,finalizeKinichPanelAccounting} from './kinich-damage-formulas';
 import {prepareCynoDamageDocument,resetCynoPanelAccounting,finalizeCynoPanelAccounting} from './cyno-damage-formulas';
+import {prepareKazuhaBurstDocument,resetKazuhaBurstPanelAccounting,finalizeKazuhaBurstPanelAccounting} from './kazuha-burst-formulas';
 import {prepareGamingDamageDocument,resetGamingPanelAccounting,finalizeGamingPanelAccounting} from './gaming-damage-formulas';
 import { prepareXiaoDamageDocument, resetXiaoPanelAccounting, finalizeXiaoPanelAccounting } from "./xiao-damage-formulas";
 import { prepareRawSourceStateDocument } from "./raw-source-state";
@@ -38,6 +39,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareKazuhaBurstDocument(document);
   document = prepareCynoDamageDocument(document);
   document = prepareKinichDamageDocument(document);
   document = prepareGamingDamageDocument(document);
@@ -65,6 +67,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetKazuhaBurstPanelAccounting(document, mode);
   resetCynoPanelAccounting(document, mode);
   resetKinichPanelAccounting(document, mode);
   resetGamingPanelAccounting(document, mode);
@@ -99,6 +102,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  finalizeKazuhaBurstPanelAccounting(document);
   finalizeCynoPanelAccounting(document);
   finalizeKinichPanelAccounting(document);
   finalizeGamingPanelAccounting(document);

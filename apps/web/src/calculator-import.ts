@@ -1,4 +1,5 @@
 import {resetTighnariPanelAccounting} from './tighnari-calculation-context';
+import {captureKazuhaImportedDamageBonuses} from '../../../packages/sim-core/src/kazuha-burst-formulas';
 import { resetSourceCastPanelAccounting } from "../../../packages/sim-core/src/source-cast-context";
 import type { CatalogResolvedShowcaseCharacter } from "@genshin-dps-lab/schemas";
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
@@ -120,6 +121,7 @@ export function applyImportedCalculatorPanel(
     talentPolicy === "imported-effective" ? "本动作使用导入映射的有效天赋等级；该值已包含导入提供的额外等级，不再次加算命座等级。" : "当前面板来自展示柜；有效天赋等级已由用户明确改为手动来源选择。",
     character.ascension === undefined || character.ascension === null ? "展示柜没有可用的角色突破属性值；突破阶段保持未知，只阻塞依赖它的命中。" : `角色突破 ${character.ascension} 来自展示柜 propMap[1002].val，不从等级或最终面板推断。`,
   ];
+  captureKazuhaImportedDamageBonuses(doc, character.stats.damageBonuses);
   doc.dataIdentity.evidenceStatus = "provisional";
   return prepareIncomingThrillingTales(applyCharacterConstellationScope(doc));
 }

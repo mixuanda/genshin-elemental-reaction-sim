@@ -351,10 +351,11 @@ function executeEquipmentHitContext(build:CalculatorBuild,hit:OrdinaryCalculator
 }
 type ConvertedEquipmentPanel={stats:CalculatorFinalStats;sourceRefs:string[];ascension:number};
 type CalculatorHitEquipmentContext=ReturnType<typeof executeEquipmentHitContext>&{convertedPanel?:ConvertedEquipmentPanel|undefined};
-function equipmentPanelForConversion(build:CalculatorBuild,hit:OrdinaryCalculatorHit,panel:ReturnType<typeof executeHitPanel>,resolved:ReturnType<typeof executeEquipmentHitContext>,scope:FormulaScope,b:TraceBuilder):ConvertedEquipmentPanel|undefined {
+function equipmentPanelForConversion(build:CalculatorBuild,hit:OrdinaryCalculatorHit,panel:ReturnType<typeof executeHitPanel>,resolved:ReturnType<typeof executeEquipmentHitContext>,scope:FormulaScope,b:TraceBuilder,documentContext?:Pick<CalculatorDocument,"gameContext">):ConvertedEquipmentPanel|undefined {
   // The finite Phantasm combines ordinary and lunar samples. Freeze its actual
   // per-hit EM window even when no equipped stat-conversion formula was rebuilt.
-  if((!panel.rebuiltEquipment&&!hit.neferPhantasmEvent)||build.mode!=="equipment-derived"||!build.equipment||getCalculatorHitPendingReactionEffects(build,hit).length||getCalculatorHitPendingResistanceEffects(build,hit).length)return undefined;
+  // Kazuha's distinct 81f/82f Q snapshots also need capture without EM rebuilding.
+  if((!panel.rebuiltEquipment&&!hit.neferPhantasmEvent&&!documentContext?.gameContext?.kazuhaBurst)||build.mode!=="equipment-derived"||!build.equipment||getCalculatorHitPendingReactionEffects(build,hit).length||getCalculatorHitPendingResistanceEffects(build,hit).length)return undefined;
   if(scope.ascension===undefined)throw new Error("逐击装备转换快照需要明确突破阶段。");
   return {stats:{...panel.stats,critRate:resolved.critRate,critDamage:resolved.critDamage},ascension:scope.ascension,sourceRefs:[...new Set([...hit.sourceRefs,...build.equipment.sourceRefs,...b.nodes.flatMap(node=>node.sourceRefs)])]};
 }
@@ -369,7 +370,7 @@ export function resolveCalculatorHitEquipmentContext(build:CalculatorBuild,hit:O
   const pending=getCalculatorHitPendingEquipmentEffects(build,hit);if(pending.length)throw new Error(pending.map(pendingEquipmentReason).join("；"));
   const panel=executeHitPanel(build,stats,hit,scope,b,documentContext);
   const resolved=executeEquipmentHitContext(build,hit,panel.stats,b,scope,panel);
-  return {...resolved,convertedPanel:equipmentPanelForConversion(build,hit,panel,resolved,scope,b)};
+  return {...resolved,convertedPanel:equipmentPanelForConversion(build,hit,panel,resolved,scope,b,documentContext)};
 }
 export function restoreCalculatorHitEquipmentInputs(hit:OrdinaryCalculatorHit):OrdinaryCalculatorHit {
   if(hit.finalSnapshot&&hit.finalSnapshot.origin!=="equipment-conversion")return structuredClone(hit);
@@ -518,7 +519,7 @@ export function convertCalculatorToFinalPanel(document:CalculatorDocument,mode:"
       const audit=new TraceBuilder(hit.sourceRefs),scope=hitFormulaScope(build,result);
       const panel=executeHitPanel(build,resolvedStats,hit,scope,audit,result);
       const resolved=executeEquipmentHitContext(build,hit,panel.stats,audit,scope,panel);
-      const converted=pending.length?undefined:equipmentPanelForConversion(build,hit,panel,resolved,scope,audit);
+      const converted=pending.length?undefined:equipmentPanelForConversion(build,hit,panel,resolved,scope,audit,result);
       if(converted)convertedPanels.set(hit.id,converted);
       if(pending.length)hit.pendingEquipmentEffects=pending;
       if(resolved.finalizedEquipmentEffects.length){

@@ -9,7 +9,7 @@ import { calculateDocument, convertCalculatorToFinalPanel } from "./calculator";
 import { evaluateFormulaExpression, expr } from "./calculation-trace";
 import { kazuhaBurstContextSchema, type KazuhaBurstContext } from "./kazuha-burst-context";
 import {
-  captureKazuhaImportedDamageBonuses, createKazuhaA4DamageBonusFormula, finalizeKazuhaBurstPanelAccounting,
+  captureKazuhaImportedDamageBonuses, createKazuhaA4DamageBonusFormula,
   kazuhaBurstContext, kazuhaBurstHitPlan, prepareKazuhaBurstDocument, resetKazuhaBurstPanelAccounting,
   type KazuhaCalculatorDocument,
 } from "./kazuha-burst-formulas";
@@ -36,14 +36,9 @@ function fixture(skillId = "kazuha-burst-complete", context: KazuhaBurstContext 
   };
 }
 
-/** Shared model wiring belongs to the parent. Remove only the unregistered
- * context after preparing, then execute the real shared formula engine. */
-function forUnwiredSharedCore(document: CalculatorDocument): CalculatorDocument {
-  const result = structuredClone(document) as KazuhaCalculatorDocument;
-  delete result.gameContext.kazuhaBurst;
-  return result;
-}
-const calculate = (document: CalculatorDocument) => calculateDocument(forUnwiredSharedCore(prepareKazuhaBurstDocument(document)));
+// The production shared core now owns preparation, validation and conversion.
+// Keep all source context so the actual public entry point validates it too.
+const calculate = (document: CalculatorDocument) => calculateDocument(document);
 const issues = (document: CalculatorDocument) => prepareKazuhaBurstDocument(document).dependencies.filter(row => row.status === "missing").map(row => row.reason).join("；");
 function absorbed(context: KazuhaBurstContext = {}): KazuhaBurstContext {
   return {absorptionElement: "pyro", absorptionStartFrame: 81, priorA4Active: false, includedA4DamageBonus: 0, elementDamageBonuses: {pyro: .2}, ...context};
@@ -226,9 +221,7 @@ describe("Kazuha missing input and historical snapshot integrity", () => {
     expect(calculate(document).blockers).toEqual([]);
     const live = calculate(document).totals;
     expect(live!.nonCritical).toBeCloseTo(3009.9 * ((4.7232 + 5 * 2.16) * 1.466 + 5 * .648 * 1.52) * .5 * .9, 9);
-    const converted = convertCalculatorToFinalPanel(forUnwiredSharedCore(prepared)) as KazuhaCalculatorDocument;
-    converted.gameContext.kazuhaBurst = structuredClone(kazuhaBurstContext(prepared)!);
-    finalizeKazuhaBurstPanelAccounting(converted);
+    const converted = convertCalculatorToFinalPanel(prepared) as KazuhaCalculatorDocument;
     expect(converted.hits.every(hit => hit.kind === "ordinary" && hit.finalSnapshot?.origin === "equipment-conversion")).toBe(true);
     expect(calculate(converted).totals).toEqual(live);
     const changedA4 = structuredClone(converted);

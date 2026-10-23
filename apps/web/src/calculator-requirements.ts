@@ -3,6 +3,7 @@ import {xiaoRequirementAdapter} from "./calculator-xiao-controls";
 import {tighnariRequirementAdapter} from './calculator-tighnari-controls';
 import {kinichRequirementAdapter} from './calculator-kinich-controls';
 import {cynoRequirementAdapter} from './calculator-cyno-controls';
+import {kazuhaBurstRequirementAdapter} from './calculator-kazuha-controls';
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
 
 export interface CalculatorFieldRequirement {
@@ -180,7 +181,7 @@ const durinAdapter: CalculatorRequirementAdapter = {
 };
 
 /** Extend with another sourced adapter and its existing control selectors. */
-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter];
+export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter,kazuhaBurstRequirementAdapter,cynoRequirementAdapter,kinichRequirementAdapter,gamingRequirementAdapter,tighnariRequirementAdapter,xiaoRequirementAdapter];
 
 /** Supplement the calculator's result blockers with concrete field links.
  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a

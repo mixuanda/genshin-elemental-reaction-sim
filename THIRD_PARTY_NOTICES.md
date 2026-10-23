@@ -46,6 +46,13 @@ implementations were written independently against the pinned behavior
 oracles. Any later reused code or substantial data portions must retain the
 applicable copyright and MIT license text.
 
+`packages/game-data/sources/kazuha-burst/source/` also retains ten unmodified
+Kazuha reference Go files from the pinned b4 and a7 revisions. Their
+[path-level notice and license texts](packages/game-data/sources/kazuha-burst/source/README.md)
+preserve b4's MIT terms and a7's AGPL-3.0-or-later / prior-MIT notices. They are
+source evidence for the direct-Q calculation, not an additional shipped WASM
+host. The manifest records exact file identities.
+
 ## Separate Stellar Go/WASM host
 
 The `packages/source-host/stellar-overlay/` and `apps/web/public/source-host-stellar/` host uses pinned gcsim revision `a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd`. Its source is AGPL-3.0-or-later, with a separate notice for prior MIT contributions. Preserve the [AGPL text](apps/web/public/source-host-stellar/licenses/gcsim-AGPL-3.0-or-later.txt), prior-contribution notices, Go notices and linked dependency notices alongside this artifact. This is separate from the Classic b4 host's MIT attribution.

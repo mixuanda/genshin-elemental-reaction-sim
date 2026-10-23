@@ -1,4 +1,7 @@
 import {extendKinichDocuments} from './kinich-calculation-context';
+import {initializeKazuhaBurstDocument} from './kazuha-calculation-context';
+import {isKazuhaBurstAction} from '../../../packages/sim-core/src/kazuha-burst-formulas';
+import {KAZUHA_BURST_SOURCE_REFS} from '../../../packages/sim-core/src/kazuha-burst-source-values';
 import {applyCynoDamageContext,createCynoExampleContext} from './cyno-calculation-context';
 import {isCynoDamageDocument,CYNO_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/cyno-damage-formulas';
 import {isKinichDamageAction,KINICH_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/kinich-damage-formulas';
@@ -135,6 +138,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       reason = allowed
         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
+    } else if(isKazuhaBurstAction(result)) {
+      allowed=context.constellation<=1;sourceRefs=[...sourceRefs,...KAZUHA_BURST_SOURCE_REFS];
+      reason=allowed?"万叶C0/C1所选Q直接伤害：元素转化时点、逐元素增伤和81f前A4单独检查；C1不增加Q直接命中，不含扩散实体。":"万叶Q此入口尚未接入C2以上的精通与命座快照，不以低命座代算。";
     } else if(isCynoDamageDocument(result)) {
       allowed=context.constellation===0;sourceRefs=[...sourceRefs,...CYNO_DAMAGE_SOURCE_REFS];
       reason=allowed?"赛诺C0启途誓使所选普攻或重击使用Q有效天赋，Q精通及A4动作起手取样独立核对；末途真眼E和完整循环不在此入口。":"启途誓使此单击入口只审阅C0，尚未接入高命座，不能按C0代算。";
@@ -265,6 +271,7 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isKazuhaBurstAction(document))return initializeKazuhaBurstDocument(document);
     if(isCynoDamageDocument(document))return applyCynoDamageContext(document,createCynoExampleContext());
     if(isGamingDamageAction(document)){document.gameContext!.gamingDamage={c2Included:false,a4Included:false,c6CritRateIncluded:false,c6CritDamageIncluded:false};return prepareGamingDamageDocument(document);}
     if(isTighnariDamageAction(document))return applyTighnariDamageContext(document,{priorA1Active:false,a1IncludedEm:0,c4IncludedEm:0,includedA4Bonus:0,includedC2Bonus:0,includedC1Crit:0,allHitsConnected:true,statsStableAcrossHits:true});
