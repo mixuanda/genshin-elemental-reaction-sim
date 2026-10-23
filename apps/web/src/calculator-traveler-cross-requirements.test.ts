@@ -122,7 +122,7 @@ describe("Traveler Anemo resolved single-hit requirement links", () => {
     expect(document.gameContext!.travelerCrossEntityCast!.independentEvent![field]).toBe(field === "frame" ? 95 : 1);
   });
 
-  it("preserves real target mismatch and rejects an unsupported constellation", () => {
+  it("preserves real target mismatch and rejects C6 without its actual target state", () => {
     let document = panel(fixture());
     document.gameContext!.travelerCrossEntityCast = {
       targetId: "other-target", independentEvent: { candidateId: "hit", templateRole: "tick", frame: 94, snapshotFrame: 0, snapshotId: "q-start", targetId: "actual-target" },
@@ -133,17 +133,20 @@ describe("Traveler Anemo resolved single-hit requirement links", () => {
     document = fixture();
     document.gameContext!.constellation = 6;
     document = answer(document, "1");
-    expect(requirements(document).fields).toEqual([]);
+    expect(requirements(document).fields.map(field => field.fieldPath)).toEqual([
+      "gameContext.travelerCrossEntityCast.sharedState.c6ActiveBeforeHit",
+      "gameContext.travelerCrossEntityCast.sharedState.includedC6ResistanceReduction",
+    ]);
     expect(calculateDocument(document).status).toBe("blocked");
-    expect(requirements(document).blockers.some(blocker => blocker.status === "unsupported" && blocker.reason.includes("C0"))).toBe(true);
+    expect(requirements(document).blockers.some(blocker => blocker.reason.includes("本击结算前"))).toBe(true);
   });
 
   it("does not claim full-lifetime, another form, or an empty selection is unlocked", () => {
     let document = answer(fixture(), "1");
     document.scope = "one-cast";
     document = applyCharacterConstellationScope(document);
-    expect(travelerCrossRequirementAdapter.applies(document)).toBe(false);
-    expect(requirements(document).fields).toEqual([]);
+    expect(travelerCrossRequirementAdapter.applies(document)).toBe(true);
+    expect(requirements(document).fields.some(field => field.fieldPath === "gameContext.travelerCrossEntityCast.fullObservedLifetime")).toBe(true);
     expect(calculateDocument(document).status).toBe("blocked");
     document = fixture();
     document.gameContext!.skillId = "traveler-cross-aether-dendro-burst-c0";
