@@ -8,6 +8,7 @@ import { collectCalculatorRequirements } from "./calculator-requirements";
 import { calculatorActionDisplayName, calculatorResultDisplayName } from "./calculator-action-display";
 import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
 import { bindFaruzanHurricaneTalent } from "./faruzan-calculation-talents";
+import type { SourceCharacterActionKind } from "./source-action-capabilities";
 import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { parseObservedSkillComposition, type ObservedSkillCompositionDocument } from "../../../packages/sim-core/src/observed-skill-composition";
 import { renderArtifactUtilityCalculator } from "./artifact-utility-calculator";
@@ -227,7 +228,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   let equipmentControls: { refreshCharacter(): void; getInput(): EquipmentBuildInput; setInput(input: EquipmentBuildInput): void } | null = null;
 
   root.classList.add("calculator-shell");
-  root.innerHTML = `<header class="calculator-header"><div><div class="eyebrow">DAMAGE LAB · CALCULATOR</div><h2>单技能伤害计算器</h2><p>选择角色，导入配装或填写面板，按招式查看非暴击、期望与暴击伤害。</p></div><div class="calculator-toolbar"><button type="button" data-action="source-single-skill">动作计算（E / Q / A）</button><button type="button" class="calculator-secondary-action" data-action="examples">教学与来源示例</button><button type="button" data-action="observed-composition">完整施放 / 观察区间</button><button type="button" data-action="composition-save-component" hidden>保存本段并返回汇总</button><button type="button" data-action="composition-cancel-component" hidden>放弃本段编辑并返回</button><button type="button" data-action="export">导出计算 JSON</button><label class="file-button">导入计算 JSON<input type="file" id="calc-import" accept="application/json,.json"></label></div></header>` +
+  root.innerHTML = `<header class="calculator-header"><div><div class="eyebrow">DAMAGE LAB · CALCULATOR</div><h2>单技能伤害计算器</h2><p>选择角色，导入配装或填写面板，按招式查看非暴击、期望与暴击伤害。</p></div><div class="calculator-toolbar"><button type="button" data-action="source-single-skill">动作计算（普攻 / 重击 / E / Q）</button><button type="button" class="calculator-secondary-action" data-action="examples">教学与来源示例</button><button type="button" data-action="observed-composition">完整施放 / 观察区间</button><button type="button" data-action="composition-save-component" hidden>保存本段并返回汇总</button><button type="button" data-action="composition-cancel-component" hidden>放弃本段编辑并返回</button><button type="button" data-action="export">导出计算 JSON</button><label class="file-button">导入计算 JSON<input type="file" id="calc-import" accept="application/json,.json"></label></div></header>` +
     `<div class="calculator-entry-actions" data-calculator-player-entry><button type="button" class="primary" data-action="import-build">导入我的角色 / 配装</button><button type="button" data-action="choose-character">手动选择角色</button></div><aside class="calculator-example-mode" data-calculator-example-mode hidden>当前正在编辑示例；它不是你的角色配装。<button type="button" data-action="choose-character">切换到角色计算</button></aside><div id="calc-message" role="status" aria-live="polite"></div><section id="calc-source-host-capture" hidden></section><section id="calc-source-single-skill" hidden><button type="button" id="calc-source-single-skill-close">返回公式与条件输入</button><div id="calc-source-single-skill-body"></div></section><div class="calculator-layout"><nav class="calculator-section-nav" aria-label="计算器区域"><button type="button" data-calculator-section="character">角色与招式</button><button type="button" data-calculator-section="build">配装与面板</button><button type="button" data-calculator-section="conditions">战斗条件</button><button type="button" data-calculator-section="results">伤害结果</button></nav><div class="calculator-controls">` +
     `<fieldset data-calculator-character-step><legend>角色与招式</legend><div class="calculator-fields"><label>角色<select id="calc-character"><option value="">请选择你的角色</option>${workspace.index.characters.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select></label><label id="calc-form-control" hidden>元素 / 战斗形态<select id="calc-form"></select></label><label>技能 / 动作<select id="calc-skill" disabled><option value="">先选择角色</option></select></label><label>有效天赋等级<input id="calc-talent-level" type="number" min="1" max="15" step="1" value="10" disabled></label></div><div id="calc-imported-binding" hidden><p class="calculator-hint">各动作使用其绑定的有效天赋等级，不共用一个等级；配装的基础等级只加算明确映射的命座增级。</p><button type="button" data-action="manual-talents">改为手动天赋等级</button></div><div id="calc-character-status" class="calculator-hint">选择角色后可查看已支持的技能。</div><p><button type="button" data-action="build-presets">选择或编辑配装</button></p><details data-calculator-catalog-settings><summary>数据版本与高级来源</summary><label>数据工作区<select id="calc-workspace"><option value="released">已发布目录</option><option value="preview"${availablePreviewDatasets.length ? "" : " disabled"}>隔离预览${availablePreviewDatasets.length ? "" : "（尚无真实快照）"}</option></select></label><label id="calc-preview-snapshot-control" hidden>预览版本<select id="calc-preview-snapshot">${availablePreviewDatasets.map(data => `<option value="${esc(data.snapshotId)}"${data.snapshotId === runtimeSelection.previewWorkspaceSnapshotId ? " selected" : ""}>${esc(data.gameVersion)} · ${data.snapshotId === runtimeSelection.previewWorkspaceSnapshotId ? "当前预览" : "历史快照"} · ${esc(data.snapshotId.slice(9, 21))}</option>`).join("")}</select></label><p id="calc-workspace-status" class="calculator-hint"></p><p id="calc-character-support-status" class="calculator-hint"></p><p class="calculator-hint">正式目录默认使用已有定义的 C0 条件；公开导入保留真实命座，按所选命中判断相关依赖。有效天赋等级读取对应的精确来源值，不重复增加命座等级。</p></details></fieldset>` +
     `<div id="calc-document-controls" class="calculator-full"></div><details data-calculator-example-tools><summary>教学与来源示例（可选）</summary><p class="calculator-hint">仅在想查看算例时载入；示例不会作为默认角色或配装。</p><div class="calculator-preset-row"><label>例题与来源实例<select id="calc-example-select">${["synthetic", "source-backed-game", "verified-game"].map(category => `<optgroup label="${esc(exampleCategoryLabel(category))}">${WORKED_EXAMPLES.filter(e => e.category === category).map(e => `<option value="${esc(e.id)}">${esc(e.title)}</option>`).join("")}</optgroup>`).join("")}</select></label><button type="button" data-action="load-example">载入例题</button></div></details>` +
@@ -926,7 +927,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const selectedCandidateIndex = candidateDocuments.findIndex(candidate => actionKey(candidate) === actionKey(current!));
     host.innerHTML = `<h3>角色主要输出</h3>${renderCharacterOutputs(buildCharacterOutputs(candidateDocuments, workspace.catalog, {
       selectedCandidateIndex, currentDocument: current, ...(currentResult ? {currentResult} : {}),
-    }))}`;
+    }))}${current.gameContext?.characterId === "character:10000087" ? `<div data-neuvillette-native-outputs><h4>那维莱特：重击与元素爆发</h4><button type="button" data-action="source-single-skill" data-source-action="charge">重击 · 衡平推裁</button><button type="button" data-action="source-single-skill" data-source-action="burst">Q · 潮水啊，我已归来</button><p class="calculator-hint">使用动作引擎单独配装，首次载入参考构筑，请核对后运行。显示本次模拟观察区间内的命中，当前最终面板不会当作装备再次叠加。</p></div>` : ""}`;
   }
 
   function renderControls(): void {
@@ -1117,7 +1118,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     get("#calc-source-single-skill").hidden = true;
     get("#calc-artifact-utility").hidden = false;
   }
-  async function showSourceSingleSkill(): Promise<void> {
+  async function showSourceSingleSkill(preferredAction?: SourceCharacterActionKind): Promise<void> {
     clearCompositionEdit();
     const host = get("#calc-source-single-skill");
     host.hidden = false;
@@ -1126,12 +1127,16 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     get("#calc-artifact-utility").hidden = true;
     get<HTMLButtonElement>('[data-action="export"]').disabled = true;
     get<HTMLButtonElement>("#calc-source-single-skill-close").onclick = showOrdinaryCalculator;
+    const selection = current?.gameContext?.characterId === "character:10000087"
+      ? { characterKey: "neuvillette", ...(preferredAction === undefined ? {} : { preferredAction }) } : undefined;
+    if (sourceSkillPanel && selection) sourceSkillPanel.select(selection);
     if (!sourceSkillPanel) {
       const body = get("#calc-source-single-skill-body");
       body.textContent = "正在载入单角色技能执行…";
       try {
         const { renderSourceSingleSkillPanel } = await import("./source-single-skill-panel");
         if (!sourceSkillPanel) sourceSkillPanel = renderSourceSingleSkillPanel(body, {
+          ...(selection ? { initialSelection: selection } : {}),
           onOpenCapture(capture) {
             loadSourceHostCapture(capture);
             get<HTMLButtonElement>("#calc-source-host-close").onclick = () => { void showSourceSingleSkill(); };
@@ -1883,7 +1888,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const target = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-action]");
     if (!target) return;
     const action = target.dataset.action;
-    if (action === "source-single-skill") { void showSourceSingleSkill(); return; }
+    if (action === "source-single-skill") {
+      const preferred = target.dataset.sourceAction;
+      void showSourceSingleSkill(preferred === "charge" || preferred === "burst" ? preferred : undefined); return;
+    }
     if (action === "observed-composition" || action === "composition-cancel-component") { loadObservedComposition(); return; }
     if (action === "composition-save-component") {
       if (invalidFields.size) { message("请先应用或修正尚未应用的输入，再保存本段。", true); return; }

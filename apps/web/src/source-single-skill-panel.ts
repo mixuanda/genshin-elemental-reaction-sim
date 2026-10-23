@@ -17,6 +17,8 @@ import type { SourceTargetSceneInput } from "./source-target-scene";
 import { renderSourceHostTargetSummaryPanel } from "./source-host-target-summary-panel";
 import { sourceTargetPhaseControlAction } from "./source-target-phase-controls";
 import { renderSourceHostTargetPhasePanel } from "./source-host-target-phase-panel";
+import { applySourceSingleSkillSelection, resolveSourceSingleSkillSelection, type SourceSingleSkillSelectionPreference } from "./source-single-skill-selection";
+export type { SourceSingleSkillSelectionPreference } from "./source-single-skill-selection";
 
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 const statKeys = ["hp", "hp%", "atk", "atk%", "def", "def%", "em", "er", "cr", "cd", "heal", "phys%", "pyro%", "hydro%", "cryo%", "electro%", "anemo%", "geo%", "dendro%"];
@@ -31,10 +33,13 @@ const statLabels: Record<string, string> = {
 const variants: Array<{ id: SourceHostVariant; label: string }> = [
   { id: "classic", label: "普通／月曜 · b4ae769" }, { id: "stellar", label: "星辉 · a7dc4bf（暂定）" },
 ];
-type Options = { onOpenCapture(capture: SourceHostActionCollection | SourceHostHitCapture): void };
-export interface SourceSingleSkillPanelHandle { stop(): void; dispose(): void }
+export interface SourceSingleSkillPanelOptions {
+  onOpenCapture(capture: SourceHostActionCollection | SourceHostHitCapture): void;
+  initialSelection?: SourceSingleSkillSelectionPreference;
+}
+export interface SourceSingleSkillPanelHandle { stop(): void; select(selection: SourceSingleSkillSelectionPreference): void; dispose(): void }
 
-export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options): SourceSingleSkillPanelHandle {
+export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceSingleSkillPanelOptions): SourceSingleSkillPanelHandle {
   let workerRun: SourceHostWorkerRunHandle | null = null, disposed = false, generation = 0;
   let variant: SourceHostVariant = "classic", inventory: SourceTeamInventory | undefined, draft: SourceSingleSkillDraft | undefined;
   let savedResult: SourceHostResult | undefined, savedSelection: ReturnType<typeof selectSourceSingleSkillAction> | undefined;
@@ -44,6 +49,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
   let lastFailedRequest: SourceHostWorkerRequest | null = null, lastFailedDraft: SourceSingleSkillDraft | null = null;
   let lastDiagnostic: SourceHostDiagnosticReceipt | null = null;
   let buildCandidates: Array<{ id: string; label: string; member?: SourceTeamMember; error?: string }> = [];
+  let pendingSelection = options.initialSelection ? structuredClone(options.initialSelection) : undefined;
   root.innerHTML = `<section class="source-single-skill" data-source-single-skill><p>选择角色、配装与动作，运行后查看本次实际伤害。</p><details data-single-source-details><summary>高级：来源版本与数据口径</summary><label>来源<select data-single-source disabled>${variants.map(row => `<option value="${row.id}">${row.label}</option>`).join("")}</select></label><p>此入口从固定来源名册选择一个角色并运行一次原生 E/Q/N 等已实现动作；不需组队或编写 GCSL。来源注册与机制仍属暂定。结果只代表有限观察窗内已记录的实际命中，不表示完整施放，也不显示 DPS。</p><p>角色、武器与套装效果由所选固定来源处理；五件圣遗物属性只填圣遗物增量。使用已明确配置的初始目标几何与零输入延迟执行；未另行指定随机政策，使用一次原生种子流。调整后结果仍标记运行时的原始输入，须重新运行才会更新。</p><div data-single-source-context></div></details>
     <div class="workspace-fields"><label>角色<select data-single-character disabled><option>正在读取名册…</option></select></label><label>参考构筑<select data-single-tier disabled><option value="starter">小毕业参考构筑</option><option value="developed">大毕业参考构筑</option></select></label></div>
     <p data-single-status role="status" aria-live="polite">${esc(statusText)}</p><div data-single-editor></div>
@@ -113,7 +119,13 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     const kinds = actionKinds();
     if (!kinds.includes(draft.action.kind)) draft.action.kind = kinds[0] ?? "skill";
     const capability = sourceActionCapability(character?.actionCapabilities, draft.action.kind);
-    const parameters = (capability?.parameters ?? []).map(parameter => `<label>${esc(parameter.key)}<input type="number" step="1" data-single-param="${esc(parameter.key)}" value="${draft!.action.params?.[parameter.key] ?? ""}" placeholder="留空表示不传"></label>`).join("");
+    const neuvilletteCharge = member.characterKey === "neuvillette" && draft.action.kind === "charge";
+    const parameters = (capability?.parameters ?? []).map(parameter => {
+      const label = neuvilletteCharge && parameter.key === "short" ? "重击形式（0：衡平推裁；1：普通重击）"
+        : neuvilletteCharge && parameter.key === "ticks" ? "衡平推裁命中次数上限（留空为自然结束）" : parameter.key;
+      const bounds = neuvilletteCharge && parameter.key === "short" ? ' min="0" max="1"' : neuvilletteCharge && parameter.key === "ticks" ? ' min="1"' : "";
+      return `<label>${esc(label)}<input type="number" step="1"${bounds} data-single-param="${esc(parameter.key)}" value="${draft!.action.params?.[parameter.key] ?? ""}" placeholder="${neuvilletteCharge && parameter.key === "short" ? "留空：衡平推裁" : "留空表示不传"}"></label>`;
+    }).join("");
     const sets = member.artifactSets.map((set, index) => `<div class="source-single-skill__row"><label>圣遗物套装<select data-single-set-key="${index}">${inventory!.artifacts.map(item => `<option value="${esc(item.key)}"${item.key === set.key ? " selected" : ""}>${esc(item.name)} · ${esc(item.key)}</option>`).join("")}</select></label><label>件数<input type="number" min="1" max="5" step="1" data-single-set-count="${index}" value="${set.count}"></label><button type="button" data-single-remove-set="${index}">移除</button></div>`).join("");
     const stats = Object.entries(member.artifactStats).map(([key, value]) => `<label>${esc(statLabels[key] ?? key)} · 纯圣遗物增量<input type="number" step="any" data-single-stat="${esc(key)}" value="${esc(value)}"></label>`).join("");
     const openAdvanced = new Set([...editor.querySelectorAll<HTMLDetailsElement>('details[data-single-advanced][open]')].map(section => section.dataset.singleAdvanced));
@@ -122,7 +134,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
       <fieldset><legend>武器</legend><div class="workspace-fields"><label>武器<select data-single-weapon>${compatibleWeapons.map(item => `<option value="${esc(item.key)}"${item.key === member.weapon.key ? " selected" : ""}>${esc(item.name)} · ${esc(item.key)}</option>`).join("")}</select></label><label>武器等级<input type="number" min="1" max="90" step="1" data-single-weapon-field="level" value="${member.weapon.level}"></label><label>武器上限<input type="number" min="1" max="90" step="1" data-single-weapon-field="levelCap" value="${member.weapon.levelCap}"></label><label>精炼<input type="number" min="1" max="5" step="1" data-single-weapon-field="refinement" value="${member.weapon.refinement}"></label></div></fieldset>
       <fieldset><legend>圣遗物套装</legend><p>填写实际套装配置件数，合计不得超过五件。固定来源运行套装效果。</p>${sets}<button type="button" data-single-add-set ${member.artifactSets.reduce((sum, item) => sum + item.count, 0) >= 5 ? "disabled" : ""}>添加套装</button></fieldset>
       <fieldset><legend>五件圣遗物属性增量</legend><p>以下只代表五件圣遗物词条的增量，不是角色最终面板；角色、武器基础与套装效果不重复录入。</p><div class="workspace-fields">${stats || "<p>参考构筑没有可编辑的词条行。</p>"}</div><label>添加属性<select data-single-add-stat>${statKeys.map(key => `<option value="${key}">${key}</option>`).join("")}</select></label><button type="button" data-single-add-stat-button>添加词条</button></fieldset>
-      <fieldset data-single-action-controls><legend>一次动作</legend><div class="workspace-fields"><label>动作<select data-single-action>${kinds.map(kind => `<option value="${kind}"${kind === draft!.action.kind ? " selected" : ""}>${sourceActionLabels[kind]}</option>`).join("")}</select></label>${parameters}</div><p data-single-technical>只允许此角色在所选来源中明确标记为已实现的动作；参数只显示该方法登记的字段，并按整数读取。本次只请求一次动作，之后等待观察窗，不重复、不组成动作序列。</p></fieldset>
+      <fieldset data-single-action-controls><legend>一次动作</legend><div class="workspace-fields"><label>动作<select data-single-action>${kinds.map(kind => `<option value="${kind}"${kind === draft!.action.kind ? " selected" : ""}>${sourceActionLabels[kind]}</option>`).join("")}</select></label>${parameters}</div>${neuvilletteCharge ? `<p>这是一次独立重击，不补造前置E/Q的源水之滴。蓄力、生命消耗与增伤按引擎当时状态计算。</p>` : ""}<p data-single-technical>只允许此角色在所选来源中明确标记为已实现的动作；参数只显示该方法登记的字段，并按整数读取。本次只请求一次动作，之后等待观察窗，不重复、不组成动作序列。</p></fieldset>
       <details data-single-advanced="target"><summary>高级：目标位置、多目标与特殊条件</summary><div data-single-first-target>${renderSourceTargetGeometryControls(draft.target.geometry)}
       ${renderSourceTargetProfileControls(draft.target)}</div>
       ${renderSourceTargetSceneControls(sceneInput(draft))}</details>
@@ -194,7 +206,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     }
     catch (error) { setStatus(`${savedResult ? '输入尚未完整；下方仍是旧输入的结果。' : ''}${error instanceof Error ? error.message : error}`); }
   };
-  const loadInventory = async (nextVariant: SourceHostVariant, preferredKey?: string) => {
+  const loadInventory = async (nextVariant: SourceHostVariant) => {
     const currentGeneration = ++generation; stop(); loadingInventory = true; markResultStale("正在切换来源名册；下方结果仍对应其运行时保存的旧来源与输入。");
     variant = nextVariant; inventory = undefined; draft = undefined; buildCandidates = []; setBusy(false);
     candidateSelect.innerHTML = ""; candidateSelect.hidden = true; applyCandidate.hidden = true;
@@ -207,7 +219,8 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
       const characters = loaded.characters;
       characterSelect.innerHTML = characters.map(item => `<option value="${esc(item.key)}">${esc(item.name)} · ${esc(item.key)}</option>`).join("");
       if (!characters.length) throw new Error("此来源名册没有可用角色配置键。");
-      const selected = characters.find(item => item.key === preferredKey) ?? characters[0]!;
+      if (pendingSelection) { select(pendingSelection); characterSelect.disabled = busy; return; }
+      const selected = characters[0]!;
       characterSelect.value = selected.key;
       setStatus(`已读取 ${loaded.hostVariant} 固定来源角色名册（${characters.length} 个可用配置键）。`);
       loadPreset(selected.key); characterSelect.disabled = busy;
@@ -227,6 +240,37 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
         action: { kind: kinds[0]! }, durationSeconds: 12, target: { level: 90, resistance: 0.1, geometry: { ...defaultSourceTargetGeometry } }, startup: "full", seed: "1" };
       markResultStale("已切换角色／参考构筑；下方结果仍对应原运行输入。"); renderEditor(); setStatus("已载入本地参考构筑；请核对构筑并运行一次动作。");
     } catch (error) { draft = undefined; editor.innerHTML = `<p role="alert">${esc(error instanceof Error ? error.message : error)}</p>`; setBusy(busy); }
+  };
+  const select = (selection: SourceSingleSkillSelectionPreference): void => {
+    if (disposed) return;
+    pendingSelection = structuredClone(selection);
+    if (!inventory || loadingInventory) return;
+    pendingSelection = undefined;
+    try {
+      const resolved = resolveSourceSingleSkillSelection(inventory, selection,
+        draft?.member.characterKey === selection.characterKey ? draft.action.kind : undefined);
+      const previous = draft ? readDraft() : undefined;
+      stop();
+      const sameCharacter = previous?.member.characterKey === resolved.characterKey;
+      if (sameCharacter) draft = previous;
+      else {
+        loadPreset(resolved.characterKey);
+        if (!draft) return;
+        // A different explicit actor receives its own reference equipment, while
+        // the user's target, seed, observation window and startup stay intact.
+        if (previous) draft = { ...previous, source: draft.source, member: draft.member, action: draft.action };
+      }
+      draft = applySourceSingleSkillSelection(draft!, { characterKey: resolved.characterKey, preferredAction: resolved.actionKind }, inventory);
+      characterSelect.value = resolved.characterKey;
+      if (!sameCharacter || previous?.action.kind !== draft.action.kind) markResultStale();
+      renderEditor(); setBusy(false);
+      setStatus(sameCharacter ? "已选择本角色的原生动作；当前配装、初始能量与观察条件已保留，请核对后运行。"
+        : previous ? "已载入所选角色的本地参考构筑；已有目标、观察与初始能量设置保留，请核对配装后运行。"
+          : "已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。");
+    } catch (error) {
+      characterSelect.value = draft?.member.characterKey ?? "";
+      setBusy(false); setStatus(error instanceof Error ? error.message : String(error));
+    }
   };
   const drawResult = (result: SourceHostResult, input: SourceSingleSkillDraft) => {
     savedResult = result; savedInput = structuredClone(input);
@@ -389,7 +433,10 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
       executeRequest(request, input);
     } catch (error) { reportInputError(error); }
   };
-  sourceSelect.onchange = () => { void loadInventory(sourceSelect.value as SourceHostVariant); };
+  sourceSelect.onchange = () => {
+    if (draft) pendingSelection = { characterKey: draft.member.characterKey, preferredAction: draft.action.kind };
+    void loadInventory(sourceSelect.value as SourceHostVariant);
+  };
   characterSelect.onchange = () => loadPreset(characterSelect.value);
   tierSelect.onchange = () => { if (characterSelect.value) loadPreset(characterSelect.value); };
   editor.addEventListener("input", event => { if ((event.target as Element).matches("input")) markEdited(); });
@@ -482,5 +529,5 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: Options
     setStatus(`已应用配装候选「${candidate.label}」；动作和观察条件保留，请核对角色来源键。`);
   };
   void loadInventory(variant);
-  return { stop, dispose: () => { if (disposed) return; disposed = true; generation++; stop(); root.innerHTML = ""; } };
+  return { stop, select, dispose: () => { if (disposed) return; disposed = true; generation++; stop(); root.innerHTML = ""; } };
 }
