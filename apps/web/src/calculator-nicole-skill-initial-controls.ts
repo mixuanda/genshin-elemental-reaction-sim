@@ -31,12 +31,12 @@ ${field("noOtherEventsBeforeInitial", context.noOtherEventsBeforeInitial)}${fiel
 ${field("skillGrantNonExtraAttack", grant?.value ?? context.skillGrantNonExtraAttack, grant?.source === "equipment-current")}
 ${context.targetInC2AreaAtInitial === false ? field("targetInC2AreaAtInitial", false) : ""}
 ${ascension(doc) === undefined ? '<label>实际突破阶段<input type="number" data-field="gameContext.ascension" data-source-cast-number-field data-optional-number min="0" max="6" step="1" value=""></label>' : ""}
-</div><details open><summary>攻击力与抗性输入已含的份额</summary><div class="calculator-fields">
+</div><details><summary>高级：攻击力与抗性输入已含的份额</summary><div class="calculator-fields">
 ${field("includedSkillAttack", context.includedSkillAttack)}${field("c2AttackIncludedInPanel", context.c2AttackIncludedInPanel)}
 ${field("a1AttackIncludedInPanel", context.a1AttackIncludedInPanel)}
 ${doc.hits.some(row => row.kind === "ordinary" && row.effectiveResistance === undefined) ? field("includedC2ResistanceReduction", context.includedC2ResistanceReduction) : ""}
 </div><p class="calculator-hint">未计入的数值填0，已知不含请选择否；留空表示未知。减抗使用小数，0.25表示25%。</p></details>
-<details><summary>取样与本击状态说明</summary><p class="calculator-hint">E先清除旧E/A1/C2攻击增益，8帧按非转换攻击力计算新的E增攻，再给C2的300点攻击。9帧初击取样之后，新A1不会倒填攻击；满突破C2的同击减抗在伤害计算前生效。未位移的5米E命中已证明目标在10米C2范围内，无需重复选范围。低突破C2的来源门控仍有分歧，此入口暂不代算。</p><p class="calculator-hint">手动取样请填写本次8帧实际数值，排除E自身等二次转换；不能从含E/C2/A1的最终攻击力倒算。精1尘光七谕的首次护盾刷新使用同一份样本，由现有装备公式结算。本页只算这记E初击，不把护盾、增益或C1协同造影当成额外E伤害。</p></details></fieldset>`;
+<details><summary>取样与本击状态说明</summary><p class="calculator-hint">E先清除旧E/A1/C2攻击增益，8帧按非转换攻击力计算新的E增攻，再给C2的300点攻击。9帧初击取样之后，新A1不会倒填攻击；满突破C2的同击减抗在伤害计算前生效。未位移的5米E命中已证明目标在10米C2范围内，无需重复选范围。低突破C2的来源门控仍有分歧，此入口暂不代算。这里采用固定参考实现的8/9帧顺序；上游仍注明顺序待游戏实测确认。</p><p class="calculator-hint">手动取样请填写本次8帧实际数值，排除E自身等二次转换；不能从含E/C2/A1的最终攻击力倒算。精1尘光七谕的首次护盾刷新使用同一份样本，由现有装备公式结算。本页只算这记E初击，不把护盾、增益或C1协同造影当成额外E伤害。</p></details></fieldset>`;
 }
 export function updateNicoleSkillInitialControl(doc: CalculatorDocument, fieldPath: string, raw: string): boolean {
   if (!isNicoleSkillInitialAction(doc) || !nicoleSkillInitialContext(doc) || !fieldPath.startsWith(path(""))) return false;

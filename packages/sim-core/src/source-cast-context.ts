@@ -2,6 +2,8 @@ import {prepareAlhaithamDamageDocument,resetAlhaithamPanelAccounting,finalizeAlh
 import { isFaruzanBurstInitialAction, prepareFaruzanBurstInitialDocument, resetFaruzanBurstInitialPanelAccounting, finalizeFaruzanBurstInitialPanelAccounting } from "./faruzan-burst-initial-formulas";
 import { isWandererPrimaryAction, prepareWandererPrimaryDocument, resetWandererPrimaryPanelAccounting, finalizeWandererPrimaryPanelAccounting } from "./wanderer-primary-formulas";
 import { isDurinBurstAction, prepareDurinBurstDocument, resetDurinBurstPanelAccounting, finalizeDurinBurstPanelAccounting } from "./durin-burst-formulas";
+import { isNicoleSkillInitialAction, prepareNicoleSkillInitialDocument, resetNicoleSkillInitialPanelAccounting, finalizeNicoleSkillInitialPanelAccounting } from "./nicole-skill-initial-formulas";
+import { refreshNicoleSkillInitialWeaponEffects, NICOLE_SKILL_INITIAL_WEAPON_REFRESH_DEPENDENCY } from "./nicole-skill-initial-weapon-refresh";
 import {prepareArlecchinoDamageDocument,resetArlecchinoPanelAccounting,finalizeArlecchinoPanelAccounting} from './arlecchino-damage-formulas';
 import {prepareHutaoDamageDocument,resetHutaoPanelAccounting,finalizeHutaoPanelAccounting} from './hutao-damage-formulas';
 import {prepareKinichDamageDocument,resetKinichPanelAccounting,finalizeKinichPanelAccounting} from './kinich-damage-formulas';
@@ -45,6 +47,15 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  if (document.gameContext?.nicoleSkillInitial && isNicoleSkillInitialAction(document)) {
+    const refreshed = refreshNicoleSkillInitialWeaponEffects(prepareNicoleSkillInitialDocument(document));
+    const prepared = refreshed.document;
+    if (refreshed.blocked) {
+      prepared.dependencies.push({ id: NICOLE_SKILL_INITIAL_WEAPON_REFRESH_DEPENDENCY, status: "missing", reason: refreshed.reason ?? "请补齐本次E的尘光首次取样。", sourceRefs: [] });
+      for (const hit of prepared.hits) if (prepared.selectedHitIds.includes(hit.id)) hit.dependencies.push(NICOLE_SKILL_INITIAL_WEAPON_REFRESH_DEPENDENCY);
+    }
+    return prepared;
+  }
   if (isWandererPrimaryAction(document)) return prepareWandererPrimaryDocument(document);
   if (isDurinBurstAction(document)) return prepareDurinBurstDocument(document);
   if (document.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialAction(document)) return prepareFaruzanBurstInitialDocument(document);
@@ -79,6 +90,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  if (document.gameContext?.nicoleSkillInitial && isNicoleSkillInitialAction(document)) { resetNicoleSkillInitialPanelAccounting(document, mode); return; }
   if (isWandererPrimaryAction(document)) { resetWandererPrimaryPanelAccounting(document, mode); return; }
   if (isDurinBurstAction(document)) { resetDurinBurstPanelAccounting(document, mode); return; }
   if (document.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialAction(document)) { resetFaruzanBurstInitialPanelAccounting(document, mode); return; }
@@ -120,6 +132,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  if (document.gameContext?.nicoleSkillInitial && isNicoleSkillInitialAction(document)) { finalizeNicoleSkillInitialPanelAccounting(document); return; }
   if (isWandererPrimaryAction(document)) { finalizeWandererPrimaryPanelAccounting(document); return; }
   if (isDurinBurstAction(document)) { finalizeDurinBurstPanelAccounting(document); return; }
   if (document.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialAction(document)) { finalizeFaruzanBurstInitialPanelAccounting(document); return; }

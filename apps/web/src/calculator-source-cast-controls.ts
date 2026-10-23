@@ -1,6 +1,7 @@
 import { renderFaruzanBurstInitialControls } from "./calculator-faruzan-burst-initial-controls";
 import { renderWandererPrimaryControls } from "./calculator-wanderer-primary-controls";
 import { renderDurinBurstControls } from "./calculator-durin-burst-controls";
+import { renderNicoleSkillInitialControls, updateNicoleSkillInitialControl } from "./calculator-nicole-skill-initial-controls";
 import {renderAlhaithamControls} from './calculator-alhaitham-controls';
 import {renderArlecchinoControls} from './calculator-arlecchino-controls';
 import {renderHutaoControls} from './calculator-hutao-controls';
@@ -151,6 +152,7 @@ function durinControls(document: CalculatorDocument): string {
 
 /** These controls record context only; all source formulas are rebuilt by sim-core. */
 export function renderSourceCastControls(document: CalculatorDocument): string {
+  if (document.gameContext?.nicoleSkillInitial) return renderNicoleSkillInitialControls(document);
   if (document.gameContext?.wandererPrimary) return renderWandererPrimaryControls(document);
   if (document.gameContext?.durinBurst) return renderDurinBurstControls(document);
   if (document.gameContext?.faruzanBurstInitial) return renderFaruzanBurstInitialControls(document);
@@ -159,6 +161,8 @@ export function renderSourceCastControls(document: CalculatorDocument): string {
 
 /** Optional nested hit/shared maps are created only after the user supplies a value. */
 export function applySourceCastControl(document: CalculatorDocument, input: HTMLInputElement | HTMLSelectElement): void {
+  const nicolePath = input.dataset.sourceCastStateField ?? input.dataset.sourceCastValueField ?? input.dataset.field;
+  if (nicolePath && updateNicoleSkillInitialControl(document, nicolePath, input.value)) return;
   if (applyKazuhaControl(document, input)) return;
   const path = input.dataset.sourceCastStateField ?? input.dataset.sourceCastEnumField ?? input.dataset.sourceCastValueField ?? input.dataset.sourceCastTextField ?? input.dataset.field!;
   const keys = path.split(".");

@@ -163,6 +163,7 @@ export function prepareNicoleSkillInitialDocument(document: CalculatorDocument):
     || "本次E8帧先取样并授予E/C2增攻，9帧初击；新A1不回填攻击，C2在本击动态抗性读取前生效。", sourceRefs: NICOLE_SKILL_INITIAL_SOURCE_REFS });
   for (const row of doc.hits) if (doc.selectedHitIds.includes(row.id)) row.dependencies.push(dependencyId);
   game.scopeCoverage = "single-hit";
+  game.skillName = "启示·无始之光·初击";
   game.attributionPolicy = "只计算本次E9帧初击；C1额外协同造影及Q触发投影归各自实际触发者，不并入。护盾、回能和完整队伍增益日程另算。";
   doc.label = `妮可 · 启示·无始之光初击 · C${game.constellation} · 有效E等级${game.effectiveTalentLevel}`;
   return doc;

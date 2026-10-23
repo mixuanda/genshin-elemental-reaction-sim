@@ -15,6 +15,8 @@ type BuffElement = keyof typeof elementLabels;
 export interface EquipmentControlsOptions {
   dataset?: EquipmentDataset;
   getCharacterId(): string | null;
+  /** Bind only action facts proved by the current calculator before materializing equipment. */
+  prepareInput?(input: EquipmentBuildInput): EquipmentBuildInput;
   /** Only called by the explicit apply action. Replace the previous build; never add to final stats. */
   onResolve(resolution: EquipmentBuildResolution): void;
   applyLabel?: string;
@@ -204,8 +206,11 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
   container.addEventListener("click", event => {
     if (!(event.target as HTMLElement).closest("[data-equipment-apply]")) return;
     try {
-      const resolution = resolveEquipmentBuild(getInput(), options.dataset);
+      const entered = getInput();
+      const input = options.prepareInput?.(entered) ?? entered;
+      const resolution = resolveEquipmentBuild(input, options.dataset);
       options.onResolve(resolution);
+      if (input !== entered) setInput(input);
       status(`已应用 ${resolution.characterName} / ${resolution.weaponName}，${resolution.build.equipment.artifacts?.length ?? 0} 件圣遗物。词条逐项计入；来源、强化档位和适用效果见计算轨迹。未实现条款已列出并停用。`);
     } catch (error) { status(error instanceof Error ? error.message : String(error), true); }
   });
@@ -215,7 +220,7 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     if (next !== activeCharacterId || !container.childElementCount) { activeCharacterId = next; artifactDraft = []; elementDrafts.clear(); render(false); }
   };
   refreshCharacter();
-  return { refreshCharacter, getInput, setInput(input) {
+  function setInput(input: EquipmentBuildInput): void {
     if (input.characterId !== options.getCharacterId()) throw new Error("配装角色与当前选择不一致。");
     activeCharacterId = input.characterId;
     activeWeaponId = input.weaponId;
@@ -242,5 +247,6 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
         }
       }
     }
-  } };
+  }
+  return { refreshCharacter, getInput, setInput };
 }

@@ -4,6 +4,7 @@ import { initializeWandererPrimaryDocument } from "./wanderer-primary-calculatio
 import { initializeDurinBurstDocument } from "./durin-burst-calculation-context";
 import { isWandererPrimaryAction, WANDERER_PRIMARY_SOURCE_REFS } from "../../../packages/sim-core/src/wanderer-primary-formulas";
 import { isDurinBurstAction, DURIN_BURST_SOURCE_REFS } from "../../../packages/sim-core/src/durin-burst-formulas";
+import { initializeNicoleSkillInitialDocument, isNicoleSkillInitialAction, isNicoleSkillInitialHit, NICOLE_SKILL_INITIAL_SOURCE_REFS } from "../../../packages/sim-core/src/nicole-skill-initial-formulas";
 import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS,ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/alhaitham-damage-formulas';
 import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
 import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS,ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
@@ -138,7 +139,10 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     const kaeyaTick = context.skillId === "kaeya-burst-burst" && hit.attackTag === "burst" && context.scopeCoverage === "selected-components";
     const maleChargedScope = travelerMaleChargedConstellationScope(result, hit);
     const anemoBurstScope = travelerAnemoConstellationScope(result, hit);
-    if (isWandererPrimaryAction(result)) {
+    if (result.gameContext?.nicoleSkillInitial && isNicoleSkillInitialHit(result, hit)) {
+      allowed = context.constellation <= 2; sourceRefs = [...sourceRefs, ...NICOLE_SKILL_INITIAL_SOURCE_REFS];
+      reason = allowed ? "妮可C0–C2本次E初击：8帧E增攻样本、C2平攻和同击动态减抗分别核对，新A1不回填已快照攻击；不加入C1/Q投影。" : "妮可此E初击未审阅C3以上，不能按C2代算。";
+    } else if (isWandererPrimaryAction(result)) {
       allowed = true; sourceRefs = [...sourceRefs, ...WANDERER_PRIMARY_SOURCE_REFS];
       reason = "流浪者C0–C6空居普攻、独立C6追加或Q：NA/E/Q有效天赋分别处理，吸收、C6资格及C2取样按实际状态核对，不生成整轮或额外风矢。";
     } else if (isDurinBurstAction(result)) {
@@ -316,6 +320,7 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isNicoleSkillInitialAction(document))return initializeNicoleSkillInitialDocument(document);
     if(isWandererPrimaryAction(document))return initializeWandererPrimaryDocument(document);
     if(isDurinBurstAction(document))return initializeDurinBurstDocument(document);
     if(isFaruzanBurstInitialAction(document))return initializeFaruzanBurstInitialDocument(document);
