@@ -495,11 +495,46 @@ export class TraceBuilder {
 
   constructor(sourceRefs: string[] = []) {
     stringList(sourceRefs, "Trace source references");
-    this.sourceRefs = [...sourceRefs];
+    this.sourceRefs = immutableClone(sourceRefs);
   }
 
   get nodes(): CalculationTraceNode[] {
     return [...this.traceNodes];
+  }
+
+  /** Bind an already evaluated invariant recipe to this builder's namespace.
+   * Only this module's recursively immutable nodes are accepted. Mutable or
+   * imported data cannot bypass add()/formula validation via Object.freeze.
+   * The caller must key its recipe by all validated numeric and source inputs.
+   */
+  appendImmutable(nodes: readonly CalculationTraceNode[], fromPrefix: string, toPrefix: string): void {
+    nonempty(fromPrefix, "Trace template source namespace");
+    nonempty(toPrefix, "Trace template target namespace");
+    const rename = (id: string) => id === fromPrefix ? toPrefix
+      : id.startsWith(fromPrefix + ".") ? toPrefix + id.slice(fromPrefix.length) : id;
+    const own = <T extends object>(value: T): T => {
+      Object.freeze(value); immutableTraceNodes.add(value); return value;
+    };
+    for (const node of nodes) {
+      if (!immutableTraceNodes.has(node)) throw new Error("Trace template must contain privately owned immutable nodes");
+      if (node.id !== fromPrefix && !node.id.startsWith(fromPrefix + ".")) throw new Error("Trace template node is outside its namespace");
+      const id = rename(node.id);
+      if (this.executedIds.has(id)) throw new Error(`Duplicate trace node id: ${id}`);
+      const childIds = own(node.childIds.map(rename));
+      for (const childId of childIds) {
+        if (!this.executedIds.has(childId)) throw new Error(`Unknown or unexecuted trace child: ${childId}`);
+      }
+      const inputs = own(node.inputs.map(input => {
+        if (typeof input.origin === "string" || input.origin.reference === undefined) return input;
+        const reference = rename(input.origin.reference);
+        return reference === input.origin.reference ? input
+          : own({ ...input, origin: own({ ...input.origin, reference }) });
+      }));
+      const rebound = own({ ...node, id, ruleId: rename(node.ruleId), childIds, inputs, sourceRefs: this.sourceRefs,
+        ...(node.parentId === undefined ? {} : { parentId: rename(node.parentId) }) });
+      this.traceNodes.push(rebound);
+      this.executedIds.add(id);
+    }
   }
 
   add(

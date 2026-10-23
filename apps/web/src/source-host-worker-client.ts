@@ -4,6 +4,7 @@ import type { SourceHostReexecutionReceipt } from "../../../packages/sim-core/sr
 import { SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT } from "../../../packages/sim-core/src/source-host-wire";
 import type { SourceHostWorkerRequest, SourceHostBatchRun } from "./source-host-batch";
 import type { SourceHostStartupRun } from "./source-host-startup-analysis";
+import type { SourceHostFormulaProfile } from "../../../packages/sim-core/src/source-host-formula";
 
 export type SourceHostWorkerStage = "request" | "load-manifest" | "load-wasm" | "instantiate-wasm" | "execute" | "batch" | "reexecution" | "response" | "worker";
 export type SourceHostFailureKind = "runtime-error" | "worker-error" | "message-error" | "timeout" | "post-message-error";
@@ -37,7 +38,7 @@ export type SourceHostWorkerMessage =
   | { type: "monte-trial"; trial: import("./source-host-monte-carlo").SourceMonteTrial }
   | { type: "monte-done" }
   | { type: "progress"; message: string; stage?: SourceHostWorkerStage }
-  | { type: "result"; result: SourceHostResult; elapsedMs: number; timing?: { setupMs: number; nativeMs: number; parseMs: number; validateMs: number; postedAt: number; workerBootstrapMs?: number } }
+  | { type: "result"; result: SourceHostResult; elapsedMs: number; timing?: { setupMs: number; nativeMs: number; parseMs: number; validateMs: number; postedAt: number; workerBootstrapMs?: number; requestSerializeMs?: number; nativeResultChars?: number; formulaProfile?: SourceHostFormulaProfile } }
   | { type: "reexecution-result"; receipt: SourceHostReexecutionReceipt; elapsedMs: number }
   | { type: "batch-result"; runs: SourceHostBatchRun[]; elapsedMs: number }
   | { type: "startup-result"; startupRuns: SourceHostStartupRun[]; elapsedMs: number }

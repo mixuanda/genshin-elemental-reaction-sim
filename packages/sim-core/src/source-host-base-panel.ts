@@ -29,10 +29,39 @@ function close(actual: number, expected: number, field: string): void {
     throw new Error(`来源基础面板 ${field} 不一致：${actual} / ${expected}`);
 }
 
+const TEMPLATE_PREFIX = "sourceHostBasePanelTemplate";
+const panelTemplates = new Map<string, ReturnType<typeof executeBasePanelRecipe>>();
+const MAX_PANEL_TEMPLATES = 32;
+
 /** Replay the actual native construction recipe, including weapon set semantics.
- * Catalog values are pinned-source inputs, not claims of independent game validation. */
-export function executeSourceHostBasePanel(raw: unknown, prefix: string, sourceRoot: string, sharedBuilder?: TraceBuilder) {
+ * Only an exact, strictly parsed construction recipe is reused. Combat getters,
+ * buffs, RNG and their timing are outside this template. The complete immutable
+ * evaluated graph keeps the caller's original IDs and source references. */
+export function executeSourceHostBasePanel(raw: unknown, prefix: string, sourceRoot: string, sharedBuilder?: TraceBuilder,
+  options: { memoize?: boolean } = {}) {
   const panel = sourceHostBasePanelSchema.parse(raw);
+  if (options.memoize === false) return executeBasePanelRecipe(panel, prefix, sourceRoot, sharedBuilder);
+  // JSON normally merges -0 into 0, although explanations deliberately retain
+  // that sign. Numeric schema positions cannot contain this object marker.
+  const key = JSON.stringify([sourceRoot, panel], (_key, value: unknown) =>
+    typeof value === "number" && Object.is(value, -0) ? { negativeZero: true } : value);
+  let template = panelTemplates.get(key);
+  if (!template) {
+    template = executeBasePanelRecipe(panel, TEMPLATE_PREFIX, sourceRoot);
+    if (panelTemplates.size >= MAX_PANEL_TEMPLATES) panelTemplates.delete(panelTemplates.keys().next().value!);
+    panelTemplates.set(key, template);
+  }
+  const refs = ["pkg/core/player/character/basestat.go", "pkg/core/player/character/character.go", "pkg/gcs/parser/parseCharacter.go", "pkg/simulation/setup.go"].map(path => sourceRoot + path);
+  const builder = sharedBuilder ?? new TraceBuilder(refs);
+  const firstNode = builder.nodes.length;
+  const renamed = (id: string) => id === TEMPLATE_PREFIX ? prefix
+    : id.startsWith(TEMPLATE_PREFIX + ".") ? prefix + id.slice(TEMPLATE_PREFIX.length) : id;
+  builder.appendImmutable(template.trace, TEMPLATE_PREFIX, prefix);
+  return { panel, trace: builder.nodes.slice(firstNode), finalStats: [...template.finalStats],
+    finalNodeIds: template.finalNodeIds.map(renamed), explanationGaps: [...template.explanationGaps] };
+}
+
+function executeBasePanelRecipe(panel: SourceHostBasePanel, prefix: string, sourceRoot: string, sharedBuilder?: TraceBuilder) {
   const refs = ["pkg/core/player/character/basestat.go", "pkg/core/player/character/character.go", "pkg/gcs/parser/parseCharacter.go", "pkg/simulation/setup.go"].map(path => sourceRoot + path);
   const builder = sharedBuilder ?? new TraceBuilder(refs);
   const firstNode = builder.nodes.length;

@@ -1,5 +1,5 @@
 import { summarizeSourceMonteTrial } from "./source-host-monte-carlo";
-import { createSourceHostFormulaResolver } from "../../../packages/sim-core/src/source-host-formula";
+import { createSourceHostFormulaResolver, type SourceHostFormulaProfile } from "../../../packages/sim-core/src/source-host-formula";
 import { createSourceHostResult } from "../../../packages/sim-core/src/source-host-capture";
 import { sourceHostReexecutionRequest, assertSourceHostReexecutionArtifact, verifySourceHostReexecution, type SourceHostReexecutionReceipt } from "../../../packages/sim-core/src/source-host-reexecution";
 import { assertSourceHostTargetPhases } from "../../../packages/sim-core/src/source-host-target-phase";
@@ -62,13 +62,17 @@ scope.onmessage = event => { void (async () => {
     });
     progress("execute", "正在运行角色、装备与反应事件；伤害由共享公式结算…");
     const started = performance.now();
-    let lastTiming = { nativeMs: 0, parseMs: 0, validateMs: 0 };
+    let lastTiming: { nativeMs: number; parseMs: number; validateMs: number; requestSerializeMs: number; nativeResultChars: number; formulaProfile?: SourceHostFormulaProfile } = {
+      nativeMs: 0, parseMs: 0, validateMs: 0, requestSerializeMs: 0, nativeResultChars: 0,
+    };
     const execute = (request: SourceHostRunRequest): SourceHostResult => {
       stage = event.data.jobs || event.data.startupJobs || event.data.monteCarloJobs ? "batch" : target ? "reexecution" : "execute";
       if ((request.hostVariant === "stellar") !== stellar) throw new Error("一次对照必须使用同一来源执行器。");
-      const resolver = createSourceHostFormulaResolver();
+      const resolver = createSourceHostFormulaResolver({ profile: new URL(location.href).searchParams.get("gidps-profile") === "1" });
+      const serializeStart = performance.now();
+      const requestText = JSON.stringify(request);
       const nativeStart = performance.now();
-      const nativeText = runtime.gidpsSourceHostRun(JSON.stringify(request), resolver.resolve);
+      const nativeText = runtime.gidpsSourceHostRun(requestText, resolver.resolve);
       const parseStart = performance.now();
       const native = JSON.parse(nativeText) as unknown;
       const validateStart = performance.now();
@@ -77,7 +81,9 @@ scope.onmessage = event => { void (async () => {
         throw new Error(native.error);
       }
       const result = createSourceHostResult(native, resolver.calculations);
-      lastTiming = { nativeMs: parseStart - nativeStart, parseMs: validateStart - parseStart, validateMs: performance.now() - validateStart };
+      lastTiming = { nativeMs: parseStart - nativeStart, parseMs: validateStart - parseStart, validateMs: performance.now() - validateStart,
+        requestSerializeMs: nativeStart - serializeStart, nativeResultChars: nativeText.length,
+        ...(resolver.profile ? { formulaProfile: resolver.profile } : {}) };
       if (result.sourceCommit !== expectedCommit) throw new Error("执行结果与所选来源版本不匹配。");
       if ((result.executionMode ?? "auto-wait") !== (request.executionMode ?? "auto-wait")) throw new Error("执行器未采用请求的动作执行模式，请重新构建对应来源。");
       if (request.stopAtDuration === true && result.observationWindow?.policy !== "duration-or-native") throw new Error("执行器未采用请求的观察时长截止策略，请重新构建对应来源。");

@@ -1227,13 +1227,29 @@ export function resolveSourceHostRequest(raw: unknown, components: SourceHostCal
   return result;
 }
 
+export interface SourceHostFormulaProfile {
+  calls: number;
+  requestChars: number;
+  parseMs: number;
+  calculateMs: number;
+  captureMs: number;
+  responseMs: number;
+  totalMs: number;
+  traceNodeReferences: number;
+  byKind: Record<string, { calls: number; totalMs: number }>;
+}
+
 /** One resolver per run. The returned number is used by Go for actual callbacks/HP. */
-export function createSourceHostFormulaResolver(options: { memoize?: boolean } = {}) {
+export function createSourceHostFormulaResolver(options: { memoize?: boolean; profile?: boolean } = {}) {
   const calculations: SourceHostCalculation[] = [];
   const records = new Map<number, SourceHostCalculationRecord>();
   const drainMemo = new Map<number, SourceHostCalculation>();
   const memo = new WeakMap<object, SourceHostCalculation>();
   const frozen = new WeakSet<object>();
+  const profile: SourceHostFormulaProfile | undefined = options.profile ? {
+    calls: 0, requestChars: 0, parseMs: 0, calculateMs: 0, captureMs: 0,
+    responseMs: 0, totalMs: 0, traceNodeReferences: 0, byKind: {},
+  } : undefined;
   const freeze = (value: unknown): void => {
     if (value === null || typeof value !== "object" || frozen.has(value) || isImmutableTraceNode(value)) return;
     frozen.add(value);
@@ -1243,12 +1259,20 @@ export function createSourceHostFormulaResolver(options: { memoize?: boolean } =
   if (options.memoize !== false) liveResolverMemos.set(records, memo);
   return {
     calculations,
+    profile,
     resolve(requestJson: string): string {
       let id: number | null = null;
+      let kind = "error";
+      const started = profile ? performance.now() : 0;
       try {
         const request: unknown = JSON.parse(requestJson);
+        const parsed = profile ? performance.now() : 0;
+        if (profile) profile.parseMs += parsed - started;
         if (typeof request === "object" && request !== null && "id" in request && typeof request.id === "number") id = request.id;
         const result = resolveSourceHostRequest(request, records, { drainMemo });
+        const calculated = profile ? performance.now() : 0;
+        if (profile) profile.calculateMs += calculated - parsed;
+        kind = result.request.kind;
         if (records.has(result.request.id)) throw new Error(`重复来源计算 ID ${result.request.id}`);
         if (options.memoize !== false) {
           freeze(result);
@@ -1256,9 +1280,26 @@ export function createSourceHostFormulaResolver(options: { memoize?: boolean } =
         }
         calculations.push(result);
         records.set(result.request.id, result);
-        return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });
+        const captured = profile ? performance.now() : 0;
+        const response = JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });
+        if (profile) {
+          profile.captureMs += captured - calculated;
+          profile.responseMs += performance.now() - captured;
+          profile.traceNodeReferences += result.trace.length;
+        }
+        return response;
       } catch (error) {
         return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id, error: error instanceof Error ? error.message : String(error) });
+      } finally {
+        if (profile) {
+          const elapsed = performance.now() - started;
+          profile.calls++;
+          profile.requestChars += requestJson.length;
+          profile.totalMs += elapsed;
+          const group = profile.byKind[kind] ??= { calls: 0, totalMs: 0 };
+          group.calls++;
+          group.totalMs += elapsed;
+        }
       }
     },
   };
