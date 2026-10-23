@@ -19,6 +19,7 @@ import { sourceTargetPhaseControlAction } from "./source-target-phase-controls";
 import { renderSourceHostTargetPhasePanel } from "./source-host-target-phase-panel";
 import { applySourceSingleSkillSelection, resolveSourceSingleSkillSelection, type SourceSingleSkillSelectionPreference } from "./source-single-skill-selection";
 import { renderNeuvilletteSourceFormulaHelp } from "./neuvillette-source-formula-help";
+import { openSourceSingleSkillResultArchive } from "./source-single-skill-result-archive";
 export type { SourceSingleSkillSelectionPreference } from "./source-single-skill-selection";
 
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -46,6 +47,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
   let savedResult: SourceHostResult | undefined, savedSelection: ReturnType<typeof selectSourceSingleSkillAction> | undefined;
   let savedInput: SourceSingleSkillDraft | undefined, savedSourceConfig = "", selectedAssociation: SourceHostActionCollection["association"] = "creation", statusText = "正在读取固定来源名册…", busy = false, loadingInventory = true;
   let resultStale = false, resultStaleMessage = "";
+  let savedResultOriginalText: string | undefined;
   let invalidInput: HTMLInputElement | HTMLSelectElement | null = null;
   let lastFailedRequest: SourceHostWorkerRequest | null = null, lastFailedDraft: SourceSingleSkillDraft | null = null;
   let lastDiagnostic: SourceHostDiagnosticReceipt | null = null;
@@ -54,7 +56,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
   root.innerHTML = `<section class="source-single-skill" data-source-single-skill><p>选择角色、配装与动作，运行后查看本次实际伤害。</p><details data-single-source-details><summary>高级：来源版本与数据口径</summary><label>来源<select data-single-source disabled>${variants.map(row => `<option value="${row.id}">${row.label}</option>`).join("")}</select></label><p>此入口从固定来源名册选择一个角色并运行一次原生 E/Q/N 等已实现动作；不需组队或编写 GCSL。来源注册与机制仍属暂定。结果只代表有限观察窗内已记录的实际命中，不表示完整施放，也不显示 DPS。</p><p>角色、武器与套装效果由所选固定来源处理；五件圣遗物属性只填圣遗物增量。使用已明确配置的初始目标几何与零输入延迟执行；未另行指定随机政策，使用一次原生种子流。调整后结果仍标记运行时的原始输入，须重新运行才会更新。</p><div data-single-source-context></div></details>
     <div class="workspace-fields"><label>角色<select data-single-character disabled><option>正在读取名册…</option></select></label><label>参考构筑<select data-single-tier disabled><option value="starter">小毕业参考构筑</option><option value="developed">大毕业参考构筑</option></select></label></div>
     <p data-single-status role="status" aria-live="polite">${esc(statusText)}</p><div data-single-editor></div>
-    <div class="editor-actions"><button type="button" class="primary" data-single-run disabled>运行一次动作</button><button type="button" data-single-cancel disabled>取消</button><button type="button" data-single-retry hidden disabled>按原输入安全重试</button><button type="button" data-single-diagnostic-export hidden disabled>导出安全诊断回执</button><button type="button" data-single-export-input disabled>导出输入 JSON</button><label class="file-button">导入输入／配装 JSON<input type="file" data-single-import accept="application/json"></label><select data-single-candidate hidden aria-label="选择导入的配装候选"></select><button type="button" data-single-apply-candidate hidden>应用所选配装</button></div>
+    <div class="editor-actions"><button type="button" class="primary" data-single-run disabled>运行一次动作</button><button type="button" data-single-cancel disabled>取消</button><button type="button" data-single-retry hidden disabled>按原输入安全重试</button><button type="button" data-single-diagnostic-export hidden disabled>导出安全诊断回执</button><button type="button" data-single-export-input disabled>导出输入 JSON</button><label class="file-button">打开结果／导入配装 JSON<input type="file" data-single-import accept="application/json"></label><select data-single-candidate hidden aria-label="选择导入的配装候选"></select><button type="button" data-single-apply-candidate hidden>应用所选配装</button></div>
     <div data-single-result></div><section class="card" data-single-diagnostic role="alert" hidden><p data-single-diagnostic-message></p><details><summary>错误阶段与技术信息</summary><pre data-single-diagnostic-json></pre></details></section></section>`;
   const sourceSelect = root.querySelector<HTMLSelectElement>("[data-single-source]")!;
   const characterSelect = root.querySelector<HTMLSelectElement>("[data-single-character]")!;
@@ -273,6 +275,12 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
       setBusy(false); setStatus(error instanceof Error ? error.message : String(error));
     }
   };
+  const exportResult = (result: SourceHostResult, input: SourceSingleSkillDraft) => {
+    if (savedResultOriginalText === undefined) { downloadSourceHostJson({ schemaVersion: "source-single-skill-result-v1", input, result }, "source-single-skill-result.json"); return; }
+    const url = URL.createObjectURL(new Blob([savedResultOriginalText], { type: "application/json" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = "source-single-skill-result.json"; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const drawResult = (result: SourceHostResult, input: SourceSingleSkillDraft) => {
     savedResult = result; savedInput = structuredClone(input);
     const scene = sceneInput(input);
@@ -292,7 +300,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
     try { savedSelection = selectSourceSingleSkillAction(result, selectedAssociation, input); }
     catch (error) {
       savedSelection = undefined; resultHost.innerHTML = `<section class="card" data-source-single-result data-single-input-stale="${resultStale}"><h3>本次单动作结果</h3><p data-single-result-stale ${resultStale ? "" : "hidden"}>${esc(resultStaleMessage)}</p><p data-single-action-summary>${esc(inventory?.characters.find(character => character.key === input.member.characterKey)?.name ?? input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 本次观察 ${input.durationSeconds} 秒。</p><details data-single-result-context><summary>高级：运行输入与目标记录</summary><p>运行输入快照：${esc(input.member.characterKey)} · ${sourceActionLabels[input.action.kind]} · 配置 ${input.durationSeconds} 秒；实际运行 ${actualSeconds}。</p><p>目标场景快照：共 ${targets.length} 个目标；统计目标 ${primaryTargetIndex + 1}。${esc(targetSnapshot)}</p><div data-single-target-summary></div><p>${esc(endReceipt)}</p></details><p role="alert">无法选择唯一已接受动作：${esc(error instanceof Error ? error.message : error)}</p><button type="button" data-single-result-export>导出完整原生结果 JSON</button><details><summary>原始结果记录</summary><pre>${esc(JSON.stringify(result, null, 2).slice(0, 20000))}</pre></details></section>`;
-      resultHost.querySelector<HTMLButtonElement>("[data-single-result-export]")!.onclick = () => downloadSourceHostJson({ schemaVersion: "source-single-skill-result-v1", input, result }, "source-single-skill-result.json");
+      resultHost.querySelector<HTMLButtonElement>("[data-single-result-export]")!.onclick = () => exportResult(result, input);
       return;
     }
     const selection = savedSelection, collection = selection.collection, analysis = selection.analysis;
@@ -377,7 +385,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
     resultHost.querySelectorAll<HTMLButtonElement>("[data-single-open-hit]").forEach(button => button.addEventListener("click", () => {
       const id = Number(button.dataset.singleOpenHit); if (Number.isInteger(id)) options.onOpenCapture(captureSourceHostHit(result, id));
     }));
-    resultHost.querySelectorAll<HTMLButtonElement>("[data-single-result-export]").forEach(button => button.addEventListener("click", () => downloadSourceHostJson({ schemaVersion: "source-single-skill-result-v1", input, result }, "source-single-skill-result.json")));
+    resultHost.querySelectorAll<HTMLButtonElement>("[data-single-result-export]").forEach(button => button.addEventListener("click", () => exportResult(result, input)));
   };
   const executeRequest = (request: SourceHostWorkerRequest, input: SourceSingleSkillDraft) => {
     const exactRequest = structuredClone(request), exactInput = structuredClone(input);
@@ -407,7 +415,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
             setStatus("来源执行器返回了不适用于单技能入口的结果；没有采用或显示新数值。可重新运行并导出诊断。");
             return;
           }
-          resultStale = false; resultStaleMessage = ""; savedSourceConfig = exactRequest.config;
+          resultStale = false; resultStaleMessage = ""; savedSourceConfig = exactRequest.config; savedResultOriginalText = undefined;
           lastFailedRequest = null; lastFailedDraft = null;
           drawResult(message.result, exactInput);
           setStatus("运行完成；结果为有限观察窗内的原生记录，不表示完整施放。");
@@ -506,6 +514,19 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
     void file.text().then(async text => {
       if (disposed || importGeneration !== generation) return;
       const raw = JSON.parse(text) as unknown;
+      if (raw && typeof raw === "object" && "schemaVersion" in raw && raw.schemaVersion === "source-single-skill-result-v1") {
+        const archive = openSourceSingleSkillResultArchive(text, importInventory);
+        if (disposed || importGeneration !== generation) return;
+        draft = structuredClone(archive.input); characterSelect.value = draft.member.characterKey;
+        selectedAssociation = "creation"; resultStale = false; resultStaleMessage = "";
+        savedSourceConfig = archive.request.config; savedResultOriginalText = archive.originalText;
+        lastFailedRequest = null; lastFailedDraft = null; lastDiagnostic = null;
+        diagnosticHost.hidden = true; retryButton.hidden = diagnosticExportButton.hidden = true;
+        retryButton.disabled = diagnosticExportButton.disabled = true;
+        buildCandidates = []; candidateSelect.hidden = applyCandidate.hidden = true;
+        renderEditor(); drawResult(archive.result, archive.input); setBusy(false);
+        setStatus("已打开保存的单动作结果，未重新模拟；编辑输入后请主动运行。"); return;
+      }
       if (raw && typeof raw === "object" && "schemaVersion" in raw && (raw as {schemaVersion?: unknown}).schemaVersion === 1 && "member" in raw && "action" in raw) {
         const value = raw as SourceSingleSkillDraft;
         if (value.source?.hostVariant !== importInventory.hostVariant || value.source?.revision !== importInventory.revision) throw new Error("单动作 JSON 固定来源与当前来源不同，请先切换到对应来源。");
