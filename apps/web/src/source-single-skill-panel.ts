@@ -18,6 +18,7 @@ import { renderSourceHostTargetSummaryPanel } from "./source-host-target-summary
 import { sourceTargetPhaseControlAction } from "./source-target-phase-controls";
 import { renderSourceHostTargetPhasePanel } from "./source-host-target-phase-panel";
 import { applySourceSingleSkillSelection, resolveSourceSingleSkillSelection, type SourceSingleSkillSelectionPreference } from "./source-single-skill-selection";
+import { renderNeuvilletteSourceFormulaHelp } from "./neuvillette-source-formula-help";
 export type { SourceSingleSkillSelectionPreference } from "./source-single-skill-selection";
 
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -355,6 +356,7 @@ export function renderSourceSingleSkillPanel(root: HTMLElement, options: SourceS
       <p>目标场景快照：共 ${targets.length} 个目标；统计目标 ${primaryTargetIndex + 1}。${esc(targetSnapshot)}</p><div data-single-target-summary></div><div data-single-target-phase-summary></div><p>${esc(endReceipt)}</p></details>
       <label>伤害关联方式<select data-single-association>${["creation", "trigger", "status-owner"].map((association, index) => `<option value="${association}"${association === selectedAssociation ? " selected" : ""}>${["创建动作", "触发动作", "状态激活"][index]}</option>`).join("")}</select></label>
       ${analysis ? `<p data-single-known-subtotal>已知小计：公式伤害已知小计（扣除目标剩余生命前）：${analysis.knownSubtotal === undefined ? "尚无可记账的命中或落空伤害证据" : analysis.knownSubtotal}</p><p data-single-native-subtotal>${nativeDamageSummary}</p>` : `<p data-single-known-subtotal>此关联暂无记录证据；伤害未知，不显示为零。</p>`}
+      ${renderNeuvilletteSourceFormulaHelp(input)}
       ${finiteSection}
       <p>${finiteStatus === "complete" ? "上方已单独证明固定来源契约范围内的完整固有技能伤害；下方仍是按创建／触发／状态关联分列的有限观察结果，不是DPS，也不扩展到契约外伤害。" : "下方是有限观察窗内的已观察结果；完整技能固有伤害尚未证明，不显示为零，也不显示DPS。"}所选关联之外但仍有关联的应用命中 ${selection.otherAssociatedApplicationCount} 条；三类关联可能重叠，不可相加。完全未关联应用命中 ${selection.unassociatedApplicationCount} 条。</p>
       ${collection ? `<button type="button" data-single-open-collection>查看这次动作的逐击计算</button><p>动作集合按来源创建、触发或状态拥有者关联保存观察，不代表完整技能。</p>` : ""}
