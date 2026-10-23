@@ -16,7 +16,9 @@ import { verifySourceHostHealingApplication } from "./source-host-healing-captur
 import { verifySourceHostEnergyApplication } from "./source-host-energy-capture";
 import { sourceHostStatProvenanceSchema } from "./source-host-stat-provenance";
 import { expr, TraceBuilder, traceInput, type CalculationTraceNode } from "./calculation-trace";
-import { createSourceHostValidationLookup, resolveSourceHostRequest, SOURCE_HOST_EXPLANATION_GAPS, SOURCE_HOST_FORMULA_SOURCES, type SourceHostCalculation } from "./source-host-formula";
+import { resolveSourceHostRequest, SOURCE_HOST_EXPLANATION_GAPS, SOURCE_HOST_FORMULA_SOURCES, type SourceHostCalculation } from "./source-host-formula";
+import { createSourceHostApplicationValidationLookup } from "./source-host-application-validation";
+import { sourceHostRequestsEqual } from "./source-host-request-identity";
 import {
   SOURCE_HOST_COMMIT, SOURCE_HOST_FORMULA_VERSION, SOURCE_HOST_RESULT_VERSION,
   assertSourceHostStartupState, sourceHostInitialEnergySchema, sourceHostStartupStateSchema,
@@ -114,11 +116,8 @@ export function createSourceHostResult(rawNative: unknown, executed?: readonly S
       if (!supplied) throw new Error(`来源运行缺少实际共享核心响应 #${record.request.id}。`);
       exact(record.value, supplied.value, `source response #${record.request.id}`);
       supplied.explanationGaps.forEach(gap => explanationGaps.add(gap));
-      if (JSON.stringify(record.request) !== JSON.stringify(supplied.request)) {
-        // Native Go map-key order differs from the parsed JS object's insertion order.
-        // Compare the actual numeric context and shared request identity directly.
-        if (record.request.kind !== supplied.request.kind || JSON.stringify(record.request.input) !== JSON.stringify(supplied.request.input)) throw new Error(`来源请求 #${record.request.id} 与本次共享核心上下文不一致。`);
-      }
+      if (!sourceHostRequestsEqual(record.request, supplied.request))
+        throw new Error(`来源请求 #${record.request.id} 与本次共享核心上下文不一致。`);
     } else {
       const replay = resolveSourceHostRequest(record.request, map);
       exact(record.value, replay.value, `source response #${record.request.id}`);
@@ -171,7 +170,8 @@ export function createSourceHostResult(rawNative: unknown, executed?: readonly S
     exact(record.request.input.maxHp, application.maxHp, `drain max HP #${application.id}`);
     exact(record.value, application.resultRatio, `drain ratio #${application.id}`);
   }
-  const verificationRecords = (native.energyApplications?.length || native.healingApplications?.length) ? createSourceHostValidationLookup(map) : map;
+  const verificationRecords = (native.energyApplications?.length || native.healingApplications?.length)
+    ? createSourceHostApplicationValidationLookup(map, native.energyApplications ?? [], native.healingApplications ?? []) : map;
   for (const application of native.energyApplications ?? []) verifySourceHostEnergyApplication(application, verificationRecords);
   for (const application of native.healingApplications ?? []) verifySourceHostHealingApplication(application, verificationRecords);
   return { ...native, ...resultMetadataSchema.parse({

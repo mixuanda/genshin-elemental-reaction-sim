@@ -45,6 +45,10 @@ const members=rows=>rows.map(row=>JSON.stringify(canonical(row))).sort();
 assert.deepEqual(beforeResult.logs.filter(row=>row.frame!==0),afterResult.logs.filter(row=>row.frame!==0),'Every post-initialization log and its order');
 const beforeInit=beforeResult.logs.filter(row=>row.frame===0),afterInit=afterResult.logs.filter(row=>row.frame===0);
 assert.deepEqual(members(beforeInit),members(afterInit),'No initial log may be lost or changed');
+const resonanceLog=row=>row.event==='status'&&['pyro-res','anemo-res-cd','anemo-res-stam'].includes(row.logs?.key);
+for(let index=0;index<beforeInit.length;index++)if(!isDeepStrictEqual(beforeInit[index],afterInit[index])){
+ assert.ok(resonanceLog(beforeInit[index])&&resonanceLog(afterInit[index]),'Only the audited fixed-team resonance initialization may exchange positions');
+}
 const phaseDifferences=[];
 assert.equal(beforeResult.phaseObservations.length,afterResult.phaseObservations.length);
 for(let i=0;i<beforeResult.phaseObservations.length;i++){
@@ -53,8 +57,16 @@ for(let i=0;i<beforeResult.phaseObservations.length;i++){
  const a=left.normalizedState.characters.actors,b=right.normalizedState.characters.actors;
  assert.equal(a.length,b.length);
  for(let actor=0;actor<a.length;actor++)if(!isDeepStrictEqual(a[actor].modifiers,b[actor].modifiers)){
-  assert.deepEqual(members(a[actor].modifiers),members(b[actor].modifiers),'Exact modifier members/values must remain');
-  phaseDifferences.push({frame:left.frame,actor,kind:'raw-modifier-enumeration-order',
+  // These are real modifier container positions, not merely JSON key order.
+  // The source audit proves commutativity only for these two distinct types in
+  // this exact build. Never accept an arbitrary modifier permutation by sorting.
+  const positions=actor===0||actor===2?[2,3]:[1,2];
+  assert.deepEqual(positions.map(index=>`${a[actor].modifiers[index]?.kind}:${a[actor].modifiers[index]?.key}`).sort(),
+   ['*character.CooldownMod:anemo-res-cd','*character.StatMod:pyro-res'].sort());
+  const swapped=[...a[actor].modifiers];
+  [swapped[positions[0]],swapped[positions[1]]]=[swapped[positions[1]],swapped[positions[0]]];
+  assert.deepEqual(swapped,b[actor].modifiers,'Only the audited adjacent fire/wind resonance exchange is allowed');
+  phaseDifferences.push({frame:left.frame,actor,kind:'raw-modifier-container-order',
    before:a[actor].modifiers.map(row=>({kind:row.kind,key:row.key})),after:b[actor].modifiers.map(row=>({kind:row.kind,key:row.key}))});
   a[actor].modifiers=b[actor].modifiers; // comparison copy only
  }
@@ -62,8 +74,9 @@ for(let i=0;i<beforeResult.phaseObservations.length;i++){
  assert.equal(aa.length,bb.length);
  for(let j=0;j<aa.length;j++)if(!isDeepStrictEqual(aa[j].orderedHooks,bb[j].orderedHooks)){
   const x=aa[j].orderedHooks,y=bb[j].orderedHooks;
+  assert.equal(j,12,'Only the audited OnTick subscription may differ');
   assert.deepEqual(x.map(row=>row.key).sort(),['stats-shield-tick-log','stats-status-log']);
-  assert.deepEqual(members(x),members(y),'Exact statistics observer descriptors must remain');
+  assert.deepEqual([...x].reverse(),y,'Only the audited two OnTick hooks may exchange positions');
   phaseDifferences.push({frame:left.frame,subscription:j,kind:'raw-statistics-hook-registration-order',before:x,after:y});
   aa[j].orderedHooks=y; // preserve the original ordered list in phaseDifferences
  }
@@ -90,7 +103,7 @@ const report={status:everyResultByteIdentical?'passed':'combat-equivalent-with-o
  sameConfigSeedAndEveryCombatRecord:true,everyResultByteIdentical,files,
  fullResultFields:{exactlyEqual:equalFields,different:differentFields},
  observerOrderLimit:{initialLogMembersUnchanged:true,everyPostFrameZeroLogExactlyEqual:true,phaseDifferences,
-  meaning:'Raw initial enumeration and statistics-hook ordering differ. Their complete members/values match, but raw phase/archive reproducibility is NOT certified. Original files are retained; no source or result normalization is applied.'},
+  meaning:'Actual resonance-container initialization and OnTick execution order may differ. Only the source-audited exchange for this fixed team is accepted here; all raw lists remain recorded. This is not a universal nonsemantic-order claim or a certificate of raw phase/archive reproducibility. No source or saved result is normalized.'},
  result:{seed:after.seed,frames:after.frames,hits:after.hits,total:after.total,dps:after.dps,byActor:after.byActor},
  callbackCount:after.browserTiming.formulaProfile.calls,traceNodeReferences:after.browserTiming.formulaProfile.traceNodeReferences,
  limitations:['One final matched browser pair, not a statistically stable performance guarantee.',
