@@ -6,6 +6,8 @@ import { runInThisContext } from "node:vm";
 import { expect, it } from "vitest";
 import { createSourceHostFormulaResolver } from "../../packages/sim-core/src/source-host-formula";
 import { createSourceHostResult } from "../../packages/sim-core/src/source-host-capture";
+import { verifyIansanRechargeCandidate } from "./iansan-120-kinich-candidate";
+import { iansanFileIdentity, writeIansanFormulaRecords } from "./iansan-120-kinich-records";
 
 const prefix = "scripts/acceptance/iansan-120-kinich";
 const sha = (data: Uint8Array | string) => createHash("sha256").update(data).digest("hex");
@@ -21,17 +23,24 @@ it("captures one source-locked, full-once Iansan C6 / Kaeya 7200-frame rotation"
   write("runner-start.json", { startedAt: new Date().toISOString(), pid: process.pid, singleNativeRun: true });
   const lockBytes = readFileSync(`${prefix}.source.json`);
   const lock = JSON.parse(lockBytes.toString());
-  const requestBytes = readFileSync(`${prefix}.request.json`);
+  const baselineBytes = readFileSync(`${prefix}.request.json`);
+  expect(sha(baselineBytes)).toBe(lock.requestSha256);
+  const host = resolve(process.env.GIDPS_IANSAN_120_HOST);
+  const candidate = process.env.GIDPS_IANSAN_120_CANDIDATE_REQUEST
+    ? verifyIansanRechargeCandidate(process.env.GIDPS_IANSAN_120_CANDIDATE_REQUEST, host, baselineBytes) : undefined;
+  const requestBytes = candidate?.requestBytes ?? baselineBytes;
   const request = JSON.parse(requestBytes.toString());
-  expect(sha(requestBytes)).toBe(lock.requestSha256);
+  expect(sha(requestBytes)).toBe(candidate?.contract.files["request.json"].sha256 ?? lock.requestSha256);
   expect(request).toMatchObject({ protocol: "gidps-source-host-v1", seed: "20261023", stopAtDuration: true,
     executionMode: "auto-wait", initialEnergy: { mode: "full" } });
   expect(request.config).toContain("options iteration=1 duration=120;");
-  expect(request.config).not.toMatch(/add stats|add set|movement\s*=|movement\s*\(|ignore_burst_energy|start_energy/);
+  // The baseline's original stats/set ban remains intact. The only alternative
+  // is a fixed legal five-piece export, not arbitrary externally supplied stats.
+  if (!candidate) expect(request.config).not.toMatch(/add stats|add set/);
+  expect(request.config).not.toMatch(/movement\s*=|movement\s*\(|ignore_burst_energy|start_energy/);
   expect(request.config.match(/ char /g)).toHaveLength(2);
   expect(request.config).toContain("iansan char lvl=90/90 cons=6 talent=10,10,10;");
   expect(request.config).toContain("kaeya char lvl=90/90 cons=0 talent=10,10,10;");
-  const host = resolve(process.env.GIDPS_IANSAN_120_HOST);
   const manifestBytes = readFileSync(resolve(host, "manifest.json"));
   const manifest = JSON.parse(manifestBytes.toString());
   const bytes = readFileSync(resolve(host, "source-host.wasm"));
@@ -49,6 +58,17 @@ it("captures one source-locked, full-once Iansan C6 / Kaeya 7200-frame rotation"
   writeFileSync(resolve(output, "run.gcsl"), request.config, { flag: "wx" });
   writeFileSync(resolve(output, "run.source-lock.json"), lockBytes, { flag: "wx" });
   writeFileSync(resolve(output, "run.build-manifest.json"), manifestBytes, { flag: "wx" });
+  const candidateFiles: string[] = [];
+  if (candidate) {
+    writeFileSync(resolve(output, "run.candidate-lock.json"), candidate.contractBytes, { flag: "wx" });
+    write("run.candidate-preflight.json", candidate.preflight);
+    candidateFiles.push("run.candidate-lock.json", "run.candidate-preflight.json");
+    for (const file of candidate.files.filter(file => file.suffix !== "request.json")) {
+      const name = `run.candidate-${file.suffix}`;
+      writeFileSync(resolve(output, name), file.bytes, { flag: "wx" });
+      candidateFiles.push(name);
+    }
+  }
   write("host.json", { host, wasmSha256: sha(bytes), wasmBytes: bytes.length, buildManifestSha256: sha(manifestBytes) });
   runInThisContext(runtime.toString());
   const go = new (globalThis as any).Go();
@@ -60,7 +80,7 @@ it("captures one source-locked, full-once Iansan C6 / Kaeya 7200-frame rotation"
   const nativeMs = performance.now() - start;
   // Write before validation so a validation bug cannot justify another expensive run.
   write("run.native.json", raw);
-  write("run.formula-callbacks.json", resolver.calculations);
+  writeIansanFormulaRecords(resolve(output, "run.formula-callbacks.ndjson"), resolver.calculations);
   write("run.native-timing.json", { nativeAndSharedCallbacksMs: nativeMs });
   expect(raw.error).toBeUndefined();
   const validationStart = performance.now();
@@ -81,19 +101,21 @@ it("captures one source-locked, full-once Iansan C6 / Kaeya 7200-frame rotation"
     perActor[actor] = (perActor[actor] ?? 0) + hit.appliedDamage;
   }
   const summary = { sourceRevision: lock.revision, wasmSha256: lock.wasmSha256, seed: request.seed,
+    candidateId: candidate?.contract.candidateId,
     window: "[0,7200)", hits: hits.length, totalDamage, dps: totalDamage / 120, perActor,
     phaseFrames: result.phaseObservations?.map(phase => phase.frame),
     qDecisions: result.logs.filter(log => log.msg.startsWith("audit-q|")),
     energyWrites: result.energyApplications?.length, explanationStatus: result.explanationStatus,
     explanationNoticeCount: result.explanationGaps.length,
     timing: { nativeAndSharedCallbacksMs: nativeMs, resultValidationMs: validationMs },
-    limits: lock.scenario,
+    limits: candidate ? { ...lock.scenario, artifactPieces: 10, equipment: candidate.preflight,
+      gameplayScope: "Declared legal Favonius/five-piece candidate; native owns all character/weapon effects." } : lock.scenario,
   };
   write("run.summary.json", summary);
-  write("run.complete.json", { endedAt: new Date().toISOString(), inputSha256: sha(requestBytes),
-    files: ["run.request.json", "run.gcsl", "run.source-lock.json", "run.build-manifest.json", "host.json",
-      "run.native.json", "run.formula-callbacks.json", "run.native-timing.json", "run.result.json", "run.summary.json"]
-      .map(name => { const data = readFileSync(resolve(output, name)); return { name, bytes: data.length, sha256: sha(data) }; }),
+  const fileNames = ["run.request.json", "run.gcsl", "run.source-lock.json", "run.build-manifest.json", "host.json",
+      "run.native.json", "run.formula-callbacks.ndjson", "run.native-timing.json", "run.result.json", "run.summary.json", ...candidateFiles];
+  const identities = await Promise.all(fileNames.map(async name => ({ name, ...await iansanFileIdentity(resolve(output, name)) })));
+  write("run.complete.json", { endedAt: new Date().toISOString(), inputSha256: sha(requestBytes), files: identities,
   });
   console.log(JSON.stringify({ output, totalDamage, dps: totalDamage / 120, hits: hits.length, nativeMs, validationMs }));
 }, 180_000);

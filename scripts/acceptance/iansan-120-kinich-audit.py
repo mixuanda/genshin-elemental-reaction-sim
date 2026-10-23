@@ -89,16 +89,17 @@ def verify_sources(lock, source, tree_path):
     return {"ER": er, "swiftVector": values, "burstCapVector": cap_values, "verifiedFiles": len(texts)}
 
 
-def particle_amount(p, actor, source, er):
+def particle_amount(p, actor, source, er, allow_favonius=False):
     operands = ["actorElement", "particleElement", "partyCount", "particleCount", "energyRecharge", "isActive"]
     require(all(key in p for key in operands), "particle-operands-required")
-    require(actor in ACTORS and source in ACTORS and p["actorElement"] == ELEMENTS[actor]
-            and p["particleElement"] == ELEMENTS[source] and p["partyCount"] == 2,
+    favonius = allow_favonius and source in ("favonius-iansan", "favonius-kaeya")
+    require(actor in ACTORS and (source in ACTORS or favonius) and p["actorElement"] == ELEMENTS[actor]
+            and p["particleElement"] == ("none" if favonius else ELEMENTS[source]) and p["partyCount"] == 2,
             "declared-two-actor-particle-context")
-    require(p["particleCount"] == 4 if source == "iansan" else p["particleCount"] in (2, 3),
+    require(p["particleCount"] == 3 if favonius else p["particleCount"] == 4 if source == "iansan" else p["particleCount"] in (2, 3),
             "fixed-source-particle-count")
     close(p["energyRecharge"], er[actor], "actual-ER-from-fixed-equipment")
-    base = 3 if p["actorElement"] == p["particleElement"] else 1
+    base = 2 if favonius else 3 if p["actorElement"] == p["particleElement"] else 1
     return base * (1 if p["isActive"] else .8) * er[actor] * p["particleCount"]
 
 
@@ -152,7 +153,7 @@ def audit_cooldowns(native):
     return {"durations": len(durations), "abilityChecks": checks}, durations
 
 
-def audit_energy(native, er, durations):
+def audit_energy(native, er, durations, allow_favonius=False):
     calculations = {row["request"]["id"]: row for row in native["calculations"]}
     writes = native["energyApplications"]
     require([w["id"] for w in writes] == list(range(1, len(writes) + 1)), "actual-energy-write-order")
@@ -172,7 +173,7 @@ def audit_energy(native, er, durations):
             amount_row = calculations[amount_id]; aq = amount_row["request"]; ap = aq["input"]
             require(aq["kind"] == "character-energy" and aq["actorKey"] == actor and aq["frame"] == q["frame"]
                     and aq["ability"] == w["source"] and ap["operation"] == "particle-amount", "particle-amount-identity")
-            amount = particle_amount(ap, actor, w["source"], er)
+            amount = particle_amount(ap, actor, w["source"], er, allow_favonius)
             close(amount_row["value"], amount, "independent-particle-equation")
             stat = aq.get("statRead")
             require(stat and stat["actorIndex"] == w["actorIndex"] and stat["frame"] == q["frame"]
@@ -317,7 +318,7 @@ def audit_nightsoul(logs):
             "interpretation": "Resource mutations are replayed exactly. GeneratePoints logs aggregate movement/A1/C4 contributions; this report does not infer their split from the amount."}
 
 
-def audit_damage(native, swift_vector, burst_cap_vector):
+def audit_damage(native, swift_vector, burst_cap_vector, equipment_panel=None):
     calculations = {c["request"]["id"]: c for c in native["calculations"]}
     by_actor = collections.defaultdict(float); by_ability = collections.defaultdict(float); total = 0.; hits = 0
     for a in native["applications"]:
@@ -333,30 +334,32 @@ def audit_damage(native, swift_vector, burst_cap_vector):
     close(sum(by_ability.values()), total, "ability-attribution-total")
     swift = next(c for c in native["calculations"] if c["request"]["kind"] == "damage" and c["request"]["ability"] == "Swift Stormflight")
     q = swift["request"]; p = q["input"]; snapshot = q["snapshot"]
-    base_atk = 21.54768 * 8.349 + 77.09902 + 23.245
+    panel = equipment_panel or {"baseAttack": 21.54768 * 8.349 + 77.09902 + 23.245,
+                                "atkPercent": .24, "flatAttack": 0, "critRate": .05, "critDamage": .5}
+    base_atk = panel["baseAttack"]
     close(snapshot["baseAtk"], base_atk, "hand-source-growth-promotion-starter-ATK")
-    close(snapshot["atkPct"], .24 + .20, "hand-source-self-A1-not-ally-C2")
+    close(snapshot["atkPct"], panel["atkPercent"] + .20, "hand-source-self-A1-not-ally-C2")
     require(p["amped"] is False and p["flatDamage"] == 0 and p["groupMultiplier"] == 1, "hand-Swift-no-unmodeled-reaction-or-flat")
     close(p["scaling"], swift_vector[9], "hand-Swift-normal-level10-not-C3-E13")
-    close(p["critRate"], .05, "hand-natural-CR-retained")
-    close(p["critDamage"], .5, "hand-natural-CD-retained")
+    close(p["critRate"], panel["critRate"], "hand-sourced-CR-retained")
+    close(p["critDamage"], panel["critDamage"], "hand-sourced-CD-retained")
     close(p["effectiveResistance"], .1, "hand-Electro-resistance")
     close(p["damageBonus"], .25, "hand-actual-C6-only-bonus")
     require(p["defenseAdjustment"] == p["defenseIgnore"] == 0, "hand-unmodified-defense")
     actual_q = [c for c in native["calculations"] if c["request"].get("input", {}).get("ruleId") == "char-vector-iansan-burst-atk"
                 and c["request"]["id"] < q["id"] and c["request"]["frame"] <= q["snapshotFrame"]][-1]
     state = actual_q["request"]["input"]["state"]
-    non_extra = base_atk * 1.44
+    non_extra = base_atk * (1 + panel["atkPercent"] + .20) + panel["flatAttack"]
     close(state["nonExtraAtk"], non_extra, "hand-Q-excludes-extra-feedback")
     require(state["talentLevel"] == 12, "hand-Q10-plus-C5-once")
     rate = .27 if state["pointsThreshold"] >= 42 else state["pointsThreshold"] * .005
     bonus = min(non_extra * rate, burst_cap_vector[12])
     close(actual_q["value"], bonus, "hand-Q-refresh-feedback")
-    close(snapshot["flatAtk"], bonus, "hand-used-Q-refresh")
+    close(snapshot["flatAtk"], panel["flatAttack"] + bonus, "hand-used-Q-refresh")
     atk = non_extra + bonus
     close(p["scalingValue"], atk, "hand-actual-Swift-ATK")
-    require(p["isCrit"] == (p["critRoll"] < .05), "hand-actual-crit-roll")
-    expected = atk * swift_vector[9] * (1 + p["damageBonus"]) * .5 * .9 * (1.5 if p["isCrit"] else 1)
+    require(p["isCrit"] == (p["critRoll"] <= panel["critRate"]), "hand-actual-crit-roll")
+    expected = atk * swift_vector[9] * (1 + p["damageBonus"]) * .5 * .9 * (1 + panel["critDamage"] if p["isCrit"] else 1)
     close(swift["value"], expected, "independent-hand-Swift-hit")
     return {"hits": hits, "totalDamage": total, "dps": total / 120, "perActor": dict(by_actor),
             "perAbility": [{"actor": k[0], "ability": k[1], "damage": v} for k, v in by_ability.items()],

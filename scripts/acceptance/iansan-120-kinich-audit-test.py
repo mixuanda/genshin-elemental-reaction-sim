@@ -138,6 +138,29 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(result["perSecondHitCounts"][60], 1)
         self.assertEqual(result["perSecondHitCounts"][119], 1)
 
+    def test_original_five_percent_crit_boundary_keeps_above_threshold_negative(self):
+        base_attack = 21.54768 * 8.349 + 77.09902 + 23.245
+        non_extra = base_attack * 1.44
+        bonus = non_extra * .27
+        noncrit = (non_extra + bonus) * 1.6643 * 1.25 * .5 * .9
+        def fixture(roll, critical):
+            value = noncrit * (1.5 if critical else 1)
+            q = {"id": 38, "kind": "damage", "actorKey": "iansan", "ability": "Swift Stormflight", "frame": 207, "snapshotFrame": 207,
+                 "snapshot": {"baseAtk": base_attack, "atkPct": .44, "flatAtk": bonus},
+                 "input": {"amped": False, "flatDamage": 0, "groupMultiplier": 1, "scaling": 1.6643, "critRate": .05,
+                           "critDamage": .5, "effectiveResistance": .1, "damageBonus": .25, "defenseAdjustment": 0,
+                           "defenseIgnore": 0, "scalingValue": non_extra + bonus, "critRoll": roll, "isCrit": critical}}
+            return {"applications": [{"frame": 207, "calculationId": 38, "rawDamage": value, "appliedDamage": value}],
+                    "calculations": [{"request": {"id": 37, "kind": "character-scalar", "frame": 201,
+                        "input": {"ruleId": "char-vector-iansan-burst-atk", "state": {"nonExtraAtk": non_extra, "talentLevel": 12, "pointsThreshold": 43.6}}}, "value": bonus},
+                        {"request": q, "value": value}]}
+        vector = [0.] * 15; vector[9] = 1.6643
+        caps = [810.] * 15
+        for roll, critical in [(.049999999, True), (.05, True), (.050000001, False)]:
+            audit.audit_damage(fixture(roll, critical), vector, caps)
+        with self.assertRaisesRegex(audit.AuditError, "actual-crit-roll"):
+            audit.audit_damage(fixture(.050000001, True), vector, caps)
+
 
 if __name__ == "__main__":
     unittest.main()
