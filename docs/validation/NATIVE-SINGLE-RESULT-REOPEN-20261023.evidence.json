@@ -1,0 +1,83 @@
+{
+  "scope": "Native single-action result-v1 saved-result reopen, strict local consistency and exact original export",
+  "baseCommit": "6d4e75a131e6d0ba332891c4d519cf7e268de024",
+  "codeCommit": "63fb693a22025a53008aa944aba9d06ca7266238",
+  "branch": "cloud/player-import-integration-20261021",
+  "uniqueUnitCases": 26,
+  "uniqueFullBrowserCases": 1,
+  "passingBrowserElapsedMs": 12267.366999999998,
+  "passingBrowserNativeRuns": 2,
+  "passingBrowserWindowSecondsPerRun": 2.2,
+  "preFixReproduction": "same browser case failed at wrapper import; one native positive run before failure, not counted as a passing run",
+  "finalReadonlyProbe": "two existing saved records imported/exported with no Worker and no WASM requests; zero extra native runs",
+  "validationQualification": "saved-input, schema, shared-formula and receipt consistency only; no native rerun, authentication or guarantee of complete native history",
+  "fullRegression": "not rerun; historical 3196 pass / 79 fail / 1 skipped remains a separate record",
+  "production": "not queried, deployed or uploaded; pause preserved",
+  "files": [
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/after-browser.json",
+      "bytes": 3286,
+      "sha256": "0bdd883564f88717ee25bf4d64ba7e9089ce61a8dc0531e44e4e7faabe1b7272"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/before-browser.json",
+      "bytes": 10199,
+      "sha256": "f91716d746e82d8907dc4af38b6984e448d99a5309293c6d562d1ad4fbead377"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/build.json",
+      "bytes": 9002,
+      "sha256": "de103ddcfbeff499b3b647f364be8103d0a041ddada4c00bb4334df426c16980"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/positive-reopened-final.png",
+      "bytes": 784556,
+      "sha256": "bcd795a7de84b4949bb3db6604d0a414e76bae42f777e045f320aea20d3a9fcb"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/readonly-final-probe.json",
+      "bytes": 597,
+      "sha256": "76020d6a4adc08e7b8d1fdf2ba0d1ba65b5151caae99dfc6b035190547ed4ddc"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/readonly-probe-initial-harness-error.json",
+      "bytes": 466,
+      "sha256": "679d34245180c2162433f187c7dce4ecfedf3ce8f02cb97122ffe78ab334994f"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/reopen-summary.json",
+      "bytes": 402,
+      "sha256": "18fd3cc5264ac573abf1da4732f2bcf8b131b7b8c7fe89c70d514d91a4721379"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/typecheck-final.json",
+      "bytes": 676,
+      "sha256": "7869bb36ea6eb7cf62a2260df253202195451f849eb296c379b28e17f97aee7b"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/units-agent-report.json",
+      "bytes": 449,
+      "sha256": "40a44b800ef9297c130bb9f580556ec7ca87e79aa864ee8220c3495dbd71bf03"
+    },
+    {
+      "path": "docs/validation/evidence/native-single-result-reopen-20261023/zero-result-reopened.png",
+      "bytes": 436215,
+      "sha256": "53beca7b55a08516a56ad06e47abe5899577301ca86e00861195d81ae9738ae8"
+    }
+  ],
+  "localNativeRecords": [
+    {
+      "path": "/tmp/GIDPS-native-result-reopen-20261023/after-artifacts/calculator-native-result-r-aa000-gy-save-never-borrows-old-Q/original-positive.native.json",
+      "bytes": 247168,
+      "sha256": "e0823f3fd171dd16b4b84df670cc826bb5a8464b6395ddbf7923c97370ccb3b4",
+      "scope": "Synthetic reference native export kept locally; no Library or production upload"
+    },
+    {
+      "path": "/tmp/GIDPS-native-result-reopen-20261023/after-artifacts/calculator-native-result-r-aa000-gy-save-never-borrows-old-Q/zero-after-explicit-run.native.json",
+      "bytes": 98594,
+      "sha256": "98cacd23c3f5ee8f0cf7de74a817da6e5249790a7206699ac98f8e7bf34dca19",
+      "scope": "Synthetic reference native export kept locally; no Library or production upload"
+    }
+  ],
+  "remoteCodeHeadVerified": "63fb693a22025a53008aa944aba9d06ca7266238"
+}

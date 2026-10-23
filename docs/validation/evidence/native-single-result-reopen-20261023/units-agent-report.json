@@ -1,0 +1,10 @@
+{
+  "provenance": "Completed /root/skill_condition_gaps tool-result report, not a fabricated root runner log",
+  "command": "npx vitest run apps/web/src/source-single-skill-result-archive.test.ts",
+  "runs": 1,
+  "passed": 26,
+  "failed": 0,
+  "startedAt": "2026-10-23T21:05:54Z",
+  "runnerDurationSeconds": 5.36,
+  "scope": "Synthetic protocol records only; Worker/client-import/fetch gates; no native execution or new native-verification claim"
+}
