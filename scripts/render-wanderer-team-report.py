@@ -40,13 +40,19 @@ with (public/(prefix+'.curve-1s.csv')).open('w',newline='') as f:
  w=csv.writer(f);w.writerow(['startSeconds','endSeconds','damage','cumulative'])
  for pt in c['points']: w.writerow([pt['startSeconds'],pt['endSeconds'],pt['damage'],pt['cumulative']])
 fmt=lambda x:f'{x:,.2f}'
+historical_notice=''
+correction_path=public/(prefix+'.known-defects.json')
+if correction_path.exists():
+ correction=json.loads(correction_path.read_text())
+ if correction['historicalWasmSha256']==r['executionArtifact']['wasmSha256']:
+  historical_notice='<p role="note"><strong>历史结果：</strong>此记录含已确认的流浪者C2非Q增伤错误，原数值保留。<a href="wanderer-team-recharge.html">查看修正结果与合法充能配装对照</a>。</p>'
 role_rows=''.join(f"<tr><td>{names[x['key']]}</td><td>{fmt(x['damage'])}</td><td>{x['share']*100:.2f}%</td><td>{x['hits']}</td></tr>" for x in roles)
 ability_rows=''.join(f"<tr><td>{names[x['actor']]}</td><td>{html.escape(x['ability'])}</td><td>{x['hits']}</td><td>{fmt(x['damage'])}</td></tr>" for x in audit['abilityTotals'])
 qrows=''.join(f"<tr><td>{names[k]}</td><td>{audit['QConsumptionCounts'][k]}</td><td>{sum(x['actor']==k for x in audit['QSkipped'])}</td></tr>" for k in names)
 maxd=max(pt['damage'] for pt in c['points']);cw=1000;ch=170;bars=''.join(f"<rect x='{i*cw/120+30:.3f}' y='{ch+25-pt['damage']/maxd*ch:.3f}' width='{cw/120-1:.3f}' height='{pt['damage']/maxd*ch:.3f}' fill='#28799b'><title>{i}–{i+1}秒：{fmt(pt['damage'])}</title></rect>" for i,pt in enumerate(c['points']))
 svg=f"<svg viewBox='0 0 1060 235' role='img' aria-label='120秒实际伤害：1秒汇总'><text x='30' y='18'>1秒汇总 · 逐击原始帧见CSV</text>{bars}<text x='30' y='220'>0秒</text><text x='520' y='220'>60秒</text><text x='990' y='220'>120秒</text></svg>"
 page=f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>散法妮杜120秒计算场景</title><style>body{{max-width:1100px;margin:32px auto;padding:0 20px;font:16px/1.65 system-ui;color:#162c3c;background:#f7fafc}}h1{{line-height:1.25}}table{{border-collapse:collapse;width:100%;margin:16px 0;background:white}}th,td{{border:1px solid #c5d2dc;padding:7px 12px;text-align:left}}small{{color:#455e70;overflow-wrap:anywhere}}svg{{width:100%;height:auto;background:white}}details{{margin:20px 0}}a{{color:#075c94}}.metric{{padding:16px;background:#e1eff9;border-radius:10px}}.scroll{{overflow:auto}}</style><main>
-<h1>散／法／妮／杜：120秒实际运行</h1><p class="metric"><strong>总伤 {fmt(s['totalDamage'])} · 本次DPS {fmt(s['dps'])}</strong><br>固定Classic来源的暂定单次结果，[0,7200)内{len(included)}次实际结算。</p>
+<h1>散／法／妮／杜：120秒实际运行</h1>{historical_notice}<p class="metric"><strong>总伤 {fmt(s['totalDamage'])} · 本次DPS {fmt(s['dps'])}</strong><br>固定Classic来源的暂定单次结果，[0,7200)内{len(included)}次实际结算。</p>
 <p>流浪者100级C6图莱R5；珐露珊C6西风R5；妮可、杜林C2专武R1。其他角色和全部武器按90级、基础天赋10/10/10；配装为可编辑的逐件合法预算假设。</p>
 <p>流浪者Q实际3次、2次缺能跳过；队友各6次Q，最后一轮在120秒截断。此结果不能当作随机期望、稳定满Q循环或玩家实装。</p>
 <p><a href="{prefix}.draft.json" download>可编辑队伍草稿</a> · <a href="{prefix}.equipment.json" download>逐件配装</a> · <a href="{prefix}.gcsl" download>本次高级自适应动作轴</a> · <a href="{prefix}.result-summary.json" download>结果与范围JSON</a></p>

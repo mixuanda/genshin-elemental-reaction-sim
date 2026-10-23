@@ -113,8 +113,8 @@
   },
   "independentAudit": {
     "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/corrected-baseline-audit.json",
-    "bytes": 20415,
-    "sha256": "e52853a6f1446ad88385fb0285d74eb48092dd8687df64dd64a109f8828eaa50"
+    "bytes": 26871,
+    "sha256": "5a2f5d1f1c4bcc6439226ed5075b087b8a50936904a20869f00e7055196004b1"
   },
   "changedDamageHits": 5,
   "unchangedQHits": 15,
@@ -124,5 +124,6 @@
     "Full 120-second fixed-seed run, not statistical expectation or steady state.",
     "Original saved native capture is retained without rewriting.",
     "The prior full-suite 3196 pass /79 fail /1 skip baseline was not rerun or declared cleared."
-  ]
+  ],
+  "auditAmendment": "The post-build independent audit was extended with explicit C4 Electro qualification; the original capture and compiled artifact did not change."
 }

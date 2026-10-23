@@ -1,5 +1,7 @@
 # /goal 指定队伍120秒：本批实际修复和独立验收
 
+> 后续修正：本记录的原生捕获仍原样保留。流浪者C2误加给5次非Q伤害已在后续Classic补丁修复；最新同输入复算与合法充能候选见 [充能对照验收](WANDERER-RECHARGE-ACCEPTANCE-20261023.zh-CN.md)。
+
 从已推送`23e9094`继续，以三条独立工作线处理旧失败、能量/CD、状态/归属；根线程修复公共分窗与余额读取并做组件浏览器整合。工作树仍为`/workspace/GIDPS-cloud/player-import-integration`，分支`cloud/player-import-integration-20261021`。没有把单击入口通过当作连续轮转验收。
 
 ## 玩家实际得到的修复
