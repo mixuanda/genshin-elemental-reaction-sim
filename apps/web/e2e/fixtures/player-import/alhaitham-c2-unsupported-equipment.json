@@ -1,0 +1,908 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "character:10000078:alhaitham-projection-3-mirrors:talent-10",
+  "label": "Synthetic UI-only EM-sensitive equipment route fixture, not a real player build",
+  "gameContext": {
+    "characterId": "character:10000078",
+    "characterName": "艾尔海森",
+    "abilityId": "talent:alhaitham:combat2",
+    "skillId": "alhaitham-projection-3-mirrors",
+    "skillName": "琢光镜·3镜投射（一次投射）",
+    "effectiveTalentLevel": 10,
+    "constellation": 2,
+    "ascension": 6,
+    "scopeCoverage": "selected-components",
+    "attributionPolicy": "C0·3镜的一次投射，共3次E标签草伤；快照相对触发+26帧，命中左侧32/41/51帧或右侧32/41/51帧。C1减CD在命中后、不改变本击；C3只读取已给的有效E等级，不再+3。",
+    "alhaithamDamage": {
+      "mirrorCount": 3,
+      "c2SnapshotIncludedStacks": 2,
+      "hitStates": {
+        "alhaitham-projection-3-mirrors-hit-instance-1": {
+          "includedProjectionBase": 0,
+          "includedA4Bonus": 0,
+          "connected": true,
+          "hitTimeMastery": 500,
+          "c2HitMasteryFinal": true
+        },
+        "alhaitham-projection-3-mirrors-hit-instance-2": {
+          "includedProjectionBase": 0,
+          "includedA4Bonus": 0,
+          "connected": true,
+          "hitTimeMastery": 500,
+          "c2HitMasteryFinal": true
+        },
+        "alhaitham-projection-3-mirrors-hit-instance-3": {
+          "includedProjectionBase": 0,
+          "includedA4Bonus": 0,
+          "connected": true,
+          "hitTimeMastery": 500,
+          "c2HitMasteryFinal": true
+        }
+      },
+      "projectionTriggerValid": true,
+      "masteryStableAcrossStages": false,
+      "triggerMastery": 300,
+      "c2TriggerMasteryFinal": true,
+      "statsAndTargetStableAcrossHits": true,
+      "c2SnapshotStacks": 2
+    }
+  },
+  "scope": "one-cast",
+  "characterLevel": 90,
+  "build": {
+    "mode": "equipment-derived",
+    "characterBaseAtk": 313.3236758,
+    "weaponBaseAtk": 564.7837244,
+    "baseHp": 13348.0427932,
+    "baseDef": 781.6197942900001,
+    "atkPercent": 0.8741,
+    "flatAtk": 311,
+    "hpPercent": 0.1982,
+    "flatHp": 4780,
+    "defPercent": 0,
+    "flatDef": 0,
+    "em": 0,
+    "critRate": 0.6254,
+    "critDamage": 1.145,
+    "equipment": {
+      "bonusAccounting": "core-sourced-v1",
+      "characterId": "character:10000078",
+      "weaponId": "weapon:11406",
+      "level": 90,
+      "ascension": 6,
+      "weaponLevel": 90,
+      "weaponAscension": 6,
+      "refinement": 1,
+      "sourceVersion": "5.2.14;snapshot=snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34;artifact-stats-go-180a0a1",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/prototyperancour",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/getdata.js",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gladiatorsfinale.json"
+      ],
+      "derivedStats": [
+        {
+          "id": "characterBaseAtk",
+          "label": "角色基础攻击力",
+          "base": 24.3922,
+          "curve": 8.739,
+          "promotion": 100.16024,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_ATTACK_S5"
+        },
+        {
+          "id": "weaponBaseAtk",
+          "label": "武器基础攻击力",
+          "base": 43.7349,
+          "curve": 9.356,
+          "promotion": 155.6,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/prototyperancour;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json#/90/GROW_CURVE_ATTACK_202"
+        },
+        {
+          "id": "baseHp",
+          "label": "角色基础生命值",
+          "base": 1039.1188,
+          "curve": 8.739,
+          "promotion": 4267.1836,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_HP_S5"
+        },
+        {
+          "id": "baseDef",
+          "label": "角色基础防御力",
+          "base": 60.84711,
+          "curve": 8.739,
+          "promotion": 249.8769,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_HP_S5"
+        },
+        {
+          "id": "weaponSecondary",
+          "label": "武器副属性",
+          "base": 0.075067,
+          "curve": 4.594,
+          "promotion": 0,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/prototyperancour;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json#/90/GROW_CURVE_CRITICAL_201"
+        }
+      ],
+      "secondaryContributions": [
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.05,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham.base.critrate"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.5,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham.base.critdmg"
+        },
+        {
+          "property": "FIGHT_PROP_GRASS_ADD_HURT",
+          "value": 0.288,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/alhaitham.promotion.6.specialized"
+        },
+        {
+          "property": "FIGHT_PROP_PHYSICAL_ADD_HURT",
+          "value": 0.344857798,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/prototyperancour.specialized"
+        },
+        {
+          "property": "FIGHT_PROP_HP",
+          "value": 4780,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json#/5/hp/20;slot=flower;set=artifact-set:15001"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.0272,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/0;slot=flower;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.0311,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/1;slot=flower;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0622,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/1;slot=flower;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0699,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/2;slot=flower;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0525,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/2;slot=flower;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0583,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/3;slot=flower;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0648,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/3;slot=flower;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0453,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/0;slot=flower;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK",
+          "value": 311,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json#/5/atk/20;slot=plume;set=artifact-set:15001"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.0311,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/1;slot=plume;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.035,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/2;slot=plume;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0699,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/2;slot=plume;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0777,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/3;slot=plume;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0583,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/3;slot=plume;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0408,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/0;slot=plume;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0453,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/0;slot=plume;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0518,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/1;slot=plume;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.466,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json#/5/atk_/20;slot=sands;set=artifact-set:15001"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.035,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/2;slot=sands;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.0389,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/3;slot=sands;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0777,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/3;slot=sands;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0544,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/0;slot=sands;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0453,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/0;slot=sands;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0518,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/1;slot=sands;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.0466,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/hp_/1;slot=sands;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.0525,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/hp_/2;slot=sands;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_GRASS_ADD_HURT",
+          "value": 0.466,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json#/5/dendro_dmg_/20;slot=goblet;set=artifact-set:15001"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.0389,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/3;slot=goblet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.0272,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critRate_/0;slot=goblet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0544,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/0;slot=goblet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0622,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/1;slot=goblet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0466,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/1;slot=goblet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0525,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/2;slot=goblet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0583,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/2;slot=goblet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0648,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/3;slot=goblet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL",
+          "value": 0.311,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json#/5/critRate_/20;slot=circlet;set=artifact-set:15001"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0544,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/0;slot=circlet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.0622,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/critDMG_/1;slot=circlet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0466,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/1;slot=circlet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.0525,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/atk_/2;slot=circlet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0583,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/2;slot=circlet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.0648,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/enerRech_/3;slot=circlet;roll=1"
+        },
+        {
+          "property": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.0583,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/hp_/3;slot=circlet;roll=0"
+        },
+        {
+          "property": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.0408,
+          "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json#/5/hp_/0;slot=circlet;roll=1"
+        }
+      ],
+      "assumptions": [
+        "装备推导条件：C0、装备 5 件圣遗物；仅执行明确启用且已映射的装备条款，停用角色被动及未实现效果。",
+        "所用来源为已发布目录 7.1（released）；发布状态不等于数值与机制已独立验证。",
+        "角斗士的终幕礼：用户明确停用套装效果。",
+        "试作斩岩条件效果已明确停用。"
+      ],
+      "effectBlockers": [
+        "艾尔海森：角色被动及命座没有逐项可执行验证规则，当前明确停用。"
+      ],
+      "artifacts": [
+        {
+          "slot": "flower",
+          "setId": "artifact-set:15001",
+          "rarity": 5,
+          "level": 20,
+          "mainStat": "hp",
+          "initialSubstats": 3,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                3,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "plume",
+          "setId": "artifact-set:15001",
+          "rarity": 5,
+          "level": 20,
+          "mainStat": "atk",
+          "initialSubstats": 3,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "sands",
+          "setId": "artifact-set:15001",
+          "rarity": 5,
+          "level": 20,
+          "mainStat": "atk_",
+          "initialSubstats": 3,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "hp_",
+              "rolls": [
+                1,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "goblet",
+          "setId": "artifact-set:15001",
+          "rarity": 5,
+          "level": 20,
+          "mainStat": "dendro_dmg_",
+          "initialSubstats": 3,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                2,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "circlet",
+          "setId": "artifact-set:15001",
+          "rarity": 5,
+          "level": 20,
+          "mainStat": "critRate_",
+          "initialSubstats": 3,
+          "substats": [
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "hp_",
+              "rolls": [
+                3,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "weaponEffectsEnabled": false,
+      "setEffectsEnabled": false,
+      "weaponType": "sword",
+      "effectContext": {
+        "weaponType": "sword"
+      },
+      "hitBonuses": [],
+      "statModifiers": [
+        {
+          "id": "synthetic-ui-em-to-atk",
+          "label": "合成UI路径验证：20%精通转攻击，不是游戏武器声明",
+          "target": "flatAtk",
+          "phase": "conversion",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "em"
+              },
+              {
+                "kind": "constant",
+                "value": 0.2
+              }
+            ]
+          },
+          "inputs": [],
+          "sourceRefs": [
+            "https://example.test/synthetic-ui-only-rule"
+          ]
+        }
+      ],
+      "dynamicHitBonuses": [],
+      "additiveBaseBonuses": [],
+      "criticalBonuses": [],
+      "pendingHitEffects": [],
+      "pendingReactionEffects": [],
+      "pendingResistanceEffects": [],
+      "reactionBonuses": [],
+      "resistanceReductions": []
+    }
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "alhaitham-projection-3-mirrors-hit-instance-1",
+      "label": "琢光镜·3镜投射 · 第 1 次命中",
+      "kind": "ordinary",
+      "element": "dendro",
+      "attackTag": "skill",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ],
+      "dependencies": [
+        "talent-set:alhaitham.combat2.parameters.param8[9]",
+        "talent-set:alhaitham.combat2.parameters.param9[9]",
+        "conditioned-action",
+        "alhaitham-primary-vectors",
+        "alhaitham-damage:conditions",
+        "alhaitham-damage:alhaitham-projection-3-mirrors-hit-instance-1"
+      ],
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.2096
+        }
+      ],
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1
+    },
+    {
+      "id": "alhaitham-projection-3-mirrors-hit-instance-2",
+      "label": "琢光镜·3镜投射 · 第 2 次命中",
+      "kind": "ordinary",
+      "element": "dendro",
+      "attackTag": "skill",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ],
+      "dependencies": [
+        "talent-set:alhaitham.combat2.parameters.param8[9]",
+        "talent-set:alhaitham.combat2.parameters.param9[9]",
+        "conditioned-action",
+        "alhaitham-primary-vectors",
+        "alhaitham-damage:conditions",
+        "alhaitham-damage:alhaitham-projection-3-mirrors-hit-instance-2"
+      ],
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.2096
+        }
+      ],
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1
+    },
+    {
+      "id": "alhaitham-projection-3-mirrors-hit-instance-3",
+      "label": "琢光镜·3镜投射 · 第 3 次命中",
+      "kind": "ordinary",
+      "element": "dendro",
+      "attackTag": "skill",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ],
+      "dependencies": [
+        "talent-set:alhaitham.combat2.parameters.param8[9]",
+        "talent-set:alhaitham.combat2.parameters.param9[9]",
+        "conditioned-action",
+        "alhaitham-primary-vectors",
+        "alhaitham-damage:conditions",
+        "alhaitham-damage:alhaitham-projection-3-mirrors-hit-instance-3"
+      ],
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.2096
+        }
+      ],
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1
+    }
+  ],
+  "selectedHitIds": [
+    "alhaitham-projection-3-mirrors-hit-instance-1",
+    "alhaitham-projection-3-mirrors-hit-instance-2",
+    "alhaitham-projection-3-mirrors-hit-instance-3"
+  ],
+  "assumptions": [
+    "C0–C3单次实际镜投射；镜数为所选计算情景，触发资格与实际接触仍须明确。",
+    "使用独立有效E天赋，不借普攻等级；投射不包含触发它的普攻/重击/下落伤害。",
+    "ATK在延后快照取样，精通基数在触发时取样，A4在各命中时取样；仅明确精通不变时共用面板。",
+    "输入为命中时最终面板；不重复添加装备属性。",
+    "反应为逐次命中的条件假设，不证明实际附着、ICD、能量或覆盖率。",
+    "高于基础天赋上限的有效等级须由使用者另行说明合法来源；本计算不自动增加命座等级。",
+    "C0 条件；有效天赋等级显式输入，不自动增加命座等级。",
+    "默认面板为教学输入；若已启用相关伤害被动或状态，必须提供命中实际适用面板与增伤，结果保持条件计算。",
+    "不推演整轮、E突进、Q、镜生成/消失/溢出、产球或投射冷却。",
+    "未覆盖C4及更高命座；C2只按实际阶段及面板已含量补差，不自动推断层数、反应或队友增益。",
+    "完整角色被动/命座、装备触发与队伍时序未由此字段分类建立。",
+    "艾尔海森投射：仅C0–C3的所选一次投射。C2每层50精通、8秒独立到期、最多4层，溢出生成也可触发；实际层数不由持镜数推断。快照精通只补实际与已含层数的差，进入装备属性相位；变化分支的触发/命中精通必须是已含各自C2的完整实际最终值。精通基数在触发时固化，A4按各段命中时精通；只有明确精通不变才共用完整重建面板。最终面板的其余属性视为所填实际快照，不反推未提供的精通转攻击等装备历史。未覆盖C4以上、镜生成/消失、后续投射、Q或整轮。"
+  ],
+  "dependencies": [
+    {
+      "id": "talent-set:alhaitham.combat2.parameters.param8[9]",
+      "status": "provisional",
+      "reason": "固定来源完整天赋向量与当前字段一致；数值证据：cross-checked。同一原始提取链的比对不等于独立机制验证：talent-set:alhaitham.combat2.parameters.param8[9]",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go"
+      ]
+    },
+    {
+      "id": "talent-set:alhaitham.combat2.parameters.param9[9]",
+      "status": "provisional",
+      "reason": "固定来源完整天赋向量与当前字段一致；数值证据：cross-checked。同一原始提取链的比对不等于独立机制验证：talent-set:alhaitham.combat2.parameters.param9[9]",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go"
+      ]
+    },
+    {
+      "id": "conditioned-action",
+      "status": "provisional",
+      "reason": "来源分类只建立所选命中表达式；命中时状态、反应和额外加成仍按显式条件输入，不证明完整实战时序。",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go"
+      ]
+    },
+    {
+      "id": "unrelated-team-rotation",
+      "status": "missing",
+      "reason": "完整角色/队伍轮转、所有被动命座及额外触发尚未由本映射验证。此项不属于所选条件命中的依赖。",
+      "sourceRefs": []
+    },
+    {
+      "id": "alhaitham-primary-vectors",
+      "status": "provisional",
+      "reason": "1/2/3镜的六组15级E投射ATK/EM向量与固定源完整一致。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ]
+    },
+    {
+      "id": "alhaitham-damage:conditions",
+      "status": "missing",
+      "reason": "请确认本次为前台普攻/重击/下落命中敌人，且投射的1.6秒冷却已结束；不由持镜或展示柜推断触发。；请选择触发到命中期间精通是否不变；未知不能当作当前面板全程适用。；多击合计须声明这些命中的其余面板、装备和目标状态共用；变化时单选实际一击。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ]
+    },
+    {
+      "id": "alhaitham-damage:alhaitham-projection-3-mirrors-hit-instance-1",
+      "status": "missing",
+      "reason": "请确认本次为前台普攻/重击/下落命中敌人，且投射的1.6秒冷却已结束；不由持镜或展示柜推断触发。；请选择触发到命中期间精通是否不变；未知不能当作当前面板全程适用。；多击合计须声明这些命中的其余面板、装备和目标状态共用；变化时单选实际一击。；请确认本段实际命中所选目标；未接触的段不能按命中计伤，可取消选择该段。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ]
+    },
+    {
+      "id": "alhaitham-damage:alhaitham-projection-3-mirrors-hit-instance-2",
+      "status": "missing",
+      "reason": "请确认本次为前台普攻/重击/下落命中敌人，且投射的1.6秒冷却已结束；不由持镜或展示柜推断触发。；请选择触发到命中期间精通是否不变；未知不能当作当前面板全程适用。；多击合计须声明这些命中的其余面板、装备和目标状态共用；变化时单选实际一击。；请确认本段实际命中所选目标；未接触的段不能按命中计伤，可取消选择该段。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ]
+    },
+    {
+      "id": "alhaitham-damage:alhaitham-projection-3-mirrors-hit-instance-3",
+      "status": "missing",
+      "reason": "请确认本次为前台普攻/重击/下落命中敌人，且投射的1.6秒冷却已结束；不由持镜或展示柜推断触发。；请选择触发到命中期间精通是否不变；未知不能当作当前面板全程适用。；多击合计须声明这些命中的其余面板、装备和目标状态共用；变化时单选实际一击。；请确认本段实际命中所选目标；未接触的段不能按命中计伤，可取消选择该段。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "evidenceStatus": "provisional"
+  }
+}

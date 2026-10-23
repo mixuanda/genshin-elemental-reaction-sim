@@ -21,3 +21,27 @@ test('C3 Alhaitham imports E10+3 and applies explicit C2 snapshot stacks once at
  await page.setViewportSize({width:390,height:960});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath('alhaitham-c3-390.png'),fullPage:true});
  await writeFile(info.outputPath('alhaitham-c3-proof.json'),JSON.stringify({source:'Synthetic C3 Enka-shaped panel; C2 snapshot two stacks, panel includes zero, other actual snapshot stats explicitly confirmed; not live account data or mirror lifecycle',level:100,baseE:10,bonus:3,effectiveE:13,baseEM:300,actualC2Stacks:2,actualEM:400,expected,totals:r.result.totals},null,2));
 });
+
+test('blocked EM-sensitive gear can open an unconfirmed actual-panel draft without manufacturing a conversion',async({page},info)=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/calculator');
+ await page.locator('#calc-import').setInputFiles(new URL('./fixtures/player-import/alhaitham-c2-unsupported-equipment.json',import.meta.url).pathname);
+ let r=await audit(page);expect(r.document.build.mode).toBe('equipment-derived');expect(r.result.status).toBe('blocked');
+ await page.locator('#calc-build-mode').selectOption('manual-final');
+ await expect(page.locator('#calc-build-mode')).toHaveValue('manual-final');r=await audit(page);expect(r.result.status).toBe('blocked');
+ expect(r.document.build.source).toContain('未确认');expect(r.document.gameContext.alhaithamDamage.c2OtherSnapshotStatsFinal).toBe(false);
+ await state(page,'c2OtherSnapshotStatsFinal','unknown');expect((await audit(page)).result.status).toBe('blocked');
+ const pendingDownload=page.waitForEvent('download');await page.locator('[data-action="export"]').click();const pending=await readFile((await(await pendingDownload).path())!,'utf8');
+ await page.reload();await page.locator('#calc-import').setInputFiles({name:'alhaitham-unconfirmed-draft.json',mimeType:'application/json',buffer:Buffer.from(pending)});
+ expect((await audit(page)).result.status).toBe('blocked');
+ const fill=async(path:string,value:string)=>{const f=page.locator(`[data-field="${path}"]`).first();await f.fill(value);await f.blur();};
+ await fill('build.stats.atk','2000');await fill('build.stats.em','300');await fill('build.stats.critRate','.5');await fill('build.stats.critDamage','1');
+ expect((await audit(page)).result.status).toBe('blocked');
+ await state(page,'c2OtherSnapshotStatsFinal');r=await audit(page);expect(r.result.status).toBe('calculated');
+ const expected=3*(2000*1.2096+300*2.4192)*1.5*.5*.9*1.5;expect(r.result.totals.expected).toBeCloseTo(expected,7);
+ expect(r.document.build).not.toHaveProperty('equipment');expect(r.document.gameContext.alhaithamDamage.finalizedHitStates).toBeUndefined();expect(errors).toEqual([]);
+ const finalDownload=page.waitForEvent('download');await page.locator('[data-action="export"]').click();const saved=await readFile((await(await finalDownload).path())!,'utf8');
+ await page.reload();await page.locator('#calc-import').setInputFiles({name:'alhaitham-confirmed-manual.json',mimeType:'application/json',buffer:Buffer.from(saved)});r=await audit(page);
+ expect(r.result.status).toBe('calculated');expect(r.result.totals.expected).toBeCloseTo(expected,7);expect(errors).toEqual([]);
+ await page.screenshot({path:info.outputPath('alhaitham-confirmed-manual.png'),fullPage:true});
+ await writeFile(info.outputPath('alhaitham-manual-draft-proof.json'),JSON.stringify({source:'Synthetic UI-only EM-sensitive gear; actual manually entered ATK2000/EM300/CR.5/CD1, triggerEM300/impactEM500; no auto conversion result',expected,totals:r.result.totals},null,2));
+});

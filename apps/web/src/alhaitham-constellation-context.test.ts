@@ -19,4 +19,10 @@ describe('Alhaitham C3 import and C2 actual snapshot accounting',()=>{
   const c=source(),original=JSON.stringify(c),d=fixture();d.gameContext!.alhaithamDamage!.c2OtherSnapshotStatsFinal=true;expect(calculateDocument(d).status).toBe('calculated');
   const imported=applyImportedCalculatorPanel(d,c,'Fresh synthetic source');expect(imported.gameContext!.alhaithamDamage!.c2SnapshotStacks).toBeUndefined();expect(imported.gameContext!.alhaithamDamage!.c2SnapshotIncludedStacks).toBeUndefined();expect(imported.gameContext!.alhaithamDamage!.c2OtherSnapshotStatsFinal).toBeUndefined();expect(calculateDocument(imported).status).toBe('blocked');expect(JSON.stringify(c)).toBe(original);
  });
+ it('blocks explicitly non-actual manual snapshot stats even when C2 delta is zero',()=>{
+  const d=fixture();if(d.build.mode!=='imported-final')throw Error('fixture mode');d.build={...d.build,mode:'manual-final'};
+  Object.assign(d.gameContext!.alhaithamDamage!,{c2SnapshotIncludedStacks:2,c2OtherSnapshotStatsFinal:false});
+  expect(calculateDocument(d).status).toBe('blocked');
+ });
+
 });

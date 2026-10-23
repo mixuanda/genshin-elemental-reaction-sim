@@ -75,9 +75,10 @@ export function alhaithamUnstableC2EquipmentRules(document: CalculatorDocument):
 }
 export function alhaithamRequiresC2SnapshotStatsConfirmation(document: CalculatorDocument): boolean {
   const context = alhaithamContext(document);
-  return document.build.mode === "imported-final" && (document.gameContext?.constellation ?? 0) >= 2
-    && context?.c2SnapshotStacks !== undefined && context.c2SnapshotIncludedStacks !== undefined
-    && context.c2SnapshotStacks !== context.c2SnapshotIncludedStacks;
+  if ((document.gameContext?.constellation ?? 0) < 2) return false;
+  return document.build.mode === "manual-final" && context?.c2RequiresActualPanelConfirmation === true
+    || document.build.mode === "imported-final" && context?.c2SnapshotStacks !== undefined
+      && context.c2SnapshotIncludedStacks !== undefined && context.c2SnapshotStacks !== context.c2SnapshotIncludedStacks;
 }
 export function createAlhaithamProjectionBaseFormula(level: number, stableMastery: boolean, triggerMastery: number, included: number): CalculatorFormula {
   const coefficients = alhaithamProjectionCoefficients(level);
@@ -136,7 +137,7 @@ export function prepareAlhaithamDamageDocument(document: CalculatorDocument): Ca
   if (c2 && includedC2Stacks === undefined) globalIssues.push("请填写本击精通面板已含的C2层数，不能把展示柜未知状态当作未含或满层。");
   if (c2 && !stable && context.masteryStableAcrossStages === false && context.c2TriggerMasteryFinal !== true) globalIssues.push("请确认触发精通是已含当时有效C2的实际最终值；此阶段不会再补加50或200精通。");
   if ((alhaithamRequiresC2SnapshotStatsConfirmation(doc) && context.c2OtherSnapshotStatsFinal !== true)
-    || (c2 && document.build.mode === "manual-final" && c2Delta !== undefined && c2Delta !== 0 && context.c2OtherSnapshotStatsFinal === false)) globalIssues.push("请填写C2生效后的实际攻击力等面板，或改用配装计算，再确认其余属性已是本击快照。非战斗展示柜不能证明精通转攻击等属性，精通差额不会反推未提供的武器转换。");
+    || (c2 && document.build.mode === "manual-final" && context.c2OtherSnapshotStatsFinal === false)) globalIssues.push("请填写C2生效后的实际攻击力等面板，或改用配装计算，再确认其余属性已是本击快照。非战斗展示柜不能证明精通转攻击等属性，精通差额不会反推未提供的武器转换。");
   const unsupportedRules = alhaithamUnstableC2EquipmentRules(doc);
   if (unsupportedRules.length) globalIssues.push(`精通跨阶段变化，而装备规则「${unsupportedRules.join("、")}」仍使用单份精通；本批不能重建该路径。请改用手动最终面板，填写实际快照攻击/精通和各阶段最终精通，或仅在实际精通不变时选择稳定分支。`);
   if (context.mirrorCount === undefined) globalIssues.push("请明确本次投射触发时的镜数情景，不能以未知镜数推断命中数量。");
@@ -199,6 +200,7 @@ export function resetAlhaithamPanelAccounting(document: CalculatorDocument, mode
   if (!isAlhaithamDamageAction(document)) return;
   const context = (document as AlhaithamCalculatorDocument).gameContext.alhaithamDamage ??= {};
   delete context.finalizedHitStates;
+  delete context.c2RequiresActualPanelConfirmation;
   if (mode === "imported-final") {
     delete context.projectionTriggerValid; delete context.masteryStableAcrossStages; delete context.triggerMastery; delete context.statsAndTargetStableAcrossHits;
     delete context.c2SnapshotStacks; delete context.c2SnapshotIncludedStacks; delete context.c2TriggerMasteryFinal; delete context.c2OtherSnapshotStatsFinal;

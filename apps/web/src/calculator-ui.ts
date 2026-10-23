@@ -1,3 +1,4 @@
+import {canCreateAlhaithamActualPanelDraft,createAlhaithamActualPanelDraft} from './alhaitham-final-panel-draft';
 import {applyTighnariDamageContext,resetTighnariPanelAccounting} from './tighnari-calculation-context';
 import type { ManualEffectiveTalents } from './player-import-manual-talents';
 import {captureKazuhaImportedDamageBonuses} from '../../../packages/sim-core/src/kazuha-burst-formulas';
@@ -1777,6 +1778,17 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         current = applyImportedPanel(current);
         const draft = equipmentDrafts.get(equipmentKey(current));
         if (draft) draft.finalized = false;
+      }
+      else if (input.value === "manual-final" && canCreateAlhaithamActualPanelDraft(current)) {
+        // Manual observation entry does not certify or convert unsupported gear.
+        rememberEquipment(current);
+        current = createAlhaithamActualPanelDraft(current);
+        const draft = equipmentDrafts.get(equipmentKey(current));
+        if (draft) draft.finalized = false;
+        capturedHit = null;
+        importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+        get("#calc-imported-binding").hidden = true;
+        message("已打开未确认的实际面板。请填写本击属性和各段适用增伤，再确认C2面板；尚未生成转换结果。");
       }
       else if (current.build.mode !== "equipment-derived") current.build = { ...current.build, mode: "manual-final", source: "手动最终面板；不提供装备分解" };
       else {

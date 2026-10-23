@@ -27,6 +27,8 @@ export const alhaithamDamageContextSchema = z.strictObject({
   c2TriggerMasteryFinal: z.boolean().optional(),
   /** Explicit correction when a final panel's other stats are not actual yet. */
   c2OtherSnapshotStatsFinal: z.boolean().optional(),
+  /** An observation-entry draft needs explicit confirmation, including after reopen. */
+  c2RequiresActualPanelConfirmation: z.boolean().optional(),
   statsAndTargetStableAcrossHits: z.boolean().optional(),
   hitStates: z.record(z.string(), alhaithamProjectionHitStateSchema).optional(),
   finalizedHitStates: z.record(z.string(), z.string()).optional(),
