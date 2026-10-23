@@ -10,6 +10,8 @@ export type HutaoCalculatorDocument = CalculatorDocument & {
 export const HUTAO_DAMAGE_SOURCE_REFS = hutaoPrimarySourceEvidence.files.map(file =>
   `https://github.com/genshinsim/gcsim/blob/${hutaoPrimarySourceEvidence.revision}/${file.path}`);
 export const HUTAO_DAMAGE_DEPENDENCY_PREFIX = 'hutao-primary:';
+/** Shared action allowlists may admit C0–C6; C6 still needs explicit actual-hit accounting. */
+export const HUTAO_PRIMARY_MAX_CONSTELLATION = 6 as const;
 export const hutaoContext = (document: CalculatorDocument): HutaoDamageContext | undefined =>
   (document as HutaoCalculatorDocument).gameContext?.hutaoDamage;
 export function isHutaoPrimaryDocument(document: CalculatorDocument): boolean {
@@ -49,14 +51,29 @@ export function createHutaoA4BonusFormula(ascension: number, hpPercent: number, 
   };
 }
 
+/** Source CR modifier adds 100 percentage points. Probability clamping stays in the common core. */
+export function createHutaoC6CritRateFormula(active: boolean, included: boolean): CalculatorFormula {
+  return {
+    ruleId: 'hutao-damage-c6-crit-rate-b4ae769', label: '幽蝶能留一缕芳：实际生效的100%暴击率 − 输入已含份额',
+    expression: expr.sub(expr.input('hutaoC6ActiveCritRate'), expr.input('hutaoC6IncludedCritRate')),
+    inputs: [input('hutaoC6ActiveCritRate', Number(active), 'ratio', 'explicit-actual-c6-buff-state'),
+      input('hutaoC6IncludedCritRate', Number(included), 'ratio', 'explicit-final-crit-panel-accounting')],
+    requirements: { minimumConstellation: 6, maximumConstellation: 6, attackTags: ['normal', 'charged'] },
+    sourceRefs: HUTAO_DAMAGE_SOURCE_REFS,
+  };
+}
+
 function identity(document: CalculatorDocument, hit: CalculatorHit, context: HutaoDamageContext): string {
   const stats = resolveCalculatorStats(document.build);
   const ascension = (document.build.mode === 'equipment-derived' ? document.build.equipment?.ascension : document.build.ascension) ?? document.gameContext?.ascension;
-  return JSON.stringify([document.gameContext?.skillId, document.gameContext?.abilityId, document.gameContext?.effectiveTalentLevel,
+  const state = [document.gameContext?.skillId, document.gameContext?.abilityId, document.gameContext?.effectiveTalentLevel,
     context.skillTalentLevel, document.gameContext?.constellation, ascension, document.characterLevel, hit.id,
     context.paramitaActive, context.skillAttackIncludedInPanel, context.maxHpUnchangedSinceSkillCast, context.skillCastMaxHp,
     context.baseAttack, context.hpPercentAtSnapshot, context.a4ThresholdStable, context.a4IncludedInDamageBonus,
-    stats.atk, stats.hp, stats.def, stats.em, stats.critRate, stats.critDamage, stats.energyRecharge]);
+    stats.atk, stats.hp, stats.def, stats.em, stats.critRate, stats.critDamage, stats.energyRecharge];
+  // Keep the prior C0/C1 preimage unchanged so existing saved documents remain readable.
+  if (document.gameContext?.constellation === 6) state.push(context.c6Active, context.c6CritRateIncludedInPanel);
+  return JSON.stringify(state);
 }
 
 /** A selected contact only. Foreign evidence is retained and same-slot conflicts are blocked. */
@@ -74,7 +91,12 @@ export function prepareHutaoDamageDocument(document: CalculatorDocument): Calcul
     if (result.scope !== 'single-hit' || result.hits.length !== 1 || hit.id !== mapping.id
       || result.selectedHitIds.length !== 1 || result.selectedHitIds[0] !== mapping.id || hit.kind !== 'ordinary')
       issues.push('此入口仅计算所选一次火元素命中；第五段两击分别取样，不能增加其他命中或当作完整E循环。');
-    if (!Number.isInteger(game.constellation) || game.constellation < 0 || game.constellation > 1) issues.push('本入口只审阅C0/C1，不能忽略其他命座状态。');
+    if (!Number.isInteger(game.constellation) || game.constellation < 0 || game.constellation > HUTAO_PRIMARY_MAX_CONSTELLATION) issues.push('本入口只支持已审阅的C0–C6命座范围。');
+    const c6 = game.constellation === 6;
+    if (c6) {
+      if (context.c6Active === undefined) issues.push('请确认本击取样时C6的100%暴击率增益是否实际生效；当前低血量不能证明触发或仍在持续。');
+      if (context.c6CritRateIncludedInPanel === undefined) issues.push('请确认输入暴击率是否已经包含C6增加的100个百分点。');
+    } else if (context.c6Active === true || context.c6CritRateIncludedInPanel === true) issues.push('当前命座未解锁C6，不能声称C6增益生效或已含于暴击率面板。');
     if (game.abilityId !== 'talent:hutao:combat1') issues.push('普攻与重击必须使用独立普攻天赋，不能以E天赋替代。');
     const coefficient = Number.isInteger(game.effectiveTalentLevel) ? mapping.sourceCoefficientValues?.[game.effectiveTalentLevel - 1] : undefined;
     if (coefficient === undefined) issues.push('缺少1–15级的有效普攻倍率；有效等级不再增加命座等级。');
@@ -101,6 +123,8 @@ export function prepareHutaoDamageDocument(document: CalculatorDocument): Calcul
       else if (hit.attackAdjustment) issues.push('已有其他来源的攻击调整，必须先明确合并，不能覆盖该来源证据。');
       if (hit.damageBonusFormula?.ruleId === 'hutao-damage-a4-low-hp-b4ae769') delete hit.damageBonusFormula;
       else if (hit.damageBonusFormula) issues.push('已有其他来源的增伤公式，必须先明确合并，不能覆盖该来源证据。');
+      if (hit.critRateFormula?.ruleId === 'hutao-damage-c6-crit-rate-b4ae769') delete hit.critRateFormula;
+      else if (c6 && hit.critRateFormula) issues.push('已有其他来源的暴击率公式，必须先明确合并，不能覆盖该来源证据。');
       const saved = context.finalizedHitStates?.[hit.id], frozen = hit.finalSnapshot || hit.effectiveCritRate !== undefined || hit.effectiveCritDamage !== undefined;
       if ((saved !== undefined && saved !== identity(result, hit, context))
         || (frozen && (saved === undefined || hit.finalSnapshot && hit.finalSnapshot.origin !== 'equipment-conversion')))
@@ -111,17 +135,19 @@ export function prepareHutaoDamageDocument(document: CalculatorDocument): Calcul
           ...(context.skillCastMaxHp === undefined ? {} : { skillCastMaxHp: context.skillCastMaxHp }),
         }) };
         hit.damageBonusFormula = createHutaoA4BonusFormula(ascension!, context.hpPercentAtSnapshot ?? 100, context.a4IncludedInDamageBonus!);
+        if (c6) hit.critRateFormula = createHutaoC6CritRateFormula(context.c6Active!, context.c6CritRateIncludedInPanel!);
       }
     }
     hit.sourceRefs = [...new Set([...hit.sourceRefs, ...HUTAO_DAMAGE_SOURCE_REFS])];
     const id = HUTAO_DAMAGE_DEPENDENCY_PREFIX + hit.id; hit.dependencies.push(id);
     result.dependencies.push({ id, status: issues.length ? 'missing' : 'provisional', reason: issues.join('；')
-      || 'C0/C1开E后的实际单击；独立NA/E天赋、施放E的最大生命快照、400%白值上限和本击半血火伤分别核对。', sourceRefs: HUTAO_DAMAGE_SOURCE_REFS });
+      || 'C0–C6开E后的实际单击；独立NA/E有效等级、E施放HP与白字上限、A4和C6实际生效/已含份额分别核对，不追加血梅香或队友增益。', sourceRefs: HUTAO_DAMAGE_SOURCE_REFS });
   }
   game.scopeCoverage = 'single-hit';
-  game.attributionPolicy = 'C0/C1彼岸蝶舞所选自身单击：NA倍率与E等级独立；E增攻在施放时按最大生命与400%基础攻击上限固定，A4按本击取样生命和面板已含份额补差。不含血梅香、Q、产球、体力或完整轮转。';
+  game.attributionPolicy = 'C0–C6彼岸蝶舞所选自身单击：NA与有效E等级独立且不重复加C3；E增攻按施放时HP与400%白字上限固定，A4与C6分别按实际状态和已含份额补差。C2血梅香、C4队友暴击和C5的Q不并入本击，不提供完整轮转。';
   result.assumptions = result.assumptions.filter(row => !row.startsWith('胡桃E单击：'));
   result.assumptions.push('胡桃E单击：普攻第5段两击分别在15/26帧快照，重击按固定源0帧快照、3帧命中且存在TODO近似。A4使用明确稳定的半血分支，不声称瞬间跨半血的0.3秒检查时序已验证。');
+  result.assumptions.push('胡桃E单击：C6增加100个百分点暴击率，并由公共公式限制实际概率；只使用明确的本击实际增益状态，不根据当前HP、命座或源2秒轮询近似推算触发、10秒到期、60秒冷却或免死。');
   return result;
 }
 
@@ -129,8 +155,9 @@ export function resetHutaoPanelAccounting(document: CalculatorDocument, mode: 'f
   if (!isHutaoPrimaryDocument(document)) return;
   const context = (document as HutaoCalculatorDocument).gameContext.hutaoDamage ??= {};
   delete context.finalizedHitStates; delete context.skillCastMaxHp; delete context.baseAttack;
-  if (mode === 'fresh-equipment') { context.skillAttackIncludedInPanel = false; context.a4IncludedInDamageBonus = false; }
-  else for (const key of ['paramitaActive', 'skillAttackIncludedInPanel', 'maxHpUnchangedSinceSkillCast', 'hpPercentAtSnapshot', 'a4ThresholdStable', 'a4IncludedInDamageBonus'] as const) delete context[key];
+  if (mode === 'fresh-equipment') {
+    context.skillAttackIncludedInPanel = false; context.a4IncludedInDamageBonus = false; context.c6CritRateIncludedInPanel = false;
+  } else for (const key of ['paramitaActive', 'skillAttackIncludedInPanel', 'maxHpUnchangedSinceSkillCast', 'hpPercentAtSnapshot', 'a4ThresholdStable', 'a4IncludedInDamageBonus', 'c6Active', 'c6CritRateIncludedInPanel'] as const) delete context[key];
 }
 
 export function finalizeHutaoDamageContextSnapshot(document: CalculatorDocument): void {

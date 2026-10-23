@@ -66,6 +66,13 @@
       "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
       "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
       "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/character.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
     }
   ],
   "coefficients": [
@@ -360,20 +367,32 @@
         "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attack.go",
         "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
         "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/character.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/character.go",
+        "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+        "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
       }
     ],
-    "allNineFilesByteIdentical": false,
     "differences": [
       {
         "path": "internal/characters/hutao/attack.go",
         "scope": "Stellar uses Paramita hitmarks for normal-cancel slices and allows last-normal to charged transitions. Direct multipliers, declared Paramita hitmark snapshots, E HP-to-ATK cap, and A4 behavior are unchanged. This module does not simulate cancellations or attack cycles."
       }
-    ]
+    ],
+    "allTenFilesByteIdentical": false
   },
   "support": {
     "constellations": [
       0,
-      1
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
     ],
     "c1": "ActionStam returns zero for charged attacks during Paramita; no direct damage coefficient change. No stamina event is executed.",
     "normalContacts": 7,
@@ -383,10 +402,30 @@
     "excluded": [
       "Q",
       "blood-blossom followups",
-      "C2+",
       "energy and cooldown scheduling",
       "PP slide cancellation lifecycle",
-      "claim of official game verification"
-    ]
+      "claim of official game verification",
+      "C2 blood-blossom extra damage",
+      "C4 teammate crit-rate effects",
+      "C6 trigger/revival/duration/cooldown and source polling lifecycle"
+    ],
+    "maximumConstellation": 6,
+    "c2": "Only the Blood Blossom callback gains 0.1 MaxHP flat damage; no term is added to selected normal/charged contacts.",
+    "c3": "hutao.go SkillCon=3; common TalentLvlSkill adds the source three levels. This calculator consumes independently supplied effective E level once, without adding C3 again.",
+    "c4": "The target-death team CR callback explicitly excludes Hu Tao; no own normal/charged CR bonus is added.",
+    "c5": "hutao.go BurstCon=5 changes Q talent levels, outside these NA/CA contacts.",
+    "c6": {
+      "critRateBonus": 1,
+      "buffFrames": 600,
+      "cooldownFrames": 3600,
+      "sourcePollingFrames": 120,
+      "accounting": "explicit actual-hit c6Active minus explicitly included final-panel share; core clamps probability",
+      "activation": "never inferred from current HP/constellation; damage, revival, timing and source 2-second polling are not generated",
+      "fields": [
+        "c6Active",
+        "c6CritRateIncludedInPanel"
+      ]
+    },
+    "legacySkillIds": "Existing -c0-c1 skillIds remain stable identifiers; verified own-hit support now covers C0-C6 with explicit C6 state."
   }
 }

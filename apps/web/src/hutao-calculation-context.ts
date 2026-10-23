@@ -10,6 +10,6 @@ export function applyHutaoDamageContext(document: CalculatorDocument, supplied: 
 }
 /** For labelled examples only: no HP, E talent or unchanged-HP history is invented. */
 export function createHutaoExampleContext(skillTalentLevel?: number): HutaoDamageContext {
-  return hutaoDamageContextSchema.parse({ paramitaActive: true, skillAttackIncludedInPanel: false, a4IncludedInDamageBonus: false,
+  return hutaoDamageContextSchema.parse({ paramitaActive: true, skillAttackIncludedInPanel: false, a4IncludedInDamageBonus: false, c6CritRateIncludedInPanel: false,
     ...(skillTalentLevel === undefined ? {} : { skillTalentLevel }) });
 }

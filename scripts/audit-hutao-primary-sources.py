@@ -46,6 +46,8 @@ for variant in [manifest, manifest['crossVariant']]:
     charge = (root / 'internal/characters/hutao/charge.go').read_text().split('func (c *char) ppChargeAttack()', 1)[1]
     character = (root / 'internal/characters/hutao/hutao.go').read_text()
     asc = (root / 'internal/characters/hutao/asc.go').read_text()
+    cons = (root / 'internal/characters/hutao/cons.go').read_text()
+    common = (root / 'pkg/core/player/character/character.go').read_text()
     assert 'ppatk[c.TalentLvlSkill()] * c.MaxHP()' in skill
     assert 'c.Stat(attributes.BaseATK) * 4' in skill and 'Extra:        true' in skill
     assert 'mult[c.TalentLvlAttack()]' in attack and 'charge[c.TalentLvlAttack()]' in charge
@@ -53,6 +55,14 @@ for variant in [manifest, manifest['crossVariant']]:
     assert 'c.StatModIsActive(paramitaBuff) && c.Base.Cons >= 1' in character
     assert 'ai.Element = attributes.Pyro' in character
     assert 'c.CurrentHPRatio() <= 0.5' in asc and '0.33' in asc and '0.3s' in asc
+    assert 'if c.Base.Cons >= 2' in skill and 'ai.FlatDmg += c.MaxHP() * 0.1' in skill
+    assert 'c.SkillCon = 3' in character and 'c.BurstCon = 5' in character
+    assert 'c.Base.Cons >= c.SkillCon' in common and 'add += 3' in common
+    assert 'if c.Index() == i' in cons.split('func (c *char) c4()', 1)[1]
+    assert 'c.c6buff[attributes.CR] = 1' in cons
+    assert 'modifier.NewBaseWithHitlag("hutao-c6", 600)' in cons
+    assert 'c.AddStatus(c6ICDKey, 3600, false)' in cons
+    assert 'event.OnPlayerHPDrain' in cons and '}, 120)' in cons
 
 current = (repo / 'packages/game-data/manifests/runtime/current.ts').read_text()
 snapshot = re.search(r'"activeCatalogSnapshotId":"([^"]+)"', current).group(1)
@@ -62,5 +72,5 @@ for row in [*manifest['coefficients'], manifest['skillConversion']]:
     ability = next(ability for ability in talent['abilities'] if ability['key'] == row['abilityKey'])
     assert row['values'] == ability['parameters'][row['parameterKey']], row['parameterKey']
 print(json.dumps({'status': 'passed', 'sourceIdentities': identities, 'coefficientPositionsPerVariant': 135,
-                  'maximumAbsoluteDifferenceAgainstCatalog': 0, 'constellations': [0, 1],
+                  'maximumAbsoluteDifferenceAgainstCatalog': 0, 'constellations': list(range(7)),
                   'gameVerification': 'provisional community source audit; no official game verification claim'}))
