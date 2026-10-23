@@ -320,13 +320,21 @@
     "masteryTrigger": "skill.go constructs ai.FlatDmg=mirrorEm[TalentLvlSkill()]*Stat(EM) when triggering projection, before delayed attack snapshots.",
     "attackSnapshot": "QueueAttack in pkg/core/attack.go samples ATK/CR/CD/general DMG at delay20/22/26; each queued projection has the same delay for one action.",
     "a4Hit": "asc.go attack modifier matches projection ICDGroup or burst; pkg/enemy/attack.go applies attack mods during hit handling; A4 reads current Stat(EM), min(0.001*EM,1), not necessarily trigger or snapshot mastery.",
-    "constellation": "This module supports C0 only. C1 cooldown and C2+ buffs, levels and mirror generation are not replayed."
+    "constellation": "C0–C3 selected projection. C1 reduces E cooldown by72f after a landed projection, with60f ICD; it does not alter this hit. C2 adds50EM per generated mirror,480f independently per slot,max4; overflow generation calls c2 before capping mirrors. C3 is already represented by supplied effective E talent, never added again.",
+    "c2Accounting": "Delayed snapshot uses50*(actual unexpired C2 stacks - C2 stacks already present in input mastery), through the common equipment mastery-phase rebuilder. Stable total mastery explicitly shares the complete rebuilt value across source stages. When varying, trigger/impact inputs are their complete actual final mastery including that stage C2; no snapshot delta is added to them."
   },
   "limitations": [
     "One actual projection event or its selected contacts, not a full E/mirror/infused-attack rotation.",
     "No generated mirrors, mirror decay or overflow, automatic 1.6s eligibility, trigger NA/CA/plunge damage, burst, energy or reactions.",
     "Left/right scheduling has identical coefficient counts but differing hit frames; module reports alternatives and does not invent a side.",
     "Shared mastery is used only with explicit stability confirmation; otherwise trigger mastery and impact mastery are separate explicit inputs.",
-    "Source/equipment/elemental damage contributions remain conditional; imported panel cannot prove mirror count, actual contacts, stability or own A4 included share."
+    "Source/equipment/elemental damage contributions remain conditional; imported panel cannot prove mirror count, actual contacts, stability or own A4 included share.",
+    "Varying-stage C2 with executable EM-sensitive equipment conversions or hit formulas is rejected with the named rules and actual-final-panel control; C1 cooldown history and C2 independent stack expiry are not replayed."
+  ],
+  "supportedConstellations": [
+    0,
+    1,
+    2,
+    3
   ]
 }

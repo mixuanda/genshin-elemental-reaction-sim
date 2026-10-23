@@ -12,6 +12,7 @@ import {
   alhaithamContext, alhaithamProjectionCoefficients, alhaithamProjectionTiming, createAlhaithamA4Formula,
   finalizeAlhaithamPanelAccounting, isAlhaithamDamageAction, prepareAlhaithamDamageDocument,
   resetAlhaithamPanelAccounting, type AlhaithamCalculatorDocument,
+  ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION, alhaithamUnstableC2EquipmentRules, alhaithamRequiresC2SnapshotStatsConfirmation,
 } from "./alhaitham-damage-formulas";
 
 const sourceDocuments = getCharacterDocuments("character:10000078", 10);
@@ -154,9 +155,13 @@ describe("Alhaitham C0 one actual projection event", () => {
     expect(result(doc).status).toBe("blocked");
     expect(renderAlhaithamControls(doc)).toContain('data-field="gameContext.alhaithamDamage.mirrorCount"');
   });
-  it.each([1, 2, 3, 4, 5, 6])("C%i does not silently reuse the C0 projection implementation", cons => {
+  it.each([1, 2, 3, 4, 5, 6])("C%i respects the implemented scope and missing C2 conditions", cons => {
     const doc = fixture(); doc.gameContext.constellation = cons;
-    expect(result(doc).status).toBe("blocked");
+    if (cons === 1) expect(result(doc).totals).toEqual(result(fixture()).totals);
+    else {
+      expect(result(doc).status).toBe("blocked");
+      if (cons <= 3) expect(alhaithamRequirementAdapter.collect(doc).some(field => field.fieldPath.endsWith("c2SnapshotStacks"))).toBe(true);
+    }
   });
   it("uses supplied effective E13 once and refuses an NA identity or E16", () => {
     const doc = fixture(); doc.gameContext.effectiveTalentLevel = 13;
@@ -223,5 +228,160 @@ describe("Alhaitham C0 one actual projection event", () => {
     expect(alhaithamDamageContextSchema.safeParse({ mirrorCount: 0, triggerMastery: 0, hitStates: { hit: { hitTimeMastery: 0, includedA4Bonus: 0, includedProjectionBase: 0 } } }).success).toBe(true);
     for (const value of [{ mirrorCount: 4 }, { mirrorCount: 1.5 }, { triggerMastery: Infinity }, { hitStates: { h: { hitTimeMastery: -1 } } }, { hitStates: { h: { includedA4Bonus: 1.01 } } }, { autoMirrors: true }]) expect(alhaithamDamageContextSchema.safeParse(value).success).toBe(false);
     expect(calculatorFormulaSchema.safeParse(createAlhaithamA4Formula(6, false, 1000, 1.01)).success).toBe(false);
+  });
+});
+
+function c2Fixture(mirrors = 1, stable = true, constellation = 2): AlhaithamCalculatorDocument {
+  const doc = fixture(mirrors, stable); doc.gameContext.constellation = constellation;
+  Object.assign(doc.gameContext.alhaithamDamage!, { c2SnapshotStacks: 2, c2SnapshotIncludedStacks: 0,
+    ...(!stable ? { c2TriggerMasteryFinal: true } : {}) });
+  if (!stable) impactStates(doc).forEach(state => { state.c2HitMasteryFinal = true; });
+  return doc;
+}
+function withMasteryConversion(doc: AlhaithamCalculatorDocument): void {
+  doc.build = { mode: "equipment-derived", characterBaseAtk: 600, weaponBaseAtk: 200, atkPercent: 1.5, flatAtk: 0,
+    baseHp: 20000, hpPercent: 0, flatHp: 0, baseDef: 800, defPercent: 0, flatDef: 0, em: 300, critRate: .5, critDamage: 1,
+    equipment: { characterId: "character:10000078", weaponId: "weapon:explicit-test-only", level: 90, ascension: 6,
+      weaponLevel: 90, weaponAscension: 6, refinement: 1, sourceVersion: "explicit-synthetic-phase-fixture",
+      sourceRefs: ["https://example.test/equipment-phase-fixture"], derivedStats: [], secondaryContributions: [], assumptions: [], effectBlockers: [],
+      statModifiers: [{ id: "test-em-to-attack", label: "独立相位测试：20%精通转攻击", target: "flatAtk", phase: "conversion",
+        expression: { kind: "multiply", terms: [{ kind: "variable", key: "em" }, { kind: "constant", value: .2 }] }, inputs: [], sourceRefs: ["https://example.test/equipment-phase-fixture"] }] } };
+}
+
+describe("Alhaitham C1–C3 stage-specific C2 mastery", () => {
+  it("exports maximum C3 and leaves C1's after-hit cooldown out of this damage", () => {
+    expect(ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION).toBe(3);
+    const doc = fixture(3); doc.gameContext.constellation = 1;
+    expect(result(doc).status).toBe("calculated"); expect(result(doc).totals).toEqual(result(fixture(3)).totals);
+  });
+  it.each([0, 1, 2, 3, 4])("uses actual C2 %i stacks rather than mirror count", stacks => {
+    const doc = c2Fixture(3); doc.gameContext.alhaithamDamage!.c2SnapshotStacks = stacks;
+    const mastery = 300 + 50 * stacks;
+    expect(result(doc).status).toBe("calculated");
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(3 * (2000 * 1.2096 + mastery * 2.4192) * (1 + mastery * .001) * .5 * .9, 9);
+  });
+  it("C2 stable two uncounted stacks yield EM400 and 2133.7344 per contact", () => {
+    const doc = c2Fixture();
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(2133.7344, 9);
+    expect(result(prepareAlhaithamDamageDocument(doc)).totals).toEqual(result(doc).totals);
+    const prepared = prepareAlhaithamDamageDocument(doc);
+    if (prepared.hits[0]!.kind !== "ordinary") throw new Error();
+    const formula = prepared.hits[0]!.elementalMasteryAdjustment!.formula;
+    expect(evaluateFormulaExpression(formula.expression, Object.fromEntries(formula.inputs.map(input => [input.key, input.value])))).toBe(100);
+  });
+  it("does not add C2 again to actual EM400 already containing the same two stacks", () => {
+    const doc = c2Fixture(); if (doc.build.mode !== "manual-final") throw new Error(); doc.build.stats.em = 400;
+    doc.gameContext.alhaithamDamage!.c2SnapshotIncludedStacks = 2;
+    expect(result(doc).totals).toEqual(result(c2Fixture()).totals);
+    expect(prepareAlhaithamDamageDocument(doc).hits[0]).not.toHaveProperty("elementalMasteryAdjustment");
+  });
+  it("can remove explicit expired C2 shares: four included but zero still active", () => {
+    const doc = c2Fixture(); if (doc.build.mode !== "manual-final") throw new Error(); doc.build.stats.em = 500;
+    Object.assign(doc.gameContext.alhaithamDamage!, { c2SnapshotStacks: 0, c2SnapshotIncludedStacks: 4 });
+    expect(result(doc).totals).toEqual(result(fixture()).totals);
+  });
+  it("never derives C2 layers from mirrors, including unknown zero and over-cap claims", () => {
+    const doc = c2Fixture(3); delete doc.gameContext.alhaithamDamage!.c2SnapshotStacks;
+    expect(result(doc).status).toBe("blocked");
+    doc.gameContext.alhaithamDamage!.c2SnapshotStacks = 0;
+    expect(result(doc).totals).toEqual(result(fixture(3)).totals);
+    delete doc.gameContext.alhaithamDamage!.c2SnapshotIncludedStacks;
+    expect(result(doc).status).toBe("blocked");
+    expect(alhaithamDamageContextSchema.safeParse({ c2SnapshotStacks: 5 }).success).toBe(false);
+    expect(alhaithamDamageContextSchema.safeParse({ c2SnapshotIncludedStacks: 1.5 }).success).toBe(false);
+    const locked = fixture(); locked.gameContext.alhaithamDamage!.c2SnapshotStacks = 1;
+    expect(result(locked).status).toBe("blocked");
+  });
+  it("C2 varying stages lock trigger EM300 and impact EM500, not snapshot EM400", () => {
+    const doc = c2Fixture(1, false); impactStates(doc)[0]!.hitTimeMastery = 500;
+    // Trigger native FlatDmg stays 2.4192*300=725.76, A4 sees .5.
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(2122.848, 9);
+    if (doc.build.mode !== "manual-final") throw new Error(); doc.build.stats.em = 900;
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(2122.848, 9);
+  });
+  it("requires explicit full-final C2 inclusion for trigger and each selected impact", () => {
+    const doc = c2Fixture(2, false); delete doc.gameContext.alhaithamDamage!.c2TriggerMasteryFinal;
+    expect(result(doc).status).toBe("blocked");
+    doc.gameContext.alhaithamDamage!.c2TriggerMasteryFinal = true; delete impactStates(doc)[1]!.c2HitMasteryFinal;
+    expect(result(doc).status).toBe("blocked");
+    const fields = alhaithamRequirementAdapter.collect(doc);
+    expect(fields.some(field => field.fieldPath.endsWith("c2HitMasteryFinal"))).toBe(true);
+    doc.scope = "single-hit"; doc.selectedHitIds = [doc.hits[0]!.id]; expect(result(doc).status).toBe("calculated");
+  });
+  it("C3 consumes effective E13 once, including C2's actual mastery", () => {
+    const doc = c2Fixture(1, true, 3); doc.gameContext.effectiveTalentLevel = 13;
+    expect(result(doc).status).toBe("calculated");
+    expect(result(doc).totals!.nonCritical).toBeCloseTo((1.428 * 2000 + 2.856 * 400) * 1.4 * .5 * .9, 9);
+    const unchangedEffective = c2Fixture(1, true, 3); unchangedEffective.gameContext.effectiveTalentLevel = 10;
+    expect(result(unchangedEffective).totals!.nonCritical).toBeCloseTo(2133.7344, 9);
+  });
+  it("puts stable snapshot C2 before equipment conversion, rederiving EM-to-ATK once", () => {
+    const doc = c2Fixture(); withMasteryConversion(doc);
+    // Snapshot EM400 -> conversion80 ATK, total2080; not baseline2060.
+    expect(result(doc).status).toBe("calculated");
+    expect(result(doc).totals!.nonCritical).toBeCloseTo((1.2096 * 2080 + 2.4192 * 400) * 1.4 * .5 * .9, 9);
+    expect(result(doc).totals!.nonCritical).not.toBeCloseTo((1.2096 * 2060 + 2.4192 * 400) * 1.4 * .5 * .9, 5);
+  });
+  it("names and rejects EM-sensitive equipment with varying stages and links actual-panel control", () => {
+    const doc = c2Fixture(1, false); withMasteryConversion(doc);
+    expect(alhaithamUnstableC2EquipmentRules(doc)).toEqual(["独立相位测试：20%精通转攻击"]);
+    expect(result(doc).status).toBe("blocked");
+    expect(alhaithamRequirementAdapter.collect(doc).some(field => field.controlSelector === "#calc-build-mode")).toBe(true);
+    expect(renderAlhaithamControls(doc)).toContain("手动最终面板");
+  });
+  it("imported panel plus C2 EM delta blocks until other actual snapshot attributes are confirmed", () => {
+    const doc = c2Fixture(); if (doc.build.mode !== "manual-final") throw new Error(); doc.build = { ...doc.build, mode: "imported-final" };
+    expect(alhaithamRequiresC2SnapshotStatsConfirmation(doc)).toBe(true); expect(result(doc).status).toBe("blocked");
+    expect(alhaithamRequirementAdapter.collect(doc).some(field => field.fieldPath.endsWith("c2OtherSnapshotStatsFinal"))).toBe(true);
+    expect(renderAlhaithamControls(doc)).toContain("C2生效后的实际攻击力");
+    doc.gameContext.alhaithamDamage!.c2OtherSnapshotStatsFinal = true;
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(2133.7344, 9);
+    doc.gameContext.alhaithamDamage!.c2OtherSnapshotStatsFinal = false; expect(result(doc).status).toBe("blocked");
+  });
+  it("an imported actual panel already containing its two stacks needs no extra snapshot confirmation", () => {
+    const doc = c2Fixture(); if (doc.build.mode !== "manual-final") throw new Error(); doc.build = { ...doc.build, mode: "imported-final", stats: { ...doc.build.stats, em: 400 } };
+    doc.gameContext.alhaithamDamage!.c2SnapshotIncludedStacks = 2;
+    expect(alhaithamRequiresC2SnapshotStatsConfirmation(doc)).toBe(false); expect(result(doc).status).toBe("calculated");
+  });
+  it("preserves foreign EM slot contributions and rejects a nonzero C2 overwrite", () => {
+    const doc = c2Fixture(); if (doc.hits[0]!.kind !== "ordinary") throw new Error();
+    const foreign = { accounting: "add-to-panel" as const, formula: { ruleId: "foreign-em", label: "Foreign EM contribution", expression: { kind: "constant" as const, value: 42 }, inputs: [], sourceRefs: ["https://example.test/foreign-em"] } };
+    doc.hits[0]!.elementalMasteryAdjustment = foreign;
+    expect(prepareAlhaithamDamageDocument(doc).hits[0]).toHaveProperty("elementalMasteryAdjustment", foreign); expect(result(doc).status).toBe("blocked");
+  });
+  it("new showcase clears unknown C2 state; fresh equipment proves only zero included, never active layers", () => {
+    const doc = c2Fixture(2, false); doc.gameContext.alhaithamDamage!.c2OtherSnapshotStatsFinal = true;
+    resetAlhaithamPanelAccounting(doc, "imported-final");
+    expect(alhaithamContext(doc)?.c2SnapshotStacks).toBeUndefined(); expect(alhaithamContext(doc)?.c2SnapshotIncludedStacks).toBeUndefined();
+    expect(alhaithamContext(doc)?.c2TriggerMasteryFinal).toBeUndefined(); expect(alhaithamContext(doc)?.c2OtherSnapshotStatsFinal).toBeUndefined();
+    expect(impactStates(doc).every(state => state.c2HitMasteryFinal === undefined)).toBe(true);
+    resetAlhaithamPanelAccounting(doc, "fresh-equipment"); expect(alhaithamContext(doc)?.c2SnapshotIncludedStacks).toBe(0); expect(alhaithamContext(doc)?.c2SnapshotStacks).toBeUndefined();
+  });
+  it("C2 converted EM-sensitive snapshots reopen exactly, and reject changed frozen stack accounting", () => {
+    const doc = c2Fixture(); withMasteryConversion(doc);
+    const before = result(doc), converted = convertCalculatorToFinalPanel(doc) as AlhaithamCalculatorDocument;
+    expect(result(converted).status).toBe("calculated"); expect(result(converted).totals).toEqual(before.totals);
+    const reopened = JSON.parse(JSON.stringify(converted)) as AlhaithamCalculatorDocument; expect(result(reopened).totals).toEqual(before.totals);
+    reopened.gameContext.alhaithamDamage!.c2SnapshotStacks = 3; expect(result(reopened).status).toBe("blocked");
+    const changedIncluded = structuredClone(converted); changedIncluded.gameContext.alhaithamDamage!.c2SnapshotIncludedStacks = 2; expect(result(changedIncluded).status).toBe("blocked");
+    const lowerConstellation = structuredClone(converted); lowerConstellation.gameContext.constellation = 1; expect(result(lowerConstellation).status).toBe("blocked");
+  });
+  it("downgrading to C1 rejects both active and included C2 shares; confirmation flags add no mastery", () => {
+    for (const shares of [{ c2SnapshotStacks: 2, c2SnapshotIncludedStacks: 0 }, { c2SnapshotStacks: 0, c2SnapshotIncludedStacks: 2 }]) {
+      const doc = fixture(); doc.gameContext.constellation = 1; Object.assign(doc.gameContext.alhaithamDamage!, shares);
+      expect(result(doc).status).toBe("blocked");
+    }
+    const flagsOnly = fixture(); flagsOnly.gameContext.constellation = 1;
+    Object.assign(flagsOnly.gameContext.alhaithamDamage!, { c2TriggerMasteryFinal: true, c2OtherSnapshotStatsFinal: true });
+    impactStates(flagsOnly)[0]!.c2HitMasteryFinal = true;
+    expect(result(flagsOnly).totals).toEqual(result(fixture()).totals);
+  });
+  it("does not reject an EM-sensitive normal-only equipment bonus that cannot apply to projection skill", () => {
+    const doc = c2Fixture(1, false); withMasteryConversion(doc);
+    if (doc.build.mode !== "equipment-derived" || !doc.build.equipment) throw new Error();
+    doc.build.equipment.statModifiers = [];
+    doc.build.equipment.dynamicHitBonuses = [{ id: "normal-only-em-test", label: "只限普攻的精通增伤测试", attackTags: ["normal"],
+      expression: { kind: "multiply", terms: [{ kind: "variable", key: "em" }, { kind: "constant", value: .001 }] }, inputs: [], sourceRefs: ["https://example.test/normal-only-bonus"] }];
+    expect(alhaithamUnstableC2EquipmentRules(doc)).toEqual([]); expect(result(doc).status).toBe("calculated");
   });
 });

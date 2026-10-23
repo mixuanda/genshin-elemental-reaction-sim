@@ -1,5 +1,7 @@
 # /goal 艾尔海森 C0 单次镜投射接线
 
+本文件保留初次C0接线记录；C1–C3新增合同、导入精度门与当前限制见 [C1–C3接线增量](./alhaitham-c1-c3-integration.zh-CN.md)。
+
 基线 `9ce6a04`；本提交只新增角色模块。此前 `getCharacterDocuments('character:10000078', 10)` 有10个入口、0个投射入口，复现记录在 `/tmp/GIDPS-role-alhaitham-evidence-20261023/before-repro.json`。新增一次1/2/3镜投射，可单选其中实际一段；不包含触发它的普通攻击、重击、下落，亦不计算镜生成/消失/后续循环。
 
 公共接线由根线程完成：

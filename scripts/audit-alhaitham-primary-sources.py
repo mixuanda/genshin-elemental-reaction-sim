@@ -23,6 +23,16 @@ for revision in [manifest, manifest["crossVariant"]]:
         assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == row["gitBlob"], row["path"]
         files += 1
     raw = (source / "internal/characters/alhaitham/zz_alhaitham.dm.go").read_text()
+    cons = (source / "internal/characters/alhaitham/cons.go").read_text()
+    skill = (source / "internal/characters/alhaitham/skill.go").read_text()
+    character = (source / "internal/characters/alhaitham/alhaitham.go").read_text()
+    assert re.search(r"c2MaxStacks\s*=\s*4\b", cons)
+    assert re.search(r"m\[attributes.EM\]\s*=\s*50\b", cons)
+    assert re.search(r"NewBaseWithHitlag\([^\n]*480\)", cons)
+    assert re.search(r"ReduceActionCooldown\(action.ActionSkill,\s*72\)", cons)
+    assert re.search(r"AddStatus\(c1IcdKey,\s*60,", cons)
+    assert re.search(r"c.SkillCon\s*=\s*3\b", character)
+    assert skill.index("c.c2(generated)") < re.search(r"if c.mirrorCount > 3", skill).start()
     for row in manifest["coefficients"]:
         match = re.search(r"\b" + row["sourceTable"] + r" = \[\]float64\{(.*?)\n\s*\}", raw, re.S)
         assert match, row["sourceTable"]
@@ -35,4 +45,5 @@ assert files == 26 and positions == 180
 print(json.dumps({"status": "passed", "sourceFiles": files, "catalogProjectionVectorPositionsPerRevision": 90,
     "totalComparedPositions": positions, "maximumAbsoluteDifference": 0, "catalog": str(args.catalog),
     "catalogSha256": hashlib.sha256(catalog_data).hexdigest(), "revisions": [manifest["revision"], manifest["crossVariant"]["revision"]],
-    "gameVerification": "provisional", "coverage": "C0 one projection event or selected contacts; not mirror lifecycle, higher constellations, burst or rotation"}, ensure_ascii=False))
+    "gameVerification": "provisional", "constellationConstants": {"C1CooldownReductionFrames": 72, "C1IcdFrames": 60, "C2EmPerStack": 50, "C2DurationFrames": 480, "C2MaximumIndependentStacks": 4, "C3AlreadyInEffectiveSkillLevel": True},
+    "coverage": "C0–C3 one projection event or selected contacts; not mirror lifecycle, C4+, burst or rotation"}, ensure_ascii=False))
