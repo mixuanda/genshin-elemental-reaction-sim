@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { resolveEquipmentBuild, type EquipmentBuildInput } from "../../game-data/src/equipment-build";
 import { resolveCalculatorHitDamageBonus, resolveCalculatorStats } from "./calculator";
 import { deriveNicoleSkillInitialWeaponContext, prepareNicoleSkillInitialDocument,
-  type NicoleSkillInitialDocument } from "./nicole-skill-initial-formulas";
-import { refreshNicoleSkillInitialWeaponEffects } from "./nicole-skill-initial-weapon-refresh";
+  resetNicoleSkillInitialPanelAccounting, type NicoleSkillInitialDocument } from "./nicole-skill-initial-formulas";
+import { prepareNicoleSkillInitialEquipmentInput, refreshNicoleSkillInitialWeaponEffects } from "./nicole-skill-initial-weapon-refresh";
 import { executeOrdinaryDamage } from "./calculator-formula";
 import { evaluateFormulaExpression } from "./calculation-trace";
 
@@ -148,5 +148,78 @@ describe("Nicole first-shield signature refresh", () => {
     const other = fixture(); if (other.build.mode !== "equipment-derived") throw new Error("equipment");
     other.build.equipment!.weaponEffectsEnabled = false;
     expect(refreshNicoleSkillInitialWeaponEffects(other).status).toBe("not-applicable");
+  });
+});
+
+describe("Nicole signature input before normal equipment resolution", () => {
+  it("resolves missing signature controls from the new legal equipment, excluding the old panel and observed sample", () => {
+    const doc = fixture(), original = structuredClone(doc);
+    Object.assign(doc.gameContext.nicoleSkillInitial!, { skillGrantNonExtraAttack: 9999, grantAttackSource: "observed",
+      includedSkillAttack: 600, c2AttackIncludedInPanel: true, a1AttackIncludedInPanel: true });
+    const input = equipmentInput(); delete input.effectContext!.weaponEffectActive;
+    const before = structuredClone(input), beforeDoc = structuredClone(doc);
+    expect(() => resolveEquipmentBuild(input)).toThrow(/weaponEffectActive/); // actual former apply blocker
+    const prepared = prepareNicoleSkillInitialEquipmentInput(doc, input);
+    expect(prepared).toMatchObject({ status: "prepared", blocked: false });
+    expect(doc).toEqual(beforeDoc); expect(input).toEqual(before);
+    const fresh = resolveEquipmentBuild(prepared.input);
+    const sample = resolveCalculatorStats(fresh.build).atk;
+    expect(prepared.input.effectContext).toMatchObject({ weaponEffectActive: true, offField: false,
+      catalystSnapshotAtk: sample, catalystHexerei: true, hpFraction: .75 });
+    expect(sample).not.toBe(2000); expect(sample).not.toBe(9999);
+    const onlyRelatedContextChanged = structuredClone(input);
+    onlyRelatedContextChanged.effectContext = prepared.input.effectContext;
+    expect(prepared.input).toEqual(onlyRelatedContextChanged);
+    const applied = { ...original, build: fresh.build };
+    resetNicoleSkillInitialPanelAccounting(applied, "fresh-equipment");
+    const out = prepareNicoleSkillInitialDocument(applied) as NicoleSkillInitialDocument;
+    expect(out.dependencies.some(row => row.status === "missing" && row.id.startsWith("nicole-skill-initial:"))).toBe(false);
+    expect(out.gameContext.nicoleSkillInitial).toMatchObject({ skillGrantNonExtraAttack: sample,
+      grantAttackSource: "equipment-current", includedSkillAttack: 0, c2AttackIncludedInPanel: false, a1AttackIncludedInPanel: false });
+    expect(bonus(out)).toBeCloseTo(Math.min(sample * .0001, .26), 12);
+  });
+  it("recomputes a changed input and does not reuse an old zero, active window or snapshot", () => {
+    const doc = fixture(); Object.assign(doc.gameContext.nicoleSkillInitial!, { skillGrantNonExtraAttack: 0, grantAttackSource: "observed" });
+    const first = prepareNicoleSkillInitialEquipmentInput(doc, equipmentInput());
+    expect(first.status).toBe("prepared"); expect(first.input.effectContext!.catalystSnapshotAtk).toBeGreaterThan(0);
+    const input = equipmentInput(); input.weaponLevel = 80; input.weaponAscension = 5;
+    Object.assign(input.effectContext!, { weaponEffectActive: true, offField: true, catalystSnapshotAtk: 9999 });
+    const next = prepareNicoleSkillInitialEquipmentInput(doc, input);
+    expect(next.status).toBe("prepared");
+    expect(next.input.effectContext!.catalystSnapshotAtk).toBeLessThan(first.input.effectContext!.catalystSnapshotAtk!);
+    expect(next.input.effectContext).toMatchObject({ offField: false, weaponEffectActive: true });
+    const hit = doc.hits[0]!; if (hit.kind !== "ordinary") throw new Error("ordinary");
+    hit.finalSnapshot = { origin: "equipment-conversion", stats: resolveCalculatorStats(doc.build), characterLevel: 90,
+      ascension: 6, damageBonus: .123, additiveBaseDamage: 0, reactionBonus: 0, source: "old original", sourceRefs: ["fixture:original"] };
+    doc.gameContext.nicoleSkillInitial!.finalizedHitState = "fixture:immutable-old-identity";
+    const old = JSON.stringify(doc), newInput = prepareNicoleSkillInitialEquipmentInput(doc, input);
+    expect(newInput.status).toBe("prepared"); expect(JSON.stringify(doc)).toBe(old);
+    expect(newInput.input.effectContext!.catalystSnapshotAtk).toBe(next.input.effectContext!.catalystSnapshotAtk);
+  });
+  it("rejects unknown/false qualifications and ambiguous old attack formulas rather than normalizing them to zero", () => {
+    for (const state of [undefined, false]) {
+      const doc = fixture(); doc.gameContext.nicoleSkillInitial!.noDisplacementBeforeInitial = state;
+      const input = equipmentInput(); delete input.effectContext!.weaponEffectActive;
+      const out = prepareNicoleSkillInitialEquipmentInput(doc, input);
+      expect(out).toMatchObject({ status: "blocked", blocked: true }); expect(out.input).toBe(input);
+      expect(out.reason).toMatch(/没有额外位移/);
+      expect(() => resolveEquipmentBuild(out.input)).toThrow(/weaponEffectActive/);
+    }
+    const ambiguous = fixture(), hit = ambiguous.hits[0]!;
+    if (hit.kind !== "ordinary") throw new Error("ordinary");
+    hit.attackAdjustment = { accounting: "add-to-panel", formula: { ruleId: "fixture:external-atk",
+      label: "unproven external attack timing", expression: { kind: "constant", value: 100 }, inputs: [], sourceRefs: ["fixture:external"] } };
+    const input = equipmentInput(), before = structuredClone(ambiguous);
+    const blocked = prepareNicoleSkillInitialEquipmentInput(ambiguous, input);
+    expect(blocked).toMatchObject({ status: "blocked", blocked: true }); expect(blocked.input).toBe(input);
+    expect(ambiguous).toEqual(before);
+  });
+  it("retains ordinary source/roll validation and keeps unrelated actions outside this hook", () => {
+    const input = equipmentInput(); input.artifacts![0]!.substats[0]!.stat = "hp";
+    const out = prepareNicoleSkillInitialEquipmentInput(fixture(), input);
+    expect(out).toMatchObject({ status: "blocked", blocked: true }); expect(out.input).toBe(input);
+    expect(out.reason).toMatch(/不能同名/);
+    const other = fixture(); other.gameContext.skillId = "nicole-burst";
+    expect(prepareNicoleSkillInitialEquipmentInput(other, input)).toMatchObject({ status: "not-applicable", blocked: false, input });
   });
 });

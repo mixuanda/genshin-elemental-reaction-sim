@@ -1,7 +1,8 @@
 import type { CalculatorDocument } from "./calculator-model";
+import { resolveEquipmentBuild, type EquipmentBuildInput, type EquipmentDataset } from "../../game-data/src/equipment-build";
 import { resolveWeaponCatalystEffects } from "../../game-data/src/weapon-catalyst-effects";
 import { deriveNicoleSkillInitialWeaponContext, isNicoleSkillInitialAction, isNicoleSkillInitialHit,
-  nicoleSkillInitialContext } from "./nicole-skill-initial-formulas";
+  nicoleSkillInitialContext, resetNicoleSkillInitialPanelAccounting } from "./nicole-skill-initial-formulas";
 
 export const NICOLE_SKILL_INITIAL_WEAPON_REFRESH_DEPENDENCY = "nicole-skill-initial:weapon-refresh";
 export type NicoleSkillInitialWeaponRefreshResult = {
@@ -30,7 +31,8 @@ const signatureRule = (row: { id: string }) => row.id.startsWith("weapon:14523:"
  * E's first shield sample. No equipment build or editable panel is rebuilt.
  * Old clauses must match the existing resolver under the OLD context first.
  * A blocked result intentionally preserves the original evidence verbatim. */
-export function refreshNicoleSkillInitialWeaponEffects(document: CalculatorDocument): NicoleSkillInitialWeaponRefreshResult {
+export function refreshNicoleSkillInitialWeaponEffects(document: CalculatorDocument,
+  dataset?: EquipmentDataset): NicoleSkillInitialWeaponRefreshResult {
   const result = (status: NicoleSkillInitialWeaponRefreshResult["status"], reason?: string,
     output = document): NicoleSkillInitialWeaponRefreshResult => ({ document: output, status,
     blocked: status === "blocked", refreshed: status === "refreshed", ...(reason === undefined ? {} : { reason }) });
@@ -56,7 +58,7 @@ export function refreshNicoleSkillInitialWeaponEffects(document: CalculatorDocum
     if (!bound.derived) return result("blocked", bound.reason ?? "尚未证明本次尘光首次取样。");
     const resolve = (effectContext: typeof bound.effectContext) => resolveWeaponCatalystEffects({
       weaponId: metadata.weaponId, refinement: metadata.refinement, characterId: metadata.characterId,
-      enabled: true, context: effectContext });
+      enabled: true, context: effectContext, ...(dataset ? { dataset } : {}) });
     const before = resolve(metadata.effectContext ?? {}), after = resolve(bound.effectContext);
     if (before.missingConditions.length || after.missingConditions.length)
       return result("blocked", [...before.missingConditions, ...after.missingConditions].join("；"));
@@ -100,5 +102,50 @@ export function refreshNicoleSkillInitialWeaponEffects(document: CalculatorDocum
       effectContext: bound.effectContext, dynamicHitBonuses } } });
   } catch (error) {
     return result("blocked", error instanceof Error ? error.message : "尘光来源或取样校验失败。");
+  }
+}
+
+export type NicoleSkillInitialEquipmentInputResult = {
+  input: EquipmentBuildInput;
+  status: "not-applicable" | "prepared" | "blocked";
+  blocked: boolean;
+  reason?: string;
+};
+
+/** Called before NORMAL materialization of a newly selected equipment input.
+ * Its probe uses that exact input with the signature window disabled, not the
+ * old document's panel delta or observed attack sample. The caller must reject
+ * blocked, then resolve returned input normally and reset fresh-equipment
+ * character accounting. This does not refresh/revalidate an old document. */
+export function prepareNicoleSkillInitialEquipmentInput(document: CalculatorDocument, input: EquipmentBuildInput,
+  dataset?: EquipmentDataset): NicoleSkillInitialEquipmentInputResult {
+  const result = (status: NicoleSkillInitialEquipmentInputResult["status"], reason?: string,
+    output = input): NicoleSkillInitialEquipmentInputResult => ({ input: output, status, blocked: status === "blocked",
+    ...(reason === undefined ? {} : { reason }) });
+  if (!isNicoleSkillInitialAction(document) || input.characterId !== "character:10000131"
+    || input.weaponId !== "weapon:14523" || input.refinement !== 1 || input.weaponEffectsEnabled !== true)
+    return result("not-applicable");
+  const context = nicoleSkillInitialContext(document);
+  if (document.scope !== "single-hit" || document.hits.filter(hit => isNicoleSkillInitialHit(document, hit)).length !== 1)
+    return result("blocked", "尘光自动配装只支持本次妮可E初击，不借给其他命中或完整日程。");
+  if (context?.noOtherEventsBeforeInitial !== true || context.noDisplacementBeforeInitial !== true)
+    return result("blocked", "请先确认本次E至初击之间没有其他事件、没有额外位移，才能从新配装自动取得尘光首次攻击样本。");
+  try {
+    // This is the ordinary construction of a NEW equipment panel. The proved
+    // E8/E9 path is on field; resolving all selected sets under it avoids stale
+    // artifact snapshots when the input previously said offField=true.
+    const preparation = resolveEquipmentBuild({ ...input, effectContext: { ...input.effectContext,
+      weaponEffectActive: false, offField: false } }, dataset);
+    const probe = structuredClone(document);
+    probe.build = preparation.build;
+    probe.characterLevel = preparation.characterLevel;
+    if (probe.gameContext) probe.gameContext.ascension = input.ascension;
+    resetNicoleSkillInitialPanelAccounting(probe, "fresh-equipment");
+    for (const hit of probe.hits) if (hit.kind === "ordinary" && isNicoleSkillInitialHit(probe, hit)) delete hit.finalSnapshot;
+    const bound = deriveNicoleSkillInitialWeaponContext(probe, input.effectContext ?? {});
+    if (!bound.derived) return result("blocked", bound.reason ?? "新装备尚不能证明8帧非转换攻击样本。");
+    return result("prepared", undefined, { ...input, effectContext: bound.effectContext });
+  } catch (error) {
+    return result("blocked", error instanceof Error ? error.message : "新装备来源或词条校验失败。");
   }
 }
