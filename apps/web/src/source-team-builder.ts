@@ -1,3 +1,4 @@
+import { resolveSourceNoelleBurstParameters } from "../../../packages/sim-core/src/source-noelle-burst-policy";
 import "./source-team-builder.css";
 import { TimelinePlayback, PLAYBACK_SPEEDS } from "./timeline-playback";
 import { gameDataCatalog } from "../../../packages/game-data/src/catalog";
@@ -251,7 +252,8 @@ export function compileSourceTeamDraft(draft: SourceTeamDraft, inventory: Source
     const sourceCharacter = inventory.characters.find(character => character.key === actor.characterKey)!;
     const capability = sourceActionCapability(sourceCharacter.actionCapabilities, action.kind);
     if (capability?.status !== "implemented") throw new Error(`${sourceCharacter.name} 的${sourceActionLabels[action.kind]}在所选来源中${capability?.status === "unsupported" ? "尚未实现" : "尚无明确的动作方法依据"}；请更换动作或来源版本。`);
-    const params = Object.entries(action.params ?? {}).map(([key, value]) => {
+    const sourceParameters = resolveSourceNoelleBurstParameters({ sourceRevision: inventory.revision, characterKey: actor.characterKey, constellation: actor.constellation, actionKind: action.kind, ...(action.params === undefined ? {} : { parameters: action.params }) }).parameters;
+    const params = Object.entries(sourceParameters).map(([key, value]) => {
       if (!ID.test(key)) throw new Error(`动作参数键 ${key} 不合法。`);
       return `${key}=${integer(value, `动作参数 ${key}`, -1000000, 1000000)}`;
     });
@@ -535,8 +537,10 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     const choices = actionButtons.filter(([kind]) => kind === action.kind || actionAvailable(member, kind));
     const knownKeys = capability?.parameters.map(parameter => parameter.key) ?? [];
     const configuredParams = Object.keys(action.params ?? {}).length;
-    const paramsEditor = `<details class="source-team-builder__parameters" data-action-params-details><summary>高级：本步参数与状态 · ${configuredParams ? `已设置 ${configuredParams} 项` : "默认输入"}</summary>${runtimeActionSummary(member, action.kind)}<p>普通 E/Q/A 输入通常不需要填写。只接受当前角色来源明确识别的参数键；不清楚含义时留空。</p><label>来源参数键=整数<input data-action-params="${index}" value="${escapeHtml(Object.entries(action.params ?? {}).map(([key, value]) => `${key}=${value}`).join(","))}" placeholder="留空使用来源默认输入" aria-describedby="source-action-hint-${index}" ${knownKeys.length ? "" : "disabled"}></label><small id="source-action-hint-${index}" class="source-team-builder__action-hint">${knownKeys.length ? `当前动作可用键：${knownKeys.map(escapeHtml).join("、")}；详见角色动作说明中的来源链接。` : "当前动作没有来源登记的参数键；请保持默认输入。"}</small></details>`;
-    return `<li class="source-team-builder__action"><span class="source-team-builder__order">${index + 1}</span><label>角色<select data-action-actor="${index}" ${action.kind === "wait" ? "disabled" : ""}>${draft.members.map(member => option(member.id, inventory?.characters.find(item => item.key === member.characterKey)?.name ?? member.characterKey, action.actorId)).join("")}</select></label><label>动作<select data-action-kind="${index}">${choices.map(([kind, label]) => `<option value="${kind}" ${kind === action.kind ? "selected" : ""} ${actionAvailable(member, kind) ? "" : "disabled"}>${label}${actionAvailable(member, kind) ? "" : " · 不可排入"}</option>`).join("")}</select></label>${numberInput("action-repeat", String(index), action.repeat ?? 1, "输入次数", 1, 100)}${action.kind === "wait" ? numberInput("action-frames", String(index), action.frames ?? 60, "等待帧", 0, 216000) : paramsEditor}<div class="source-team-builder__row-buttons"><button type="button" data-action-up="${index}" ${index === 0 ? "disabled" : ""} aria-label="上移第 ${index + 1} 步">↑</button><button type="button" data-action-down="${index}" ${index === draft.actions.length - 1 ? "disabled" : ""} aria-label="下移第 ${index + 1} 步">↓</button><button type="button" data-action-copy="${index}">复制</button><button type="button" data-action-delete="${index}">删除</button></div></li>`;
+    const noelleC6Burst = member?.characterKey === "noelle" && member.constellation === 6 && action.kind === "burst";
+    const noelleExtension = noelleC6Burst ? `<label>本次Q额外延长（秒）<input type="number" data-action-noelle-extension="${index}" min="0" max="10" step="1" value="${escapeHtml(action.params?.extend ?? 0)}"></label><small>未自动计入击杀或后台延长；默认0，非零为本步明确假设。</small>` : "";
+    const paramsEditor = `<details class="source-team-builder__parameters" data-action-params-details><summary>高级：本步参数与状态 · ${configuredParams ? `已设置 ${configuredParams} 项` : "默认输入"}</summary>${runtimeActionSummary(member, action.kind)}<p>${noelleC6Burst ? "额外延长使用本步填写值；其余参数可留空。" : "普通 E/Q/A 输入通常不需要填写。只接受当前角色来源明确识别的参数键；不清楚含义时留空。"}</p><label>来源参数键=整数<input data-action-params="${index}" value="${escapeHtml(Object.entries(action.params ?? {}).map(([key, value]) => `${key}=${value}`).join(","))}" placeholder="${noelleC6Burst ? "额外延长默认0；其余参数可留空" : "留空使用来源默认输入"}" aria-describedby="source-action-hint-${index}" ${knownKeys.length ? "" : "disabled"}></label><small id="source-action-hint-${index}" class="source-team-builder__action-hint">${knownKeys.length ? `当前动作可用键：${knownKeys.map(escapeHtml).join("、")}；详见角色动作说明中的来源链接。` : "当前动作没有来源登记的参数键；请保持默认输入。"}</small></details>`;
+    return `<li class="source-team-builder__action"><span class="source-team-builder__order">${index + 1}</span><label>角色<select data-action-actor="${index}" ${action.kind === "wait" ? "disabled" : ""}>${draft.members.map(member => option(member.id, inventory?.characters.find(item => item.key === member.characterKey)?.name ?? member.characterKey, action.actorId)).join("")}</select></label><label>动作<select data-action-kind="${index}">${choices.map(([kind, label]) => `<option value="${kind}" ${kind === action.kind ? "selected" : ""} ${actionAvailable(member, kind) ? "" : "disabled"}>${label}${actionAvailable(member, kind) ? "" : " · 不可排入"}</option>`).join("")}</select></label>${numberInput("action-repeat", String(index), action.repeat ?? 1, "输入次数", 1, 100)}${action.kind === "wait" ? numberInput("action-frames", String(index), action.frames ?? 60, "等待帧", 0, 216000) : noelleExtension + paramsEditor}<div class="source-team-builder__row-buttons"><button type="button" data-action-up="${index}" ${index === 0 ? "disabled" : ""} aria-label="上移第 ${index + 1} 步">↑</button><button type="button" data-action-down="${index}" ${index === draft.actions.length - 1 ? "disabled" : ""} aria-label="下移第 ${index + 1} 步">↓</button><button type="button" data-action-copy="${index}">复制</button><button type="button" data-action-delete="${index}">删除</button></div></li>`;
   };
   const setRuntimeState = (logs: unknown, statusInstances: unknown, endFrame?: number): void => {
     const rows = Array.isArray(logs) ? logs.filter((row): row is Record<string, unknown> => !!row && typeof row === "object" && !Array.isArray(row)) : [];
@@ -1011,6 +1015,11 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       else if (target.dataset.actionKind !== undefined) { const action = draft.actions[Number(target.dataset.actionKind)]!; action.kind = target.value as SourceActionKind; if (action.kind === "wait") action.frames ??= 60; else delete action.frames; }
       else if (target.dataset.actionRepeatField !== undefined) draft.actions[Number(target.dataset.actionRepeatField)]!.repeat = Number(target.value);
       else if (target.dataset.actionFramesField !== undefined) draft.actions[Number(target.dataset.actionFramesField)]!.frames = Number(target.value);
+      else if (target.dataset.actionNoelleExtension !== undefined) {
+        const action = draft.actions[Number(target.dataset.actionNoelleExtension)]!;
+        const seconds = integer(target.value.trim() ? Number(target.value) : NaN, "本次Q额外延长", 0, 10);
+        action.params = { ...action.params, extend: seconds };
+      }
       else if (target.dataset.actionParams !== undefined) draft.actions[Number(target.dataset.actionParams)]!.params = parseParams(target.value);
       else return;
       changeFromForm();
