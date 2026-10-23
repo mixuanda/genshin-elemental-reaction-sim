@@ -1,0 +1,155 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/GIDPS-cloud/player-import-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "apps/web/e2e/lunar-special-capture.spec.ts",
+      "--config",
+      "/tmp/GIDPS-core-acceptance-20261023/playwright.config.mjs",
+      "--grep",
+      "special result capture roundtrips",
+      "--workers",
+      "1",
+      "--reporter=json"
+    ],
+    "configFile": "/tmp/GIDPS-core-acceptance-20261023/playwright.config.mjs",
+    "rootDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/GIDPS-core-acceptance-20261023/nonzero-special-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "lunar-special-capture.spec.ts",
+      "file": "lunar-special-capture.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "special result capture roundtrips through the normal page and rejects a changed complete result",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 17658,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-lunar-status]')\nExpected substring: \u001b[32m\"未通过完整重放\"\u001b[39m\nReceived string:    \u001b[31m\"正在专用工作线程重执行保存的配置，并核对完整特殊结果…\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-lunar-status]')\u001b[22m\n\u001b[2m    14 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-lunar-status=\"\">正在专用工作线程重执行保存的配置，并核对完整特殊结果…</p>\u001b[22m\n\u001b[2m       - unexpected value \"正在专用工作线程重执行保存的配置，并核对完整特殊结果…\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-lunar-status]')\nExpected substring: \u001b[32m\"未通过完整重放\"\u001b[39m\nReceived string:    \u001b[31m\"正在专用工作线程重执行保存的配置，并核对完整特殊结果…\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-lunar-status]')\u001b[22m\n\u001b[2m    14 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-lunar-status=\"\">正在专用工作线程重执行保存的配置，并核对完整特殊结果…</p>\u001b[22m\n\u001b[2m       - unexpected value \"正在专用工作线程重执行保存的配置，并核对完整特殊结果…\"\u001b[22m\n\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts:75:53",
+                    "location": {
+                      "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts",
+                      "column": 53,
+                      "line": 75
+                    },
+                    "snippet": "  73 |   await page.locator('.tab[data-tab=\"special\"]').click();\n  74 |   await page.locator(\"[data-lunar-import]\").setInputFiles({ name: \"changed-special-result.json\", mimeType: \"application/json\", buffer: Buffer.from(JSON.stringify(changed)) });\n> 75 |   await expect(page.locator(\"[data-lunar-status]\")).toContainText(\"未通过完整重放\");\n     |                                                     ^\n  76 |   await expect(page.locator('[data-testid=\"lunar-total-damage\"]')).toHaveText(expectedTotal!);\n  77 |   expect(await downloadCaptureJson(page), \"A rejected import must retain the last valid capture, including its original annotations.\").toBe(savedJson);\n  78 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts",
+                        "column": 53,
+                        "line": 75
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-lunar-status]')\nExpected substring: \u001b[32m\"未通过完整重放\"\u001b[39m\nReceived string:    \u001b[31m\"正在专用工作线程重执行保存的配置，并核对完整特殊结果…\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-lunar-status]')\u001b[22m\n\u001b[2m    14 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-lunar-status=\"\">正在专用工作线程重执行保存的配置，并核对完整特殊结果…</p>\u001b[22m\n\u001b[2m       - unexpected value \"正在专用工作线程重执行保存的配置，并核对完整特殊结果…\"\u001b[22m\n\n\n  73 |   await page.locator('.tab[data-tab=\"special\"]').click();\n  74 |   await page.locator(\"[data-lunar-import]\").setInputFiles({ name: \"changed-special-result.json\", mimeType: \"application/json\", buffer: Buffer.from(JSON.stringify(changed)) });\n> 75 |   await expect(page.locator(\"[data-lunar-status]\")).toContainText(\"未通过完整重放\");\n     |                                                     ^\n  76 |   await expect(page.locator('[data-testid=\"lunar-total-damage\"]')).toHaveText(expectedTotal!);\n  77 |   expect(await downloadCaptureJson(page), \"A rejected import must retain the last valid capture, including its original annotations.\").toBe(savedJson);\n  78 |\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts:75:53"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:39:13.108Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/GIDPS-core-acceptance-20261023/nonzero-special-artifacts/lunar-special-capture-spec-9fdaf-s-a-changed-complete-result/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/GIDPS-core-acceptance-20261023/nonzero-special-artifacts/lunar-special-capture-spec-9fdaf-s-a-changed-complete-result/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts",
+                    "column": 53,
+                    "line": 75
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a046d2d86248db260ed1-32ceab2f697fcf7cb468",
+          "file": "lunar-special-capture.spec.ts",
+          "line": 26,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T19:39:12.652Z",
+    "duration": 18978.677000000003,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

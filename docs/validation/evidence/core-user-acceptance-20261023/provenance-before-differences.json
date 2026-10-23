@@ -1,0 +1,80 @@
+[
+  {
+    "path": "/ui/explicitConfigurationChanges",
+    "before": [
+      "本次专属运行明确选择 legal-frame-v1 整数帧调度；原全局运行选项 legal-frame-v1 未修改。"
+    ],
+    "after": []
+  },
+  {
+    "path": "/ui/identityMappings",
+    "before": [
+      {
+        "actorElement": "anemo",
+        "actorId": "wanderer",
+        "actorName": "流浪者",
+        "characterKey": "wanderer",
+        "evidence": "user-conditioned",
+        "reason": "用户明确选择身份 wanderer；仅作为本次转换资格条件，未修改配置面板或天赋。"
+      },
+      {
+        "actorElement": "electro",
+        "actorId": "ineffa",
+        "actorName": "伊涅芙",
+        "characterKey": "ineffa",
+        "evidence": "user-conditioned",
+        "reason": "用户明确选择身份 ineffa；仅作为本次转换资格条件，未修改配置面板或天赋。"
+      },
+      {
+        "actorElement": "pyro",
+        "actorId": "nicole",
+        "actorName": "妮可",
+        "characterKey": "nicole",
+        "evidence": "user-conditioned",
+        "reason": "用户明确选择身份 nicole；仅作为本次转换资格条件，未修改配置面板或天赋。"
+      },
+      {
+        "actorElement": "pyro",
+        "actorId": "durin",
+        "actorName": "杜林",
+        "characterKey": "durin",
+        "evidence": "user-conditioned",
+        "reason": "用户明确选择身份 durin；仅作为本次转换资格条件，未修改配置面板或天赋。"
+      }
+    ],
+    "after": [
+      {
+        "actorElement": "anemo",
+        "actorId": "wanderer",
+        "actorName": "流浪者",
+        "characterKey": "wanderer",
+        "evidence": "catalog-name-and-element",
+        "reason": "配置名称与元素对应目录 character:10000075；此身份仍是本次配置的条件。"
+      },
+      {
+        "actorElement": "electro",
+        "actorId": "ineffa",
+        "actorName": "伊涅芙",
+        "characterKey": "ineffa",
+        "evidence": "catalog-name-and-element",
+        "reason": "配置名称与元素对应目录 character:10000116；此身份仍是本次配置的条件。"
+      },
+      {
+        "actorElement": "pyro",
+        "actorId": "nicole",
+        "actorName": "妮可",
+        "characterKey": "nicole",
+        "evidence": "user-conditioned",
+        "reason": "完整捕获保存的本次角色身份键：nicole；仅恢复原运行输入。"
+      },
+      {
+        "actorElement": "pyro",
+        "actorId": "durin",
+        "actorName": "杜林",
+        "characterKey": "durin",
+        "evidence": "catalog-name-and-element",
+        "reason": "配置名称与元素对应目录 character:10000123；此身份仍是本次配置的条件。"
+      }
+    ]
+  }
+]
