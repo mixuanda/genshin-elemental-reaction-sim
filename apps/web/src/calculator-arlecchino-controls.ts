@@ -13,7 +13,8 @@ export function renderArlecchinoControls(document: CalculatorDocument): string {
   const showBondAccounting = !canInferArlecchinoBondBaseZero(document) || (context.includedBondBase ?? 0) !== 0;
   return `<fieldset data-source-cast-controls="arlecchino"><legend>阿蕾奇诺 · 红死之宴的这一击</legend><div class="calculator-fields">${number("bondOfLifePercent", "本击命中扣契前的生命之契（占最大生命%）", context.bondOfLifePercent, 200)}</div>
     <details${context.passivePyroBonusIncluded === undefined || showBondAccounting && context.includedBondBase === undefined ? " open" : ""}><summary>输入伤害已含份额</summary><div class="calculator-fields">${passiveState(context.passivePyroBonusIncluded)}${showBondAccounting ? number("includedBondBase", "附加基础伤害已含的红死之宴数值（未含填0）", context.includedBondBase) : ""}</div></details>
-    <p class="calculator-hint">至少30%生命之契才是红死之宴火普攻；145%请填145。使用独立普攻天赋等级。第四段两击须分别填写各自扣契前的真实比例；本页只算这一击，不推算耗契或整轮。公开展柜没有生命之契状态，导入后仍须明确填写。</p></fieldset>`;
+    <p class="calculator-hint">至少30%生命之契才是红死之宴火普攻；145%请填145。使用独立有效普攻等级，C3加级已含，不再加一次。第四段两击须分别填写各自扣契前的真实比例；本页只算这一击，不推算耗契或整轮。公开展柜没有生命之契状态，导入后仍须明确填写。</p>
+    <p class="calculator-hint">支持C0–C5；C1在附伤倍率上加100个百分点。不含C2回收爆发、C4回能及Q；C6条件双暴尚未开放。</p></fieldset>`;
 }
 
 /** Existing data-source-cast-* routing suffices; this optional text adapter is

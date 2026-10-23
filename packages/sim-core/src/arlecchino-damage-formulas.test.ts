@@ -4,21 +4,21 @@ import { arlecchinoPrimaryMappings, arlecchinoPrimarySourceEvidence } from "../.
 import { applyArlecchinoDamageContext, initializeArlecchinoDamageDocument } from "../../../apps/web/src/arlecchino-calculation-context";
 import { arlecchinoRequirementAdapter, renderArlecchinoControls, updateArlecchinoDamageControl } from "../../../apps/web/src/calculator-arlecchino-controls";
 import { calculateDocument, convertCalculatorToFinalPanel } from "./calculator";
-import { calculatorFormulaSchema, type CalculatorDocument, type CalculatorFormula } from "./calculator-model";
+import { calculatorFormulaSchema, parseCalculatorDocument, serializeCalculatorDocument, type CalculatorDocument, type CalculatorFormula } from "./calculator-model";
 import { evaluateFormulaExpression, expr } from "./calculation-trace";
 import { arlecchinoDamageContextSchema } from "./arlecchino-damage-context";
 import {
-  ARLECCHINO_DAMAGE_SOURCE_REFS, arlecchinoContext, canInferArlecchinoBondBaseZero,
+  ARLECCHINO_DAMAGE_SOURCE_REFS, ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION, arlecchinoContext, canInferArlecchinoBondBaseZero,
   createArlecchinoBondBaseFormula, createArlecchinoPassiveDamageBonusFormula, finalizeArlecchinoPanelAccounting,
   isArlecchinoDamageAction, prepareArlecchinoDamageDocument, resetArlecchinoPanelAccounting, type ArlecchinoCalculatorDocument,
 } from "./arlecchino-damage-formulas";
 
-function fixture(suffix = "1", talent = 10): ArlecchinoCalculatorDocument {
+function fixture(suffix = "1", talent = 10, constellation = 0): ArlecchinoCalculatorDocument {
   const mapping = arlecchinoPrimaryMappings.find(row => row.skillId === `arlecchino-red-death-normal-${suffix}`)!;
   return {
     schemaVersion: "1.0.0", ruleVersion: "ordinary-trace-v1", id: "arlecchino-explicit-unit-panel", label: "Explicit source fixture; not a real player build",
     gameContext: {characterId: "character:10000096", characterName: "阿蕾奇诺", abilityId: "talent:arlecchino:combat1", skillId: mapping.skillId,
-      skillName: mapping.skillLabel!, effectiveTalentLevel: talent, constellation: 0, ascension: 6, scopeCoverage: "single-hit", attributionPolicy: "One actual selected normal hit",
+      skillName: mapping.skillLabel!, effectiveTalentLevel: talent, constellation, ascension: 6, scopeCoverage: "single-hit", attributionPolicy: "One actual selected normal hit",
       arlecchinoDamage: {bondOfLifePercent: 150, passivePyroBonusIncluded: false}},
     scope: "single-hit", characterLevel: 90,
     build: {mode: "manual-final", ascension: 6, source: "Explicit unit final panel", stats: {atk: 2000, hp: 20000, def: 800, em: 0, critRate: .5, critDamage: 1}},
@@ -44,8 +44,8 @@ const evaluate = (formula: CalculatorFormula, atk = 2000) => {
 };
 const foreignFormula = (ruleId = "external-unmerged-formula"): CalculatorFormula => ({ruleId, label: "External formula", expression: expr.value(123456), inputs: [], sourceRefs: ARLECCHINO_DAMAGE_SOURCE_REFS});
 
-function equipmentFixture(): ArlecchinoCalculatorDocument {
-  const document = fixture();
+function equipmentFixture(constellation = 0, talent = 10): ArlecchinoCalculatorDocument {
+  const document = fixture("1", talent, constellation);
   document.build = {mode: "equipment-derived", characterBaseAtk: 1000, weaponBaseAtk: 1000, atkPercent: 0, flatAtk: 0,
     baseHp: 20000, hpPercent: 0, flatHp: 0, baseDef: 800, defPercent: 0, flatDef: 0, em: 0, critRate: .5, critDamage: 1,
     equipment: {characterId: "character:10000096", weaponId: "unit-polearm", level: 90, ascension: 6, weaponLevel: 90, weaponAscension: 6,
@@ -58,8 +58,8 @@ function equipmentFixture(): ArlecchinoCalculatorDocument {
   resetArlecchinoPanelAccounting(document, "fresh-equipment");
   return document;
 }
-function convertedFixture(): ArlecchinoCalculatorDocument {
-  return convertCalculatorToFinalPanel(equipmentFixture()) as ArlecchinoCalculatorDocument;
+function convertedFixture(constellation = 0, talent = 10): ArlecchinoCalculatorDocument {
+  return convertCalculatorToFinalPanel(equipmentFixture(constellation, talent)) as ArlecchinoCalculatorDocument;
 }
 
 describe("Arlecchino fixed C0 selected normal source vectors", () => {
@@ -206,10 +206,10 @@ describe("Arlecchino actual pre-consumption bond state and accounting", () => {
 });
 
 describe("Arlecchino fixed-source contract and legal external adjustments", () => {
-  it.each([1, 2, 3, 4, 5, 6])("rejects C%i without replacing its changes by C0", constellation => {
+  it.each([6])("rejects C%i without replacing its changes by a supported lower constellation", constellation => {
     const document = fixture(); document.gameContext.constellation = constellation;
     expect(calculate(document).status).toBe("blocked");
-    expect(reasons(document)).toContain("只审阅C0");
+    expect(reasons(document)).toContain("只审阅C0–C5");
   });
 
   it.each(["talent:arlecchino:combat2", "talent:arlecchino:combat3"])("rejects borrowed ability identity %s", ability => {
@@ -315,6 +315,112 @@ describe("Arlecchino equipment conversion and historical state identity", () => 
     resetArlecchinoPanelAccounting(converted, "imported-final");
     expect(arlecchinoContext(converted)!.finalizedHitStates).toBeUndefined();
     expect(arlecchinoContext(converted)!.bondOfLifePercent).toBeUndefined();
+    expect(calculate(converted).status).toBe("blocked");
+  });
+});
+
+describe("Arlecchino C1–C5 actual selected normals", () => {
+  it("publishes C0–C5 support with the same seven skill IDs and unchanged input schema", () => {
+    expect(ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION).toBe(5);
+    expect(arlecchinoPrimarySourceEvidence.contract.supportedConstellations).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(Object.keys(arlecchinoDamageContextSchema.shape)).toEqual(["bondOfLifePercent", "passivePyroBonusIncluded", "includedBondBase", "finalizedHitStates"]);
+    expect(arlecchinoPrimaryMappings.every(row => row.skillLabel?.includes("C0–C5") && !row.completeAction)).toBe(true);
+    expect(arlecchinoPrimarySourceEvidence.files.some(row => row.path === "pkg/core/player/character/character.go")).toBe(true);
+  });
+
+  it.each([
+    [1, 10, .938961, 2.38, 10140, 7571.29086, 15142.58172, 11356.93629],
+    [2, 10, .938961, 2.38, 10140, 7571.29086, 15142.58172, 11356.93629],
+    [3, 13, 1.1378, 2.884, 11652, 8774.388, 17548.776, 13161.582],
+    [4, 13, 1.1378, 2.884, 11652, 8774.388, 17548.776, 13161.582],
+    [5, 13, 1.1378, 2.884, 11652, 8774.388, 17548.776, 13161.582],
+  ])("C%i effective NA%i uses additive C1 coefficient and exact independent damage", (constellation, talent, normal, masque, flat, nonCritical, critical, expected) => {
+    const document = fixture("1", talent, constellation), prepared = prepareArlecchinoDamageDocument(document), hit = ordinary(prepared);
+    expect(hit.terms).toEqual([{stat: "atk", coefficient: normal}]);
+    expect(hit.additiveBaseFormula!.inputs.find(input => input.key === "arlecchinoMasqueCoefficient")!.value).toBe(masque);
+    expect(hit.additiveBaseFormula!.inputs.find(input => input.key === "arlecchinoC1BondCoefficient")!.value).toBe(1);
+    expect(evaluate(hit.additiveBaseFormula!)).toBe(flat);
+    const output = calculate(document);
+    expect(output.blockers).toEqual([]);
+    expect(output.aggregation.scope).toBe("single-hit");
+    expect(output.totals!.nonCritical).toBeCloseTo(nonCritical, 8);
+    expect(output.totals!.critical).toBeCloseTo(critical, 8);
+    expect(output.totals!.expected).toBeCloseTo(expected, 8);
+    expect(document.gameContext.effectiveTalentLevel).toBe(talent);
+  });
+
+  it.each([
+    ["1", 7571.29086], ["2", 7685.99496], ["3", 8016.7626], ["4-hit-1", 7313.37264],
+    ["4-hit-2", 7313.37264], ["5", 8131.23108], ["6", 8514.71334],
+  ] as const)("applies C1 to exactly the bond addition of source hit %s", (suffix, expected) => {
+    const document = fixture(suffix, 10, 1), output = calculate(document);
+    expect(output.totals!.nonCritical).toBeCloseTo(expected, 8);
+    expect(prepareArlecchinoDamageDocument(document).hits).toHaveLength(1);
+  });
+
+  it("does not multiply the entire C0 bond addition by two or auto-add another three talent levels", () => {
+    expect(evaluate(createArlecchinoBondBaseFormula(10, 150, 0, 1))).toBe(10140);
+    expect(evaluate(createArlecchinoBondBaseFormula(10, 150, 0, 1))).not.toBe(7140 * 2);
+    expect(evaluate(createArlecchinoBondBaseFormula(13, 150, 0, 3))).toBe(11652);
+    expect(calculate(fixture("1", 10, 3)).totals).toEqual(calculate(fixture("1", 10, 1)).totals);
+    expect(calculate(fixture("1", 13, 5)).totals).toEqual(calculate(fixture("1", 13, 3)).totals);
+    expect(() => createArlecchinoBondBaseFormula(13, 150, 0, 6)).toThrow("C6");
+  });
+
+  it.each([[1, 10, 10140], [2, 10, 10140], [3, 13, 11652], [4, 13, 11652], [5, 13, 11652]])("C%i deducts already-included own bond and 40 percent shares once", (constellation, talent, flat) => {
+    const fresh = fixture("1", talent, constellation), included = fixture("1", talent, constellation);
+    ordinary(included).damageBonus = .4;
+    ordinary(included).additiveBaseDamage = flat;
+    Object.assign(arlecchinoContext(included)!, {passivePyroBonusIncluded: true, includedBondBase: flat});
+    expect(calculate(included).blockers).toEqual([]);
+    expect(calculate(included).totals).toEqual(calculate(fresh).totals);
+    expect(evaluate(ordinary(prepareArlecchinoDamageDocument(included)).additiveBaseFormula!)).toBe(0);
+  });
+
+  it.each([[1, 10, 2460.73086], [5, 13, 2901.78]])("C%i preserves the exact 30 percent boundary", (constellation, talent, expected) => {
+    const document = fixture("1", talent, constellation);
+    arlecchinoContext(document)!.bondOfLifePercent = 30;
+    expect(calculate(document).totals!.nonCritical).toBeCloseTo(expected, 8);
+    arlecchinoContext(document)!.bondOfLifePercent = 29.999999;
+    expect(calculate(document).status).toBe("blocked");
+    expect(calculate(document).totals).toBeUndefined();
+  });
+
+  it("excludes C2 absorption damage, C4 resources and C5 Q instead of rejecting the selected NA", () => {
+    const c1 = fixture("1", 10, 1), c2 = fixture("1", 10, 2), c3 = fixture("1", 13, 3), c4 = fixture("1", 13, 4), c5 = fixture("1", 13, 5);
+    expect(calculate(c2).totals).toEqual(calculate(c1).totals);
+    expect(calculate(c4).totals).toEqual(calculate(c3).totals);
+    expect(calculate(c5).totals).toEqual(calculate(c3).totals);
+    expect(prepareArlecchinoDamageDocument(c5).gameContext!.attributionPolicy).toContain("不含C2回收爆发、C4回能/Q冷却、C5的Q等级");
+  });
+
+  it.each(["baseDamageFormula", "additiveBaseFormula", "damageBonusFormula"] as const)("C5 still retains and blocks a foreign %s", slot => {
+    const document = fixture("1", 13, 5), foreign = foreignFormula(); ordinary(document)[slot] = foreign;
+    expect(ordinary(prepareArlecchinoDamageDocument(document))[slot]).toEqual(foreign);
+    expect(calculate(document).status).toBe("blocked");
+  });
+
+  it("preserves old C0 saved formulas and reads C1–C5 JSON without a schema migration", () => {
+    const legacy = prepareArlecchinoDamageDocument(fixture());
+    const oldFormula = ordinary(legacy).additiveBaseFormula!;
+    oldFormula.inputs = oldFormula.inputs.filter(input => input.key !== "arlecchinoC1BondCoefficient");
+    oldFormula.expression = expr.sub(expr.mul(expr.input("atk"), expr.input("arlecchinoPreConsumptionBondPercent"), expr.value(.01), expr.input("arlecchinoMasqueCoefficient")), expr.input("arlecchinoIncludedBondBase"));
+    oldFormula.requirements!.maximumConstellation = 0;
+    const restored = parseCalculatorDocument(serializeCalculatorDocument(legacy));
+    expect(calculate(restored).totals!.nonCritical).toBeCloseTo(5681.29086, 8);
+    const c3 = parseCalculatorDocument(serializeCalculatorDocument(fixture("1", 13, 3)));
+    expect(calculate(c3).totals!.nonCritical).toBeCloseTo(8774.388, 8);
+  });
+
+  it.each([[1, 10, .938961, 3.38], [3, 13, 1.1378, 3.884]])("C%i keeps real equipment conversion and historical constellation identity", (constellation, talent, normal, coefficient) => {
+    const live = equipmentFixture(constellation, talent), converted = convertedFixture(constellation, talent);
+    expect(calculate(live).totals!.nonCritical).toBeCloseTo(2010 * (normal + coefficient * 1.5) * 1.866 * .5 * .9, 9);
+    expect(calculate(converted).totals).toEqual(calculate(live).totals);
+    expect(ordinary(converted).finalSnapshot!.stats.atk).toBe(2010);
+    // C1 -> C2 / C3 -> C4 are supported and numerically identical here, but
+    // cannot relabel a previously captured constellation's historical hit.
+    converted.gameContext.constellation = constellation + 1;
+    expect(reasons(converted)).toContain("历史快照");
     expect(calculate(converted).status).toBe("blocked");
   });
 });

@@ -16,6 +16,7 @@ STELLAR = "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
 CHARACTER = "internal/characters/arlecchino"
 FILES = [f"{CHARACTER}/{name}" for name in ["attack.go", "arlecchino.go", "asc.go", "cons.go", "skill.go", "zz_arlecchino.dm.go"]]
 FILES.append("internal/template/character/hp.go")
+FILES.append("pkg/core/player/character/character.go")
 
 
 def go_array(text: str, name: str) -> list:
@@ -48,6 +49,8 @@ def build_manifest(cache: Path) -> dict:
     attack = (original / CHARACTER / "attack.go").read_text()
     asc = (original / CHARACTER / "asc.go").read_text()
     character = (original / CHARACTER / "arlecchino.go").read_text()
+    cons = (original / CHARACTER / "cons.go").read_text()
+    wrapper = (original / "pkg/core/player/character/character.go").read_text()
     hp = (original / "internal/template/character/hp.go").read_text()
     dm = (original / CHARACTER / "zz_arlecchino.dm.go").read_text()
     normal = go_array(dm, "attack")
@@ -57,6 +60,13 @@ def build_manifest(cache: Path) -> dict:
     assert hitmarks == [[11], [16], [17], [24, 35], [21], [44]]
     assert "c.CurrentHPDebt() >= c.MaxHP()*0.3" in attack
     assert "(masque[c.TalentLvlAttack()] + c1Bonus) * c.CurrentHPDebt() / c.MaxHP() * c.TotalAtk()" in attack
+    assert re.search(r"if c.Base.Cons >= 1\s*\{\s*c1Bonus = 1.0\s*\}", attack)
+    assert "c.NormalCon = 3" in character and "c.BurstCon = 5" in character
+    assert "c.Base.Cons >= c.NormalCon" in wrapper and "add += 3" in wrapper
+    assert "func (c *char) c2OnAbsorbDue()" in cons and "Mult:       9.00" in cons
+    assert "c.ReduceActionCooldown(action.ActionBurst, 2*60)" in cons and 'c.AddEnergy("arlecchino-c4", 15)' in cons
+    assert "case attacks.AttackTagElementalBurst, attacks.AttackTagNormal:" in cons
+    assert "m[attributes.CR] = 0.1" in cons and "m[attributes.CD] = 0.7" in cons
     assert "c.Core.QueueAttack(ai, ap, 0, 0, c.bondConsumeCB)" in attack
     assert attack.index("ai.FlatDmg += c.bondBonus()") < attack.index("c.Core.QueueAttack(ai, ap, 0, 0, c.bondConsumeCB)")
     assert "ai.IgnoreInfusion = true" in attack and "amt := -0.075 * c.CurrentHPDebt()" in attack
@@ -84,19 +94,29 @@ def build_manifest(cache: Path) -> dict:
     license_record = file_record(original, CLASSIC, "LICENSE")
     return {
         "format": "gidps-arlecchino-primary-source-v1", "repository": "genshinsim/gcsim", "revision": CLASSIC,
-        "status": "fixed-source-reviewed-c0-selected-normal-hit", "numericEvidenceStatus": "single-source-extracted",
+        "status": "fixed-source-reviewed-c0-c5-selected-normal-hit", "numericEvidenceStatus": "single-source-extracted",
         "upstreamLicense": {"spdx": "MIT", "copyright": "Copyright (c) 2021 genshinsim", **license_record},
         "files": [file_record(original, CLASSIC, path) for path in FILES],
         "coefficients": vectors,
         "contract": {
-            "supportedConstellations": [0], "normalHitFrames": hitmarks,
+            "supportedConstellations": [0, 1, 2, 3, 4, 5], "normalHitFrames": hitmarks,
             "redDeathMinimumBondRatio": 0.3, "maximumBondRatio": 2,
-            "bondBaseFormula": "masque[effective normal talent] * (current HP debt / current MaxHP) * current TotalAtk",
+            "bondBaseFormula": "(masque[effective normal talent] + (constellation >= 1 ? 1.0 : 0)) * (current HP debt / current MaxHP) * current TotalAtk",
+            "c1BondCoefficient": 1.0,
+            "effectiveTalentPolicy": "C3 adds 3 to normal talent in the native wrapper. The calculator consumes the already-effective normal talent exactly once and does not add it again.",
+            "constellationScope": {
+                "c1": "Adds 1.0 to the masque coefficient, not a multiplier of two on the entire bond bonus or ordinary normal ATK term.",
+                "c2": "Blood Debt Due absorption-triggered 900% ATK attack is a separate event, excluded from this selected normal hit.",
+                "c3": "Native NormalCon=3; effective normal talent changes both ordinary and masque table indices once.",
+                "c4": "Absorption grants energy and reduces Q cooldown; neither is part of this normal hit.",
+                "c5": "Native BurstCon=5; Q talent bonus is unrelated to the selected normal talent.",
+                "c6": "Normal conditional crit rate/crit damage after E is not implemented. C6 is blocked rather than approximated as C5."
+            },
             "bondBaseSampling": "Each selected normal sub-hit reads its actual pre-consumption ratio and TotalAtk at its hit/snapshot frame.",
             "infusion": "At bond ratio >=0.3, native Red Death state makes the ordinary normal Pyro with IgnoreInfusion=true.",
             "passivePyroBonus": 0.4, "passiveAscensionGate": False,
             "consumption": "7.5% of current debt is consumed only by the later on-hit callback (2f ICD); not simulated by this selected-hit module.",
-            "exclusions": ["No debt collection/lifecycle, normal-chain consumption or rotation simulation.", "No C1+ damage, Q healing, enemy collisions or reaction application simulation."]
+            "exclusions": ["No debt collection/lifecycle, normal-chain consumption or rotation simulation.", "No C2 absorption-triggered attack, C4 energy/Q cooldown, Q healing, C6 conditional critical state, enemy collisions or reaction application simulation."]
         },
         "crossVariant": {"revision": STELLAR, "allReviewedFilesIdentical": True,
                          "files": [file_record(roots[STELLAR], STELLAR, path) for path in FILES],
@@ -118,7 +138,7 @@ def main() -> None:
         target.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     else:
         assert json.loads(target.read_text()) == manifest, "Character source manifest drifted"
-    print(json.dumps({"status": "passed", "reviewedOriginalFiles": 14, "normalSubHitVectors": 7,
+    print(json.dumps({"status": "passed", "reviewedOriginalFiles": 2 * len(FILES), "normalSubHitVectors": 7,
                       "masqueVector": manifest["coefficients"][-1]["values"], "crossVariantIdentical": True,
                       "manifest": str(target), "copiedGoSources": False}, ensure_ascii=False))
 
