@@ -1,0 +1,226 @@
+{
+  "baseCommit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "verifiedBlobCount": 4283,
+  "goVersion": "go1.27.1",
+  "goArchive": {
+    "filename": "go1.27.1.linux-amd64.tar.gz",
+    "sha256": "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445",
+    "bytes": 70553950
+  },
+  "goCompiler": {
+    "path": "bin/go",
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "bytes": 17142188
+  },
+  "oldWasm": {
+    "path": "source-host.wasm",
+    "sha256": "0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55",
+    "bytes": 72165834
+  },
+  "newWasm": {
+    "path": "source-host.wasm",
+    "sha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
+    "bytes": 72152682
+  },
+  "retainedPatchRecords": 150,
+  "newPatchRecords": 151,
+  "sharedPatch": {
+    "path": "137-wanderer-c2-burst-snapshot-scope.patch",
+    "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+    "bytes": 9512
+  },
+  "allOriginalPatchRecordsUnchanged": true,
+  "bridgeRecordsUnchanged": true,
+  "licenseRecordsUnchanged": true,
+  "phase": "local-built-and-short-native-validated-not-deployed",
+  "buildCommand": "GOMAXPROCS=2 node packages/source-host/stellar-overlay/build.mjs --cache-dir /tmp/GIDPS-c2-crossmode-20261023/build-cache --source-dir /workspace/GIDPS-cloud/source-build-cache/upstream/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/source --output-dir /tmp/GIDPS-c2-crossmode-20261023/dist --public-dir /workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host-stellar",
+  "buildOutcome": "Compiled once. Inventory step initially failed ECONNREFUSED attempting a redundant uncached Go1.25 AST helper. Linked the already verified cached official Go1.25 toolchain, resumed inventory only and original manifest/copy finalization; no second WASM compilation.",
+  "fullBuildLog": "/tmp/GIDPS-c2-crossmode-20261023/stellar-build.log",
+  "inventoryResumeLog": "/tmp/GIDPS-c2-crossmode-20261023/stellar-inventory-cached.log",
+  "finalizationReceipt": "/tmp/GIDPS-c2-crossmode-20261023/finalization.json",
+  "shortCaptureAudit": {
+    "status": "passed",
+    "window": "[0,1440)",
+    "frameRate": 60,
+    "scope": "C2 snapshot ownership, independent affected-hit multiplication and within-Stellar event invariance; no assertion of identical rotations between different upstream commits or 120s Stellar energy feasibility",
+    "captures": {
+      "stellarBefore": {
+        "directory": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before",
+        "resultSha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+        "wasmSha256": "0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55",
+        "hits": 111,
+        "totalDamage": 5376250.930706368
+      },
+      "stellarAfter": {
+        "directory": "/tmp/GIDPS-c2-crossmode-20261023/stellar-after",
+        "resultSha256": "f04d3e16c349adcd2ccb12cbd5f4010dd69740e8e87ef3ff9c00999465ebf1ce",
+        "wasmSha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
+        "hits": 111,
+        "totalDamage": 5240983.400556944
+      },
+      "classicAfter": {
+        "directory": "/tmp/GIDPS-c2-crossmode-20261023/classic-after",
+        "resultSha256": "268dc4c9e56a5fd1bb56630732ff0cd46ae0d4b9cf8a0c8f4cd2c80bb3570aa1",
+        "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+        "hits": 112,
+        "totalDamage": 5258774.21518096
+      }
+    },
+    "sameSeedAndInput": true,
+    "stellarHitIdentitiesAndOrderUnchanged": true,
+    "unchangedStellarReceipts": [
+      "energyApplications",
+      "abilityInvocations",
+      "randomness",
+      "taskLifecycle",
+      "eventRegistrations",
+      "eventEmissions",
+      "eventListenerCalls",
+      "eventProducers",
+      "hitCallbackBatches",
+      "hitCallbacks"
+    ],
+    "stellarDamageCorrections": [
+      {
+        "attackId": 110,
+        "frame": 1169,
+        "actor": "wanderer",
+        "ability": "Shugen: The Curtains’ Melancholic Sway",
+        "oldDamage": 41685.58831971607,
+        "correctedDamage": 28059.507313026177,
+        "removedDamageBonus": 2
+      },
+      {
+        "attackId": 109,
+        "frame": 1169,
+        "actor": "wanderer",
+        "ability": "Normal 2 (Windfavored)",
+        "oldDamage": 104213.9707992902,
+        "correctedDamage": 70148.76828256543,
+        "removedDamageBonus": 2
+      },
+      {
+        "attackId": 122,
+        "frame": 1284,
+        "actor": "wanderer",
+        "ability": "Arcane Projection: Unity",
+        "oldDamage": 196980.87272355004,
+        "correctedDamage": 109404.62609754133,
+        "removedDamageBonus": 2
+      }
+    ],
+    "removedTotalDamage": 135267.53014942337,
+    "fixedChecks": {
+      "stellar": {
+        "c2Value": 2,
+        "resourceAtCreation": {
+          "currentPoints": 32,
+          "maxPoints": 120
+        },
+        "qStart": 1162,
+        "qHits": [
+          {
+            "attackId": 111,
+            "frame": 1254,
+            "snapshotFrame": 1217,
+            "damage": 115009.35811691318
+          },
+          {
+            "attackId": 112,
+            "frame": 1260,
+            "snapshotFrame": 1217,
+            "damage": 102692.6949798774
+          },
+          {
+            "attackId": 113,
+            "frame": 1266,
+            "snapshotFrame": 1217,
+            "damage": 102692.6949798774
+          },
+          {
+            "attackId": 114,
+            "frame": 1272,
+            "snapshotFrame": 1217,
+            "damage": 102692.6949798774
+          },
+          {
+            "attackId": 115,
+            "frame": 1278,
+            "snapshotFrame": 1217,
+            "damage": 102692.6949798774
+          }
+        ],
+        "nonQConsumption": 0
+      },
+      "classic": {
+        "c2Value": 2,
+        "resourceAtCreation": {
+          "currentPoints": 31,
+          "maxPoints": 120
+        },
+        "qStart": 1169,
+        "qHits": [
+          {
+            "attackId": 113,
+            "frame": 1261,
+            "snapshotFrame": 1224,
+            "damage": 104740.66542790308
+          },
+          {
+            "attackId": 114,
+            "frame": 1267,
+            "snapshotFrame": 1224,
+            "damage": 102692.6949798774
+          },
+          {
+            "attackId": 115,
+            "frame": 1273,
+            "snapshotFrame": 1224,
+            "damage": 102692.6949798774
+          },
+          {
+            "attackId": 116,
+            "frame": 1279,
+            "snapshotFrame": 1224,
+            "damage": 102692.6949798774
+          },
+          {
+            "attackId": 117,
+            "frame": 1285,
+            "snapshotFrame": 1224,
+            "damage": 102692.6949798774
+          }
+        ],
+        "nonQConsumption": 0
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-build.log",
+      "bytes": 4022,
+      "sha256": "5af24fef1cf99413909060c56a3af80151ae5b80859f9b0c4868d34d1b321d16"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-inventory-cached.log",
+      "bytes": 198,
+      "sha256": "dc3f7615bcc9a58e753c998f91a94f32a9f74ddc6174141879a85208fd0c5c6a"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/finalization.json",
+      "bytes": 11641,
+      "sha256": "85fe3f9c0d11a11303805bdcccb9746a5911b355ec62b6fed16aba5661bfec66"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/dist/manifest.json",
+      "bytes": 162728,
+      "sha256": "b666a4684658ffa0c40dfc19eb5b28a62a6dcae1117bd8f968e22a40ddb47535"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/crossmode-audit.json",
+      "bytes": 4364,
+      "sha256": "38fb9ba1009492bdf19dfac1eb8e9f994b6a8af45e8322d2f39bf128146a5489"
+    }
+  ]
+}

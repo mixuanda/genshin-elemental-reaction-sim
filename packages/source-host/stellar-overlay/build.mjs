@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { spawnSync } from 'node:child_process';
+import { sharedCharacterFixes } from '../scripts/shared-character-fixes.mjs';
 
 const packageDir = dirname(fileURLToPath(import.meta.url));
 const pins = JSON.parse(readFileSync(join(packageDir, 'pins.json'), 'utf8'));
@@ -185,6 +186,8 @@ const phaseCompletionPatches = [
   '../patches/135-athame-trigger-hit-atk.patch',
   // Query normal attack speed for the action being constructed, not its predecessor.
   '../patches/136-normal-attack-speed-context.patch',
+  // Cross-pin correctness fixes use the exact same patch bytes as Classic.
+  ...sharedCharacterFixes.map(name => `../patches/${name}`),
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');

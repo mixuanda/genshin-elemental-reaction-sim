@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55",
-      "bytes": 72165834
+      "sha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
+      "bytes": 72152682
     },
     {
       "path": "wasm_exec.js",
@@ -3465,12 +3465,12 @@
     },
     {
       "path": "talent-read-instrumentation.json",
-      "sha256": "669a984f490fb6308a21c2c437a306dd314ad310d8f34e198ae6c6c5a9558a84",
-      "bytes": 393659
+      "sha256": "f33eca30f4efa50a2194ed4d01d2f76dbc5dca1855ae960670ea67b7a76219d2",
+      "bytes": 393661
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "6eda317163b2bdd3a138ce7e22d921c9b22ddcd13d93854416faff7e62428878",
+      "sha256": "865c6ee2960856ed6333ca7853e6b26260c3408bc8e4196155a576a3f282a52d",
       "bytes": 1883017
     }
   ],
@@ -3487,8 +3487,8 @@
     },
     "report": {
       "path": "talent-read-instrumentation.json",
-      "sha256": "669a984f490fb6308a21c2c437a306dd314ad310d8f34e198ae6c6c5a9558a84",
-      "bytes": 393659
+      "sha256": "f33eca30f4efa50a2194ed4d01d2f76dbc5dca1855ae960670ea67b7a76219d2",
+      "bytes": 393661
     },
     "host": {
       "goos": "linux",
@@ -4284,6 +4284,11 @@
       "path": "136-normal-attack-speed-context.patch",
       "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
       "bytes": 5729
+    },
+    {
+      "path": "137-wanderer-c2-burst-snapshot-scope.patch",
+      "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+      "bytes": 9512
     }
   ],
   "supportedFormulaFamilies": [

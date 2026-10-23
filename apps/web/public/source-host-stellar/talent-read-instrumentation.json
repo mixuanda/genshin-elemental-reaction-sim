@@ -14215,9 +14215,9 @@
       "reason": "Mult is not a direct index of a numeric generated table"
     },
     {
-      "siteId": "internal/characters/wanderer/cons.go:98:16",
+      "siteId": "internal/characters/wanderer/cons.go:101:16",
       "path": "internal/characters/wanderer/cons.go",
-      "line": 98,
+      "line": 101,
       "column": 16,
       "tableId": "",
       "indexExpressions": [],

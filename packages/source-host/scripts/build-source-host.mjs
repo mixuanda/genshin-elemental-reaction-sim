@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { defaultCacheDir, fileRecord, filesBelow, packageDir, pins, readOptions, run, sha256 } from './common.mjs';
 import { prepareToolchain } from './prepare-toolchain.mjs';
 import { pinnedTreeFile, prepareSource, readPinnedTree } from './prepare-source.mjs';
+import { assertSharedCharacterFixes } from './shared-character-fixes.mjs';
 
 // This command builds once. It does not run the WASM, a simulation, or tests.
 const options = readOptions(['--cache-dir', '--source-dir', '--tree-file', '--patch-dir', '--bridge-dir', '--output-dir', '--public-dir']);
@@ -18,6 +19,7 @@ const publicDir = options['public-dir'] ?? resolve(packageDir, '../../apps/web/p
 const { bytes: treeBytes, tree } = readPinnedTree(treeFile);
 const patches = readdirSync(patchDir).filter((name) => name.endsWith('.patch')).sort();
 if (patches.length === 0) throw new Error('No source-host patches supplied; wait for bridge freeze');
+assertSharedCharacterFixes(patches);
 if (!existsSync(join(bridgeDir, 'cmd/sourcehost/main.go'))) throw new Error('Missing bridge cmd/sourcehost/main.go; wait for bridge freeze');
 
 mkdirSync(cacheDir, { recursive: true });
