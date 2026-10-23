@@ -1,8 +1,9 @@
-import type {SourceHostResult} from '../../../packages/sim-core/src/source-host-wire';
+import type {SourceHostResult,SourceHostDamageRequest} from '../../../packages/sim-core/src/source-host-wire';
 import {sourceHostFixedDamageWindow} from '../../../packages/sim-core/src/source-host-observation-window';
+import {classifyWandererTeamProjection} from './wanderer-team-state-attribution';
 export const SOURCE_CURVE_FPS = 60; // Fixed gcsim time unit, not the game display/server frame rate.
 export type DamageDimension='actor'|'source'|'element'|'reaction';
-export interface CurveHit {id:number;calculationId:number;frame:number;damage:number;actor:string;source:string;element:string;reaction:string;ability:string}
+export interface CurveHit {id:number;calculationId:number;frame:number;damage:number;actor:string;source:string;element:string;reaction:string;ability:string;provider?:string;mechanism?:string;parentAttackId?:number}
 export interface CurveBuff {key:string;actorIndex:number;startFrame:number;endFrame:number;logIndices:number[];label:string}
 export interface CurveModel {endFrame:number;hits:CurveHit[];markers:Array<{id:number;frame:number;actor:string;action:string}>;buffs:CurveBuff[];unclassifiedBuffLogs:number}
 const tags:Record<string,string>={AttackTagNormal:'普攻',AttackTagExtra:'重击',AttackTagPlunge:'下落',AttackTagElementalArt:'E',AttackTagElementalArtHold:'E',AttackTagElementalBurst:'Q'};
@@ -14,6 +15,10 @@ export function fixedDamageWindow(r:SourceHostResult){
 export function buildSourceDamageCurve(r:SourceHostResult):CurveModel {
  const window=fixedDamageWindow(r);if(!window)throw Error('曲线暂要求完整定时观察窗及逐击帧记录；提前结束或缺记录时不补造时间轴。');
  const rows=new Map(r.calculations.map(c=>[c.request.id,c.request]));
+ const damageByAttack=new Map<number,SourceHostDamageRequest[]>();
+ for(const app of window.applications){const q=rows.get(app.calculationId);if(q?.kind!=='damage'||q.attackId!==app.attackId||q.frame!==app.frame)continue;
+  const parents=damageByAttack.get(q.attackId)??[];parents.push(q);damageByAttack.set(q.attackId,parents);
+ }
  const hits=window.applications.map(a=>{
   const q=rows.get(a.calculationId);let reaction='unknown';
   if(q?.kind==='damage'){
@@ -24,7 +29,8 @@ export function buildSourceDamageCurve(r:SourceHostResult):CurveModel {
    else if(raw?.Catalyzed===false)reaction='无反应';
   }
   // Only the emitting calculation identifies an owner. Never infer the active character or parent owner.
-  return {id:a.id,calculationId:a.calculationId,frame:a.frame,damage:a.appliedDamage,actor:q?.actorKey||'unknown',source:q?tags[q.attackTagName]??(q.kind==='damage'&&q.damageCategory==='transformative'?'其他（剧变）':'unknown'):'unknown',element:q?elements[q.element]??'unknown':'unknown',reaction,ability:q?.ability??'unknown'};
+  const projection=q?.kind==='damage'?classifyWandererTeamProjection(r.sourceCommit,q,damageByAttack.get(q.origin?.parentAttackId??-1)??[],a):undefined;
+  return {id:a.id,calculationId:a.calculationId,frame:a.frame,damage:a.appliedDamage,actor:q?.actorKey||'unknown',source:q?tags[q.attackTagName]??(q.kind==='damage'&&q.damageCategory==='transformative'?'其他（剧变）':'unknown'):'unknown',element:q?elements[q.element]??'unknown':'unknown',reaction,ability:q?.ability??'unknown',...(projection??{})};
  });
  const markers=(r.abilityInvocations??[]).filter(a=>a.success&&['skill','burst'].includes(a.action)&&a.startedFrame>=0&&a.startedFrame<window.endFrame).map(a=>({id:a.id,frame:a.startedFrame,actor:a.characterKey,action:a.action==='skill'?'E':'Q'}));
  const buffs:CurveBuff[]=[],active=new Map<string,CurveBuff>(),lifecycleEnds=new Map<string,number>();let unclassifiedBuffLogs=0;
