@@ -20,7 +20,7 @@ export function renderSourceHostEnergyPanel(root: HTMLElement, result: SourceHos
   const applications = result.energyApplications ?? [];
   const applicationRows = applications.map((event, index) => `<tr data-source-host-energy-row="${index}"><td>${index}</td><td>${event.frame}</td><td>${esc(event.actorKey)}</td><td>${esc(operationLabels[event.operation] ?? event.operation)}</td><td>${esc(event.source)}</td><td>${num(event.energyBefore)} → ${num(event.energyAfter)}</td><td>${num(event.requestedAmount)}</td><td><button type="button" data-source-host-energy-select="${index}">查看公式</button></td></tr>`).join("");
   root.innerHTML = `<section class="card" data-source-host-energy-analysis><h3>连续来源运行：能量与起步诊断</h3>
-    <p>源码 <code>${esc(analysis.sourceCommit.slice(0, 7))}</code>；种子 <code>${esc(analysis.seed)}</code>；执行器 <code>${esc(analysis.wasmSha256 ?? "旧记录未保存哈希")}</code>。第 1–${analysis.durationFrames} 帧是同一次来源执行，分窗时没有重置角色、能量、冷却或随机流。</p>
+    <p>源码 <code>${esc(analysis.sourceCommit.slice(0, 7))}</code>；种子 <code>${esc(analysis.seed)}</code>；执行器 <code>${esc(analysis.wasmSha256 ?? "旧记录未保存哈希")}</code>。本次执行 ${analysis.durationFrames} 帧，统计范围见下表；分窗时没有重置角色、能量、冷却或随机流。</p>
     <p>${second ? `前半窗 ${num(first.damage)} 伤害、${num(first.dps)} DPS；后半窗 ${num(second.damage)} 伤害、${num(second.dps)} DPS。两窗 DPS 差 ${num(second.dps - first.dps)}。` : `本次仅一帧，完整窗 ${num(first.damage)} 伤害、${num(first.dps)} DPS，不能分窗比较。`}这是本次起步敏感性诊断，不能单凭伤害相近判定能量或随机稳态。</p>
     <p>面板充能是来源初始属性日志的舍入值；临时充能变化以各次粒子回执中的实际 ER 为准。</p>
     <div class="table-wrap"><table><thead><tr><th>实际观察窗</th><th>角色</th><th>初始面板充能</th><th>窗边界能量</th><th>实际获得</th><th>溢出</th><th>消耗</th><th>粒子回执</th><th>成功 Q</th><th>拒绝 Q</th><th>能量不足 Q</th></tr></thead><tbody>${rows}</tbody></table></div>

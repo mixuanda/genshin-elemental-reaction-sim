@@ -2,6 +2,7 @@ import { summarizeSourceHostRandomness } from "../../../packages/sim-core/src/so
 import { sourceHostTargetPhaseIdentity } from "../../../packages/sim-core/src/source-host-target-phase";
 import { summarizeStochasticValues, type StochasticDistribution } from "../../../packages/sim-core/src/stochastic-startup";
 import { sourceHostInitialEnergyIdentity, type SourceHostResult } from "../../../packages/sim-core/src/source-host-wire";
+import { sourceHostFixedDamageWindow } from "../../../packages/sim-core/src/source-host-observation-window";
 
 type NativeCharacter = {
   name?: string;
@@ -134,8 +135,10 @@ export function addSourceHostRechargeContribution(config: string, actorKey: stri
 
 export function analyzeSourceHostEnergy(result: SourceHostResult, windowSelection?: number | SourceHostObservationPolicy): SourceHostEnergyAnalysis {
   const native = result.result as NativeResult;
-  const duration = number(native.duration);
-  if (duration === null || !Number.isInteger(duration) || duration <= 0) throw new Error("来源结果没有有效的实际观察帧数。");
+  const nativeDuration = number(native.duration);
+  if (nativeDuration === null || !Number.isInteger(nativeDuration) || nativeDuration <= 0) throw new Error("来源结果没有有效的实际观察帧数。");
+  const fixedWindow = sourceHostFixedDamageWindow(result);
+  const duration = fixedWindow?.endFrame ?? nativeDuration;
   const characters = Array.isArray(native.characters) ? native.characters : [];
   const rows = (Array.isArray(result.logs) ? result.logs : []).map(value => value as LogRow).filter(row => row && typeof row === "object");
   const events: SourceEnergyEvent[] = [];
@@ -182,20 +185,29 @@ export function analyzeSourceHostEnergy(result: SourceHostResult, windowSelectio
     if (duration > 1 && (!Number.isInteger(cut) || cut <= 0 || cut >= duration)) throw new Error("观察窗分界必须位于本次实际执行内部。");
     if (duration === 1 && windowSelection !== undefined) throw new Error("单帧来源结果不能设置分窗边界。");
   }
-  // The source trace stores frame F at energy_status[F - 1]. Use half-open
-  // ranges over source frames 1..duration so each boundary has an exact trace.
+  // Completed timed results share the damage curve's [0, duration) window.
+  // Keep the original 1-based diagnostic convention for legacy/early-ended
+  // records without that explicit window; never rewrite their saved receipts.
+  const start = fixedWindow ? 0 : 1;
   const bounds: Array<[number, number]> = observationPolicy
-    ? [[1 + observationPolicy.warmupFrames, 1 + observationPolicy.warmupFrames + observationPolicy.windowFrames],
-      [1 + observationPolicy.warmupFrames + observationPolicy.windowFrames, 1 + observationPolicy.warmupFrames + 2 * observationPolicy.windowFrames]]
-    : duration === 1 ? [[1, 2]] : [[1, cut + 1], [cut + 1, duration + 1]];
+    ? [[start + observationPolicy.warmupFrames, start + observationPolicy.warmupFrames + observationPolicy.windowFrames],
+      [start + observationPolicy.warmupFrames + observationPolicy.windowFrames, start + observationPolicy.warmupFrames + 2 * observationPolicy.windowFrames]]
+    : duration === 1 ? [[start, start + 1]] : [[start, cut + start], [cut + start, duration + start]];
   const energyAt = (actorIndex: number, boundary: number): number | null => {
     const trace = characters[actorIndex]?.energy_status;
+    if (fixedWindow && boundary <= 1) {
+      const preceding = events.filter(event => event.actorIndex === actorIndex && event.frame < boundary).at(-1);
+      const atBoundary = events.find(event => event.actorIndex === actorIndex && event.frame === boundary);
+      return preceding?.after ?? atBoundary?.before ?? result.startupState?.actors.find(actor => actor.actorIndex === actorIndex)?.energy ?? null;
+    }
     if (boundary === 1) {
       const startup = result.startupState?.actors.find(actor => actor.actorIndex === actorIndex);
       if (startup) return startup.energy;
       const first = events.find(event => event.actorIndex === actorIndex && event.frame <= 1);
       return first?.before ?? (Array.isArray(trace) ? number(trace[0]) : null);
     }
+    // Native energy_status[F - 1] is the state after frame F. A half-open
+    // boundary B therefore reads F=B-1, not the state after the excluded B.
     return Array.isArray(trace) ? number(trace[boundary - 2]) : null;
   };
   const windows = bounds.map(([startFrame, endFrame]): SourceEnergyWindow => {
