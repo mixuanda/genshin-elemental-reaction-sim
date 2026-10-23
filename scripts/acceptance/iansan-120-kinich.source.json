@@ -1,0 +1,204 @@
+{
+  "schema": "iansan-120-kinich-source-lock-v1",
+  "repository": "https://github.com/genshinsim/gcsim",
+  "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+  "requestSha256": "db8382760f42c0570ecea28e9f4eae9f34f2d13aa3192638982da8cc8683346c",
+  "wasmSha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+  "wasmBytes": 72155762,
+  "buildManifestSha256": "0c8bf23de678d04b348b50b8cd84889e2423be65d36cfeef7eb35205f87bdf02",
+  "upstreamFiles": [
+    {
+      "path": "internal/characters/iansan/iansan.go",
+      "bytes": 2029,
+      "gitBlob": "9a0672064215a6a40c29bae9401975b02eb80c16",
+      "sha256": "0a405ccf6284d152820171b59d4619eb4c253e7aff0d3b2b3edfb17848461f22"
+    },
+    {
+      "path": "internal/characters/iansan/skill.go",
+      "bytes": 3093,
+      "gitBlob": "b1cf0956b6ea5919aa78f04d0dfe8d2a3f4343d7",
+      "sha256": "3a05af9e483794e24e01157eafe234e6b12aea76ff15ff6584732437ed3c3399"
+    },
+    {
+      "path": "internal/characters/iansan/burst.go",
+      "bytes": 4195,
+      "gitBlob": "7775958be290fa773164ad7d5719430c548b69f1",
+      "sha256": "658a1dfddcc66a79d8cae06d4cb4f6fb62a33f0fbde023771bfe7c7aeae0e124"
+    },
+    {
+      "path": "internal/characters/iansan/asc.go",
+      "bytes": 2151,
+      "gitBlob": "3a18863d186d26d36f1c615a945e97df4ef1accf",
+      "sha256": "d88c164485eeab10789d1ec256aeb636910d08f0f2c6ca8424d007aa5fe12360"
+    },
+    {
+      "path": "internal/characters/iansan/cons.go",
+      "bytes": 2352,
+      "gitBlob": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a",
+      "sha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276"
+    },
+    {
+      "path": "internal/characters/iansan/attack.go",
+      "bytes": 2901,
+      "gitBlob": "d3ca78b3b0c3ae6d45f658b48015935137ac6af2",
+      "sha256": "020377cb0e2b8d945b48e0f2f9925ce7954684b5aa57213a434c25ebfaa1e97c"
+    },
+    {
+      "path": "internal/characters/kaeya/kaeya.go",
+      "bytes": 1247,
+      "gitBlob": "2b08c0a1f618fd3e2505b0bb81efcdeec9087a4d",
+      "sha256": "eb9a069965582ca29679c9d4b8b9b1492a72e6076fdcc39c809bfd409f6563ee"
+    },
+    {
+      "path": "internal/characters/kaeya/skill.go",
+      "bytes": 3079,
+      "gitBlob": "167ab0f7ce190879217cc2ee40979c212b47f01e",
+      "sha256": "bd9256ab028e839f74ff6bd6f4df9e1783a6e0247459223ce7b22eb92f9b49fd"
+    },
+    {
+      "path": "internal/characters/kaeya/burst.go",
+      "bytes": 3183,
+      "gitBlob": "ec7b27e7ae980183f005346e08bfa91d151def12",
+      "sha256": "b22a90b2856c4989f223332ec3ff57da46fd0f7643054d1dea6df60d9aef2bfe"
+    },
+    {
+      "path": "internal/characters/kaeya/attack.go",
+      "bytes": 2875,
+      "gitBlob": "9b716e1a4c054c8bfe063e879991c84ace79aa8b",
+      "sha256": "6f3f47e4025dbb22c9059362de5df5336752cc3e51f0bc440ca06ceb9c0f5558"
+    },
+    {
+      "path": "pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "gitBlob": "89bcd35ff58041104029be9e3828e2154d724da9",
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493"
+    },
+    {
+      "path": "pkg/core/player/character/basestat.go",
+      "bytes": 3278,
+      "gitBlob": "5fe8a567471550f150af747910cd2fdcb17446e6",
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "bytes": 7607,
+      "gitBlob": "4c6f739ee82d4aa50e0cd899238237044e99ba22",
+      "sha256": "7256ca1d27b03e1855f3cdb014644115003e7585f3f6bf6023871a78c76a180c"
+    },
+    {
+      "path": "pkg/core/energy.go",
+      "bytes": 2639,
+      "gitBlob": "307f035e82bf5570c7b2ae86a4314201e025ca9e",
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c"
+    },
+    {
+      "path": "pkg/core/info/params.go",
+      "bytes": 47,
+      "gitBlob": "1c09c4c9cfcfd523eab749b3feddf31fa0144bf5",
+      "sha256": "eea0bfc7ed818d16fae3a6181b2d1d9d8a1c0529f40659b959d992e3bc58dba0"
+    },
+    {
+      "path": "pkg/gcs/eval/sysfunc.go",
+      "bytes": 12982,
+      "gitBlob": "951517fe39ff3eca81d69e6adbce5ecac267967e",
+      "sha256": "05a94270e870aa78d2623bc8ace2e6377b3c8289b324c24a8cb6b2adcf62bd76"
+    },
+    {
+      "path": "internal/template/character/ready.go",
+      "bytes": 1602,
+      "gitBlob": "b121ecf707885873328debcf2c1fbd5a5b2d665d",
+      "sha256": "d8226df747ea6181d5edb40ea3131ff948cf165d1f5c948704402808ed049ef1"
+    },
+    {
+      "path": "internal/template/character/cooldown.go",
+      "bytes": 8252,
+      "gitBlob": "6b06499385eee1ca26dfb034ad40b6656ff07a38",
+      "sha256": "de2f956bbb88df15f53880da30ecb17d67b6160d0e4d12377f7222331a849e43"
+    },
+    {
+      "path": "pkg/catalog/character.dm.go",
+      "bytes": 462986,
+      "gitBlob": "92805fdb1af53f964388372e63112ff709e49842",
+      "sha256": "17694990dfc23467ae6f032d69eea012d7e7f323dfc7afb9d24716e42c923547"
+    },
+    {
+      "path": "pkg/catalog/weapon.dm.go",
+      "bytes": 428207,
+      "gitBlob": "ca82929079e21de07c0d63b782b2cda9128d5a20",
+      "sha256": "cba0e900d03fcd750bdbabdd2c545cf7eeb9e81bbb2e8c092dea68fbf9e2629c"
+    },
+    {
+      "path": "pkg/catalog/curve.dm.go",
+      "bytes": 24758,
+      "gitBlob": "b960e695c8a6a154e6b5b931d7276c14fc3edbad",
+      "sha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6"
+    },
+    {
+      "path": "internal/characters/iansan/charge.go",
+      "bytes": 3092,
+      "gitBlob": "240d95690c0e3e5cbde03b67b4e743265f713b85",
+      "sha256": "af3cedb1a1b13a26b09e901d942de0ede63a1a4dcdd7afe1449bd4246c9cae91"
+    },
+    {
+      "path": "internal/characters/iansan/zz_iansan.dm.go",
+      "bytes": 2814,
+      "gitBlob": "99ca2bfe2a27e38bcd9ae85571fa3eb8cc1e11eb",
+      "sha256": "7ee6b65bcbdc6816139dd07cf5c5b4f582181efae11c8356f46b55f8635f074d"
+    },
+    {
+      "path": "internal/characters/kaeya/zz_kaeya.dm.go",
+      "bytes": 3674,
+      "gitBlob": "2ad47b3a7da9672675c206dba0e946ef7287b609",
+      "sha256": "5e5e835dce839033ed0f1ad45ebf4561aca286b9d0c455128f57b15a18e94351"
+    },
+    {
+      "path": "internal/template/nightsoul/nightsoul.go",
+      "bytes": 5077,
+      "gitBlob": "c014ea4505d6ca601c39ccdfbf0a967b1f50523b",
+      "sha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8"
+    }
+  ],
+  "scenario": {
+    "actors": [
+      "iansan",
+      "kaeya"
+    ],
+    "artifactPieces": 0,
+    "initialEnergy": "full once",
+    "movement": "No explicit movement param or function. Dash/position do not imply movement in this engine.",
+    "gameplayScope": "C6 includes C4; source-backed mechanism fixture, not an optimized player build.",
+    "qPolicy": "Six intended decisions per actor; guard actual ready; report each skipped Q.",
+    "phaseLengthFrames": 1200,
+    "phaseCount": 6,
+    "endFrame": 7200,
+    "phaseTiming": "Continuous Kaeya normals and ready E until each absolute 1200f boundary; next phase may be delayed by the actual last animation/cancel."
+  },
+  "buildPatchTail": [
+    {
+      "path": "138-iansan-swift-normal-talent.patch",
+      "sha256": "cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538",
+      "bytes": 536
+    },
+    {
+      "path": "139-iansan-c1-consumption-threshold.patch",
+      "sha256": "6f61d4f4ee3478b8b55ce4097c5ac35e6719a79188bb34126263444227b12e79",
+      "bytes": 879
+    },
+    {
+      "path": "140-iansan-c2-active-recipient.patch",
+      "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f",
+      "bytes": 457
+    },
+    {
+      "path": "141-iansan-burst-expiry.patch",
+      "sha256": "eae7cd8d42351bb3ccfd764aa30a74fd7c4db767fde22f20427518001bc8d626",
+      "bytes": 1197
+    },
+    {
+      "path": "142-iansan-c6-burst-entry-overflow.patch",
+      "sha256": "9ea33ee62b0f957a644ac14724b54aacee71eafc91095d92a482b7f7c474a221",
+      "bytes": 404
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "protocol": "gidps-source-host-v1",
+  "config": "options iteration=1 duration=120;\niansan char lvl=90/90 cons=6 talent=10,10,10;\niansan add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\nkaeya char lvl=90/90 cons=0 talent=10,10,10;\nkaeya add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4 hp=1000000000;\nactive iansan;\n\n// Six intended 20-second phases; full energy is granted once by the request.\n// No movement distance, stat override, energy injection or duration extension.\nfor let cycle = 0; cycle < 6; cycle = cycle + 1 {\n  wait(1 + cycle * 1200 - f());\n  phase(\"iansan-20s\");\n  print(\"audit-phase|index=\", cycle, \"|frame=\", f());\n  let iansanQReady = .iansan.burst.ready;\n  print(\"audit-q|iansan|energy=\", .iansan.energy, \"|max=\", .iansan.energymax,\n    \"|cd=\", .iansan.burst.cd, \"|ready=\", iansanQReady);\n  if iansanQReady { iansan burst; }\n  iansan skill;\n  iansan charge;\n  let kaeyaQReady = .kaeya.burst.ready;\n  print(\"audit-q|kaeya|energy=\", .kaeya.energy, \"|max=\", .kaeya.energymax,\n    \"|cd=\", .kaeya.burst.cd, \"|ready=\", kaeyaQReady);\n  if kaeyaQReady { kaeya burst; }\n  kaeya skill;\n  while f() < (cycle + 1) * 1200 {\n    if .kaeya.skill.ready { kaeya skill; }\n    kaeya attack;\n  }\n}\nwait(7200);\n",
+  "seed": "20261023",
+  "stopAtDuration": true,
+  "executionMode": "auto-wait",
+  "initialEnergy": {
+    "mode": "full"
+  },
+  "phaseObservation": {
+    "warmupFrames": 0,
+    "maxPeriod": 4,
+    "requiredConsecutivePeriods": 3,
+    "maxObservations": 32
+  }
+}
