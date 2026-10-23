@@ -21,5 +21,16 @@
   "production": "paused-not-deployed",
   "typecheck": "passed",
   "webBuild": "passed",
-  "numericalFormulaChanges": false
+  "numericalFormulaChanges": false,
+  "existingAffectedBrowserTests": {
+    "initialPassed": 2,
+    "initialFailed": 3,
+    "reasons": [
+      "two permanent-open visibility expectations updated to explicitly reopen answered conditions",
+      "Durin E test ambiguous first color selector matched new white Q; now selects exact E name"
+    ],
+    "rerunOnlyFailedCases": 3,
+    "adaptedPassed": 3,
+    "numericalAssertionsAndNegativeCasesUnchanged": true
+  }
 }

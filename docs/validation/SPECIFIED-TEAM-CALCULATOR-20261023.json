@@ -80,6 +80,11 @@
       "passed": 3196,
       "failed": 79,
       "skipped": 1
+    },
+    "existingAffectedBrowserCases": {
+      "unchangedPassed": 2,
+      "uiAdaptedPassed": 3,
+      "originalNumericalAndNegativeAssertionsPreserved": true
     }
   },
   "libraryScreenshots": {

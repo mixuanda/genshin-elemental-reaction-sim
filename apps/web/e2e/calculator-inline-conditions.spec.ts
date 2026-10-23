@@ -24,6 +24,8 @@ for(const width of [1365,390])test(`Wanderer conditions are actual in-place inpu
   expect(report.result.status).toBe('blocked');expect(report.result.totals).toBeUndefined();
   await panel.locator(noAbsorption).selectOption('1');report=await audit(page);
   expect(report.result.status).toBe('calculated');expect(report.document.gameContext.constellation).toBe(6);
+  await expect(panel).not.toHaveAttribute('open','');
+  await panel.locator(':scope > summary').click();
   await expect(panel.locator(noAbsorption)).toBeVisible();await expect(panel.locator(accounting)).toBeVisible();
   await expect(page.locator('[data-calculator-required-field="true"]')).toHaveCount(0);
   if(evidence){await mkdir(evidence,{recursive:true});await panel.screenshot({path:resolve(evidence,`04-inline-conditions-${width}.png`)});}

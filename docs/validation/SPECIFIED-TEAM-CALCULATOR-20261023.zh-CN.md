@@ -37,3 +37,5 @@
 相关角色、契约与真实浏览器记录分别见同目录JSON索引；最后全项目typecheck、web build通过（构建5.41秒）。旧全量3196通过/79失败/1跳过、测试提交924edf672b1e9c49f0316a79e36f0b5cde5e337b单独保留，本批没有重跑或宣称清零。原Golden/历史结果未改。
 
 截图保留在云端 `/tmp/GIDPS-specified-team-20261023/result-preset-restored/specified-team-frame-curve.png` 与 `calculator-result-focus/wanderer-damage-first.png`。Library交付尝试在工具发现阶段返回HTTP401，尚未上传；没有改用另一通道或重试，截图与代码不受影响。本批生产仍暂停，不能把工作分支通过说成线上已更新。
+
+最后补查5个既有相关浏览器路径：数字连续输入和条件导航2项直接通过；2个旧常驻展开预期及1个杜林E的宽泛颜色选择器适配后，3项复查通过。没有改任何伤害数值、容差或负向保护；两次原始报告各自保留，详情见CALCULATOR-RESULT-FOCUS索引。此后只改测试交互与证据文档，已通过的构建源码未变。
