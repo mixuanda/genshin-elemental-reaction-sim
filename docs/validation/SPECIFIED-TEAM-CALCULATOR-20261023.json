@@ -1,0 +1,103 @@
+{
+  "baseCommit": "404c76a",
+  "featureBranch": "cloud/player-import-integration-20261021",
+  "lastCodeCommit": "84721699339f9258275ce8d0abc77f227ef53c0e",
+  "production": "paused; no deployment attempted",
+  "completed": [
+    {
+      "commit": "da17448",
+      "change": "visible result open/save/cancel controls; real 120s result roundtrip"
+    },
+    {
+      "commit": "7f7e9cf",
+      "change": "exact known adaptive 4-member program entry and result equipment restoration"
+    },
+    {
+      "commit": "c749437",
+      "change": "Faruzan C6 Q initial with current effective talent and same-hit accounting"
+    },
+    {
+      "commit": "fa5e3eb",
+      "change": "Wanderer Windfavored normals, independent C6 followup, Q5 and Durin white Q tick"
+    },
+    {
+      "commit": "e86f4b8",
+      "change": "Nicole C2 E initial, same-hit dynamic shred, sourced R1 first sample"
+    },
+    {
+      "commit": "82f2b0f",
+      "change": "strict TS optional boundary; no value or evidence removal"
+    },
+    {
+      "commit": "8472169",
+      "change": "damage before secondary answered conditions; preserve original control/focus"
+    }
+  ],
+  "teamResult": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "nativeRuns": 0,
+    "savedInput": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.result.json",
+    "savedInputSha256": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+    "exportedSha256": "a34712835439c1bfc930198d4f8f3b79c6c617ad87adc54b6dbb5c47c2341907",
+    "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "frames": 7200,
+    "actualHits": 610,
+    "total": 27069474.337322712,
+    "dps": 225578.9528110226,
+    "byActor": {
+      "nicole": 921151.0747939858,
+      "durin": 4621465.1979512945,
+      "faruzan": 1851300.261779438,
+      "wanderer": 19675557.80279801
+    },
+    "projections": {
+      "命座投影（妮可C1）": 2344765.699898373,
+      "协同投影（妮可Q）": 1043662.512959718
+    },
+    "resultFilesVisibleWithoutOpeningAdvanced": true,
+    "originalFileUnchanged": true,
+    "savedApplicationsEnergyAndConfigurationUnchanged": true,
+    "frameCurveAndSteps": true,
+    "desktopAndNarrow": true,
+    "errors": []
+  },
+  "coverageEvidence": [
+    "docs/validation/SPECIFIED-TEAM-RESULT-FILES-20261023.json",
+    "docs/validation/SPECIFIED-TEAM-ADAPTIVE-ENTRY-20261023.json",
+    "docs/validation/FARUZAN-C6-INITIAL-20261023.json",
+    "docs/validation/WANDERER-DURIN-PRIMARY-20261023.json",
+    "docs/validation/NICOLE-C2-INITIAL-20261023.json",
+    "docs/validation/CALCULATOR-RESULT-FOCUS-20261023.json"
+  ],
+  "finalChecks": {
+    "typecheck": "passed",
+    "webBuild": "passed; 5.41s",
+    "nativeRunsThisBatch": 0,
+    "fullRegressionRerun": false,
+    "historicalFullSuite": {
+      "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+      "passed": 3196,
+      "failed": 79,
+      "skipped": 1
+    }
+  },
+  "libraryScreenshots": {
+    "status": "blocked-before-upload",
+    "error": "hosted apps tools/list HTTP401",
+    "attempts": 1,
+    "localPaths": [
+      "/tmp/GIDPS-specified-team-20261023/result-preset-restored/specified-team-frame-curve.png",
+      "/tmp/GIDPS-specified-team-20261023/calculator-result-focus/wanderer-damage-first.png"
+    ]
+  },
+  "limits": [
+    "No all-character or complete standalone skill coverage claim",
+    "C2 Nicole A4 ascension conflict below4 blocked",
+    "Nicole shield/buff/hit order fixed upstream TODO, not independent game confirmation",
+    "Full Aura/ICD/collision network and Wanderer E expiry during N3 not independently closed",
+    "One captured seeded 120s scenario, not expectation or infinite steady state",
+    "Five complete rotations plus a sixth prefix, 23 legal Q, not six full Q rounds",
+    "Stellar not rerun or inferred from Classic; no production deployment"
+  ]
+}
