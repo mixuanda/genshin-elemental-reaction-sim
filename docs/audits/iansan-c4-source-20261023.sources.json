@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "status": "fixed-community-source C4 acceptance and demonstrated C6 Q-restoration defect; not current-game validation",
+  "baseCommit": "314218dd990813224488ebbb5faff2c41c1ab993",
+  "archive": {
+    "path": "packages/game-data/sources/iansan-swift-resolved-casts/source.json.gz",
+    "sha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec",
+    "preservedUnchanged": true
+  },
+  "revisions": {
+    "optimizer": "180a0a1015cb725c7570cd828eb086749960df98",
+    "gcsim": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "fixedCons": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "path": "internal/characters/iansan/cons.go",
+    "sha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+    "gitBlobSha1": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a",
+    "matchesPinnedSourceTree": true,
+    "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/cons.go",
+    "identityProofReusedFrom": "docs/audits/iansan-c2-active-recipient-20261023.sources.json",
+    "rawBytesReadFrom": "/tmp/GIDPS-iansan-active-burst-evidence-20261023/cons.go",
+    "sha256Recomputed": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+    "gitBlobRecomputed": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a"
+  },
+  "archiveEntries": [
+    {
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json",
+      "bytes": 9247,
+      "sha256": "c571a86a8924789e8b05dbf1809c254434fda367681fdd4d4aae158ff73cfb6e",
+      "computedGitBlobSha1": "7a734a605d4fd5c7c5bd4afae4da6ef160c80202",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json",
+      "verification": "matched-fixed-revision-git-blob",
+      "gitTreeVerified": true
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/en/char_Iansan_gen.json",
+      "bytes": 11666,
+      "sha256": "2601430192a3ee04042987117fe3a41f234cbe238a9550decf6a11978f5ef883",
+      "computedGitBlobSha1": "ab22930671da5e36d1f089354558ae75a3eaf180",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Iansan_gen.json",
+      "verification": "matched-fixed-revision-git-blob",
+      "gitTreeVerified": true
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+      "bytes": 4705,
+      "sha256": "f74ce3aab15e228fba93d391ac13b03c5bcf21fc7bb1718971792f8277ad2c1a",
+      "computedGitBlobSha1": "4b80dc92dc003969fe8f28e35a67ad5b0a2b7263",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+      "verification": "matched-fixed-revision-git-blob",
+      "gitTreeVerified": true
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "bytes": 10009,
+      "sha256": "aa1a04be529dc04322a02e11a667fb92313f8c647aab71b54d982548d6e03738",
+      "computedGitBlobSha1": "d1878b74dfe3fbd488bcbfddb961ff2c2bc59b53",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "verification": "matched-fixed-revision-git-blob",
+      "gitTreeVerified": true
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/burst.go",
+      "bytes": 4195,
+      "sha256": "658a1dfddcc66a79d8cae06d4cb4f6fb62a33f0fbde023771bfe7c7aeae0e124",
+      "computedGitBlobSha1": "7775958be290fa773164ad7d5719430c548b69f1",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/burst.go",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "gitTreeVerified": false
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/skill.go",
+      "bytes": 3093,
+      "sha256": "3a05af9e483794e24e01157eafe234e6b12aea76ff15ff6584732437ed3c3399",
+      "computedGitBlobSha1": "b1cf0956b6ea5919aa78f04d0dfe8d2a3f4343d7",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/skill.go",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "gitTreeVerified": false
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/iansan.go",
+      "bytes": 2029,
+      "sha256": "0a405ccf6284d152820171b59d4619eb4c253e7aff0d3b2b3edfb17848461f22",
+      "computedGitBlobSha1": "9a0672064215a6a40c29bae9401975b02eb80c16",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/iansan.go",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "gitTreeVerified": false
+    },
+    {
+      "archiveKey": "gcsim/internal/template/nightsoul/nightsoul.go",
+      "bytes": 5077,
+      "sha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "computedGitBlobSha1": "c014ea4505d6ca601c39ccdfbf0a967b1f50523b",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/nightsoul/nightsoul.go",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "gitTreeVerified": false
+    },
+    {
+      "archiveKey": "gcsim/pkg/core/player/exec.go",
+      "bytes": 7607,
+      "sha256": "7256ca1d27b03e1855f3cdb014644115003e7585f3f6bf6023871a78c76a180c",
+      "computedGitBlobSha1": "4c6f739ee82d4aa50e0cd899238237044e99ba22",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/exec.go",
+      "verification": "matched-fixed-revision-git-blob",
+      "gitTreeVerified": true
+    }
+  ],
+  "functionalBlockComparisons": [
+    {
+      "function": "c4Init",
+      "byteIdentical": true,
+      "sha256": "61104ee490a54a171f485c5cb9822b9b84149c8fa041964c2ea9514df62d61b7"
+    },
+    {
+      "function": "c4OnBurst",
+      "byteIdentical": true,
+      "sha256": "8366321cc8acf67961440d55ec91d3fbca4370163bf906e6853457eb8d9ed4b5"
+    },
+    {
+      "function": "c4Points",
+      "byteIdentical": true,
+      "sha256": "99f742c986490863509e83e21e2477b332f96615fef39dfa3ec8da492b674e9b"
+    },
+    {
+      "function": "restorePointsTask",
+      "byteIdentical": true,
+      "originalSha256": "78ae2fc4bb774dc9b7777748992a94a4758a61f70b053466cf22b2a17935ba46",
+      "testedSha256": "78ae2fc4bb774dc9b7777748992a94a4758a61f70b053466cf22b2a17935ba46"
+    }
+  ],
+  "facts": {
+    "trigger": "Marker active + another current active party member uses Q; native OnBurst has no actor arguments and the active member is the caster. The ordinary producer necessarily places Iansan off field.",
+    "gate": "Once per marker, not once per teammate Q; own Q does not grant layers. Later Q cannot top up a spent layer.",
+    "layers": {
+      "count": 2,
+      "restorationEach": 4,
+      "consumption": "One per Scale restoration; switching Iansan on field after grant does not suppress its consumption."
+    },
+    "refund": "50% of previous Scale restoration overflow, including newly overflowing prior refund; native callback overwrites old overflow each tick.",
+    "expiration": "Marker expiry clears layers at its next callback. Real Nightsoul exit invalidates old callbacks; renewed Q resets layer gate and count. Stale unreachable storage is not an active grant.",
+    "optimizerConstellation4": [
+      4,
+      0.5
+    ],
+    "c6Scope": "Fixed Chinese and English C6 cover any Iansan Nightsoul restoration overflow; C4 refund is specifically Scale restoration overflow.",
+    "c6BeforeBug": "Burst +40f existing-Nightsoul branch calls GeneratePoints(15) directly, omitting c6OnOverflow. Real Burst callback NS47.4+15 caps54 with overflow8.4 but C6 absent. Q15 does not become C4 pointsOverflow.",
+    "c6NegativeBoundaries": [
+      "C6 NS39+15=54 is no overflow and grants nothing",
+      "C5 NS47.4+15 overflows but grants no C6",
+      "Before +40f neither Q restoration nor C6 occurs"
+    ]
+  },
+  "independentArithmetic": [
+    {
+      "input": "NS53; movement accumulator10; one C4 layer",
+      "restore": "10*0.67+4",
+      "restoration": 10.7,
+      "overflow": "53+10.7-54=9.7",
+      "afterNativeConsume14": "54-14=40",
+      "nextRestoration": "4+9.7*0.5=8.85",
+      "nextPoints": 48.85,
+      "nextOverflow": 0
+    },
+    {
+      "input": "NS54; two C4 layers; no movement/A1",
+      "overflowAtFrames": {
+        "60": 4,
+        "120": 6,
+        "180": 3,
+        "240": 1.5
+      }
+    },
+    {
+      "input": "Actual Q callback with controlled existing NS47.4",
+      "atFrame": 40,
+      "restore": 15,
+      "cappedPoints": 54,
+      "overflow": 8.4,
+      "expectedC6DurationFrames": 180,
+      "expectedC4OverflowCredit": 0
+    }
+  ],
+  "fixture": {
+    "path": "packages/source-host/tests/fixtures/iansan-c4-source-acceptance_test.go",
+    "sha256": "bdc5cb5ccda322a84c7271d03c2b8caf150b195c2487d16998dfdb6802266174",
+    "actualNativeCore": true,
+    "realFunctions": [
+      "c4Init event subscriber",
+      "c4OnBurst",
+      "restorePointsTask scheduled callback",
+      "Burst +40f callback",
+      "nightsoul GeneratePoints/ConsumePoints",
+      "exitNightsoul"
+    ],
+    "testMode": "Go -overlay; source tree read-only; no native WASM rebuild"
+  },
+  "sourceTreeBeforeAndAfter": {
+    "path": "/tmp/GIDPS-iansan-team-20261023/build-cache/stellar-build-X7lPE2/source",
+    "before": {
+      "internal/characters/iansan/cons.go": "deb5dce7176f65f6916d21e91170bdeab85b0ac60b46df9e3e03040a27241311",
+      "internal/characters/iansan/burst.go": "ce2a792a9de7a7f0256a3336109f53182a1d50f4ec0f123d3d4c114deb188edb",
+      "internal/characters/iansan/skill.go": "9034152df29c13c6531a0b153201486498968662518ae34eb7a63ddd72ec7127",
+      "internal/template/nightsoul/nightsoul.go": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "pkg/core/player/exec.go": "dd028478aab3f080eba7e5c146cf80c63550003e8eeedb12a37386e8703df581"
+    },
+    "after": {
+      "internal/characters/iansan/cons.go": "deb5dce7176f65f6916d21e91170bdeab85b0ac60b46df9e3e03040a27241311",
+      "internal/characters/iansan/burst.go": "ce2a792a9de7a7f0256a3336109f53182a1d50f4ec0f123d3d4c114deb188edb",
+      "internal/characters/iansan/skill.go": "9034152df29c13c6531a0b153201486498968662518ae34eb7a63ddd72ec7127",
+      "internal/template/nightsoul/nightsoul.go": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "pkg/core/player/exec.go": "dd028478aab3f080eba7e5c146cf80c63550003e8eeedb12a37386e8703df581"
+    },
+    "unchanged": true
+  },
+  "results": {
+    "c4Before": {
+      "topLevelPassed": 7,
+      "subtestsPassed": 2,
+      "exitCode": 0,
+      "log": "iansan-c4-source-20261023-go-before.log"
+    },
+    "combinedC6Before": {
+      "c4TopLevelPassed": 7,
+      "c4SubtestsPassed": 2,
+      "c6SubtestsPassed": 2,
+      "c6SubtestsFailed": 1,
+      "exitCode": 1,
+      "log": "iansan-c4-source-20261023-go-c6-before.log"
+    },
+    "after": "Not run in this child task; root owns native patch142 and combined141+142 after acceptance."
+  },
+  "limits": [
+    "C4 fixture injects marker/movement inputs and does not execute a complete Q rotation, readiness, energy, CD, movement or drain.",
+    "C6 actual Burst callback starts from explicit existing NS; full legal E-to-Q timing and native/Bridge capture remain root-owned.",
+    "Whether old Scale overflow should survive across marker removal/renewal is not settled by the retained descriptions; current source does not clear pointsOverflow, and this task neither asserts a reset nor modifies it.",
+    "No general high-constellation rotation support or current game verification is claimed."
+  ]
+}

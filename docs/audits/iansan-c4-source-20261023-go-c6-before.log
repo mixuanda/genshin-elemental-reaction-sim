@@ -1,0 +1,30 @@
+=== RUN   TestIansanC4SourceOtherActiveBurstAndMarkerGate
+--- PASS: TestIansanC4SourceOtherActiveBurstAndMarkerGate (0.00s)
+=== RUN   TestIansanC4SourceTwoFourPointRestorationsOncePerMarker
+--- PASS: TestIansanC4SourceTwoFourPointRestorationsOncePerMarker (0.00s)
+=== RUN   TestIansanC4SourcePreviousOverflowHalfAndNoDoubleCredit
+--- PASS: TestIansanC4SourcePreviousOverflowHalfAndNoDoubleCredit (0.00s)
+=== RUN   TestIansanC4SourceNewOverflowMayChainFromTheRefund
+--- PASS: TestIansanC4SourceNewOverflowMayChainFromTheRefund (0.00s)
+=== RUN   TestIansanC4SourceBelowC4HasNeitherLayersNorOverflowRefund
+--- PASS: TestIansanC4SourceBelowC4HasNeitherLayersNorOverflowRefund (0.00s)
+=== RUN   TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore
+=== RUN   TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/statusExpiredBeforeCallback
+=== RUN   TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/nativeNightsoulExitInvalidatesSource
+--- PASS: TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore (0.00s)
+    --- PASS: TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/statusExpiredBeforeCallback (0.00s)
+    --- PASS: TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/nativeNightsoulExitInvalidatesSource (0.00s)
+=== RUN   TestIansanC4SourceRenewalResetsGrantAndIgnoresOldCallback
+--- PASS: TestIansanC4SourceRenewalResetsGrantAndIgnoresOldCallback (0.00s)
+=== RUN   TestIansanC6SourceBurstRestorationOverflow
+=== RUN   TestIansanC6SourceBurstRestorationOverflow/exactCapDoesNotOverflow
+=== RUN   TestIansanC6SourceBurstRestorationOverflow/existingNightsoulOverflows
+    iansan_c4_source_acceptance_test.go:256: native Q +15 at40f: initial NS=47.399999999999999, overflow=8.3999999999999986, C6 C6 active=false, wanttrue
+=== RUN   TestIansanC6SourceBurstRestorationOverflow/belowC6DoesNotGrant
+--- FAIL: TestIansanC6SourceBurstRestorationOverflow (0.00s)
+    --- PASS: TestIansanC6SourceBurstRestorationOverflow/exactCapDoesNotOverflow (0.00s)
+    --- FAIL: TestIansanC6SourceBurstRestorationOverflow/existingNightsoulOverflows (0.00s)
+    --- PASS: TestIansanC6SourceBurstRestorationOverflow/belowC6DoesNotGrant (0.00s)
+FAIL
+FAIL	github.com/genshinsim/gcsim/internal/characters/iansan	0.005s
+FAIL
