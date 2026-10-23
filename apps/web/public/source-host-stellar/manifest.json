@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
-      "bytes": 72152682
+      "sha256": "e607f7cfe90b778cbd95ba4fa1d0184c00464ac187f2bc8f65a20834ec0fbc45",
+      "bytes": 72153797
     },
     {
       "path": "wasm_exec.js",
@@ -3465,12 +3465,12 @@
     },
     {
       "path": "talent-read-instrumentation.json",
-      "sha256": "f33eca30f4efa50a2194ed4d01d2f76dbc5dca1855ae960670ea67b7a76219d2",
-      "bytes": 393661
+      "sha256": "dc525fee0ec6e312f3774c1581565dae1cf8c0cd4c310f0d1cec59ff03262fb8",
+      "bytes": 393663
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "865c6ee2960856ed6333ca7853e6b26260c3408bc8e4196155a576a3f282a52d",
+      "sha256": "3486a741570f48b7cd4662c2ac30a5f8def92b94cf5d3ca8a2bcd6073accf9e2",
       "bytes": 1883017
     }
   ],
@@ -3487,8 +3487,8 @@
     },
     "report": {
       "path": "talent-read-instrumentation.json",
-      "sha256": "f33eca30f4efa50a2194ed4d01d2f76dbc5dca1855ae960670ea67b7a76219d2",
-      "bytes": 393661
+      "sha256": "dc525fee0ec6e312f3774c1581565dae1cf8c0cd4c310f0d1cec59ff03262fb8",
+      "bytes": 393663
     },
     "host": {
       "goos": "linux",
@@ -4289,6 +4289,21 @@
       "path": "137-wanderer-c2-burst-snapshot-scope.patch",
       "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
       "bytes": 9512
+    },
+    {
+      "path": "138-iansan-swift-normal-talent.patch",
+      "sha256": "cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538",
+      "bytes": 536
+    },
+    {
+      "path": "139-iansan-c1-consumption-threshold.patch",
+      "sha256": "6f61d4f4ee3478b8b55ce4097c5ac35e6719a79188bb34126263444227b12e79",
+      "bytes": 879
+    },
+    {
+      "path": "140-iansan-c2-active-recipient.patch",
+      "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f",
+      "bytes": 457
     }
   ],
   "supportedFormulaFamilies": [
