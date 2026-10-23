@@ -10,7 +10,7 @@ import { openSourceHostResultArchive } from "./source-host-result-archive";
 import { isSourceHostWandererC2ScopeError } from "./source-host-wanderer-c2-scope";
 import {
   SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT, SOURCE_HOST_PROTOCOL,
-  sourceHostCharacterModifierRequestSchema, sourceHostDamageRequestSchema,
+  sourceHostCharacterModifierRequestSchema, sourceHostCharacterAdditiveRequestSchema, sourceHostDamageRequestSchema,
   type SourceHostCalculationRecord, type SourceHostDamageRequest,
 } from "./source-host-wire";
 
@@ -148,6 +148,32 @@ for (const [lane, sourceCommit] of [["classic", SOURCE_HOST_COMMIT], ["stellar",
       });
       expect(() => verifySourceHostArtifactSupport(consumer, records)).toThrow(/C2|二命/);
       expect(() => resolveSourceHostRequest(consumer, records)).toThrow(/C2|二命/);
+      consumer.attackTag = 6; consumer.attackTagName = request.attackTagName;
+      // A Q label does not turn this new general getter into the Q's saved snapshot.
+      expect(() => verifySourceHostArtifactSupport(consumer, records)).toThrow(/C2|二命/);
+      expect(() => resolveSourceHostRequest(consumer, records)).toThrow(/C2|二命/);
+    });
+
+    it("keeps the original Q snapshot scope in its same-hit Faruzan additive helper", () => {
+      const { request, records } = scenario(sourceCommit);
+      const faruzanBase = Array<number>(26).fill(0); faruzanBase[24] = 650;
+      // Both pinned Go bridges forward atk.Info and atk.Snapshot unchanged.
+      // This matches real corrected Stellar helper #3681, while the helper's
+      // separate live statRead belongs to Faruzan and contains no Wanderer C2.
+      const helper = sourceHostCharacterAdditiveRequestSchema.parse({ ...structuredClone(request),
+        id: 3, kind: "character-additive", damageCategory: "character-additive", componentScope: "same-hit",
+        input: { ruleId: "char-add-faruzan-a4", sourceHolderIndex: 1, phase: "hit", state: { baseAtk: 650 } },
+        statRead: { id: "actor-1-read-base-atk", kind: "stat", frame: 55, actorIndex: 1,
+          selector: [24], nonExtra: false, base: faruzanBase, steps: [], result: faruzanBase },
+      });
+      expect(verifySourceHostArtifactSupport(helper, records).get("actor-0-read-q/0/21"))
+        .toBe("characterModifier.1.char-dyn-wanderer-c2");
+      expect(resolveSourceHostRequest(helper, records).value).toBe(208); // Faruzan .32 * base ATK650.
+      records.set(3, { request: helper, value: 208 });
+      request.id = 4; request.componentIds = [3];
+      request.componentApplications = [{ id: 3, multiplier: 1, amount: 208 }];
+      request.input.flatDamage = 208;
+      expect(resolveSourceHostRequest(request, records).value).toBe(1812); // (1000+208)*(1+2)*.5.
     });
 
     it("opens and exports a known bad saved original without changing identity or claiming current replay passed", () => {

@@ -13,13 +13,15 @@
     "afterNewTestsPassed": 14,
     "afterNewTestsFailed": 0,
     "afterReceipt": "after-final.json",
-    "finalTestsPassed": 17,
+    "finalTestsPassed": 19,
     "finalTestsFailed": 0,
-    "finalReceipt": "focused-tests-final.json",
+    "finalReceipt": "focused-tests-derived-final.json",
     "nonDamageBeforeFailed": 2,
     "nonDamageBeforeReceipt": "before-nondamage.json",
-    "newCrossModeTests": 16,
-    "existingAdjacentTests": 1
+    "newCrossModeTests": 18,
+    "existingAdjacentTests": 1,
+    "derivedHelperBeforeFailed": 2,
+    "derivedHelperBeforeReceipt": "before-derived-helper.json"
   },
   "legacySource": {
     "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before/run.result.json",
@@ -260,13 +262,111 @@
     "oldCandidateFilesChanged": false
   },
   "scopeChecks": {
-    "consumerKind": "damage required; generic non-damage Stats consumption rejected",
+    "consumerContext": "original attack snapshotRead, including same-hit helpers that forward it; not a request.kind whitelist",
     "numericAttackTag": 6,
     "attackTagNames": [
       "AttackTagElementalBurst",
       "AttackTag(6)"
     ],
     "consumerAndReadActor": "creation holder",
-    "creationWithoutConsumption": "still accepted"
+    "creationWithoutConsumption": "still accepted",
+    "separateGeneralGetterWithBurstLabel": "rejected"
+  },
+  "derivedHelperCorrection": {
+    "priorCommit": "52b381da621defa414ae2c9d7140a23688f30e2d",
+    "priorMistake": "request.kind damage incorrectly excluded a forwarded original Q snapshot in character-additive",
+    "nativeRerun": false,
+    "scope": "Offline complete saved-result parse and selected hit replay; no native simulation",
+    "measurements": [
+      {
+        "lane": "stellar-before",
+        "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before/run.result.json",
+        "sha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+        "bytes": 9599369,
+        "mode": "readonly-c2-defect",
+        "currentNumericValidation": "failed",
+        "calculations": 3781,
+        "applications": 111,
+        "originalTextExact": true,
+        "originalFileUnchanged": true,
+        "badHits": [
+          {
+            "attackId": 109,
+            "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+            "consumerCalculationId": 3475
+          },
+          {
+            "attackId": 110,
+            "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+            "consumerCalculationId": 3472
+          },
+          {
+            "attackId": 122,
+            "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+            "consumerCalculationId": 3786
+          }
+        ]
+      },
+      {
+        "lane": "stellar-after",
+        "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-after/run.result.json",
+        "sha256": "f04d3e16c349adcd2ccb12cbd5f4010dd69740e8e87ef3ff9c00999465ebf1ce",
+        "bytes": 9598502,
+        "mode": "replayed",
+        "currentNumericValidation": "passed",
+        "calculations": 3781,
+        "applications": 111,
+        "originalTextExact": true,
+        "originalFileUnchanged": true,
+        "helper": {
+          "id": 3681,
+          "kind": "character-additive",
+          "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+          "attackTag": 6,
+          "attackTagName": "AttackTag(6)",
+          "ruleId": "char-add-faruzan-a4",
+          "snapshotReadId": "actor-0-read-2045",
+          "snapshotFrame": 1217,
+          "separateStatReadActor": 1,
+          "expected": 208.26577763200004,
+          "replayed": 208.26577763200004,
+          "difference": 0
+        },
+        "qHits": [
+          {
+            "attackId": 111,
+            "difference": 0
+          },
+          {
+            "attackId": 112,
+            "difference": 0
+          },
+          {
+            "attackId": 113,
+            "difference": 0
+          },
+          {
+            "attackId": 114,
+            "difference": 0
+          },
+          {
+            "attackId": 115,
+            "difference": 0
+          }
+        ]
+      }
+    ],
+    "bridgeSources": [
+      {
+        "path": "packages/source-host/go/pkg/core/sourcehost/character_additive.go",
+        "sha256": "d2d606c62a2149c6e46803f33429c20d55a0b89e01c3e2b6f08d751ae5f38ae7",
+        "transfers": "Request from atk.Info; SourceFrame, SnapshotFrame, AttackID, SnapshotStats and SnapshotFields from the same AttackEvent"
+      },
+      {
+        "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/character_additive.go",
+        "sha256": "d2d606c62a2149c6e46803f33429c20d55a0b89e01c3e2b6f08d751ae5f38ae7",
+        "transfers": "Request from atk.Info; SourceFrame, SnapshotFrame, AttackID, SnapshotStats and SnapshotFields from the same AttackEvent"
+      }
+    ]
   }
 }

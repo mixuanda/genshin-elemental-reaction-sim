@@ -16,7 +16,7 @@ import { SOURCE_HOST_COMMIT, type SourceHostCalculationRecord, type SourceHostCa
 
 type SupportRecords = ReadonlyMap<number, SourceHostCalculationRecord>;
 type ResistanceMeta = { sourceHolderIndex: number; createdFrame: number; targetKey: number; element: string };
-type StepRef = { ids: number[]; creationIds?: number[] | undefined; readId: string; index: number; key: string; frame: number; actorIndex?: number | undefined; effectSourceActorIndex?: number | undefined; targetKey?: number | undefined; readElement?: string | undefined; stepElement?: string | undefined; artifactResistance?: ResistanceMeta | undefined; kind: "stat" | "scalar"; scalarKind?: SourceHostScalarKind; returned: number[] | number | null; outcome: string };
+type StepRef = { ids: number[]; creationIds?: number[] | undefined; readId: string; index: number; key: string; frame: number; actorIndex?: number | undefined; effectSourceActorIndex?: number | undefined; targetKey?: number | undefined; readElement?: string | undefined; stepElement?: string | undefined; artifactResistance?: ResistanceMeta | undefined; attackSnapshot?: true; kind: "stat" | "scalar"; scalarKind?: SourceHostScalarKind; returned: number[] | number | null; outcome: string };
 const modifierKeys: Record<string, string> = {
   "mh-2pc": "mh-2pc", "mh-4pc": "mh-4pc", "gt-2pc": "troupe-2pc", "gt-4pc": "troupe-4pc",
   "hod-2pc": "hod-2pc", "hod-4pc": "hod-4pc", "nd-2pc": "nd-2pc", "nd-4pc-atk": "nd-4pc", "nd-4pc-hydro": "nd-4pc",
@@ -25,7 +25,7 @@ const modifierKeys: Record<string, string> = {
   "vg-2pc": "vg-2pc", "vg-4pc-base": "vg-4pc", "vg-4pc-stack": "vg-4pc-stack",
 };
 
-function refsFromStatRead(read: SourceHostStatReadReceipt, refs: StepRef[]): void {
+function refsFromStatRead(read: SourceHostStatReadReceipt, refs: StepRef[], attackSnapshot = false): void {
   for (const step of read.steps) {
     if (step.formulaCalculationIds && new Set(step.formulaCalculationIds).size !== step.formulaCalculationIds.length) {
       throw new Error(`来源属性步骤 ${read.id}/${step.key} 重复消费同一公式 ID`);
@@ -34,8 +34,8 @@ function refsFromStatRead(read: SourceHostStatReadReceipt, refs: StepRef[]): voi
       || step.creationFormulaCalculationIds.some(id => !step.formulaCalculationIds?.includes(id)))) {
       throw new Error(`来源属性步骤 ${read.id}/${step.key} 的创建公式 ID 不属于实际消费列表`);
     }
-    if (step.formulaCalculationIds?.length) refs.push({ ids: step.formulaCalculationIds, creationIds: step.creationFormulaCalculationIds, readId: read.id, index: step.index, key: step.key, frame: read.frame, actorIndex: read.actorIndex, effectSourceActorIndex: read.effectSourceActorIndex, targetKey: read.targetKey, kind: "stat", returned: step.returned, outcome: step.outcome });
-    step.dependencies.forEach(nested => refsFromStatRead(nested, refs));
+    if (step.formulaCalculationIds?.length) refs.push({ ids: step.formulaCalculationIds, creationIds: step.creationFormulaCalculationIds, readId: read.id, index: step.index, key: step.key, frame: read.frame, actorIndex: read.actorIndex, effectSourceActorIndex: read.effectSourceActorIndex, targetKey: read.targetKey, kind: "stat", returned: step.returned, outcome: step.outcome, ...(attackSnapshot ? { attackSnapshot: true as const } : {}) });
+    step.dependencies.forEach(nested => refsFromStatRead(nested, refs, attackSnapshot));
   }
 }
 
@@ -60,7 +60,7 @@ export function sourceHostArtifactSupportRefs(request: SourceHostCalculationRequ
   if (request.kind === "character-multiplier") request.statReads?.forEach(read => refsFromStatRead(read, refs));
   if (request.snapshot && "statProvenance" in request.snapshot && request.snapshot.statProvenance != null) {
     const stat = sourceHostStatProvenanceSchema.parse(request.snapshot.statProvenance);
-    if (stat.snapshotRead) refsFromStatRead(stat.snapshotRead, refs);
+    if (stat.snapshotRead) refsFromStatRead(stat.snapshotRead, refs, true);
     stat.attackReads.forEach(read => refsFromStatRead(read, refs));
   }
   if (request.scalarProvenance) {
@@ -303,10 +303,11 @@ export function verifySourceHostArtifactSupport(request: SourceHostCalculationRe
         const computed = resolveSourceHostCharacterModifierInput(input, record.request.sourceCommit ?? SOURCE_HOST_COMMIT, `characterModifier.${id}`);
         close(record.value, computed.value, `character-modifier #${id}`);
         // C2 is a creation-time stored vector, scoped by Wanderer.Snapshot to
-        // this attack's Burst tag. A matching scalar/slot alone cannot verify
-        // a non-Q hit, another actor, or an inconsistent numeric/name tag pair.
+        // this attack's Burst snapshot. Same-hit helpers also carry that exact
+        // AttackInfo/Snapshot, while their separate live getters do not acquire
+        // its scope. Request kind alone cannot distinguish those two contexts.
         if (input.ruleId === "char-dyn-wanderer-c2"
-          && (request.kind !== "damage" || request.actorKey !== descriptor.character || request.actorIndex !== input.sourceHolderIndex
+          && (!ref.attackSnapshot || request.actorKey !== descriptor.character || request.actorIndex !== input.sourceHolderIndex
             || ref.actorIndex !== input.sourceHolderIndex || request.attackTag !== 6
             || !sourceHostAttackTagMatches(request.attackTagName, "AttackTagElementalBurst"))) {
           throw new SourceHostWandererC2ScopeError(id, request.id);

@@ -6,7 +6,9 @@
 
 发现的真实缺口在 `source-host-artifact-support.ts`：此前会核对角色规则、modifier key、DmgP 槽、创建 ID、持有者、时间、源码及数值，但不核对 C2 消费命中的攻击范围。因此合法 Q 回执仅改成普攻标签后，仍把 C2 的 +200% 连接成已校验公式。独立期望为 ATK1000、倍率1、90 对90、零抗无暴时，Q 含 C2 得1500；普攻不能借此得到1500，其无 C2 算术为500。最小跨模式回归在修复前为4通过、4失败；失败均为应拒绝的范围负例。
 
-修复收紧所有 C2 消费：请求必须为 `damage`，角色必须为流浪者，消费角色及属性读取角色必须为创建持有者，数值标签必须为6，标签名称须匹配已核对的元素爆发枚举。Classic 的 `AttackTagElementalBurst` 和 Stellar 的 `AttackTag(6)` 走同一已有别名比较器。技能显示名称不能代替标签。非伤害请求的通用 Stats 回执若挂入 C2 消费，同样拒绝；没有消费回执的创建公式自身仍正常可算。原有创建阶段、ID、数值、源码和时序检查均保留；公式值及延迟 Q 快照未改。检查约束的是记录中的作用范围，不等于独立证明所有原生触发、期限或游戏机制。
+修复按原 Q 快照上下文收紧所有 C2 消费：贡献必须来自 `request.snapshot.statProvenance.snapshotRead` 所保存的原攻击取样，角色必须为流浪者，消费角色及属性读取角色必须为创建持有者，数值标签必须为6，标签名称须匹配已核对的元素爆发枚举。Classic 的 `AttackTagElementalBurst` 和 Stellar 的 `AttackTag(6)` 走同一已有别名比较器。技能显示名称不能代替标签。独立现场 getter 的 `statRead` 即使带 Q 标签也不能继承该快照范围；没有消费回执的创建公式自身仍正常可算。原有创建阶段、ID、数值、源码和时序检查均保留；公式值及延迟 Q 快照未改。检查约束的是记录中的作用范围，不等于独立证明所有原生触发、期限或游戏机制。
+
+初版 `52b381d` 错把 `kind === damage` 当成攻击快照边界，真实浏览器导入修正 Stellar 结果时误拒了合法派生 helper。后续以原桥接实现和真实记录纠正：两模式的 `pkg/core/sourcehost/character_additive.go` 从 `atk.Info` 创建 helper，并传递同一攻击的 SourceFrame、SnapshotFrame、AttackID、SnapshotStats 和 SnapshotFields，因此 `character-additive` 也可携带原 Q 快照。两桥文件 SHA-256 同为 `d2d606c62a2149c6e46803f33429c20d55a0b89e01c3e2b6f08d751ae5f38ae7`。这不等于放行所有非伤害请求；参考来源明确区分原快照与额外现场读取。
 
 ## 旧结果读取与新验证分开
 
@@ -43,6 +45,8 @@ openSourceHostResultArchive(originalText: string): {
 
 ## 定向验证
 
-新增跨模式测试16项：创建值及0/1/49/50/超过上限边界、五笔延迟 Q、合法结果保存重开、公式实验只改数值且不改历史命中、NA/C6/投射拒绝、数值/字符串标签不一致拒绝、持有者与读取角色拒绝、创建 ID 标记保留、非伤害通用 Stats 消费拒绝而独立创建不误挡、旧档案原文及 wrapper 导出、严格重放拒绝、其他结构/数值错误不得借只读分支吞掉。另运行原有非 C2 圣遗物消费者回归，合计17项，检查共享分支没有扩散改动。
+新增跨模式测试18项：创建值及0/1/49/50/超过上限边界、五笔延迟 Q、合法结果保存重开、公式实验只改数值且不改历史命中、NA/C6/投射拒绝、数值/字符串标签不一致拒绝、持有者与读取角色拒绝、创建 ID 标记保留、现场通用 Stats 消费拒绝而独立创建不误挡、合法同击 Faruzan helper 沿用 Q 原快照、旧档案原文及 wrapper 导出、严格重放拒绝、其他结构/数值错误不得借只读分支吞掉。现场 Stats 负例增加了伪装成 Q 标签仍应拒绝的断言，没有删除原负例。helper 的独立算术为 `.32*650=208`，后续 Q 组合为 `(1000+208)*(1+2)*.5=1812`。另运行原有非 C2 圣遗物消费者回归，合计19项通过。
 
-证据目录为 `/tmp/GIDPS-c2-crossmode-consumer-evidence-20261023/`；`before-corrected-test.json` 是有效的修前范围复现，`before-nondamage.json` 保留后补非伤害负例的2项修前失败，`focused-tests-final.json` 是最终定向测试，`stellar-before-facts.json` 和 `stellar-before-real-probe.json` 保存真实旧记录观察。早期 `before.json` 曾误读独立计算返回属性名，`after-archive.json` 曾错误假设捕获入口不会自行重放；修正测试调用后仍保留全部数值和拒绝断言，且另明确断言捕获入口也拒绝旧坏消费。原始失败回执未覆盖。
+真实修正结果 `/tmp/GIDPS-c2-crossmode-20261023/stellar-after/run.result.json` 为9598502字节，SHA-256 `f04d3e16c349adcd2ccb12cbd5f4010dd69740e8e87ef3ff9c00999465ebf1ce`。完整3781项公式/111次应用通过当前数值重放，archive 返回 `replayed`；helper3681的原 Q 取样为 `actor-0-read-2045`，SnapshotFrame1217，另一次现场读取是 Faruzan actor1的基础攻击。独立 `.32*650.8305551000001=208.26577763200004` 与 helper 重放一致，五笔 Q 差值仍为0。同期重读旧结果仍为只读，三笔违规消费仍拒绝。两个原文件及其原文均未改。这里只做已保存结果的离线完整解析，没有重跑原生模拟。
+
+证据目录为 `/tmp/GIDPS-c2-crossmode-consumer-evidence-20261023/`；`before-corrected-test.json` 是有效的修前范围复现，`before-nondamage.json` 保留后补非伤害负例的2项修前失败，`before-derived-helper.json` 保留合法 helper 误拒的两模式失败。`focused-tests-derived-final.json` 是最终19项定向测试，`derived-helper-real-probe.json` 保存真实修正/旧结果离线探针。`stellar-before-facts.json` 和 `stellar-before-real-probe.json` 保存真实旧记录观察。早期 `before.json` 曾误读独立计算返回属性名，`after-archive.json` 曾错误假设捕获入口不会自行重放；修正测试调用后仍保留全部数值和拒绝断言，且另明确断言捕获入口也拒绝旧坏消费。原始失败回执未覆盖。
