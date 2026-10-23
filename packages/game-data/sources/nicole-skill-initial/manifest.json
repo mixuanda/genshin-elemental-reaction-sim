@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "status": "fixed-community-source; no current-game validation",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceArchive": {
+    "path": "packages/game-data/sources/entity-followup-casts/source.json.gz",
+    "sha256": "486d43d644f7e8a5d7061cdc51a729584c1b0b86c98b1b64627391215291ab55",
+    "unchanged": true
+  },
+  "files": [
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/asc.go",
+      "sha256": "addec82b9cf47764c411981e1d6798d63f891c5ddc025987173474d0a02faf2a",
+      "computedGitBlobSha1": "e08aab99b3b4cd6f61e523fb987f62b27a61c0ca",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/asc.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/attack.go",
+      "sha256": "7a692a80dc8fde0c871dda3d8ed982bae0c873a04489dc93f4c94d3293e0e2eb",
+      "computedGitBlobSha1": "47b0b851d6953d8abaa89541b5d35d0706dbe3e1",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/attack.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/burst.go",
+      "sha256": "4c23d0f594b2309677629233fbe99ab1d3365899ba277aa472a2ef34fd67bf72",
+      "computedGitBlobSha1": "6f27ad88ff02547334f7e550658d83d673b7ec62",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/burst.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/charge.go",
+      "sha256": "28f13911673401a7b91db3b2a3f30a186d201fec8644242c8f47ccc6b4d3dc56",
+      "computedGitBlobSha1": "623231713767b0e264aee3dc233a58daa0916bd4",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/charge.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/cons.go",
+      "sha256": "b2e16ca7ada85446c2c37eead77aad0190a19e786302d5058a25366b576293ff",
+      "computedGitBlobSha1": "ae44f334a2bb1b7848b5ce314836f0a98a49c891",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/cons.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/nicole.go",
+      "sha256": "a2eb948317a88d27579832a4e8f4ae3613811cd676f5fec92a33fc460acb9dde",
+      "computedGitBlobSha1": "399f0327bb618f965d0876613bb1c85d76989579",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/nicole.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/shield.go",
+      "sha256": "b3a23c733c677e729d1dc05d000392cffdfe061827eec881f7c508b1ba1bf3e6",
+      "computedGitBlobSha1": "b51d9fe5c5a4919f74a52f39bdf6af8e07332689",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/shield.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/skill.go",
+      "sha256": "1d8a9dc47fa15ae4ca87e6f90c8cd3188d9c33684f5511c22570d3bfb0e91823",
+      "computedGitBlobSha1": "30937d393aa544ec7cbbbaec2db6e8dab7693a3b",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/skill.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/zz_nicole.dm.go",
+      "sha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+      "computedGitBlobSha1": "831580d8223431fb391ca85d17b55c2c518c67b1",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/zz_nicole.dm.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "computedGitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "computedGitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    },
+    {
+      "archiveKey": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "computedGitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+    }
+  ],
+  "signatureSource": {
+    "source": "gcsim",
+    "file": "gcsim/internal__weapons__catalyst__angelosheptades__angelosheptades.go.txt",
+    "upstreamPath": "internal/weapons/catalyst/angelosheptades/angelosheptades.go",
+    "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/angelosheptades/angelosheptades.go",
+    "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/angelosheptades/angelosheptades.go",
+    "sha256": "2489bdf8f3216760991ea9952dfb2b218dc867bc206d6810bab4d3378ff1601f",
+    "bytes": 3165,
+    "evidenceRole": "reference-implementation",
+    "path": "gcsim/internal__weapons__catalyst__angelosheptades__angelosheptades.go.txt"
+  },
+  "skillCoefficientValues": [
+    1.384,
+    1.4878,
+    1.5916,
+    1.73,
+    1.8338,
+    1.9376,
+    2.076,
+    2.2144,
+    2.3528,
+    2.4912,
+    2.6296,
+    2.768,
+    2.941,
+    3.114,
+    3.287
+  ],
+  "skillAttackRatioValues": [
+    0.0825,
+    0.09,
+    0.0975,
+    0.105,
+    0.1125,
+    0.12,
+    0.1275,
+    0.135,
+    0.1425,
+    0.15,
+    0.159,
+    0.168,
+    0.177,
+    0.186,
+    0.195
+  ],
+  "skillAttackCapValues": [
+    330.0,
+    360.0,
+    390.0,
+    420.0,
+    450.0,
+    480.0,
+    510.0,
+    540.0,
+    570.0,
+    600.0,
+    636.0,
+    672.0,
+    708.0,
+    744.0,
+    780.0
+  ],
+  "sourceFacts": {
+    "oldSkillA1C2RemovedAt": 0,
+    "shieldAndSignatureFirstRefreshAt": 8,
+    "skillGrantAfterShieldAt": 8,
+    "initialSnapshotAndHitAt": 9,
+    "a1NewAttackDoesNotBackfillOffensiveSnapshot": true,
+    "onEnemyHitRunsBeforeDynamicResistanceRead": true,
+    "c2AdditiveAttack": 300,
+    "newA1Attack": 300,
+    "c2ResistanceReduction": 0.25,
+    "skillRadius": 5,
+    "c2Radius": 10,
+    "legalSwapEarliest": 31,
+    "c1UnityDelay": 30
+  },
+  "scope": "C0–C2 E9 initial only. No other events or displacement from action start to initial. C2 A4 self-upgrade/shred path requires ascension4+. No Unity, full Q, energy or shield totals. Signature helper only updates existing effectContext for R1 first refresh; it adds no character damage formula.",
+  "preservedConflict": "Native a4Init has no ascension4 gate while fixed talent description requires A4; low-ascension C2 initial is blocked rather than guessed.",
+  "independentArithmetic": {
+    "method": "Decimal arithmetic separate from TS execution",
+    "effectiveELevel": 10,
+    "nonExtraAttackAtGrant": "2000",
+    "skillGrant": "300.00",
+    "c2Attack": "300",
+    "newA1InSnapshot": "0",
+    "attackAtInitial": "2600",
+    "coefficient": "2.4912",
+    "effectiveResistance": "-0.15",
+    "resistanceMultiplier": "1.075",
+    "defenseMultiplier": ".5",
+    "nonCritical": "3481.4520000000",
+    "expectedAtCR50CD100": "5222.17800000000",
+    "r1SignatureFirstRefreshBonus": "0.2000",
+    "expectedWithSameSampleR1Signature": "6266.613600000000000"
+  }
+}
