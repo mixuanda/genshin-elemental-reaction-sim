@@ -1,11 +1,11 @@
 {
-  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+durin.8",
+  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+durin.8",
   "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
   "scope": "pinned-source-provisional-conditioned-hit-fields",
   "charactersWithHits": 124,
-  "classifiedHits": 1303,
-  "completeActions": 717,
-  "partialActions": 34,
+  "classifiedHits": 1307,
+  "completeActions": 719,
+  "partialActions": 35,
   "blockedMappings": 0,
   "standaloneSpecialComponents": {
     "count": 8,
@@ -948,9 +948,9 @@
       "name": "基尼奇",
       "slug": "kinich",
       "releasePatch": "5.0",
-      "hits": 3,
-      "completeActions": 1,
-      "partialActions": 0,
+      "hits": 7,
+      "completeActions": 3,
+      "partialActions": 1,
       "blockedMappings": 0
     },
     {
@@ -3302,6 +3302,208 @@
     }
   ],
   "independentImplementationSources": [
+    {
+      "format": "gidps-kinich-selected-e-hits-source-v1",
+      "repository": "genshinsim/gcsim",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "status": "provisional",
+      "files": [
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/kinich.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/kinich.go",
+          "bytes": 3624,
+          "sha256": "b262472f203270a2860b0a275bc76f8188656566cccc21561a0ca29439fd7ed3",
+          "gitBlob": "2ad3e6444604694d99109a884648cdc4b75fbaa9"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/skill.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/skill.go",
+          "bytes": 6266,
+          "sha256": "b2aa0605ae45f06d659810272b33b9a0d9e8956089c9865169e4a0b4a6543736",
+          "gitBlob": "07f3de1fb8d5cb95fad82024ee8bbbbc1d8c1554"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/asc.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/asc.go",
+          "bytes": 1685,
+          "sha256": "c0875c6d0713503281237f5cdf7fb26e9c5b3e91730c826af73d14c353f79228",
+          "gitBlob": "e9d1631bbf309d244d6e979f5585ae8737c23fad"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/cons.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/cons.go",
+          "bytes": 2463,
+          "sha256": "755225aec68bce074c58765bc08b10f66f49acd7d7a7835775c435efe43a1a8f",
+          "gitBlob": "7a0a85041864bbfc1407623ce618493fdf141679"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/zz_kinich.dm.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/zz_kinich.dm.go",
+          "bytes": 3492,
+          "sha256": "c35b6b0a8c118439e0754774c5074742e7449391a2963480e7649ba50d61df37",
+          "gitBlob": "ea5575b32bdbc013e093e0e07621e2a325031f86"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/attack.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/attack.go",
+          "bytes": 7328,
+          "sha256": "d84e140a06366f0d33de1bc937a97ffa3e928773cf4edc16534d796969c987dc",
+          "gitBlob": "3a1bd90e9fa541e1e348626bf32cbf6837fdc612"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/charge.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/charge.go",
+          "bytes": 1793,
+          "sha256": "dbfd80d4ff4028da0eeb2903c608fea9477e09e2bc31dcb421690ca815ef820a",
+          "gitBlob": "76e09d7e4c18990b977ce597a75dee8f8d88cd6d"
+        },
+        {
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "path": "internal/characters/kinich/burst.go",
+          "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kinich/burst.go",
+          "bytes": 3136,
+          "sha256": "2e921d934365acc17fba38f1f23bfa4d4049c2cd8a9921104637b49273d5a490",
+          "gitBlob": "68c47d95893ede939103fba39ada8481170bed2c"
+        }
+      ],
+      "coefficients": [
+        {
+          "sourceTable": "loopShot",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "values": [
+            0.5728,
+            0.61576,
+            0.65872,
+            0.716,
+            0.75896,
+            0.80192,
+            0.8592,
+            0.91648,
+            0.97376,
+            1.03104,
+            1.08832,
+            1.1456,
+            1.2172,
+            1.2888,
+            1.3604
+          ]
+        },
+        {
+          "sourceTable": "scalespikerCannon",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "values": [
+            6.8744,
+            7.38998,
+            7.90556,
+            8.593,
+            9.10858,
+            9.62416,
+            10.3116,
+            10.99904,
+            11.68648,
+            12.37392,
+            13.06136,
+            13.7488,
+            14.6081,
+            15.4674,
+            16.3267
+          ]
+        }
+      ],
+      "crossVariant": {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "files": [
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/kinich.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/kinich.go",
+            "bytes": 3624,
+            "sha256": "b262472f203270a2860b0a275bc76f8188656566cccc21561a0ca29439fd7ed3",
+            "gitBlob": "2ad3e6444604694d99109a884648cdc4b75fbaa9"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/skill.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/skill.go",
+            "bytes": 6254,
+            "sha256": "fcd11f8c31daacc5aeca375062b1ce4868712dcb83ec7a78afc52a5fbb1abe0a",
+            "gitBlob": "c0f00e53953bf5c008ff734044b1cb135530f945"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/asc.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/asc.go",
+            "bytes": 1685,
+            "sha256": "c0875c6d0713503281237f5cdf7fb26e9c5b3e91730c826af73d14c353f79228",
+            "gitBlob": "e9d1631bbf309d244d6e979f5585ae8737c23fad"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/cons.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/cons.go",
+            "bytes": 2459,
+            "sha256": "fe5cd7d4db562a7bd5c9fa690427f8c3bbf336ef5cc049a885acee88f62e526f",
+            "gitBlob": "1b60c63fb8b7712798eb47cdb4562da5344bfca7"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/zz_kinich.dm.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/zz_kinich.dm.go",
+            "bytes": 3492,
+            "sha256": "c35b6b0a8c118439e0754774c5074742e7449391a2963480e7649ba50d61df37",
+            "gitBlob": "ea5575b32bdbc013e093e0e07621e2a325031f86"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/attack.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/attack.go",
+            "bytes": 7320,
+            "sha256": "4f9c9c8ee2d21c354f8b3a63daa83542937dd903bd238c38a182d24e7bdd24df",
+            "gitBlob": "1aaff769176453bf6537960d984cb701cf6f433a"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/charge.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/charge.go",
+            "bytes": 1793,
+            "sha256": "dbfd80d4ff4028da0eeb2903c608fea9477e09e2bc31dcb421690ca815ef820a",
+            "gitBlob": "76e09d7e4c18990b977ce597a75dee8f8d88cd6d"
+          },
+          {
+            "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+            "path": "internal/characters/kinich/burst.go",
+            "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/kinich/burst.go",
+            "bytes": 3120,
+            "sha256": "a9c95aab9d0e65eb555e2cc445d5dd3710bd7be82071411b5802b4a35647ede8",
+            "gitBlob": "0b5fdfc3a4e7d315d08f597e6d030a7b70253365"
+          }
+        ],
+        "identicalTalentVectors": true,
+        "mechanismDiff": "E/attack/cons only rename AdditionalTag types; burst.go also changes frame default. Q is not implemented by this module."
+      },
+      "mechanics": {
+        "C1": "cons.go:c1: cannon additional tag plus elemental-skill attack tag adds CD=1; no loop-shot bonus.",
+        "A4": "asc.go:a4Amount: consume 0–2 explicitly active stacks; FlatDmg=3.2*stacks*TotalAtk at cannon action creation, before release snapshot.",
+        "nightsoul": "skill.go:Skill: cannon requires active blessing and exactly MaxPoints (20); points drain before snapshot. E entry itself does not deal damage.",
+        "loopPair": "attack.go:skillAttack: two E-tag dendro hits at 30/38f or 31/38f; common-panel sum requires both contacts and stable state.",
+        "A1": "asc.go:a1: marked target taking burning/burgeon damage generates 7 points under 0.8s ICD; it does not directly multiply cannon damage."
+      },
+      "limitations": [
+        "Only C0/C1 selected E damage; C2+ and Q remain uncovered.",
+        "No nightsoul, burning, target desolation, A4 expiry, energy or rotation simulation.",
+        "Pinned a4Amount reads a tag without checking status expiry; input must describe actual unexpired stacks rather than replay this upstream lifecycle omission.",
+        "No default nightsoul-active, full points or A4 stacks inferred from public showcase."
+      ]
+    },
     {
       "format": "gidps-gaming-selected-hits-source-v1",
       "repository": "genshinsim/gcsim",
