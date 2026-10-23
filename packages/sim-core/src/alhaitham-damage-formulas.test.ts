@@ -26,15 +26,8 @@ function fixture(mirrors = 1, stableMastery = true): AlhaithamCalculatorDocument
   for (const state of Object.values(doc.gameContext.alhaithamDamage!.hitStates!)) Object.assign(state, { connected: true, ...(!stableMastery ? { hitTimeMastery: 300 } : {}) });
   return doc;
 }
-/** Parent owns public schema wiring. This temporary adapter only removes the
- * unregistered context after its real prepare; the unchanged engine evaluates
- * executable formulas and missing dependencies. Parent removes it on wiring. */
-function withoutUnregisteredAlhaithamContext(document: CalculatorDocument): CalculatorDocument {
-  const doc = structuredClone(document) as AlhaithamCalculatorDocument;
-  delete doc.gameContext.alhaithamDamage;
-  return doc;
-}
-const result = (document: CalculatorDocument) => calculateDocument(withoutUnregisteredAlhaithamContext(prepareAlhaithamDamageDocument(document)));
+/** Public schema and source-cast preparation are registered. */
+const result = (document: CalculatorDocument) => calculateDocument(document);
 const impactStates = (document: AlhaithamCalculatorDocument) => Object.values(document.gameContext.alhaithamDamage!.hitStates!);
 
 describe("Alhaitham C0 one actual projection event", () => {
@@ -213,8 +206,7 @@ describe("Alhaitham C0 one actual projection event", () => {
     const original = fixture(3, false); original.build = { mode: "equipment-derived", characterBaseAtk: 600, weaponBaseAtk: 200, atkPercent: 1.5, flatAtk: 0, baseHp: 20000, hpPercent: 0, flatHp: 0, baseDef: 800, defPercent: 0, flatDef: 0, em: 900, critRate: .5, critDamage: 1 };
     impactStates(original).forEach(state => { state.hitTimeMastery = 1000; });
     const prepared = prepareAlhaithamDamageDocument(original), before = result(original);
-    const converted = convertCalculatorToFinalPanel(withoutUnregisteredAlhaithamContext(prepared)) as AlhaithamCalculatorDocument;
-    converted.gameContext.alhaithamDamage = structuredClone(alhaithamContext(prepared)!); finalizeAlhaithamPanelAccounting(converted);
+    const converted = convertCalculatorToFinalPanel(prepared) as AlhaithamCalculatorDocument;
     expect(result(converted).totals).toEqual(before.totals);
     const reopened = JSON.parse(JSON.stringify(converted)) as AlhaithamCalculatorDocument;
     expect(alhaithamDamageContextSchema.safeParse(reopened.gameContext.alhaithamDamage).success).toBe(true);

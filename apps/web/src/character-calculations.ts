@@ -1,3 +1,5 @@
+import {extendAlhaithamDocuments} from './alhaitham-calculation-context';
+import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/alhaitham-damage-formulas';
 import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
 import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
 import {applyHutaoDamageContext,createHutaoExampleContext} from './hutao-calculation-context';
@@ -142,6 +144,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       reason = allowed
         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
+    } else if(isAlhaithamDamageAction(result)) {
+      allowed=context.constellation===0;sourceRefs=[...sourceRefs,...ALHAITHAM_DAMAGE_SOURCE_REFS];
+      reason=allowed?"艾尔海森C0所选镜投射：触发时精通加算与各命中A4分别取样，镜数、资格和接触独立核对；不代算完整镜生命周期。":"镜投射此入口只审阅C0，不省略更高命座机制。";
     } else if(isArlecchinoDamageAction(result)) {
       allowed=context.constellation===0;sourceRefs=[...sourceRefs,...ARLECCHINO_DAMAGE_SOURCE_REFS];
       reason=allowed?"阿蕾奇诺C0红死之宴所选一击：独立普攻倍率、扣契前生命之契附伤及固有火伤记账分别核对；不代算耗契或整轮。":"红死之宴此入口只审阅C0，不能省略更高命座的附伤或条件暴击。";
@@ -314,5 +319,5 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       documents.push(stampCalculatorWorkspaceEvidence(createObservedSpecialComponentDocument(base,component.id),workspace));
     }
   }
-  return extendKinichDocuments(extendXiaoDocuments(documents,workspace),workspace);
+  return extendAlhaithamDocuments(extendKinichDocuments(extendXiaoDocuments(documents,workspace),workspace),workspace);
 }

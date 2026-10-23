@@ -1,3 +1,4 @@
+import {prepareAlhaithamDamageDocument,resetAlhaithamPanelAccounting,finalizeAlhaithamPanelAccounting} from './alhaitham-damage-formulas';
 import {prepareArlecchinoDamageDocument,resetArlecchinoPanelAccounting,finalizeArlecchinoPanelAccounting} from './arlecchino-damage-formulas';
 import {prepareHutaoDamageDocument,resetHutaoPanelAccounting,finalizeHutaoPanelAccounting} from './hutao-damage-formulas';
 import {prepareKinichDamageDocument,resetKinichPanelAccounting,finalizeKinichPanelAccounting} from './kinich-damage-formulas';
@@ -41,6 +42,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from 
 
 /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
 export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
+  document = prepareAlhaithamDamageDocument(document);
   document = prepareArlecchinoDamageDocument(document);
   document = prepareHutaoDamageDocument(document);
   document = prepareKazuhaBurstDocument(document);
@@ -71,6 +73,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
 }
 export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
+  resetAlhaithamPanelAccounting(document, mode);
   resetArlecchinoPanelAccounting(document, mode);
   resetHutaoPanelAccounting(document, mode);
   resetKazuhaBurstPanelAccounting(document, mode);
@@ -108,6 +111,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
 }
 /** Only called after actually materializing offensive/target values, never after importing a character panel. */
 export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
+  finalizeAlhaithamPanelAccounting(document);
   finalizeArlecchinoPanelAccounting(document);
   finalizeHutaoPanelAccounting(document);
   finalizeKazuhaBurstPanelAccounting(document);
