@@ -29,6 +29,11 @@ export const iansanSwiftResolvedHitStateSchema = z.strictObject({
   /** Q flat ATK already in the input; zero is known none, not unknown. */
   includedBurstAttack: amount.max(890).optional(),
   snapshotIncludesActualBurst: bool.optional(),
+  /** Actual received Extreme Force modifier at this damage event, not inferred
+   * from Q/points/overflow or from which character is active now. */
+  c6DamageBonusActiveAtHit: bool.optional(),
+  /** Fraction already included in this hit's damage bonus input (0–0.25). */
+  includedC6DamageBonus: amount.max(0.25).optional(),
 });
 
 /** calculator-model adds snapshots using its common final-snapshot schema. */

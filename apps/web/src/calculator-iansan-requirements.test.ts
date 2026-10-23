@@ -186,12 +186,12 @@ describe("Iansan existing Swift requirement links", () => {
     expect(calculateDocument(reopened).totals).toEqual(calculateDocument(document).totals);
   });
 
-  it("keeps the C0 boundary and original blocker when a control cannot solve it", () => {
+  it("keeps actual C6-state requirements and original blocker when a control is missing", () => {
     let document = qualified();
-    document.gameContext!.constellation = 1;
+    document.gameContext!.constellation = 6;
     document = applyCharacterConstellationScope(document);
-    expect(requirements(document).fields).toEqual([]);
-    expect(requirements(document).blockers.some(row => row.status === "unsupported" && row.reason.includes("C0"))).toBe(true);
+    expect(requirements(document).fields.map(row => row.fieldPath)).toEqual([field("c6DamageBonusActiveAtHit"), field("includedC6DamageBonus")]);
+    expect(requirements(document).blockers.some(row => row.reason.includes("C6"))).toBe(true);
     expect(calculateDocument(document).status).toBe("blocked");
     const missing = requirements(fixture(), { isControlAvailable: () => false });
     expect(missing.fields.every(row => row.status === "missing-control")).toBe(true);
@@ -255,5 +255,47 @@ describe("Iansan existing Swift requirement links", () => {
     document = answer(document, field("ownerOnFieldAtSnapshot"), "0");
     expect(requirements(document).fields).toMatchObject([{ fieldPath: field("ownerOnFieldAtSnapshot"), status: "condition-not-satisfied" }]);
     expect(calculateDocument(document).status).toBe("blocked");
+  });
+
+  it("higher-constellation C6 links actual state and accounting with false/zero, active and JSON reopening", () => {
+    let document = qualified();
+    document.gameContext!.constellation = 6;
+    document = applyCharacterConstellationScope(document);
+    const fields = requirements(document).fields;
+    expect(fields.map(row => row.fieldPath)).toEqual([field("c6DamageBonusActiveAtHit"), field("includedC6DamageBonus")]);
+    const html = renderIansanSwiftResolvedControls(document);
+    expect(html).toContain(`data-source-cast-state-field="${field("c6DamageBonusActiveAtHit")}"`);
+    expect(html).toContain(`data-field="${field("includedC6DamageBonus")}"`);
+    document = answer(document, field("c6DamageBonusActiveAtHit"), "0");
+    expect(calculateDocument(document).status).toBe("blocked");
+    document = answer(document, field("includedC6DamageBonus"), "0", true);
+    expect(requirements(document)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(document).totals!.nonCritical).toBeCloseTo(1497.87, 8);
+    document = answer(document, field("c6DamageBonusActiveAtHit"), "1");
+    expect(calculateDocument(document).totals!.nonCritical).toBeCloseTo(1872.3375, 8);
+    const reopened = applyCharacterConstellationScope(parseCalculatorDocument(serializeCalculatorDocument(convertCalculatorToFinalPanel(document))));
+    expect(requirements(reopened)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(reopened).totals!.nonCritical).toBeCloseTo(1872.3375, 8);
+    document = answer(document, field("includedC6DamageBonus"), "", true);
+    expect(requirements(document).fields).toMatchObject([{ fieldPath: field("includedC6DamageBonus"), status: "input-required" }]);
+    expect(calculateDocument(document).status).toBe("blocked");
+  });
+
+  it("higher-constellation C2 does not infer an unknown A1 from Q or add teammate30% to the owner", () => {
+    let document = qualified();
+    document.gameContext!.constellation = 2;
+    Object.assign(document.gameContext!.iansanSwiftResolvedCast!, { burstTalentLevel: 10 });
+    Object.assign(document.gameContext!.iansanSwiftResolvedCast!.sharedState!, {
+      burstInactiveAtSnapshot: false, ownerOnFieldAtSnapshot: true,
+      burstUpdateNonExtraAttack: 2200, burstUpdateNightsoulPoints: 42, includedBurstAttack: 0,
+    });
+    document = answer(document, field("a1ActiveAtSnapshot"), "unknown");
+    expect(requirements(document).fields).toMatchObject([{ fieldPath: field("a1ActiveAtSnapshot"), status: "input-required" }]);
+    expect(calculateDocument(document).status).toBe("blocked");
+    document = answer(document, field("a1ActiveAtSnapshot"), "1");
+    expect(requirements(document).fields).toMatchObject([{ fieldPath: field("baseAttack"), status: "input-required" }]);
+    document = answer(document, field("baseAttack"), "1000", true);
+    expect(requirements(document)).toEqual({ fields: [], blockers: [] });
+    expect(calculateDocument(document).totals!.nonCritical).toBeCloseTo(2092.52439, 8);
   });
 });

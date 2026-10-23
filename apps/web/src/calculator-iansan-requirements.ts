@@ -13,7 +13,8 @@ const isSwift = (document: CalculatorDocument) => document.gameContext?.characte
 /** Links existing controls only. Unknown observations, false conditions and
  * explicit zero amounts remain distinct; no entry qualification is inferred. */
 export function collectIansanSwiftRequirements(document: CalculatorDocument): CalculatorFieldRequirementDraft[] {
-  if (!isSwift(document) || document.gameContext!.constellation !== 0
+  if (!isSwift(document) || !Number.isInteger(document.gameContext!.constellation)
+    || document.gameContext!.constellation < 0 || document.gameContext!.constellation > 6
     || document.gameContext!.abilityId !== "talent:iansan:combat1") return [];
   const selected = document.hits.filter(hit => document.selectedHitIds.includes(hit.id));
   if (!selected.length) return [];
@@ -100,6 +101,20 @@ export function collectIansanSwiftRequirements(document: CalculatorDocument): Ca
       if (ascension !== undefined && ascension >= 1 && state.a1ActiveAtSnapshot === true
         && document.build.mode !== "equipment-derived" && state.baseAttack === undefined) add(stateKey("baseAttack"), "本击基础攻击力之和（角色与武器白字）",
         "先前 A1 增攻为真实基础攻击力的 20%；不能用最终攻击力反推。装备构筑可直接使用已提供的白字，不要求重复填写。", dependencies, hitIds, "input-required", "number");
+    }
+    const constellation = document.gameContext!.constellation;
+    if (constellation === 6 || state.c6DamageBonusActiveAtHit !== undefined || state.includedC6DamageBonus !== undefined) {
+      if (constellation === 6 && state.c6DamageBonusActiveAtHit === undefined) add(stateKey("c6DamageBonusActiveAtHit"), "本击实际受到「极限发力」增伤",
+        "只有实际收到且本击仍有效时选是；Q 开启、夜魂 54 点或发生溢出都不证明伊安珊本人本击收到该效果。明确未受到选否。", dependencies, hitIds);
+      if (constellation < 6 && state.c6DamageBonusActiveAtHit === true) add(stateKey("c6DamageBonusActiveAtHit"), "本击实际受到「极限发力」增伤",
+        "当前命座尚未解锁自身 C6，不能声明此效果有效。", dependencies, hitIds, "condition-not-satisfied");
+      if (state.includedC6DamageBonus === undefined) add(stateKey("includedC6DamageBonus"), "本击增伤中已计入的极限发力（小数）",
+        "明确未含填 0，已完整计入填 0.25；本页只补实际份额与已含份额的差，不自动把未知当零。", dependencies, hitIds, "input-required", "number");
+      else if (hit.finalSnapshot && hit.finalSnapshot.origin !== "equipment-conversion" && state.c6DamageBonusActiveAtHit !== undefined
+        && state.includedC6DamageBonus !== (state.c6DamageBonusActiveAtHit && constellation === 6 ? .25 : 0)) {
+        add(stateKey("includedC6DamageBonus"), "历史面板已计入当时实际的极限发力份额",
+          "冻结后的增伤必须已经包含当时实际份额：有效时 0.25，未生效时 0；不能在历史最终快照上补加。", dependencies, hitIds, "condition-not-satisfied", "number");
+      }
     }
   }
   return fields;

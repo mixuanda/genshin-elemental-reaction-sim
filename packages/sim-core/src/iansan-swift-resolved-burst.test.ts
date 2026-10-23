@@ -6,7 +6,7 @@ import burstEvidence from "../../game-data/sources/iansan-swift-resolved-casts/a
 import { iansanSwiftResolvedTemplates } from "../../game-data/src/character-mappings/iansan-swift-resolved-mappings";
 import { calculateDocument, convertCalculatorToFinalPanel } from "./calculator";
 import { parseCalculatorDocument, serializeCalculatorDocument, type CalculatorDocument } from "./calculator-model";
-import { prepareIansanSwiftResolvedCastDocument, resetIansanSwiftResolvedPanelAccounting } from "./iansan-swift-resolved-formulas";
+import { prepareIansanSwiftResolvedCastDocument, resetIansanSwiftResolvedPanelAccounting, isIansanSwiftConstellationHit, IANSAN_SWIFT_MAX_CONSTELLATION } from "./iansan-swift-resolved-formulas";
 import { iansanSwiftScheduleProvesOwnerOnField } from "./iansan-swift-resolved-schedule";
 import { expr } from "./calculation-trace";
 
@@ -208,7 +208,7 @@ describe("Iansan C0 actual Q feedback on Swift", () => {
     expect(value(document)).toBeCloseTo(1497.87, 8);
   });
 
-  it("keeps legal0 distinct from invalid source bounds and unsupported constellations", () => {
+  it("keeps legal0 distinct from invalid source bounds and missing actual C6 state", () => {
     for (const [key, invalid] of [["burstUpdateNonExtraAttack", -1], ["burstUpdateNightsoulPoints", 54.01], ["burstUpdateNightsoulPoints", -1], ["includedBurstAttack", 890.01]] as const) {
       const document = fixture();
       state(document)[key] = invalid;
@@ -220,7 +220,7 @@ describe("Iansan C0 actual Q feedback on Swift", () => {
       expect(() => parseCalculatorDocument(JSON.stringify(document))).toThrow();
     }
     const document = fixture();
-    document.gameContext!.constellation = 1;
+    document.gameContext!.constellation = 6;
     expect(calculateDocument(document).status).toBe("blocked");
   });
 
@@ -247,5 +247,138 @@ describe("Iansan C0 actual Q feedback on Swift", () => {
     expect(state(imported).includedBurstAttack).toBeUndefined();
     expect(state(imported).burstUpdateNonExtraAttack).toBeUndefined();
     expect(calculateDocument(imported).status).toBe("blocked");
+  });
+});
+
+describe("Iansan higher constellation actual-hit integration", () => {
+  it("exposes a narrow public gate for reviewed Swift definitions only", () => {
+    const document = fixture();
+    expect(IANSAN_SWIFT_MAX_CONSTELLATION).toBe(6);
+    for (let constellation = 0; constellation <= 6; constellation++) {
+      document.gameContext!.constellation = constellation;
+      expect(isIansanSwiftConstellationHit(document, document.hits[0]!)).toBe(true);
+    }
+    for (const patch of [{ characterId: "character:10000003" }, { skillId: "iansan-skill" }, { abilityId: "talent:iansan:combat2" }]) {
+      expect(isIansanSwiftConstellationHit({ ...document, gameContext: { ...document.gameContext!, ...patch } }, document.hits[0]!)).toBe(false);
+    }
+    const hit = document.hits[0];
+    if (hit?.kind !== "ordinary") throw new Error("fixture");
+    for (const patch of [{ id: "foreign-hit" }, { element: "physical" }, { attackTag: "normal" }, { terms: [{ stat: "atk", coefficient: 2.01674 }] }]) {
+      expect(isIansanSwiftConstellationHit(document, { ...hit, ...patch } as never)).toBe(false);
+    }
+    const full = prepareIansanSwiftResolvedCastDocument(fullCast());
+    expect(isIansanSwiftConstellationHit(full, full.hits[0]!)).toBe(true);
+    const eventHit = full.hits[0];
+    if (eventHit?.kind !== "ordinary") throw new Error("fixture");
+    expect(isIansanSwiftConstellationHit(full, { ...eventHit, iansanSwiftResolvedEvent: { ...eventHit.iansanSwiftResolvedEvent!, frame: 26 } })).toBe(false);
+  });
+
+  it("C1-C4 retain actual owner20% A1, independent NA level and observed Q points", () => {
+    for (const constellation of [1, 2, 3, 4]) {
+      const document = fixture();
+      document.gameContext!.constellation = constellation;
+      state(document).a1ActiveAtSnapshot = true;
+      state(document).baseAttack = 1000;
+      state(document).burstUpdateNonExtraAttack = 2200;
+      expect(value(document)).toBeCloseTo(2092.52439, 8); // (2000+200+594)*NA10*.45; never owner50%
+      expect(prepareIansanSwiftResolvedCastDocument(document).hits[0]).toMatchObject({ terms: [{ stat: "atk", coefficient: 1.6643 }] });
+      if (constellation === 4) {
+        state(document).burstUpdateNightsoulPoints = 41;
+        expect(value(document)).toBeCloseTo(1985.426685, 8); // no automatic+4 or overflow replay
+        expect(state(document).burstUpdateNightsoulPoints).toBe(41);
+      }
+    }
+    const unknown = fixture();
+    unknown.gameContext!.constellation = 2;
+    delete state(unknown).a1ActiveAtSnapshot;
+    expect(calculateDocument(unknown).status).toBe("blocked");
+    expect(state(unknown).a1ActiveAtSnapshot).toBeUndefined();
+  });
+
+  it("C5 uses already-effective Q13 once and never shifts Swift NA10", () => {
+    const document = fixture();
+    document.gameContext!.constellation = 5;
+    document.gameContext!.iansanSwiftResolvedCast!.burstTalentLevel = 13;
+    Object.assign(state(document), { a1ActiveAtSnapshot: true, baseAttack: 1000, burstUpdateNonExtraAttack: 5000 });
+    expect(value(document)).toBeCloseTo(2254.29435, 8); // Q13 cap810, no second+3
+    expect(document.gameContext!.effectiveTalentLevel).toBe(10);
+    expect(document.gameContext!.iansanSwiftResolvedCast!.burstTalentLevel).toBe(13);
+    document.gameContext!.iansanSwiftResolvedCast!.burstTalentLevel = 10;
+    expect(value(document)).toBeCloseTo(2164.42215, 8);
+  });
+
+  it("C6 requires actual received state, with false/0 distinct from unknown and full-point guesses", () => {
+    const document = fixture();
+    document.gameContext!.constellation = 6;
+    state(document).burstUpdateNightsoulPoints = 54;
+    expect(calculateDocument(document).status).toBe("blocked");
+    state(document).c6DamageBonusActiveAtHit = false;
+    expect(calculateDocument(document).status).toBe("blocked");
+    state(document).includedC6DamageBonus = 0;
+    expect(value(document)).toBeCloseTo(1902.2949, 8);
+    state(document).c6DamageBonusActiveAtHit = true;
+    expect(value(document)).toBeCloseTo(2377.868625, 8);
+    const hit = document.hits[0];
+    if (hit?.kind !== "ordinary") throw new Error("fixture");
+    hit.damageBonus = .25;
+    state(document).includedC6DamageBonus = .25;
+    expect(value(document)).toBeCloseTo(2377.868625, 8);
+    state(document).c6DamageBonusActiveAtHit = false;
+    expect(value(document)).toBeCloseTo(1902.2949, 8); // removes expired included share
+    for (const invalid of [-.01, .251]) {
+      state(document).includedC6DamageBonus = invalid;
+      expect(() => parseCalculatorDocument(JSON.stringify(document))).toThrow();
+    }
+  });
+
+  it("C6 can remain active after Q, and lower constellations cannot claim the effect", () => {
+    const document = fixture();
+    document.gameContext!.constellation = 6;
+    Object.assign(state(document), { burstInactiveAtSnapshot: true, c6DamageBonusActiveAtHit: true, includedC6DamageBonus: 0 });
+    expect(value(document)).toBeCloseTo(1872.3375, 8);
+    document.gameContext!.constellation = 5;
+    expect(calculateDocument(document).status).toBe("blocked");
+  });
+
+  it("preserves separate C6 accounting once through final-panel JSON and refuses changed old identity", () => {
+    const document = fixture();
+    document.gameContext!.constellation = 6;
+    Object.assign(state(document), { c6DamageBonusActiveAtHit: true, includedC6DamageBonus: 0 });
+    const expected = value(document), converted = convertCalculatorToFinalPanel(document);
+    expect(converted.hits[0]).toMatchObject({ damageBonus: 0,
+      damageBonusFormula: { ruleId: "iansan-swift-resolved:c6-damage-bonus" } });
+    expect(state(converted).includedC6DamageBonus).toBe(0);
+    const reopened = prepareIansanSwiftResolvedCastDocument(parseCalculatorDocument(serializeCalculatorDocument(converted)));
+    expect(value(reopened)).toBeCloseTo(expected, 8);
+    expect(value(convertCalculatorToFinalPanel(reopened))).toBeCloseTo(expected, 8);
+    state(reopened).c6DamageBonusActiveAtHit = false;
+    expect(calculateDocument(reopened).status).toBe("blocked");
+    const changedConstellation = structuredClone(converted);
+    changedConstellation.gameContext!.constellation = 5;
+    expect(calculateDocument(changedConstellation).status).toBe("blocked");
+  });
+
+  it("requires the actual historical C6 share and preserves an external bonus-formula slot", () => {
+    let document = fixture();
+    document.gameContext!.constellation = 6;
+    Object.assign(state(document), { c6DamageBonusActiveAtHit: true, includedC6DamageBonus: 0,
+      snapshotIncludesActualA1: true, snapshotIncludesActualBurst: true });
+    document.gameContext!.iansanSwiftResolvedCast!.snapshots = { "snapshot-25": {
+      stats: { atk: 2540, hp: 20000, def: 800, em: 0, critRate: 0, critDamage: .5 }, characterLevel: 90, ascension: 6,
+      damageBonus: .25, additiveBaseDamage: 0, reactionBonus: 0,
+      source: "Actual synthetic C6-inclusive historical hit", sourceRefs: ["test:historical-C6"] } };
+    expect(calculateDocument(document).status).toBe("blocked");
+    state(document).includedC6DamageBonus = .25;
+    expect(value(document)).toBeCloseTo(2377.868625, 8);
+    document = prepareIansanSwiftResolvedCastDocument(document);
+    state(document).c6DamageBonusActiveAtHit = false;
+    expect(calculateDocument(document).status).toBe("blocked");
+    const conflict = fixture(), hit = conflict.hits[0];
+    conflict.gameContext!.constellation = 6;
+    Object.assign(state(conflict), { c6DamageBonusActiveAtHit: true, includedC6DamageBonus: 0 });
+    if (hit?.kind !== "ordinary") throw new Error("fixture");
+    hit.damageBonusFormula = { ruleId: "external:damage-bonus", label: "Original foreign bonus", expression: expr.value(.1), inputs: [], sourceRefs: ["test:foreign-bonus"] };
+    expect(prepareIansanSwiftResolvedCastDocument(conflict).hits[0]).toMatchObject({ damageBonusFormula: hit.damageBonusFormula });
+    expect(calculateDocument(conflict).status).toBe("blocked");
   });
 });
