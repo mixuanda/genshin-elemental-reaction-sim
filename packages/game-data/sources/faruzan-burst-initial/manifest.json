@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "status": "fixed-community-source; not current-game validation",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceArchive": {
+    "path": "packages/game-data/sources/finite-followup-casts/source.json.gz",
+    "sha256": "a0fe6c40e55b7d9e4666417a0028651c3c2bd2c8114c77daa3d93059c8b699ae",
+    "unchanged": true
+  },
+  "files": [
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/aimed.go",
+      "sha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+      "gitBlobSha1": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/aimed.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/asc.go",
+      "sha256": "091a76bb82b013476b503b5b0b987083bfa17185fc41fdf5e9e187052ffb481c",
+      "gitBlobSha1": "9b3d5b04601ca942d1a245df0882f06d5561e3e4",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/asc.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/attack.go",
+      "sha256": "257f19bde89aec0f18687c55ea4306e0d5f6318f50638039d48956de8bb37446",
+      "gitBlobSha1": "cea30a38eab59b944ad323d307611f2d40e4b0d3",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/attack.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/burst.go",
+      "sha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+      "gitBlobSha1": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/burst.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/cons.go",
+      "sha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+      "gitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/cons.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/faruzan.go",
+      "sha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+      "gitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/faruzan.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/skill.go",
+      "sha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+      "gitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/skill.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/faruzan/zz_faruzan.dm.go",
+      "sha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+      "gitBlobSha1": "2d81ba730c8199888d6107ff64545588809d6599",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/zz_faruzan.dm.go"
+    }
+  ],
+  "binding": {
+    "skillId": "finite-followup-faruzan-burst-fresh-c0",
+    "abilityId": "talent:faruzan:combat3",
+    "hitId": "finite-followup-faruzan-burst-fresh-c0-initial",
+    "effectiveTalentLevelIsAlreadyBonusAdjusted": true,
+    "coefficientVector": [
+      3.776,
+      4.0592,
+      4.3424,
+      4.72,
+      5.0032,
+      5.2864,
+      5.664,
+      6.0416,
+      6.4192,
+      6.7968,
+      7.1744,
+      7.552,
+      8.024,
+      8.496,
+      8.968
+    ],
+    "anemoBonusVector": [
+      0.18,
+      0.1935,
+      0.207,
+      0.225,
+      0.2385,
+      0.252,
+      0.27,
+      0.288,
+      0.306,
+      0.324,
+      0.342,
+      0.36,
+      0.3825,
+      0.405,
+      0.4275
+    ]
+  },
+  "sourceFacts": {
+    "giftAtFrame": 43,
+    "initialAtFrame": 54,
+    "a4BaseAttackRatio": 0.32,
+    "ownShredBeforeInitial": 0,
+    "ownShredAfterInitial": 0.3,
+    "c6AnemoCritDamage": 0.4,
+    "c6CollapseSeparate": true,
+    "c1ExtraArrowSeparate": true,
+    "c2DurationChangeDoesNotMultiplyInitial": true,
+    "c3EAndC5QEffectiveLevelsNotAddedTwice": true
+  },
+  "scope": "Only explicitly qualified fresh in-area Q initial, C0–C6; no full Q, collapse, team or energy simulation. Old C0 context-free saves retain original routing.",
+  "independentArithmetic": {
+    "attack": 2000,
+    "baseAttack": 1000,
+    "effectiveQLevel": 13,
+    "constellation": 6,
+    "ascension": 6,
+    "enemyResistance": 0.1,
+    "levelDefenseMultiplier": 0.5,
+    "critRate": 0.5,
+    "critDamageBeforeC6": 1,
+    "nonCritical": 10182.942,
+    "expected": 17311.0014
+  },
+  "integration": "New context schema, source-cast early dispatch, constellation helper, initializer, controls and requirement registry are parent-owned. Unit tests call the module and actual damage AST directly; they do not claim public registration."
+}
