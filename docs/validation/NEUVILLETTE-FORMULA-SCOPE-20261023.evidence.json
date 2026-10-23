@@ -1,0 +1,86 @@
+{
+  "scope": "Neuvillette C0 Classic Equitable Judgment/Q formula read points and observed-subtotal/zero-energy semantics",
+  "baseCommit": "82f1a4c6811a7a90452de8cd22227cd96171517a",
+  "coreCommit": "6e411f7e83a8df697f2f3dc54f3a3e9bfa1f62ca",
+  "uiCommit": "e92869fc94be82973e74fc6db3621c5df91edce2",
+  "branch": "cloud/player-import-integration-20261021",
+  "remoteHeadVerified": "e92869fc94be82973e74fc6db3621c5df91edce2",
+  "uniquePureUnitCases": 7,
+  "uniqueBrowserCases": 1,
+  "newNativeRuns": 2,
+  "nativeWindowSecondsPerRun": 2.2,
+  "browserElapsedMs": 8584.583,
+  "browserCaseMs": 6930,
+  "browserTimingScope": "Whole test case and runner elapsed; not an engine or click-to-result benchmark",
+  "build": "Workspace resolution, TypeScript and Vite passed; final wording-only scope clarification after build verified by focused unit",
+  "browserArtifactVersion": "Passing browser screenshot before final wording-only clarification that subtotal is pre-target-HP; the same page already displays that distinction above the helper",
+  "unchangedClassicWasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+  "fullRegression": "not rerun; historical 3196 passed / 79 failed / 1 skipped is not a current HEAD result",
+  "production": "not queried, deployed or uploaded; explicit pause preserved",
+  "files": [
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/final-build.json",
+      "bytes": 8672,
+      "sha256": "618f6b253ccd1fe0560d67c75c9afbd687b0df84bcdbbc68b551bfc4146f8642"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/formula-agent-test.json",
+      "bytes": 712,
+      "sha256": "a639e3d61533cae9ae0c501430564522ad355e6744e279a2ac3e0d5407208ed7"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/help-unit-final.json",
+      "bytes": 1025,
+      "sha256": "11ae9f555e6b6c477e0e69b5495e6b3a74ae50c66d1dfa2a8715dc6f6ac96881"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/help-unit-initial.json",
+      "bytes": 1025,
+      "sha256": "dcf5ec12fde2ce60e335b367737d15d1032721dd1adb1c0aad9114e6ad2722ef"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/independent-read-point-arithmetic.json",
+      "bytes": 1598,
+      "sha256": "67a94e7349ff84a4885dc173e1c4cc51aeb5206c691f0459f5a9040b4b8279d9"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/initial-build.json",
+      "bytes": 1242,
+      "sha256": "c5909b8bef4f36d77b0ba551f736d2a2497f5a3f3bc879c91e37def9062e1ca3"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/observation-scope-summary.json",
+      "bytes": 2925,
+      "sha256": "7ba749bdcc58c588e753a58feb9084285039cffa7c11f7695dd551c309209faf"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/partial-zero-browser.json",
+      "bytes": 3298,
+      "sha256": "e164faf665081cf199f9c50803d7db50a8428f756b2724747d7355474443d903"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/q-partial-formula.png",
+      "bytes": 915170,
+      "sha256": "e8b87a340ae877c1aaa0d5e1287b38d77d37434b99efcb47d587a5918714c891"
+    },
+    {
+      "path": "docs/validation/evidence/neuvillette-formula-scope-20261023/source-read-evidence.json",
+      "bytes": 2083,
+      "sha256": "fa7247b35beb950cdb00f021af97299fcbf9f4fc614792655a1fdc5ff56d4083"
+    }
+  ],
+  "localNativeRecords": [
+    {
+      "path": "/tmp/GIDPS-neuv-formula-scope-20261023/browser-artifacts/calculator-neuvillette-obs-88603-annot-borrow-the-previous-Q/q-partial-window.native.json",
+      "bytes": 69550,
+      "sha256": "e8c7ff4ece38c6fd0e1308c21e9271646bf909148847d4275cec277ada5ae40d",
+      "scope": "Synthetic reference build; kept locally, no Library or production upload"
+    },
+    {
+      "path": "/tmp/GIDPS-neuv-formula-scope-20261023/browser-artifacts/calculator-neuvillette-obs-88603-annot-borrow-the-previous-Q/q-zero-energy.native.json",
+      "bytes": 56507,
+      "sha256": "27f3c799a0a6a99b2354fe11b5ea9fb1e63f9287313656e995795ca920d2f507",
+      "scope": "Synthetic reference build; kept locally, no Library or production upload"
+    }
+  ]
+}

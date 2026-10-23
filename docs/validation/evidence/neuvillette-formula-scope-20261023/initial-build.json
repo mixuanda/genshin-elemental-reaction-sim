@@ -1,0 +1,7 @@
+{
+  "command": "npm run build",
+  "rawLogPath": "/tmp/GIDPS-neuv-formula-scope-20261023/build.log",
+  "rawLogSha256": "27b88693731195dd8252018136f502244b3961609f1120f2d30eba2b54442618",
+  "outcome": "TypeScript rejected possibly undefined energyApplications in newly added browser test; explicit observation guard added",
+  "rawLog": "\n> genshin-dps-lab@1.0.0 build\n> npm run typecheck && npm run build --workspace @genshin-dps-lab/web\n\n\n> genshin-dps-lab@1.0.0 typecheck\n> npm run check:workspace && tsc --noEmit\n\n\n> genshin-dps-lab@1.0.0 check:workspace\n> node scripts/check-workspace-resolution.mjs\n\nWorkspace package entries resolve to this checkout.\napps/web/e2e/calculator-neuvillette-observation-scope.spec.ts(50,10): error TS18048: 'zero.result.energyApplications' is possibly 'undefined'.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.1\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1\nnpm notice To update run: npm install -g npm@12.2.1\nnpm notice\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.1\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1\nnpm notice To update run: npm install -g npm@12.2.1\nnpm notice\n"
+}
