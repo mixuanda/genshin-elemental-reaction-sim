@@ -14,14 +14,19 @@ export function createCalculatorRequiredControls(root: HTMLElement) {
   const known = new Map<string,CalculatorFieldRequirement>();
   let selection = '';
   let focusSelector: string | null = null;
+  let relocating = false;
 
   function restore(): void {
-    if (moved.length) focusSelector = moved.find(row => row.label.contains(root.ownerDocument.activeElement))?.selector ?? null;
-    for (const {label,marker} of moved) {
-      if (root.contains(marker)) marker.replaceWith(label);
-      else label.remove();
+    relocating = true;
+    try {
+      if (moved.length) focusSelector = moved.find(row => row.label.contains(root.ownerDocument.activeElement))?.selector ?? null;
+      for (const {label,marker} of moved.splice(0)) {
+        if (root.contains(marker)) marker.replaceWith(label);
+        else label.remove();
+      }
+    } finally {
+      relocating = false;
     }
-    moved.length = 0;
   }
 
   function fields(key: string, required: readonly CalculatorFieldRequirement[]): InlineCalculatorRequirement[] {
@@ -34,21 +39,26 @@ export function createCalculatorRequiredControls(root: HTMLElement) {
   }
 
   function mount(rows: readonly InlineCalculatorRequirement[]): void {
-    rows.forEach(({field},index)=>{
-      const host=root.querySelector<HTMLElement>(`[data-calculator-inline-control="${index}"]`);
-      const control=root.querySelector<HTMLElement>(field.controlSelector);
-      const label=control?.closest('label');
-      // A composite editor needs its own adapter; do not steal sibling inputs.
-      if (!host || !label || !root.contains(label) || control?.matches(':disabled') || label.querySelectorAll('input,select,textarea').length!==1) return;
-      const marker=root.ownerDocument.createComment('calculator-condition-original-position');
-      label.before(marker);host.append(label);
-      moved.push({label,marker,selector:field.controlSelector});
-      const fallback=host.parentElement?.querySelector<HTMLElement>('[data-calculator-requirement]');
-      if (fallback) fallback.hidden=true;
-    });
-    if (focusSelector) root.querySelector<HTMLElement>(focusSelector)?.focus({preventScroll:true});
-    focusSelector=null;
+    relocating = true;
+    try {
+      rows.forEach(({field},index)=>{
+        const host=root.querySelector<HTMLElement>(`[data-calculator-inline-control="${index}"]`);
+        const control=root.querySelector<HTMLElement>(field.controlSelector);
+        const label=control?.closest('label');
+        // A composite editor needs its own adapter; do not steal sibling inputs.
+        if (!host || !label || !root.contains(label) || control?.matches(':disabled') || label.querySelectorAll('input,select,textarea').length!==1) return;
+        const marker=root.ownerDocument.createComment('calculator-condition-original-position');
+        label.before(marker);host.append(label);
+        moved.push({label,marker,selector:field.controlSelector});
+        const fallback=host.parentElement?.querySelector<HTMLElement>('[data-calculator-requirement]');
+        if (fallback) fallback.hidden=true;
+      });
+      if (focusSelector) root.querySelector<HTMLElement>(focusSelector)?.focus({preventScroll:true});
+      focusSelector=null;
+    } finally {
+      relocating = false;
+    }
   }
 
-  return {restore,fields,mount};
+  return {restore,fields,mount,isRelocating:()=>relocating};
 }

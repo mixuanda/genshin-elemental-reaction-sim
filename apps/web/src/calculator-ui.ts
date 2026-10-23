@@ -980,7 +980,9 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const requiredFields = requirements.fields.filter(field => field.status !== "missing-control");
       const unsupportedIdleConstellation = current.gameContext?.idleStanceCast && current.gameContext.constellation !== 0
         && !(current.selectedHitIds.length === 1 && current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && isWandererInitialSingleHit(current!, hit)));
-      const inlineFields = inlineRequirements.fields(JSON.stringify([current.id,current.scope,current.selectedHitIds,current.gameContext?.constellation]),requiredFields);
+      // An observed count regenerates hit IDs within the same action. Keep its
+      // answered controls editable; changing action or scope still resets them.
+      const inlineFields = inlineRequirements.fields(JSON.stringify([current.id,current.scope,current.gameContext?.observedPlunge ? current.gameContext.skillId : current.selectedHitIds,current.gameContext?.constellation]),requiredFields);
       const conditionLinks = inlineFields.length ? `<section class="calculator-inline-conditions" data-calculator-inline-conditions><h4>${requiredFields.length ? "补齐本次命中的条件" : "本次命中的条件"}</h4><p class="calculator-hint">填写后自动重算；已填写的选项可继续修改。</p>${inlineFields.map(({field,required},index)=>`<div class="calculator-inline-condition" data-calculator-required-field="${required}" data-calculator-condition-id="${esc(field.id)}"><span class="calculator-hint">${field.hitIds.length===1 ? esc(current!.hits.find(hit=>hit.id===field.hitIds[0])?.label??"") : "本次所选命中"}${required?" · 待填写":""}</span><div data-calculator-inline-control="${index}"></div><button type="button" data-calculator-requirement="${esc(field.controlSelector)}">填写：${esc(field.label)}</button><small>${esc(field.explanation)}</small></div>`).join("")}</section>` : "";
       const unlinked = requirements.blockers.filter(blocker=>blocker.status!=="linked-controls");
       const blockerPanel = result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>${requiredFields.length ? "请填写下方条件" : "此动作尚缺少以下支持或证据"}</strong>${unlinked.length ? `<p>${[...new Set(unlinked.map(blocker=>blocker.reason))].map(esc).join("；")}</p>` : ""}<details><summary>查看具体原因与支持范围</summary><ul>${result.blockers.map(b=>`<li>${esc(b)}</li>`).join("")}</ul></details>${unsupportedIdleConstellation ? '<p>此有限姿态分支只支持 C0。可选择已支持的单次命中，或使用动作执行器。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "";
@@ -1004,6 +1006,27 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       renderCharacterOutputOverview();
       get("#calc-results").innerHTML = `<div class="calculator-status blocked" role="alert"><strong>输入未通过校验，当前不生成伤害</strong><p>${esc(error instanceof Error ? error.message : String(error))}</p></div>`;
     }
+  }
+
+  function renderPlungeCountDraft(valid: boolean): void {
+    // Keep the focused number editor in place until change commits it. Moving
+    // it on every keystroke commits early and resets the number input's caret.
+    currentResult = null;
+    get<HTMLButtonElement>('[data-action="export"]').disabled = true;
+    get("#calc-character-outputs").hidden = true;
+    const result = get("#calc-results").firstElementChild;
+    if (!result) return;
+    for (const child of result.children) if (child instanceof HTMLElement
+      && !child.matches("[data-calculator-inline-conditions], [data-plunge-count-draft]")) child.hidden = true;
+    let status = result.querySelector<HTMLElement>("[data-plunge-count-draft]");
+    if (!status) {
+      status = document.createElement("div");
+      status.dataset.plungeCountDraft = "";
+      status.className = "calculator-status";
+      status.setAttribute("role", "status");
+      result.prepend(status);
+    }
+    status.textContent = valid ? "正在编辑碰撞次数；完成输入后自动重算。" : "请填写0–64的整数；留空表示未知。";
   }
 
   root.addEventListener("click", event => {
@@ -1452,10 +1475,16 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     }
     if (!(input instanceof HTMLInputElement) || !input.dataset.field || !current) return;
     if (input.hasAttribute("data-source-cast-number-field")) {
-      if (!input.checkValidity()) { invalidFields.add(input.dataset.field); renderResults(); return; }
+      const contactCount = input.dataset.field === "gameContext.observedPlunge.collisionCount";
+      if (!input.checkValidity()) {
+        invalidFields.add(input.dataset.field);
+        if (contactCount) renderPlungeCountDraft(false); else renderResults();
+        return;
+      }
       invalidFields.delete(input.dataset.field);
       applySourceCastControl(current, input);
-      refreshPassiveSkillContext(); markEditedSourceExample(current); renderResults();
+      refreshPassiveSkillContext(); markEditedSourceExample(current);
+      if (contactCount) renderPlungeCountDraft(true); else renderResults();
       return;
     }
     const noelleField = input.dataset.field.startsWith("gameContext.noelleBurst.");
@@ -1501,7 +1530,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   });
 
   root.addEventListener("change", event => {
+    // Moving a focused condition control can synchronously commit a numeric
+    // edit already stored by the input handler. Do not re-enter DOM rendering.
     const input = event.target;
+    if (inlineRequirements.isRelocating()) return;
     if (input instanceof HTMLElement && input.closest("#calc-source-single-skill")) return;
     if (!(input instanceof HTMLInputElement || input instanceof HTMLSelectElement)) return;
     if (captureSourceDraftInput(input)) return;
@@ -1529,7 +1561,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     }
     if (current && input instanceof HTMLInputElement && input.dataset.field === "gameContext.observedPlunge.collisionCount") {
       // The input handler has stored the count; reveal one contact selector per observed opportunity.
-      renderControls(); renderResults(); return;
+      if (input.checkValidity()) { renderControls(); renderResults(); }
+      return;
     }
     if (current && input instanceof HTMLSelectElement && input.dataset.specialArtifactHit !== undefined) {
       const hit = current.hits[Number(input.dataset.specialArtifactHit)];
