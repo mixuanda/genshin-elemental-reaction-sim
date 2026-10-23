@@ -10,6 +10,11 @@ export const alhaithamProjectionHitStateSchema = z.strictObject({
   includedProjectionBase: z.number().finite().nonnegative().optional(),
   /** Own A4 ratio already present in this hit's entered damage bonus. */
   includedA4Bonus: z.number().finite().min(0).max(1).optional(),
+  /** Own C4 Dendro bonus already in this hit's entered damage bonus. */
+  includedC4Bonus: z.number().finite().min(0).max(.3).optional(),
+  /** The entered panel (or explicit per-hit final stat) already contains C6. */
+  c6CritRateIncluded: z.boolean().optional(),
+  c6CritDamageIncluded: z.boolean().optional(),
 });
 export const alhaithamDamageContextSchema = z.strictObject({
   /** Named 1/2/3 mirror entries explicitly choose the trigger-time scenario. */
@@ -29,6 +34,11 @@ export const alhaithamDamageContextSchema = z.strictObject({
   c2OtherSnapshotStatsFinal: z.boolean().optional(),
   /** An observation-entry draft needs explicit confirmation, including after reopen. */
   c2RequiresActualPanelConfirmation: z.boolean().optional(),
+  /** Actual still-active Q-generated C4 shares at delayed offensive snapshot.
+   * Zero explicitly means inactive/expired; neither held nor consumed mirrors. */
+  c4SnapshotStacks: z.number().int().min(0).max(3).optional(),
+  /** Actual overflow C6 buff is unexpired when the offense is snapshotted. */
+  c6SnapshotActive: z.boolean().optional(),
   statsAndTargetStableAcrossHits: z.boolean().optional(),
   hitStates: z.record(z.string(), alhaithamProjectionHitStateSchema).optional(),
   finalizedHitStates: z.record(z.string(), z.string()).optional(),

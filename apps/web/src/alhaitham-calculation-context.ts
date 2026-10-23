@@ -30,7 +30,7 @@ export function extendAlhaithamDocuments(documents: CalculatorDocument[], worksp
     const doc = structuredClone(original) as AlhaithamCalculatorDocument;
     if (!doc.gameContext.alhaithamDamage) {
       doc.gameContext.alhaithamDamage = { mirrorCount: alhaithamProjectionMirrorCount(doc.gameContext.skillId)!, ...(doc.build.mode === "imported-final" ? {} : { c2SnapshotIncludedStacks: 0 }), hitStates: Object.fromEntries(doc.hits.map(hit => [hit.id,
-        doc.build.mode === "imported-final" ? {} : { includedProjectionBase: 0, includedA4Bonus: 0 }])) };
+        doc.build.mode === "imported-final" ? {} : { includedProjectionBase: 0, includedA4Bonus: 0, includedC4Bonus: 0, c6CritRateIncluded: false, c6CritDamageIncluded: false }])) };
     }
     doc.dependencies = doc.dependencies.filter(dependency => dependency.id !== "alhaitham-primary-vectors");
     doc.dependencies.push({ id: "alhaitham-primary-vectors", status: issues.length ? "missing" : "provisional", reason: issues.join("；") || "1/2/3镜的六组15级E投射ATK/EM向量与固定源完整一致。", sourceRefs: ALHAITHAM_DAMAGE_SOURCE_REFS });
@@ -54,7 +54,7 @@ export function extendAlhaithamDocuments(documents: CalculatorDocument[], worksp
       sourceRefs: ALHAITHAM_DAMAGE_SOURCE_REFS, dependencies: ["alhaitham-primary-vectors"], terms: [{ stat: "atk" as const, coefficient: ALHAITHAM_MIRROR_ATK_VALUES[level - 1] ?? 0 }],
       additiveBaseDamage: 0, damageBonus: 0, critEligible: true, reaction: "none" as const, reactionBonus: 0, groupMultiplier: 1,
     }));
-    doc.gameContext.alhaithamDamage = { mirrorCount: mirrors, c2SnapshotIncludedStacks: 0, hitStates: Object.fromEntries(ids.map(id => [id, { includedProjectionBase: 0, includedA4Bonus: 0 }])) };
+    doc.gameContext.alhaithamDamage = { mirrorCount: mirrors, c2SnapshotIncludedStacks: 0, hitStates: Object.fromEntries(ids.map(id => [id, { includedProjectionBase: 0, includedA4Bonus: 0, includedC4Bonus: 0, c6CritRateIncluded: false, c6CritDamageIncluded: false }])) };
     doc.scope = mirrors === 1 ? "single-hit" : "one-cast"; doc.selectedHitIds = ids;
     doc.dependencies = []; doc.assumptions = [...mapping.assumptions, ...mapping.exclusions, "默认面板是可编辑教学输入，不是真实配装；实际触发、接触与阶段精通不从展示柜推断。"];
     doc.dataIdentity.evidenceStatus = "provisional";

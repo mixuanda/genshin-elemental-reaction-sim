@@ -12,13 +12,17 @@ export type AlhaithamCalculatorDocument = CalculatorDocument & {
 export const ALHAITHAM_DAMAGE_SOURCE_REFS = [
   "internal/characters/alhaitham/alhaitham.go", "internal/characters/alhaitham/skill.go", "internal/characters/alhaitham/attack.go",
   "internal/characters/alhaitham/asc.go", "internal/characters/alhaitham/cons.go", "internal/characters/alhaitham/zz_alhaitham.dm.go",
-  "pkg/core/attack.go", "pkg/enemy/attack.go", "pkg/core/player/character/mods.go",
+  "internal/characters/alhaitham/burst.go", "internal/template/character/character.go",
+  "pkg/core/attack.go", "pkg/enemy/attack.go", "pkg/core/player/character/mods.go", "pkg/core/player/character/stats.go", "pkg/modifier/modifier.go",
 ].map(path => `https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/${path}`);
 const prefix = "alhaitham-damage:";
 const nativeRuleId = "alhaitham-damage-projection-trigger-em-b4ae769";
 const a4RuleId = "alhaitham-damage-a4-impact-em-b4ae769";
 const c2RuleId = "alhaitham-damage-c2-snapshot-em-b4ae769";
-export const ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION = 3;
+const a4C4RuleId = "alhaitham-damage-a4-c4-snapshot-b4ae769";
+const c6RateRuleId = "alhaitham-damage-c6-snapshot-cr-b4ae769";
+const c6DamageRuleId = "alhaitham-damage-c6-snapshot-cd-b4ae769";
+export const ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION = 6;
 export function alhaithamContext(document: CalculatorDocument): AlhaithamDamageContext | undefined {
   return (document as AlhaithamCalculatorDocument).gameContext?.alhaithamDamage;
 }
@@ -102,6 +106,29 @@ export function createAlhaithamA4Formula(ascension: number, stableMastery: boole
     requirements, sourceRefs: ALHAITHAM_DAMAGE_SOURCE_REFS,
   };
 }
+/** C4 is a StatMod captured at the delayed snapshot. A4 remains a separate
+ * live impact sample even when both ratios share the damage-bonus slot. */
+export function createAlhaithamProjectionBonusFormula(ascension: number, stableMastery: boolean, hitTimeMastery: number, includedA4: number, c4Stacks: number, includedC4: number): CalculatorFormula {
+  const a4 = createAlhaithamA4Formula(ascension, stableMastery, hitTimeMastery, includedA4);
+  return {
+    ...a4, ruleId: a4C4RuleId, label: "命中A4与快照C4草伤，各扣除面板已含份额",
+    expression: expr.add(a4.expression, expr.sub(expr.mul(expr.value(.1), expr.input("alhaithamC4SnapshotStacks")), expr.input("alhaithamIncludedC4"))),
+    inputs: [...a4.inputs,
+      { ...input("alhaithamC4SnapshotStacks", c4Stacks, "count", "explicit-unexpired-Q-generated-C4-at-snapshot"), minimum: 0, maximum: 3, integer: true },
+      { ...input("alhaithamIncludedC4", includedC4, "ratio", "explicit-snapshot-damage-bonus-accounting"), minimum: 0, maximum: .3 }],
+    requirements: { ...requirements, minimumConstellation: 4 },
+  };
+}
+export function createAlhaithamC6CriticalFormula(target: "critRate" | "critDamage", active: boolean, included: boolean): CalculatorFormula {
+  const rate = target === "critRate";
+  return {
+    ruleId: rate ? c6RateRuleId : c6DamageRuleId,
+    label: `诲人不倦：快照实际${rate ? "10%暴击率" : "70%暴伤"} − 面板已含份额`,
+    expression: expr.mul(expr.value(rate ? .1 : .7), expr.sub(expr.input("alhaithamC6SnapshotActive"), expr.input("alhaithamC6Included"))),
+    inputs: [input("alhaithamC6SnapshotActive", Number(active), "boolean", "explicit-unexpired-overflow-C6-at-snapshot"), input("alhaithamC6Included", Number(included), "boolean", "explicit-snapshot-critical-accounting")],
+    requirements: { ...requirements, minimumConstellation: 6 }, sourceRefs: ALHAITHAM_DAMAGE_SOURCE_REFS,
+  };
+}
 function ascension(document: CalculatorDocument): number | undefined {
   return (document.build.mode === "equipment-derived" ? document.build.equipment?.ascension : document.build.ascension) ?? document.gameContext?.ascension;
 }
@@ -128,10 +155,15 @@ export function prepareAlhaithamDamageDocument(document: CalculatorDocument): Ca
   const c2 = game.constellation >= 2, actualC2Stacks = c2 ? context.c2SnapshotStacks : 0;
   const includedC2Stacks = context.c2SnapshotIncludedStacks ?? (c2 ? undefined : 0);
   const c2Delta = actualC2Stacks === undefined || includedC2Stacks === undefined ? undefined : 50 * (actualC2Stacks - includedC2Stacks);
+  const c4 = game.constellation >= 4, c6 = game.constellation >= 6;
   const coefficients = alhaithamProjectionCoefficients(game.effectiveTalentLevel);
   const globalIssues: string[] = [];
   if (game.abilityId !== "talent:alhaitham:combat2") globalIssues.push("镜投射必须使用独立有效E天赋，不能借用普攻或Q天赋。");
-  if (game.constellation > ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION) globalIssues.push("本入口仅覆盖C0–C3镜投射；C4以上的增伤、精通或双暴尚未实现。");
+  if (game.constellation > ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION) globalIssues.push("本入口仅覆盖合法C0–C6的所选单次镜投射。");
+  if (!c4 && (context.c4SnapshotStacks ?? 0) > 0) globalIssues.push("当前命座未解锁C4，不能沿用高命座草伤状态；请重新应用实际面板。");
+  if (c4 && context.c4SnapshotStacks === undefined) globalIssues.push("请填写延后快照时仍有效的C4草伤份额（0–3）；只计本次Q实际生成并仍有效的镜数，未触发或已到期填0，不等于持镜数。");
+  if (!c6 && context.c6SnapshotActive === true) globalIssues.push("当前命座未解锁C6，不能沿用镜溢出的双暴状态；请重新应用实际面板。");
+  if (c6 && context.c6SnapshotActive === undefined) globalIssues.push("请选择镜溢出触发的C6双暴在本击延后快照时是否仍有效；命座、持镜或使用Q均不能证明它已触发且未到期。");
   if (!c2 && ((context.c2SnapshotStacks ?? 0) > 0 || (context.c2SnapshotIncludedStacks ?? 0) > 0)) globalIssues.push("当前命座未解锁C2，不能声称本击有实际或面板已含C2精通层数；请重新应用本命座实际面板。");
   if (c2 && actualC2Stacks === undefined) globalIssues.push("请填写本击延后快照时仍有效的C2层数（0–4）；持镜数不是层数，过期层数也不能计入。");
   if (c2 && includedC2Stacks === undefined) globalIssues.push("请填写本击精通面板已含的C2层数，不能把展示柜未知状态当作未含或满层。");
@@ -162,9 +194,22 @@ export function prepareAlhaithamDamageDocument(document: CalculatorDocument): Ca
     if (ownedC2) delete hit.elementalMasteryAdjustment;
     else if (c2Delta !== undefined && c2Delta !== 0 && hit.elementalMasteryAdjustment) issues.push("本击已有外来精通调整公式；保留原式并拒绝用C2覆盖同槽贡献。");
     if (hit.baseDamageFormula) issues.push("本入口必须执行固定E的ATK主项，不能用外来基伤公式替换。");
-    for (const [key, ruleId] of [["additiveBaseFormula", nativeRuleId], ["damageBonusFormula", a4RuleId]] as const) {
-      if (hit[key] && hit[key]!.ruleId !== ruleId) issues.push("本击已有外来同槽公式；保留该式并拒绝覆盖，不能静默丢失贡献。");
+    const formulaSlots: ["additiveBaseFormula" | "damageBonusFormula" | "critRateFormula" | "critDamageFormula", readonly string[]][] = [
+      ["additiveBaseFormula", [nativeRuleId]], ["damageBonusFormula", [a4RuleId, a4C4RuleId]], ["critRateFormula", [c6RateRuleId]], ["critDamageFormula", [c6DamageRuleId]],
+    ];
+    for (const [key, ruleIds] of formulaSlots) {
+      // Lower constellations do not claim otherwise-unused critical slots.
+      if ((key === "critRateFormula" || key === "critDamageFormula") && !c6 && !ruleIds.includes(hit[key]?.ruleId ?? "")) continue;
+      if (hit[key] && !ruleIds.includes(hit[key]!.ruleId)) issues.push("本击已有外来同槽公式；保留该式并拒绝覆盖，不能静默丢失贡献。");
       else delete hit[key];
+    }
+    if (!c4 && (state.includedC4Bonus ?? 0) > 0) issues.push("当前命座未解锁C4，不能保留面板已含的C4草伤声明；请重新应用正确面板。");
+    if (c4 && state.includedC4Bonus === undefined) issues.push("请明确本段增伤输入已含多少C4草伤（0–0.3）；不从展示柜或持镜数推断已含量。");
+    if (!c6 && (state.c6CritRateIncluded === true || state.c6CritDamageIncluded === true)) issues.push("当前命座未解锁C6，不能保留面板已含C6双暴；请重新应用正确面板。");
+    if (c6 && (state.c6CritRateIncluded === undefined || state.c6CritDamageIncluded === undefined)) issues.push("请分别确认本段暴击率与暴伤输入是否已含C6份额，避免再次加10%/70%。");
+    if (c6 && !hit.finalSnapshot) {
+      if (hit.effectiveCritRate !== undefined && context.c6SnapshotActive !== state.c6CritRateIncluded) issues.push("本段显式最终暴击率会覆盖补差公式；请填本击C6状态下的实际最终暴击率并更正已含声明，或清除该段最终覆盖值后使用面板补差。");
+      if (hit.effectiveCritDamage !== undefined && context.c6SnapshotActive !== state.c6CritDamageIncluded) issues.push("本段显式最终暴伤会覆盖补差公式；请填本击C6状态下的实际最终暴伤并更正已含声明，或清除该段最终覆盖值后使用面板补差。");
     }
     if (state.connected !== true) issues.push("请确认本段实际命中所选目标；未接触的段不能按命中计伤，可取消选择该段。");
     if (state.includedProjectionBase === undefined) issues.push("请确认本段附加基数中已含多少镜投射精通基数；明确未含填0。");
@@ -182,7 +227,12 @@ export function prepareAlhaithamDamageDocument(document: CalculatorDocument): Ca
     if (!issues.length) {
       if (c2Delta !== undefined && c2Delta !== 0) hit.elementalMasteryAdjustment = { accounting: "add-to-panel", formula: createAlhaithamC2SnapshotFormula(actualC2Stacks!, includedC2Stacks!) };
       hit.additiveBaseFormula = createAlhaithamProjectionBaseFormula(game.effectiveTalentLevel, stable, context.triggerMastery ?? 0, state.includedProjectionBase!);
-      hit.damageBonusFormula = createAlhaithamA4Formula(stage!, stable, state.hitTimeMastery ?? 0, state.includedA4Bonus ?? 0);
+      hit.damageBonusFormula = c4 ? createAlhaithamProjectionBonusFormula(stage!, stable, state.hitTimeMastery ?? 0, state.includedA4Bonus ?? 0, context.c4SnapshotStacks!, state.includedC4Bonus!)
+        : createAlhaithamA4Formula(stage!, stable, state.hitTimeMastery ?? 0, state.includedA4Bonus ?? 0);
+      if (c6) {
+        hit.critRateFormula = createAlhaithamC6CriticalFormula("critRate", context.c6SnapshotActive!, state.c6CritRateIncluded!);
+        hit.critDamageFormula = createAlhaithamC6CriticalFormula("critDamage", context.c6SnapshotActive!, state.c6CritDamageIncluded!);
+      }
     }
     hit.sourceRefs = [...new Set([...hit.sourceRefs, ...ALHAITHAM_DAMAGE_SOURCE_REFS])];
     const id = prefix + hit.id; hit.dependencies.push(id);
@@ -190,9 +240,9 @@ export function prepareAlhaithamDamageDocument(document: CalculatorDocument): Ca
   }
   const timing = alhaithamProjectionTiming(mirrors)!;
   game.scopeCoverage = doc.selectedHitIds.length === 1 ? "single-hit" : "selected-components";
-  game.attributionPolicy = `C${game.constellation}·${mirrors}镜的一次投射，共${mirrors}次E标签草伤；快照相对触发+${timing.snapshotDelay}帧，命中左侧${timing.leftHitFrames.join("/")}帧或右侧${timing.rightHitFrames.join("/")}帧。C1减CD在命中后、不改变本击；C3只读取已给的有效E等级，不再+3。`;
+  game.attributionPolicy = `C${game.constellation}·${mirrors}镜的一次投射，共${mirrors}次E标签草伤；快照相对触发+${timing.snapshotDelay}帧，命中左侧${timing.leftHitFrames.join("/")}帧或右侧${timing.rightHitFrames.join("/")}帧。C1减CD在命中后、不改变本击；C3只读取已给的有效E等级，不再+3；C5仅影响Q。C4草伤与C6双暴取延后快照实际状态，不按命中时是否过期重取。`;
   doc.assumptions = doc.assumptions.filter(value => !value.startsWith("艾尔海森投射："));
-  doc.assumptions.push("艾尔海森投射：仅C0–C3的所选一次投射。C2每层50精通、8秒独立到期、最多4层，溢出生成也可触发；实际层数不由持镜数推断。快照精通只补实际与已含层数的差，进入装备属性相位；变化分支的触发/命中精通必须是已含各自C2的完整实际最终值。精通基数在触发时固化，A4按各段命中时精通；只有明确精通不变才共用完整重建面板。最终面板的其余属性视为所填实际快照，不反推未提供的精通转攻击等装备历史。未覆盖C4以上、镜生成/消失、后续投射、Q或整轮。");
+  doc.assumptions.push("艾尔海森投射：仅C0–C6的所选一次投射。C2每层50精通、8秒独立到期、最多4层，溢出生成也可触发；实际层数不由持镜数推断。快照精通只补实际与已含层数的差，进入装备属性相位；变化分支的触发/命中精通必须是已含各自C2的完整实际最终值。精通基数在触发时固化，A4按各段命中时精通；只有明确精通不变才共用完整重建面板。C4自身草伤按实际Q生成镜每份10%、15秒，队友每消耗镜30精通不加回自身；C6实际镜溢出双暴10%/70%初始6秒、每次溢出按来源延长6秒。C4/C6均读取本击延后快照时仍有效的状态，面板已含量只补差；不凭命座或持镜推断激活。最终面板的其余属性视为所填实际快照，不反推未提供的装备历史。未覆盖镜生成/消失/溢出事件、后续投射、Q伤害或整轮。");
   return doc;
 }
 
@@ -204,12 +254,14 @@ export function resetAlhaithamPanelAccounting(document: CalculatorDocument, mode
   if (mode === "imported-final") {
     delete context.projectionTriggerValid; delete context.masteryStableAcrossStages; delete context.triggerMastery; delete context.statsAndTargetStableAcrossHits;
     delete context.c2SnapshotStacks; delete context.c2SnapshotIncludedStacks; delete context.c2TriggerMasteryFinal; delete context.c2OtherSnapshotStatsFinal;
+    delete context.c4SnapshotStacks; delete context.c6SnapshotActive;
     context.hitStates = Object.fromEntries(document.hits.map(hit => [hit.id, zeroNativeShareProven(hit) ? { includedProjectionBase: 0 } : {}]));
   } else {
     context.c2SnapshotIncludedStacks = 0;
     context.hitStates ??= {};
     for (const hit of document.hits) {
       const state = context.hitStates[hit.id] ??= {}; state.includedA4Bonus = 0;
+      state.includedC4Bonus = 0; state.c6CritRateIncluded = false; state.c6CritDamageIncluded = false;
       if (zeroNativeShareProven(hit)) state.includedProjectionBase = 0;
       else delete state.includedProjectionBase;
     }

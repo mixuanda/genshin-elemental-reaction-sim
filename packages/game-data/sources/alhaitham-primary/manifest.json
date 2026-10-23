@@ -107,6 +107,30 @@
       "bytes": 2494,
       "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
       "gitBlob": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/template/character/character.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlob": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/stats.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlob": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/modifier/modifier.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
     }
   ],
   "crossVariant": {
@@ -215,10 +239,35 @@
         "bytes": 2494,
         "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
         "gitBlob": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/template/character/character.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go",
+        "bytes": 5080,
+        "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+        "gitBlob": "f25b799d41269c2088e35e5668e20737d905f27e"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/stats.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/stats.go",
+        "bytes": 3321,
+        "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+        "gitBlob": "33d47f781e040dbabac6622360272235888cf663"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/modifier/modifier.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go",
+        "bytes": 3345,
+        "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+        "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
       }
     ],
     "differences": [
       "internal/characters/alhaitham/cons.go",
+      "internal/template/character/character.go",
       "pkg/core/player/character/mods.go"
     ]
   },
@@ -320,8 +369,13 @@
     "masteryTrigger": "skill.go constructs ai.FlatDmg=mirrorEm[TalentLvlSkill()]*Stat(EM) when triggering projection, before delayed attack snapshots.",
     "attackSnapshot": "QueueAttack in pkg/core/attack.go samples ATK/CR/CD/general DMG at delay20/22/26; each queued projection has the same delay for one action.",
     "a4Hit": "asc.go attack modifier matches projection ICDGroup or burst; pkg/enemy/attack.go applies attack mods during hit handling; A4 reads current Stat(EM), min(0.001*EM,1), not necessarily trigger or snapshot mastery.",
-    "constellation": "C0–C3 selected projection. C1 reduces E cooldown by72f after a landed projection, with60f ICD; it does not alter this hit. C2 adds50EM per generated mirror,480f independently per slot,max4; overflow generation calls c2 before capping mirrors. C3 is already represented by supplied effective E talent, never added again.",
-    "c2Accounting": "Delayed snapshot uses50*(actual unexpired C2 stacks - C2 stacks already present in input mastery), through the common equipment mastery-phase rebuilder. Stable total mastery explicitly shares the complete rebuilt value across source stages. When varying, trigger/impact inputs are their complete actual final mastery including that stage C2; no snapshot delta is added to them."
+    "constellation": "C0–C6 selected projection. C1 reduces E cooldown by72f after a landed projection, with60f ICD; no change to this hit. C2 adds50EM per generated mirror,480f independently per slot,max4; overflow generation calls c2 before capping mirrors. C3 is already represented by supplied effective E talent, never added again. C5 sets BurstCon=5 and changes Q effective talent only, never projection E.",
+    "c2Accounting": "Delayed snapshot uses50*(actual unexpired C2 stacks - C2 stacks already present in input mastery), through the common equipment mastery-phase rebuilder. Stable total mastery explicitly shares the complete rebuilt value across source stages. When varying, trigger/impact inputs are their complete actual final mastery including that stage C2; no snapshot delta is added to them.",
+    "c4Snapshot": "cons.go:c4Gain grants0.1 DendroP per actual Q-generated mirror,900 frames with hitlag; c4Loss gives30EM per consumed mirror to other party members and explicitly skips Alhaitham. Projection QueueAttack captures the active own DendroP at its delayed20/22/26-frame Snapshot. Its subsequent expiry before impact does not remove that snapshot contribution. No own C4 mastery is manufactured.",
+    "c4LifecycleLimit": "burst.go consumes immediately; its184-frame task requires Alhaitham still active, then mirrorGain and c4Gain run. C6 forces generated=3 but does not prove the delayed generation ran or overflow occurred. Same-key modifier.Add overwrites rather than stacking C4. Although the source comment says a new Q clears previous durations, c4Gain(0)/c4Loss(0) return without explicit deletion in these fixed revisions. This module accepts only the actual active snapshot share0–3 and does not infer refresh, clearing, cast history or expiry.",
+    "c6Snapshot": "skill.go caps mirrorCount at3 after checking overflow; C6 receives only the excess. cons.go setsCR0.1 andCD0.7 in one StatMod. Classic marks AffectedStat=CR, Stellar removes that field; both template Snapshot methods call CharWrapper.Stats(), which adds the complete StatMod.Amount vector without the single-stat filter, so both CR and CD reach the projection snapshot.",
+    "c6Expiry": "cons.go:c6 loops once per excess mirror. It first grants360 frames with hitlag, or extends an existing active status by360 frames per excess mirror. modifier.Base.Extend adds to remaining expiry rather than resetting6seconds; Stats excludes expiry<=currentFrame. Actual state at delayed offense snapshot is explicit; no timer, capped-mirror inference, autoactivation or full mirror lifecycle is implemented.",
+    "c4C6Accounting": "Each hit declares own C4 ratio already present in damageBonus and whether C6 CR/CD already exist in the entered panel or explicit per-hit final critical stats. Damage bonus combines the existing live-impact A4 delta and snapshotC4 delta; independent owned CR/CD formulas add only C6 differences. Unknown imported shares block. A nonzero C6 difference with an explicit per-hit final critical override is rejected because that override bypasses the formula; a verified frozen conversion keeps its captured effective stats and identity."
   },
   "limitations": [
     "One actual projection event or its selected contacts, not a full E/mirror/infused-attack rotation.",
@@ -329,12 +383,19 @@
     "Left/right scheduling has identical coefficient counts but differing hit frames; module reports alternatives and does not invent a side.",
     "Shared mastery is used only with explicit stability confirmation; otherwise trigger mastery and impact mastery are separate explicit inputs.",
     "Source/equipment/elemental damage contributions remain conditional; imported panel cannot prove mirror count, actual contacts, stability or own A4 included share.",
-    "Varying-stage C2 with executable EM-sensitive equipment conversions or hit formulas is rejected with the named rules and actual-final-panel control; C1 cooldown history and C2 independent stack expiry are not replayed."
+    "Varying-stage C2 with executable EM-sensitive equipment conversions or hit formulas is rejected with the named rules and actual-final-panel control; C1 cooldown history and C2 independent stack expiry are not replayed.",
+    "C4/C6 require explicit actual still-valid delayed-snapshot states and included shares. Constellation, held mirrors, choosing a3-mirror action or pressing Q never proves those states.",
+    "No teammate C4 mastery feedback or derived teammate conversion is manufactured; any external mastery must obey the same complete actual stage-panel inputs.",
+    "C5 does not add E talent. Burst damage is not implemented here; the fixed burst source even samples its EM coefficient with TalentLvlSkill while ATK uses TalentLvlBurst, so this projection evidence must not be presented as Q coverage.",
+    "C4 refresh/zero-generation semantics and C6 expiry extension are documented from fixed source but not replayed; explicit actual snapshot state avoids fabricating a mirror timeline."
   ],
   "supportedConstellations": [
     0,
     1,
     2,
-    3
+    3,
+    4,
+    5,
+    6
   ]
 }

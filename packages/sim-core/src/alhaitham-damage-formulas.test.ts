@@ -249,8 +249,8 @@ function withMasteryConversion(doc: AlhaithamCalculatorDocument): void {
 }
 
 describe("Alhaitham C1–C3 stage-specific C2 mastery", () => {
-  it("exports maximum C3 and leaves C1's after-hit cooldown out of this damage", () => {
-    expect(ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION).toBe(3);
+  it("exports maximum C6 and leaves C1's after-hit cooldown out of this damage", () => {
+    expect(ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION).toBe(6);
     const doc = fixture(3); doc.gameContext.constellation = 1;
     expect(result(doc).status).toBe("calculated"); expect(result(doc).totals).toEqual(result(fixture(3)).totals);
   });
@@ -383,5 +383,147 @@ describe("Alhaitham C1–C3 stage-specific C2 mastery", () => {
     doc.build.equipment.dynamicHitBonuses = [{ id: "normal-only-em-test", label: "只限普攻的精通增伤测试", attackTags: ["normal"],
       expression: { kind: "multiply", terms: [{ kind: "variable", key: "em" }, { kind: "constant", value: .001 }] }, inputs: [], sourceRefs: ["https://example.test/normal-only-bonus"] }];
     expect(alhaithamUnstableC2EquipmentRules(doc)).toEqual([]); expect(result(doc).status).toBe("calculated");
+  });
+});
+
+function c4Fixture(mirrors = 1, constellation = 4, stable = true): AlhaithamCalculatorDocument {
+  const doc = c2Fixture(mirrors, stable, constellation);
+  doc.gameContext.alhaithamDamage!.c4SnapshotStacks = 3;
+  if (constellation >= 6) doc.gameContext.alhaithamDamage!.c6SnapshotActive = true;
+  return doc;
+}
+describe("Alhaitham C4–C6 actual delayed-snapshot contributions", () => {
+  it.each([0, 1, 2, 3])("C4 uses %i explicitly active Q-generated shares, never held mirrors or teammate EM", stacks => {
+    const doc = c4Fixture(); doc.gameContext.alhaithamDamage!.c4SnapshotStacks = stacks;
+    const output = result(doc);
+    // E10 ATK2000, C2 actual EM400: ATK2419.2 + EM967.68 = 3386.88.
+    // C4 contributes only .1*shares; its consumed-mirror EM goes to others.
+    expect(output.status).toBe("calculated");
+    expect(output.totals!.nonCritical).toBeCloseTo(3386.88 * (1.4 + .1 * stacks) * .45, 9);
+    expect(output.totals!.nonCritical).not.toBeCloseTo((2419.2 + 2.4192 * 490) * (1.49 + .1 * stacks) * .45, 5);
+  });
+  it("C5 changes no projection talent; supplied effective E13 is used once", () => {
+    const c4 = c4Fixture(), c5 = c4Fixture(1, 5);
+    expect(result(c5).totals).toEqual(result(c4).totals);
+    c5.gameContext.effectiveTalentLevel = 13;
+    expect(result(c5).totals!.nonCritical).toBeCloseTo((2856 + 1142.4) * 1.7 * .45, 9);
+  });
+  it("unknown C4/C6 state blocks; explicit inactive0/false is a valid unbuffed scenario", () => {
+    const doc = c4Fixture(3, 6); delete doc.gameContext.alhaithamDamage!.c4SnapshotStacks;
+    expect(result(doc).status).toBe("blocked");
+    expect(alhaithamRequirementAdapter.collect(doc).some(field => field.fieldPath.endsWith("c4SnapshotStacks"))).toBe(true);
+    doc.gameContext.alhaithamDamage!.c4SnapshotStacks = 0; delete doc.gameContext.alhaithamDamage!.c6SnapshotActive;
+    expect(result(doc).status).toBe("blocked");
+    expect(alhaithamRequirementAdapter.collect(doc).some(field => field.fieldPath.endsWith("c6SnapshotActive"))).toBe(true);
+    doc.gameContext.alhaithamDamage!.c6SnapshotActive = false;
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(3 * 2133.7344, 9);
+    expect(result(doc).totals!.expected).toBeCloseTo(3 * 3200.6016, 9);
+  });
+  it.each([1, 2, 3])("C6's actual overflow snapshot contributes10CR/70CD to %i real contacts", mirrors => {
+    const doc = c4Fixture(mirrors, 6), output = result(doc);
+    // C4 noncritical2590.9632; CR .5+.1=.6, CD1+.7=1.7.
+    expect(output.status).toBe("calculated");
+    expect(output.totals!.nonCritical).toBeCloseTo(2590.9632 * mirrors, 9);
+    expect(output.totals!.critical).toBeCloseTo(6995.60064 * mirrors, 9);
+    expect(output.totals!.expected).toBeCloseTo(5233.745664 * mirrors, 9);
+  });
+  it("does not add a second C4 share already entered, and removes an explicit expired share", () => {
+    const doc = c4Fixture(); if (doc.hits[0]!.kind !== "ordinary") throw new Error();
+    doc.hits[0]!.damageBonus = .3; impactStates(doc)[0]!.includedC4Bonus = .3;
+    expect(result(doc).totals).toEqual(result(c4Fixture()).totals);
+    doc.gameContext.alhaithamDamage!.c4SnapshotStacks = 0;
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(2133.7344, 9);
+  });
+  it("accounts C6 rate and damage independently, including explicitly expired included shares", () => {
+    const doc = c4Fixture(1, 6); if (doc.build.mode !== "manual-final") throw new Error();
+    doc.build.stats.critRate = .6; impactStates(doc)[0]!.c6CritRateIncluded = true;
+    expect(result(doc).totals).toEqual(result(c4Fixture(1, 6)).totals);
+    doc.build.stats.critDamage = 1.7; impactStates(doc)[0]!.c6CritDamageIncluded = true;
+    expect(result(doc).totals).toEqual(result(c4Fixture(1, 6)).totals);
+    doc.gameContext.alhaithamDamage!.c6SnapshotActive = false;
+    expect(result(doc).totals!.expected).toBeCloseTo(2590.9632 * 1.5, 9);
+  });
+  it("caps final CR probability after C6 while preserving70CD", () => {
+    const doc = c4Fixture(1, 6); if (doc.build.mode !== "manual-final") throw new Error(); doc.build.stats.critRate = .95;
+    const output = result(doc);
+    expect(output.hits[0]!.effectiveCritRate).toBe(1);
+    expect(output.totals!.expected).toBeCloseTo(2590.9632 * 2.7, 9);
+  });
+  it("keeps trigger FlatDmg and impact A4 independent of C4/C6 snapshot samples", () => {
+    const doc = c4Fixture(1, 6, false); doc.gameContext.alhaithamDamage!.c4SnapshotStacks = 2;
+    impactStates(doc)[0]!.hitTimeMastery = 500;
+    // Trigger EM300 -> Flat725.76; A4 at impactEM500=.5, snapshotC4=.2.
+    expect(result(doc).totals!.nonCritical).toBeCloseTo(3144.96 * 1.7 * .45, 9);
+    expect(result(doc).totals!.expected).toBeCloseTo(3144.96 * 1.7 * .45 * 2.02, 9);
+  });
+  it("requires unknown imported C4/CR/CD included declarations separately", () => {
+    const doc = c4Fixture(1, 6), state = impactStates(doc)[0]!;
+    delete state.includedC4Bonus; delete state.c6CritRateIncluded; delete state.c6CritDamageIncluded;
+    expect(result(doc).status).toBe("blocked");
+    const fields = alhaithamRequirementAdapter.collect(doc).map(field => field.fieldPath);
+    expect(fields.some(field => field.endsWith("includedC4Bonus"))).toBe(true);
+    expect(fields.some(field => field.endsWith("c6CritRateIncluded"))).toBe(true);
+    expect(fields.some(field => field.endsWith("c6CritDamageIncluded"))).toBe(true);
+  });
+  it.each(["critRateFormula", "critDamageFormula"] as const)("preserves a foreign %s and blocks the C6 slot conflict", key => {
+    const doc = c4Fixture(1, 6); if (doc.hits[0]!.kind !== "ordinary") throw new Error();
+    const foreign = { ruleId: "foreign-critical-contribution", label: "Foreign critical contribution", expression: { kind: "constant" as const, value: .2 }, inputs: [], sourceRefs: ["https://example.test/foreign-critical"] };
+    doc.hits[0]![key] = foreign;
+    expect(prepareAlhaithamDamageDocument(doc).hits[0]).toHaveProperty(key, foreign);
+    expect(result(doc).status).toBe("blocked");
+  });
+  it("rejects explicit final critical overrides that would silently bypass a nonzero C6 difference", () => {
+    const doc = c4Fixture(1, 6); if (doc.hits[0]!.kind !== "ordinary") throw new Error();
+    doc.hits[0]!.effectiveCritRate = .5; doc.hits[0]!.effectiveCritDamage = 1;
+    expect(result(doc).status).toBe("blocked");
+    expect(alhaithamRequirementAdapter.collect(doc).some(field => field.fieldPath === "hits.0.effectiveCritRate")).toBe(true);
+    doc.hits[0]!.effectiveCritRate = .6; doc.hits[0]!.effectiveCritDamage = 1.7;
+    Object.assign(impactStates(doc)[0]!, { c6CritRateIncluded: true, c6CritDamageIncluded: true });
+    expect(result(doc).totals).toEqual(result(c4Fixture(1, 6)).totals);
+  });
+  it("import clears all new combat/entry claims while fresh equipment only knows zero included", () => {
+    const doc = c4Fixture(2, 6); resetAlhaithamPanelAccounting(doc, "imported-final");
+    expect(alhaithamContext(doc)?.c4SnapshotStacks).toBeUndefined(); expect(alhaithamContext(doc)?.c6SnapshotActive).toBeUndefined();
+    expect(impactStates(doc).every(state => state.includedC4Bonus === undefined && state.c6CritRateIncluded === undefined && state.c6CritDamageIncluded === undefined)).toBe(true);
+    resetAlhaithamPanelAccounting(doc, "fresh-equipment");
+    expect(alhaithamContext(doc)?.c4SnapshotStacks).toBeUndefined(); expect(alhaithamContext(doc)?.c6SnapshotActive).toBeUndefined();
+    expect(impactStates(doc).every(state => state.includedC4Bonus === 0 && state.c6CritRateIncluded === false && state.c6CritDamageIncluded === false)).toBe(true);
+  });
+  it("reopens C0–C3 JSON without new required fields, while historical C4+ needs actual states", () => {
+    for (const cons of [0, 1, 2, 3, 4, 5, 6]) {
+      const doc = cons < 2 ? fixture() : c2Fixture(1, true, cons); doc.gameContext.constellation = cons;
+      for (const state of impactStates(doc)) { delete state.includedC4Bonus; delete state.c6CritRateIncluded; delete state.c6CritDamageIncluded; }
+      expect(result(JSON.parse(JSON.stringify(doc))).status).toBe(cons < 4 ? "calculated" : "blocked");
+    }
+  });
+  it("C6 equipment conversion reopens exactly and rejects altered C4/C6 or lower constellation identity", () => {
+    const doc = c4Fixture(3, 6); withMasteryConversion(doc);
+    const before = result(doc), converted = convertCalculatorToFinalPanel(doc) as AlhaithamCalculatorDocument;
+    expect(result(converted).totals).toEqual(before.totals);
+    expect(result(JSON.parse(JSON.stringify(converted))).totals).toEqual(before.totals);
+    for (const mutate of [
+      (changed: AlhaithamCalculatorDocument) => { changed.gameContext.alhaithamDamage!.c4SnapshotStacks = 0; },
+      (changed: AlhaithamCalculatorDocument) => { changed.gameContext.alhaithamDamage!.c6SnapshotActive = false; },
+      (changed: AlhaithamCalculatorDocument) => { impactStates(changed)[0]!.c6CritDamageIncluded = true; },
+      (changed: AlhaithamCalculatorDocument) => { changed.gameContext.constellation = 3; },
+    ]) { const changed = structuredClone(converted); mutate(changed); expect(result(changed).status).toBe("blocked"); }
+  });
+  it("C4+ cannot bypass the actual-panel confirmation marker after serialization", () => {
+    const doc = c4Fixture(1, 6); doc.gameContext.alhaithamDamage!.c2RequiresActualPanelConfirmation = true;
+    for (const confirmation of [undefined, false, true]) {
+      if (confirmation === undefined) delete doc.gameContext.alhaithamDamage!.c2OtherSnapshotStatsFinal;
+      else doc.gameContext.alhaithamDamage!.c2OtherSnapshotStatsFinal = confirmation;
+      const reopened = JSON.parse(JSON.stringify(doc));
+      expect(result(reopened).status).toBe(confirmation === true ? "calculated" : "blocked");
+    }
+  });
+  it("rejects locked positive C4/C6 declarations and invalid over-cap state", () => {
+    const doc = c4Fixture(1, 6); doc.gameContext.constellation = 3;
+    expect(result(doc).status).toBe("blocked");
+    doc.gameContext.alhaithamDamage!.c4SnapshotStacks = 0; doc.gameContext.alhaithamDamage!.c6SnapshotActive = false;
+    impactStates(doc)[0]!.includedC4Bonus = .1; expect(result(doc).status).toBe("blocked");
+    impactStates(doc)[0]!.includedC4Bonus = 0; impactStates(doc)[0]!.c6CritRateIncluded = true;
+    expect(result(doc).status).toBe("blocked");
+    for (const state of [{ c4SnapshotStacks: 4 }, { c4SnapshotStacks: 1.1 }, { hitStates: { h: { includedC4Bonus: .31 } } }, { c6SnapshotActive: 1 }]) expect(alhaithamDamageContextSchema.safeParse(state).success).toBe(false);
   });
 });
