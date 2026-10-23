@@ -40,15 +40,15 @@ const fixture=()=>({
  ]
 }) as unknown as SourceHostResult;
 
-async function renderPanel(page:Page){
+async function renderPanel(page:Page,result:SourceHostResult=fixture(),names:Record<string,string>={}){
  await page.setViewportSize({width:1280,height:1100});
  await page.setContent('<!doctype html><html lang="zh-CN"><head><title>伤害曲线面板</title></head><body><main id="curve"></main></body></html>');
  await page.addStyleTag({content:styles});
  await page.addScriptTag({content:panelScript});
- await page.evaluate(result=>{
-  const panel=(window as unknown as {SourceDamageCurvePanel:{renderSourceDamageCurve:(root:HTMLElement,result:SourceHostResult)=>void}}).SourceDamageCurvePanel;
-  panel.renderSourceDamageCurve(document.querySelector<HTMLElement>('#curve')!,result);
- },fixture());
+ await page.evaluate(({result,names})=>{
+  const panel=(window as unknown as {SourceDamageCurvePanel:{renderSourceDamageCurve:(root:HTMLElement,result:SourceHostResult,actorName?:(key:string)=>string|undefined)=>void}}).SourceDamageCurvePanel;
+  panel.renderSourceDamageCurve(document.querySelector<HTMLElement>('#curve')!,result,key=>names[key]);
+ },{result,names});
 }
 
 async function tableSums(page:Page){
@@ -104,4 +104,32 @@ test('mode, filtering and frame controls preserve original events and four contr
  expect(await tableSums(page)).toEqual([30,30,30,30]);
  await page.locator('[data-curve-filter="actor"]').selectOption('');
  expect(await tableSums(page)).toEqual([150,150,150,150]);
+});
+
+test('the actual 619-hit team exposes both Nicole projection sources without changing the damage owner',async({page},testInfo)=>{
+ const recorded=JSON.parse(await readFile(new URL('../src/wanderer-team-state-619.fixture.json',import.meta.url),'utf8')) as {result:SourceHostResult};
+ const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+ await renderPanel(page,recorded.result,{wanderer:'流浪者',faruzan:'珐露珊',nicole:'妮可',durin:'杜林'});
+ await expect(page.locator('[data-curve-total]')).toContainText('29,547,632.44（619 击）');
+ for(const sum of await tableSums(page))expect(sum).toBeCloseTo(29547632.435022313,6);
+ await expect(page.locator('[data-curve-table="source"] [data-group="协同投影（妮可Q）"]')).toContainText('1,081,874.84');
+ await expect(page.locator('[data-curve-table="source"] [data-group="命座投影（妮可C1）"]')).toContainText('2,807,310.52');
+ await expect(page.locator('[data-curve-table="source"] [data-group="unknown"]')).toHaveCount(0);
+ await page.locator('[data-curve-filter="source"]').selectOption('协同投影（妮可Q）');
+ await expect(page.locator('[data-curve-total]')).toContainText('1,081,874.84（23 击）');
+ await page.locator('[data-curve-events] > summary').click();
+ await expect(page.locator('[data-curve-event-table] tbody tr')).toHaveCount(23);
+ await page.locator('[data-curve-filter="actor"]').selectOption('wanderer');
+ await expect(page.locator('[data-curve-total]')).toContainText('562,584.14（11 击）');
+ await expect(page.locator('[data-curve-event-table] tbody tr td:nth-child(3)')).toHaveText(Array(11).fill('流浪者'));
+ await page.locator('[data-curve-filter="actor"]').selectOption('');
+ await page.locator('[data-curve-filter="source"]').selectOption('');
+ await page.locator('[data-curve-start]').fill('480');await page.locator('[data-curve-end]').fill('489');await page.locator('[data-curve-zoom]').click();
+ await expect(page.locator('[data-event-frame="488"] td:nth-child(4)')).toContainText(['协同投影（妮可Q）','命座投影（妮可C1）']);
+ await page.screenshot({path:testInfo.outputPath('wanderer-projection-sources-1280.png')});
+ await page.setViewportSize({width:390,height:844});
+ const layout=await page.evaluate(()=>({width:innerWidth,content:document.documentElement.scrollWidth,children:Array.from(document.querySelector('#curve')!.children).map(element=>({tag:element.tagName,attributes:Array.from(element.attributes).map(a=>a.name),width:element.getBoundingClientRect().width,right:element.getBoundingClientRect().right,text:element.textContent?.slice(0,80)}))}));
+ expect(layout.content,JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
+ await page.screenshot({path:testInfo.outputPath('wanderer-projection-sources-390.png')});
+ expect(errors).toEqual([]);
 });

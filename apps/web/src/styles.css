@@ -85,6 +85,7 @@ p { color: var(--muted); }
 .breakdown-value small { display: block; color: var(--muted); }
 .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
 [data-source-host-energy-analysis] { min-width: 0; overflow-wrap: anywhere; }
+[data-curve-bin] { margin-inline: 0; }
 table { width: 100%; border-collapse: collapse; min-width: 760px; }
 .hit-table { min-width: 1240px; }
 th, td { padding: 10px 11px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; white-space: nowrap; }
