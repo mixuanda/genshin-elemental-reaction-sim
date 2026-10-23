@@ -196,6 +196,8 @@ const phaseCompletionPatches = [
   'patches/140-iansan-c2-active-recipient.patch',
   // The marker's actual expiry ends NS/A1/C4, without killing a later E/Q instance.
   'patches/141-iansan-burst-expiry.patch',
+  // Q's initial 15-point restoration can overflow too; do not credit it as C4 Scale overflow.
+  'patches/142-iansan-c6-burst-entry-overflow.patch',
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');

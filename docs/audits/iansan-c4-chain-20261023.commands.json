@@ -1,0 +1,51 @@
+{
+  "command": [
+    "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go/bin/go",
+    "test",
+    "-mod=readonly",
+    "./internal/characters/iansan",
+    "-run",
+    "^TestIansanBurstExpiry",
+    "-count=1",
+    "-v"
+  ],
+  "environment": {
+    "GOROOT": "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GO111MODULE": "on",
+    "GOPATH": "/tmp/GIDPS-iansan-c4-20261023/gopath",
+    "GOMODCACHE": "/workspace/GIDPS-cloud/source-build-cache/modules",
+    "GOCACHE": "/workspace/GIDPS-cloud/source-build-cache/go-build",
+    "GOMAXPROCS": "2",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "CGO_ENABLED": "0"
+  },
+  "beforeExitCode": 1,
+  "afterExitCode": 0,
+  "afterCommand": [
+    "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go/bin/go",
+    "test",
+    "-mod=readonly",
+    "./internal/characters/iansan",
+    "-run",
+    "^TestIansan(C1|C2|BurstExpiry|C4Source|C6Source)",
+    "-count=1",
+    "-v"
+  ],
+  "afterSource": "/tmp/GIDPS-iansan-c4-20261023/go-after",
+  "patches": [
+    {
+      "path": "packages/source-host/stellar-overlay/patches/141-iansan-burst-expiry.patch",
+      "sha256": "eae7cd8d42351bb3ccfd764aa30a74fd7c4db767fde22f20427518001bc8d626"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/142-iansan-c6-burst-entry-overflow.patch",
+      "sha256": "9ea33ee62b0f957a644ac14724b54aacee71eafc91095d92a482b7f7c474a221"
+    }
+  ]
+}
