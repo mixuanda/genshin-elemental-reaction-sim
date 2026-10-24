@@ -59,7 +59,9 @@ it("pins the remaining conditional inputs, retains Furina's ready Arkhe hit, and
     const character = gameDataCatalog.characters.find((row) => row.slug === entries[0]!.characterSlug)!;
     const doc = getCharacterDocuments(character.id, 1).find((row) => row.gameContext?.skillId === skillId)!;
     expect(doc, skillId).toBeDefined();
-    expect(doc.gameContext?.scopeCoverage).toBe("complete-cast");
+    // Xiao's reviewed primary entries explicitly select one actual hit;
+    // the legacy C0/Q-off mapping is not a complete later Q-active cast.
+    expect(doc.gameContext?.scopeCoverage, skillId).toBe(entries[0]!.characterSlug === "xiao" ? "single-hit" : "complete-cast");
     expect(doc.hits).toHaveLength(entries.length);
   }
   const gaming = conditionedBasicActionMappings.filter((mapping) => mapping.characterSlug === "gaming");
