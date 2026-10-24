@@ -1,3 +1,4 @@
+// Account identifiers below are synthetic; no real player identifier is required.
 import { describe, expect, it } from "vitest";
 import { runtimeDatasetMetadata } from "./runtime-metadata";
 import {
@@ -100,7 +101,7 @@ describe("Enka showcase adapter", () => {
 
   it("validates and normalizes account data without turning it into a sim config", () => {
     const result = parseEnkaShowcase(rawShowcase, {
-      uid: "283733593",
+      uid: "900000001",
       fetchedAt: "2026-07-26T00:00:00.000Z"
     });
     expect(result.visibility).toBe("public");
@@ -129,7 +130,7 @@ describe("Enka showcase adapter", () => {
 
   it("keeps graduation state explicitly non-simulatable", () => {
     const result = parseEnkaShowcase(rawShowcase, {
-      uid: "283733593"
+      uid: "900000001"
     });
     const placeholder = createGraduationBuildPlaceholder(
       result.characters[0]!
@@ -158,7 +159,7 @@ describe("Enka showcase adapter", () => {
         ]
       },
       {
-        uid: "283733593",
+        uid: "900000001",
         fetchedAt: "2026-07-26T00:00:00.000Z"
       }
     );
@@ -226,7 +227,7 @@ describe("Enka showcase adapter", () => {
           }
         ]
       },
-      { uid: "283733593" }
+      { uid: "900000001" }
     );
     const resolved = resolveShowcaseCatalog(imported);
     expect(resolved.diagnostics).toEqual({
@@ -256,7 +257,7 @@ describe("Enka showcase adapter", () => {
           }
         ]
       },
-      { uid: "283733593" }
+      { uid: "900000001" }
     );
     const resolved = resolveShowcaseCatalog(imported);
     expect(resolved.diagnostics.unmatchedSkillIds).toEqual([]);
@@ -276,7 +277,7 @@ describe("Enka showcase adapter", () => {
           level: 60
         }
       },
-      { uid: "283733593" }
+      { uid: "900000001" }
     );
     expect(result.visibility).toBe("closed-or-empty");
     expect(result.characters).toEqual([]);
