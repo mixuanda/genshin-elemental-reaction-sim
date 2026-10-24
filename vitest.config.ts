@@ -1,6 +1,11 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  // The executable test graph consumes JSON through its default export.
+  // Both options are needed for Vite's SSR JSON fast path: otherwise large
+  // catalog/evidence files are parsed again as JS and get costly sourcemaps.
+  // Keep the original JSON values while avoiding that test-only overhead.
+  json: { stringify: true, namedExports: false },
   test: {
     environment: "node",
     include: ["packages/**/*.test.ts", "apps/web/src/**/*.test.ts"],
