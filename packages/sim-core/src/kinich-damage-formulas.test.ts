@@ -8,7 +8,7 @@ import { calculatorFormulaSchema, type CalculatorDocument } from "./calculator-m
 import { evaluateFormulaExpression } from "./calculation-trace";
 import { kinichDamageContextSchema } from "./kinich-damage-context";
 import {
-  createKinichA4BaseFormula, finalizeKinichPanelAccounting, isKinichDamageAction, kinichContext, kinichHitCoefficient,
+  createKinichA4BaseFormula, isKinichDamageAction, kinichContext, kinichHitCoefficient,
   prepareKinichDamageDocument, resetKinichPanelAccounting, type KinichCalculatorDocument,
 } from "./kinich-damage-formulas";
 
@@ -22,15 +22,9 @@ function fixture(constellation = 1, skill = "kinich-scalespiker-cannon"): Kinich
   Object.assign(doc.gameContext.kinichDamage!, { nightsoulBlessingActive: true, cannonPointsBeforeUse: 20, a4Stacks: 0 });
   return doc;
 }
-/** Public schema wiring belongs to the parent. Only the extra context is
- * removed in this test adapter, after its real prepare step. Formulas and
- * missing dependencies are executed by the unchanged public calculator. */
-function withoutExtension(document: CalculatorDocument): CalculatorDocument {
-  const doc = structuredClone(document) as KinichCalculatorDocument;
-  delete doc.gameContext.kinichDamage;
-  return doc;
-}
-const result = (document: CalculatorDocument) => calculateDocument(withoutExtension(prepareKinichDamageDocument(document)));
+// Exercise the actual public entry point. The Kinich context is now part of
+// its schema and must survive preparation, calculation and panel conversion.
+const result = (document: CalculatorDocument) => calculateDocument(document);
 const denominator = .5 * .9;
 
 describe("Kinich fixed-source C0/C1 selected E hits (independent wiring)", () => {
@@ -172,8 +166,8 @@ describe("Kinich fixed-source C0/C1 selected E hits (independent wiring)", () =>
     const original = fixture(); original.build = { mode: "equipment-derived", characterBaseAtk: 600, weaponBaseAtk: 200, atkPercent: 1.5, flatAtk: 0, baseHp: 20000, hpPercent: 0, flatHp: 0, baseDef: 800, defPercent: 0, flatDef: 0, em: 0, critRate: .5, critDamage: 1 };
     Object.assign(original.gameContext.kinichDamage!, { a4Stacks: 1, a4CreationAttack: 1800 });
     const prepared = prepareKinichDamageDocument(original), before = result(original);
-    const converted = convertCalculatorToFinalPanel(withoutExtension(prepared)) as KinichCalculatorDocument;
-    converted.gameContext.kinichDamage = structuredClone(kinichContext(prepared)!); finalizeKinichPanelAccounting(converted);
+    const converted = convertCalculatorToFinalPanel(prepared) as KinichCalculatorDocument;
+    expect(converted.gameContext.kinichDamage).toBeDefined();
     expect(result(converted).totals).toEqual(before.totals);
     const reopened = JSON.parse(JSON.stringify(converted)) as KinichCalculatorDocument;
     expect(result(reopened).totals).toEqual(before.totals);

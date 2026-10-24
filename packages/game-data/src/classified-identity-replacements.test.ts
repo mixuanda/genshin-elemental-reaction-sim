@@ -95,7 +95,11 @@ describe("current classified identity replacements", () => {
     const unfinished = structuredClone(good); unfinished.gameContext!.travelerCrossEntityCast!.observedThroughFrame = 362;
     const changingPanel = structuredClone(good); changingPanel.gameContext!.travelerCrossEntityCast!.statsStableAcrossHits = false;
     const higherConstellation = structuredClone(good); higherConstellation.gameContext!.constellation = 1;
-    for (const document of [missingStory, activeStory, absorbed, unknownContact, unfinished, changingPanel, higherConstellation]) blocked(document);
+    for (const document of [missingStory, activeStory, absorbed, unknownContact, unfinished, changingPanel]) blocked(document);
+    // C1 changes the skill, not this no-absorption burst; the public Anemo
+    // route now explicitly supports C0-C6 without weakening unknown inputs.
+    expect(calculateDocument(higherConstellation).status).toBe("calculated");
+    expect(calculateDocument(higherConstellation).totals).toEqual(calculateDocument(good).totals);
     const restored = parseCalculatorDocument(serializeCalculatorDocument(missingStory));
     expect(restored.gameContext!.travelerCrossEntityCast).not.toHaveProperty("trueMoonStoryBuffInactive");
     blocked(restored);

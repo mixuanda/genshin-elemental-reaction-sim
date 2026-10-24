@@ -76,19 +76,28 @@ describe("existing character outputs", () => {
     expect(bursts.find(item => item.candidateIndex !== index)?.damage).toBeUndefined();
   });
 
-  it("shows Wanderer's actual single E candidate and short missing-definition states for normals and Q", () => {
+  it("shows Wanderer's E alongside the newly supported normal and burst candidates without inventing results", () => {
     const candidates = getCharacterDocuments("character:10000075", 10);
-    expect(candidates).toHaveLength(1);
-    const current = candidates[0]!;
+    expect(candidates).toHaveLength(10);
+    const index = candidates.findIndex(doc => doc.gameContext?.abilityId === "talent:wanderer:combat2");
+    expect(index).toBeGreaterThanOrEqual(0);
+    const current = candidates[index]!;
     const result = calculateDocument(current);
     expect(result.status).toBe("blocked");
-    const groups = buildCharacterOutputs(candidates, gameDataCatalog, { selectedCandidateIndex: 0, currentDocument: current, currentResult: result });
-    expect(groups.find(group => group.id === "normal")).toMatchObject({ items: [], unavailableReason: "当前来源尚无可选动作定义" });
-    expect(groups.find(group => group.id === "burst")).toMatchObject({ items: [], unavailableReason: "当前来源尚无可选动作定义" });
+    const groups = buildCharacterOutputs(candidates, gameDataCatalog, { selectedCandidateIndex: index, currentDocument: current, currentResult: result });
+    expect(groups.find(group => group.id === "normal")!.items).toHaveLength(8);
+    expect(groups.find(group => group.id === "burst")!.items).toHaveLength(1);
+    for (const group of groups.filter(group => group.id === "normal" || group.id === "burst")) {
+      expect(group.unavailableReason).toBeUndefined();
+      for (const item of group.items) {
+        expect(item.status).toBe("pending");
+        expect(item.damage).toBeUndefined();
+      }
+    }
     const skill = groups.find(group => group.id === "skill")!.items[0]!;
-    expect(skill).toMatchObject({ candidateIndex: 0, scope: "single-hit", status: "blocked" });
+    expect(skill).toMatchObject({ candidateIndex: index, scope: "single-hit", status: "blocked" });
     expect(skill.damage).toBeUndefined();
-    expect(renderCharacterOutputs(groups).match(/data-character-output-index=/g)).toHaveLength(1);
+    expect(renderCharacterOutputs(groups).match(/data-character-output-index=/g)).toHaveLength(10);
   });
 
   it("invalidates observed results after build, enemy, talent, selection, scope or historical state changes", () => {
