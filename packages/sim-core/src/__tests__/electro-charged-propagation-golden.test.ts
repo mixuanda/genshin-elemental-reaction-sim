@@ -8,25 +8,29 @@ import {
 } from "@genshin-dps-lab/icd-profiles";
 import {
   canonicalStringify,
-  createSimulationConfigHash,
-  createSimulationReproducibilityKey,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+  electroChargedPropagationGoldenFixtureV141Schema,
   assertTrustedSimulationResult,
   reactionDeliveryResultReferencesSchema,
   simulationResultSchema,
-  targetPhaseV2ResultReferencesSchema,
   type SimConfig,
   type SimulationResult,
 } from "@genshin-dps-lab/schemas";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
+import {
+  parseEventStepResult,
+  simulateEventStepResult,
+  type EventStepResult,
+} from "../event-step-result";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const UPDATE_FLAG = "UPDATE_EC_PROPAGATION_V141_GOLDEN";
+const EXPECTED_FIXTURE_SHA256 =
+  "b855f87f391a5f0dfd82e30a4666c8bb79a7777c94bc8f2bd675178fabdb0d18";
 const EXPECTED_SCENARIO_SHA256 =
   "b00a4a02e859e7744660fb71ed859763a67b0cb08dfb8cc8146e46f409d6e92c";
 const FIXTURE_URL = new URL(
@@ -477,66 +481,6 @@ type FrozenV141PropagationGoldenScenario = Omit<
   };
 };
 
-function normalizeIdentityForFrozenV141(
-  scenario: PropagationGoldenScenario,
-  result: SimulationResult,
-): FrozenV141PropagationGoldenScenario {
-  const {
-    reactionFormulaModel: _reactionFormulaModel,
-    directDamageGroupModel: _directDamageGroupModel,
-    elementalApplicationIcdModel: _elementalApplicationIcdModel,
-    reactionOwnedElementalApplicationModel:
-      _reactionOwnedElementalApplicationModel,
-    reactionDamageGroupModel: _reactionDamageGroupModel,
-    basicReactionSchedulerModel: _basicReactionSchedulerModel,
-    freezeBrokenAttackModel: _freezeBrokenAttackModel,
-    callbackBusModel: _callbackBusModel,
-    ...frozenConfigCommon
-  } = result.config;
-  const legacyWire = structuredClone(frozenConfigCommon);
-  const starterHit = legacyWire.timeline?.abilities[0]?.hits?.[0];
-  if (starterHit === undefined) {
-    throw new Error(
-      "Electro-Charged propagation Golden projection requires its configured starter hit.",
-    );
-  }
-  (
-    starterHit as unknown as {
-      application: unknown;
-    }
-  ).application = {
-    gaugeUnits: 1,
-    icdTag: "start-source-with-unresolved-candidate",
-    icdGroup: "no-icd",
-  };
-  const frozenConfigHash = createSimulationConfigHash({
-    ...legacyWire,
-    schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-    engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
-  });
-  const frozenRunIdentity = {
-    version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
-    identityAlgorithm: result.runManifest.identityAlgorithm,
-    schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-    engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
-    dataVersion: result.dataVersion,
-    configHash: frozenConfigHash,
-    resolvedRuntimeOptions: result.resolvedRuntimeOptions,
-    plugins: result.runManifest.plugins,
-  } as unknown as Parameters<typeof createSimulationReproducibilityKey>[0];
-
-  return {
-    ...scenario,
-    identity: {
-      ...scenario.identity,
-      schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-      engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
-      configHash: frozenConfigHash,
-      reproducibilityKey: createSimulationReproducibilityKey(frozenRunIdentity),
-    },
-  };
-}
-
 interface PropagationGoldenFixture {
   fixtureVersion: "electro-charged-propagation-1.41";
   description: string;
@@ -590,235 +534,411 @@ function loadOrCreateFixture(
   ) as PropagationGoldenFixture;
 }
 
-describe("Electro-Charged nearby-Wet propagation Golden", () => {
-  it("freezes the complete deterministic P5 fanout and source-only Aura lifecycle", () => {
-    const config = makePropagationGoldenConfig();
-    const first = simulate(config, { critMode: "noCrit" });
-    const repeated = simulate(config, { critMode: "noCrit" });
+// Shared mechanics only: this helper never rewrites a result's version, queue,
+// substep identities, or persisted wire. Both contracts must satisfy it.
+function expectPropagationMechanics(
+  scenario: Omit<PropagationGoldenScenario, "identity">,
+): void {
+  const reactionDamage = scenario.reactionDamage[0]!;
+  const audit = reactionDamage.electroChargedPropagation!;
+  expect(reactionDamage).toMatchObject({
+    damageFrame: 10,
+    targetingMode: "electro-charged-nearby-wet",
+    checkedTargetIds: [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"],
+    hitTargetIds: [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"],
+    unresolvedTargetIds: ["wet-unresolved"],
+  });
+  expect(audit).toMatchObject({
+    model: "nearby-wet-radius-v1",
+    verificationStatus: "provisional",
+    mechanicsDataStatus: "community-provisional",
+    generation: 1,
+    tickIndex: 0,
+    evaluationFrame: 10,
+    eventPriority: 5,
+    radius: 3,
+    selectionMode: "all-in-range-registration-order-v1",
+  });
+  expect(
+    audit.candidates.map(({ targetId, selected, reason }) => ({
+      targetId,
+      selected,
+      reason,
+    })),
+  ).toEqual(EXPECTED_CANDIDATE_OUTCOMES);
+  expect(
+    scenario.reactionBDecisions.map(
+      ({ reaction, targetId, damageAllowed, blockedReason }) => ({
+        reaction,
+        targetId,
+        damageAllowed,
+        blockedReason,
+      }),
+    ),
+  ).toEqual([
+    {
+      reaction: "electroCharged",
+      targetId: SOURCE_TARGET_ID,
+      damageAllowed: true,
+      blockedReason: null,
+    },
+    {
+      reaction: "electroCharged",
+      targetId: "wet-boundary",
+      damageAllowed: true,
+      blockedReason: null,
+    },
+    {
+      reaction: "electroCharged",
+      targetId: "wet-immune",
+      damageAllowed: true,
+      blockedReason: null,
+    },
+  ]);
 
-    expect(simulationResultSchema.parse(first)).toEqual(first);
-    expect(simulationResultSchema.parse(repeated)).toEqual(repeated);
-    expect(assertTrustedSimulationResult(first)).toBe(first);
-    expect(assertTrustedSimulationResult(repeated)).toBe(repeated);
-    expect(reactionDeliveryResultReferencesSchema.parse(first)).toEqual(first);
-    expect(reactionDeliveryResultReferencesSchema.parse(repeated)).toEqual(
-      repeated,
-    );
-    expect(targetPhaseV2ResultReferencesSchema.parse(first)).toEqual(first);
-    expect(targetPhaseV2ResultReferencesSchema.parse(repeated)).toEqual(
-      repeated,
-    );
-    expect(repeated).toEqual(first);
-    expect(first.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(first.engineVersion).toBe(CURRENT_ENGINE_VERSION);
-    expectCurrentApplicationContract(first);
+  const children = scenario.propagationDamageChildren;
+  expect(children.map((event) => event.targetId)).toEqual([
+    SOURCE_TARGET_ID,
+    "wet-boundary",
+    "wet-immune",
+  ]);
+  expect(
+    new Set(children.map((event) => event.parentDamageEventId)).size,
+  ).toBe(1);
+  expect(
+    children.find((event) => event.targetId === "wet-immune"),
+  ).toMatchObject({
+    targetDamagePolicy: "immune",
+    finalDamage: 0,
+  });
+  expect(
+    scenario.periodicElectroCharged.some(
+      (entry) => entry.targetId !== SOURCE_TARGET_ID,
+    ),
+  ).toBe(false);
 
-    const firstProjection = normalizeIdentityForFrozenV141(
-      projectPropagationScenario(first),
-      first,
+  const candidateAuraWitnesses =
+    scenario.candidateAuraWitnesses;
+  expect(candidateAuraWitnesses.map((point) => point.targetId)).toEqual(
+    EXPECTED_CANDIDATE_OUTCOMES.map((candidate) => candidate.targetId),
+  );
+  for (const candidate of audit.candidates) {
+    const witness = candidateAuraWitnesses.find(
+      (point) => point.id === candidate.auraObservationTimelinePointId,
     );
-    const repeatedProjection = normalizeIdentityForFrozenV141(
-      projectPropagationScenario(repeated),
-      repeated,
-    );
-    expect(repeatedProjection).toEqual(firstProjection);
+    expect(witness).toMatchObject({
+      id: candidate.auraObservationTimelinePointId,
+      frame: audit.evaluationFrame,
+      targetId: candidate.targetId,
+      targetName: candidate.targetName,
+      pointKind: "observation",
+      cause: "electro-charged-propagation-candidate",
+      eventType: "reactionDamage",
+      eventPriority: audit.eventPriority,
+      eventSequence: audit.eventSequence,
+      reaction: "electroCharged",
+      reactions: ["electroCharged"],
+      primaryDamageEventId: null,
+      links: [
+        {
+          kind: "reaction-damage-log",
+          id: reactionDamage.id,
+        },
+      ],
+      auraApplied: [],
+      auraConsumed: [],
+    });
+    expect(witness?.auraAfter).toEqual(witness?.auraBefore);
+    expect(
+      witness?.auraBefore.find((entry) => entry.element === "hydro")
+        ?.gaugeUnits ?? 0,
+    ).toBe(candidate.hydroGaugeUnits);
+  }
+  const witnessIntraEventSequences = candidateAuraWitnesses.map(
+    (point) => point.intraEventSequence!,
+  );
+  expect(witnessIntraEventSequences).toEqual(
+    [...witnessIntraEventSequences].sort((left, right) => left - right),
+  );
+  expect(new Set(witnessIntraEventSequences).size).toBe(
+    candidateAuraWitnesses.length,
+  );
 
-    const generatedFixture: PropagationGoldenFixture = {
-      fixtureVersion: "electro-charged-propagation-1.41",
-      description:
-        "Deterministic 1.41 runtime vector for source, in-range Wet, dry, out-of-range Wet, unresolved Wet, and immune Wet Electro-Charged propagation candidates.",
-      provenance: {
-        referenceProject: "genshinsim/gcsim",
-        referenceCommit: "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-        mechanicsDataStatus: "community-provisional",
-        capturedAt: "2026-07-29",
-        notes: [
-          "The pinned gcsim reference remains single-target and does not implement nearby-Wet propagation.",
-          "The radius, all-target registration-order selection, secondary ownership, and source-only Wane rules are community-provisional and are not official game data.",
-          "The secondary Electro-Charged damage applies no Aura, starts no periodic stream, and does not mutate an existing stream.",
-          "This fixture is a regression contract, not a claim of complete gcsim or live-game parity.",
-        ],
+  const secondaryDamageTimeline =
+    scenario.propagationDamageApplicationPoints.filter(
+      (point) => point.targetId !== SOURCE_TARGET_ID,
+    );
+  expect(secondaryDamageTimeline.map((point) => point.targetId)).toEqual([
+    "wet-boundary",
+    "wet-immune",
+  ]);
+  expect(
+    secondaryDamageTimeline.every(
+      (point) =>
+        point.cause === "reaction-damage-application" &&
+        point.reaction === "electroCharged" &&
+        point.reactions.includes("electroCharged") &&
+        canonicalStringify(point.auraBefore) ===
+          canonicalStringify(point.auraAfter) &&
+        point.auraApplied.length === 0 &&
+        point.auraConsumed.length === 0,
+    ),
+  ).toBe(true);
+  for (const candidate of audit.candidates) {
+    const damageApplication =
+      scenario.propagationDamageApplicationPoints.find(
+        (point) => point.targetId === candidate.targetId,
+      );
+    if (candidate.selected) {
+      expect(damageApplication).toBeDefined();
+      expect(candidate.auraObservationTimelinePointId).toBeLessThan(
+        damageApplication!.id,
+      );
+    } else {
+      expect(damageApplication).toBeUndefined();
+    }
+  }
+
+}
+
+function readFrozenFixture(): PropagationGoldenFixture {
+  const bytes = readFileSync(FIXTURE_URL);
+  expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+    EXPECTED_FIXTURE_SHA256,
+  );
+  const fixture = JSON.parse(bytes.toString("utf8")) as PropagationGoldenFixture;
+  expect(electroChargedPropagationGoldenFixtureV141Schema.parse(fixture)).toEqual(
+    fixture,
+  );
+  // Retain the original update flag and refusal to overwrite an existing file.
+  // This frozen vector must already exist; never recreate it from current output.
+  return loadOrCreateFixture(fixture);
+}
+
+function expectedAura(
+  element: "hydro" | "electro",
+  gaugeUnits: number,
+  expiresAtFrame: number,
+) {
+  return {
+    element,
+    gaugeUnits,
+    expiresAtFrame,
+    sourceSlots: [{
+      sourceActorId: element === "hydro" ? "__initial__" : "ec-owner",
+      gaugeUnits,
+    }],
+  };
+}
+
+function expectIndependentDamageAndAura(result: SimulationResult): void {
+  // Independent arithmetic for the configured Classic profile: level-90 base,
+  // EC multiplier 2, 120 EM, 20% reaction bonus, and each target's resistance.
+  // Do not call the production calculator to manufacture expected damage.
+  const emBonus = 16 * 120 / (2000 + 120);
+  const preResistance = 1446.8535 * 2 * (1 + emBonus + 0.2);
+  const expectedDamage = [1000 * 0.5 * 0.9, preResistance * 0.9, preResistance * 0.5, 0];
+  expect(result.damageEvents.map(event => event.finalDamage)).toEqual(expectedDamage);
+  expect(result.totalDamage).toBe(expectedDamage.reduce((sum, value) => sum + value, 0));
+  expect(result.dps).toBe(result.totalDamage);
+  expect(result.reactedHits).toBe(1);
+  expect(result.skippedActions).toEqual([]);
+  for (const event of result.damageEvents.slice(1)) {
+    expect(event).toMatchObject({
+      frame: 10, eventPriority: 5, eventSequence: 17,
+      parentDamageEventId: 0, sourceActorId: "ec-owner",
+      scalingOwnerId: "ec-owner", creditOwnerId: "ec-owner",
+      transformativeReactionFactors: {
+        characterLevel: 90, levelBaseDamage: 1446.8535,
+        baseMultiplier: 2, elementalMastery: 120,
+        elementalMasteryBonus: emBonus, reactionBonus: 0.2,
+        preResistanceDamage: preResistance,
       },
-      scenario: firstProjection,
-      scenarioSha256: semanticHash(firstProjection),
-    };
-    expect(generatedFixture.scenario.identity).toMatchObject({
+    });
+  }
+  expect(result.damageEvents[3]!.potentialDamage).toBe(preResistance * 0.9);
+
+  // A 1U initial/application aura is taxed to 0.8U and decays over 570F.
+  // The source alone loses 0.4U of each coexisting element at F10+6; no
+  // propagated child applies Electro or starts a secondary periodic stream.
+  const rounded = (value: number) => Number(value.toFixed(12));
+  const gaugeAt = (frame: number) => rounded(0.8 - 0.8 * frame / 570);
+  const pair = (gauge: number, expiry: number) => [
+    expectedAura("electro", gauge, expiry),
+    expectedAura("hydro", gauge, expiry),
+  ];
+  const [start, tick, wane] = result.periodicReactionLog;
+  expect(result.periodicReactionLog).toHaveLength(3);
+  expect(start).toMatchObject({operation: "start", frame: 0, nextTickFrame: 70,
+    targetId: SOURCE_TARGET_ID, sourceActorId: "ec-owner", generation: 1,
+    auraBefore: [expectedAura("hydro", 0.8, 570)],
+    auraConsumed: [], auraAfter: pair(0.8, 570)});
+  expect(tick).toMatchObject({operation: "tick", frame: 10, nextTickFrame: 70,
+    waneFrame: 16, tickIndex: 0, targetId: SOURCE_TARGET_ID,
+    auraBefore: pair(gaugeAt(10), 570), auraConsumed: [],
+    auraAfter: pair(gaugeAt(10), 570)});
+  const afterWane = rounded(gaugeAt(16) - 0.4);
+  expect(wane).toMatchObject({operation: "wane", frame: 16, nextTickFrame: 70,
+    waneFrame: 16, tickIndex: 0, targetId: SOURCE_TARGET_ID,
+    auraBefore: pair(gaugeAt(16), 570), auraAfter: pair(afterWane, 285)});
+  expect(wane!.auraConsumed).toEqual(["hydro", "electro"].map(element => ({
+    element, gaugeUnits: 0.4, sourceMutations: [{
+      sourceActorId: element === "hydro" ? "__initial__" : "ec-owner",
+      gaugeUnitsBefore: gaugeAt(16), consumedGaugeUnits: 0.4,
+      gaugeUnitsAfter: afterWane,
+    }],
+  })));
+  const targets = makePropagationGoldenConfig().enemy.targets!;
+  expect(result.auraInitialStates).toEqual(targets.map(target => ({
+    targetId: target.id, targetName: target.name, frame: 0, timeSeconds: 0,
+    aura: target.id === "dry-nearby" ? [] : [expectedAura("hydro", 0.8, 570)],
+  })));
+  expect(result.auraEndStates).toEqual(targets.map(target => ({
+    targetId: target.id, targetName: target.name, frame: 60, timeSeconds: 1,
+    aura: target.id === SOURCE_TARGET_ID
+      ? pair(rounded(gaugeAt(60) - 0.4), 285)
+      : target.id === "dry-nearby" ? [] : [expectedAura("hydro", gaugeAt(60), 570)],
+  })));
+}
+
+function expectExactCurrentWitness(wire: EventStepResult): void {
+  expect(wire.evidence.events).toEqual([{
+    frame: 0, eventPriority: 3, eventSequence: 1,
+    allocationCount: 2, hitResolutionLogId: 0,
+    steps: [
+      {sequence: 0, site: {kind: "hit-resolution", id: 0}},
+      {sequence: 1, site: {kind: "aura-application", damageEventId: 0}},
+    ],
+  }]);
+  const selectedTargets = [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"];
+  expect(wire.evidence.propagationEvents).toEqual([{
+    frame: 10, eventPriority: 5, eventSequence: 17, allocationCount: 9,
+    reactionDamageLogId: 0, sourceActorId: "ec-owner",
+    sourceTargetId: SOURCE_TARGET_ID, triggerDamageEventId: 0,
+    operations: [
+      ...EXPECTED_CANDIDATE_OUTCOMES.map((candidate, sequence) => ({
+        operation: "allocate", sequence, site: {
+          kind: "propagation-candidate", reactionDamageLogId: 0,
+          targetId: candidate.targetId,
+        },
+      })),
+      ...selectedTargets.flatMap((targetId, index) => [
+        {operation: "allocate", sequence: 6 + index, site: {
+          kind: "propagation-application", reactionDamageLogId: 0,
+          targetId, damageEventId: index + 1,
+        }},
+        // A hit observes the cursor without allocating it. It deliberately
+        // shares the next child's application position, not an invented gap.
+        {operation: "observe-hit", sequence: 7 + index,
+          hitResolutionLogId: index + 1, targetId},
+      ]),
+    ],
+  }]);
+}
+
+function expectVersionedTimelineComparison(
+  current: SimulationResult,
+  historical: PropagationGoldenFixture,
+): void {
+  // Compare the entire Aura/link/clock lifecycle, while pinning the known new
+  // queue identities and direct allocation explicitly. This is an assertion
+  // oracle, NOT a migration or a fabricated historical simulation result.
+  const expected = structuredClone(historical.scenario.targetStateTimeline);
+  for (const point of expected.points) {
+    switch (point.cause) {
+      case "direct-hit-application": point.intraEventSequence = 1; break;
+      case "electro-charged-tick": point.eventSequence = 10; break;
+      case "electro-charged-propagation-candidate":
+      case "reaction-damage-application": point.eventSequence = 17; break;
+      case "electro-charged-wane": point.eventSequence = 19; break;
+    }
+  }
+  expect(current.targetStateTimeline).toEqual(expected);
+  expect(current.periodicReactionLog).toEqual(historical.scenario.periodicElectroCharged);
+  expect(current.auraInitialStates).toEqual(historical.scenario.auraInitialStates);
+  expect(current.auraEndStates).toEqual(historical.scenario.auraEndStates);
+}
+
+describe("Electro-Charged nearby-Wet frozen 1.41 contract", () => {
+  it("reads the authentic frozen 1.41 Golden without re-simulating or relabeling it", () => {
+    const fixture = readFrozenFixture();
+    expect(fixture.scenario.identity).toMatchObject({
       schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
       engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
-      dataVersion: "ec-propagation-community-provisional-1",
-      randomSeed: "ec-propagation-v141-golden-seed",
+      configHash: "fnv1a32:c6f195e0", reproducibilityKey: "gdl-v2-fnv1a32-cc0079e7",
     });
-    expect(
-      generatedFixture.scenario.configContract.electroChargedPropagationModel,
-    ).toEqual({
-      mode: "nearby-wet-radius-v1",
-      radius: 3,
-      verificationStatus: "provisional",
-    });
+    expect(semanticHash(fixture.scenario)).toBe(EXPECTED_SCENARIO_SHA256);
+    expect(fixture.scenarioSha256).toBe(EXPECTED_SCENARIO_SHA256);
+    expectPropagationMechanics(fixture.scenario);
+    expect(fixture.scenario.targetStateTimeline.points.find(
+      point => point.cause === "direct-hit-application",
+    )!.intraEventSequence).toBe(0);
+  });
+});
 
-    const reactionDamage = generatedFixture.scenario.reactionDamage[0]!;
-    const audit = reactionDamage.electroChargedPropagation!;
-    expect(reactionDamage).toMatchObject({
-      damageFrame: 10,
-      targetingMode: "electro-charged-nearby-wet",
-      checkedTargetIds: [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"],
-      hitTargetIds: [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"],
-      unresolvedTargetIds: ["wet-unresolved"],
-    });
-    expect(audit).toMatchObject({
-      model: "nearby-wet-radius-v1",
-      verificationStatus: "provisional",
-      mechanicsDataStatus: "community-provisional",
-      generation: 1,
-      tickIndex: 0,
-      evaluationFrame: 10,
-      eventPriority: 5,
-      radius: 3,
-      selectionMode: "all-in-range-registration-order-v1",
-    });
-    expect(
-      audit.candidates.map(({ targetId, selected, reason }) => ({
-        targetId,
-        selected,
-        reason,
-      })),
-    ).toEqual(EXPECTED_CANDIDATE_OUTCOMES);
-    expect(
-      generatedFixture.scenario.reactionBDecisions.map(
-        ({ reaction, targetId, damageAllowed, blockedReason }) => ({
-          reaction,
-          targetId,
-          damageAllowed,
-          blockedReason,
-        }),
-      ),
-    ).toEqual([
-      {
-        reaction: "electroCharged",
-        targetId: SOURCE_TARGET_ID,
-        damageAllowed: true,
-        blockedReason: null,
-      },
-      {
-        reaction: "electroCharged",
-        targetId: "wet-boundary",
-        damageAllowed: true,
-        blockedReason: null,
-      },
-      {
-        reaction: "electroCharged",
-        targetId: "wet-immune",
-        damageAllowed: true,
-        blockedReason: null,
-      },
-    ]);
+describe("Electro-Charged nearby-Wet current 1.54 contract", () => {
+  let current: ReturnType<typeof simulateEventStepResult>;
+  beforeAll(() => {
+    current = simulateEventStepResult(makePropagationGoldenConfig(), {critMode: "noCrit"});
+  });
 
-    const children = generatedFixture.scenario.propagationDamageChildren;
-    expect(children.map((event) => event.targetId)).toEqual([
-      SOURCE_TARGET_ID,
-      "wet-boundary",
-      "wet-immune",
-    ]);
-    expect(
-      new Set(children.map((event) => event.parentDamageEventId)).size,
-    ).toBe(1);
-    expect(
-      children.find((event) => event.targetId === "wet-immune"),
-    ).toMatchObject({
-      targetDamagePolicy: "immune",
-      finalDamage: 0,
+  it("proves the current 1.54 fanout, exact allocations, damage and source-only Aura lifecycle", () => {
+    const {result, wire} = current;
+    const repeated = simulateEventStepResult(makePropagationGoldenConfig(), {critMode: "noCrit"});
+    expect(repeated).toEqual(current);
+    expect(parseEventStepResult(JSON.parse(JSON.stringify(wire))).result).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
+    expect(wire.result.schemaVersion).toBe("1.54.0-event-steps");
+    expect(wire.result.engineVersion).toBe("1.54.0-event-steps");
+    expectCurrentApplicationContract(result);
+    expect(result.dataVersion).toBe("ec-propagation-community-provisional-1");
+    expect(result.randomSeed).toBe("ec-propagation-v141-golden-seed");
+    expect(result.config.electroChargedPropagationModel).toEqual({
+      mode: "nearby-wet-radius-v1", radius: 3, verificationStatus: "provisional",
     });
-    expect(
-      generatedFixture.scenario.periodicElectroCharged.some(
-        (entry) => entry.targetId !== SOURCE_TARGET_ID,
-      ),
-    ).toBe(false);
+    expectPropagationMechanics(projectPropagationScenario(result));
+    expectIndependentDamageAndAura(result);
+    expectExactCurrentWitness(wire);
+    expectVersionedTimelineComparison(result, readFrozenFixture());
+  });
 
-    const candidateAuraWitnesses =
-      generatedFixture.scenario.candidateAuraWitnesses;
-    expect(candidateAuraWitnesses.map((point) => point.targetId)).toEqual(
-      EXPECTED_CANDIDATE_OUTCOMES.map((candidate) => candidate.targetId),
+  it("keeps the historical gate strict instead of pretending current allocations are 1.41/1.53", () => {
+    expect(() => simulate(makePropagationGoldenConfig(), {critMode: "noCrit"})).toThrow(
+      "direct Electro-Charged trigger requires one exact target-clock Aura-application timeline backlink",
     );
-    for (const candidate of audit.candidates) {
-      const witness = candidateAuraWitnesses.find(
-        (point) => point.id === candidate.auraObservationTimelinePointId,
-      );
-      expect(witness).toMatchObject({
-        id: candidate.auraObservationTimelinePointId,
-        frame: audit.evaluationFrame,
-        targetId: candidate.targetId,
-        targetName: candidate.targetName,
-        pointKind: "observation",
-        cause: "electro-charged-propagation-candidate",
-        eventType: "reactionDamage",
-        eventPriority: audit.eventPriority,
-        eventSequence: audit.eventSequence,
-        reaction: "electroCharged",
-        reactions: ["electroCharged"],
-        primaryDamageEventId: null,
-        links: [
-          {
-            kind: "reaction-damage-log",
-            id: reactionDamage.id,
-          },
-        ],
-        auraApplied: [],
-        auraConsumed: [],
-      });
-      expect(witness?.auraAfter).toEqual(witness?.auraBefore);
-      expect(
-        witness?.auraBefore.find((entry) => entry.element === "hydro")
-          ?.gaugeUnits ?? 0,
-      ).toBe(candidate.hydroGaugeUnits);
-    }
-    const witnessIntraEventSequences = candidateAuraWitnesses.map(
-      (point) => point.intraEventSequence!,
+    expect(() => reactionDeliveryResultReferencesSchema.parse(current.result)).toThrow(
+      "direct Electro-Charged trigger requires one exact target-clock Aura-application timeline backlink",
     );
-    expect(witnessIntraEventSequences).toEqual(
-      [...witnessIntraEventSequences].sort((left, right) => left - right),
-    );
-    expect(new Set(witnessIntraEventSequences).size).toBe(
-      candidateAuraWitnesses.length,
-    );
+    expect(simulationResultSchema.safeParse(current.result).success).toBe(false);
+    const relabeled = structuredClone(current.wire);
+    relabeled.result.schemaVersion = "1.41.0" as never;
+    expect(() => parseEventStepResult(relabeled)).toThrow("Event-step result identity mismatch");
+  });
 
-    const secondaryDamageTimeline =
-      generatedFixture.scenario.propagationDamageApplicationPoints.filter(
-        (point) => point.targetId !== SOURCE_TARGET_ID,
-      );
-    expect(secondaryDamageTimeline.map((point) => point.targetId)).toEqual([
-      "wet-boundary",
-      "wet-immune",
-    ]);
-    expect(
-      secondaryDamageTimeline.every(
-        (point) =>
-          point.cause === "reaction-damage-application" &&
-          point.reaction === "electroCharged" &&
-          point.reactions.includes("electroCharged") &&
-          canonicalStringify(point.auraBefore) ===
-            canonicalStringify(point.auraAfter) &&
-          point.auraApplied.length === 0 &&
-          point.auraConsumed.length === 0,
-      ),
-    ).toBe(true);
-    for (const candidate of audit.candidates) {
-      const damageApplication =
-        generatedFixture.scenario.propagationDamageApplicationPoints.find(
-          (point) => point.targetId === candidate.targetId,
-        );
-      if (candidate.selected) {
-        expect(damageApplication).toBeDefined();
-        expect(candidate.auraObservationTimelinePointId).toBeLessThan(
-          damageApplication!.id,
-        );
-      } else {
-        expect(damageApplication).toBeUndefined();
-      }
-    }
-
-    expect(generatedFixture.scenarioSha256).toBe(EXPECTED_SCENARIO_SHA256);
-    const fixture = loadOrCreateFixture(generatedFixture);
-    expect(fixture).toEqual(generatedFixture);
-    expect(semanticHash(fixture.scenario)).toBe(fixture.scenarioSha256);
+  it.each([
+    ["missing direct allocation", (wire: EventStepResult) => {wire.evidence.events[0]!.steps.pop();}],
+    ["duplicated direct allocation", (wire: EventStepResult) => {wire.evidence.events[0]!.steps.push(wire.evidence.events[0]!.steps[1]!);}],
+    ["reordered direct allocations", (wire: EventStepResult) => {wire.evidence.events[0]!.steps.reverse();}],
+    ["coherently omitted direct application", (wire: EventStepResult) => {
+      wire.evidence.events[0]!.steps.pop(); wire.evidence.events[0]!.allocationCount--;
+      wire.result.targetStateTimeline.points.find(point => point.cause === "direct-hit-application")!.intraEventSequence = 0;
+    }],
+    ["wrong trigger queue", (wire: EventStepResult) => {wire.evidence.events[0]!.eventSequence++;}],
+    ["missing propagation candidate", (wire: EventStepResult) => {wire.evidence.propagationEvents[0]!.operations.shift();}],
+    ["reordered propagation operations", (wire: EventStepResult) => {wire.evidence.propagationEvents[0]!.operations.reverse();}],
+    ["cross-target propagation hit", (wire: EventStepResult) => {
+      const operation = wire.evidence.propagationEvents[0]!.operations.find(op => op.operation === "observe-hit")!;
+      if (operation.operation === "observe-hit") operation.targetId = "wet-boundary";
+    }],
+    ["false direct backlink", (wire: EventStepResult) => {
+      wire.result.targetStateTimeline.points.find(point => point.cause === "direct-hit-application")!.primaryDamageEventId = 1;
+    }],
+    ["changed source Wane", (wire: EventStepResult) => {wire.result.periodicReactionLog.find(row => row.operation === "wane")!.auraConsumed[0]!.gaugeUnits = 0.3;}],
+    ["changed child damage", (wire: EventStepResult) => {wire.result.damageEvents[1]!.finalDamage++;}],
+    ["changed child parent", (wire: EventStepResult) => {wire.result.damageEvents[1]!.parentDamageEventId = 2;}],
+  ] as const)("rejects %s at the public current envelope", (_label, mutate) => {
+    const changed = structuredClone(current.wire);
+    mutate(changed);
+    expect(() => parseEventStepResult(changed)).toThrow();
   });
 });

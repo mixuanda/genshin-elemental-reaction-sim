@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import type {
   SimConfig,
   SimulationResult,
@@ -23,6 +24,7 @@ import { describe, expect, it } from "vitest";
 import targetReactablePhaseGoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json";
 import targetReactablePhaseV139GoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json";
 import { simulate } from "../simulator";
+import { parseSimulationHit } from "../calculator-bridge";
 import { auraStateSnapshotsEqual } from "../target-state-timeline";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -762,7 +764,7 @@ function normalizeTargetReactableIdentity(
   };
 }
 
-function expectGoldenScenario(
+function expectHistoricalGoldenScenario(
   scenarioId: TargetReactablePhaseGoldenScenarioId,
   result: SimulationResult,
   boundaryFrame: number,
@@ -787,7 +789,7 @@ function expectGoldenScenario(
       "1"
   ) {
     throw new Error(
-      "target-reactable-phase-1.38.golden.json and target-reactable-phase-1.39.golden.json are frozen; compare current identity through normalization instead of overwriting history."
+      "target-reactable-phase-1.38.golden.json and target-reactable-phase-1.39.golden.json are frozen; validate authentic historical input separately from current execution instead of overwriting history."
     );
   }
   const printGolden =
@@ -845,8 +847,8 @@ function expectGoldenScenario(
   expect(
     Object.keys(targetReactablePhaseGoldenV139.hashes).sort()
   ).toEqual([...goldenScenarioIds].sort());
-  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.schemaVersion).toBe("1.53.0");
+  expect(result.engineVersion).toBe("1.53.0-callback-bus");
   expect(
     normalizeTargetReactableIdentity(scenario)
   ).toStrictEqual(
@@ -886,6 +888,205 @@ function expectGoldenScenario(
       targetReactablePhaseGoldenV138.scenarios[scenarioId]
     )
   ).toBe(targetReactablePhaseGoldenV138.hashes[scenarioId]);
+}
+
+
+const historicalTargetPhaseBytes = readFileSync(new URL(
+  "../../../test-vectors/src/fixtures/historical-target-reactable-phase-v153-84ff5cd.json", import.meta.url,
+));
+const historicalTargetPhaseArchive = JSON.parse(historicalTargetPhaseBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string };
+  cases: Array<{
+    caseId: TargetReactablePhaseGoldenScenarioId; boundaryFrame: number; abandonedWakeFrame: number | null;
+    sourceWireSha256: string; sourceWireText: string;
+  }>;
+};
+const byteSha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalTargetPhase(scenarioId: TargetReactablePhaseGoldenScenarioId): SimulationResult {
+  const row = historicalTargetPhaseArchive.cases.find((entry) => entry.caseId === scenarioId);
+  if (!row) throw new Error(`Missing authentic historical target-phase input ${scenarioId}`);
+  expect(byteSha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
+
+// An expected-mechanics oracle, not a wire converter. Keep every result field
+// except the three run-identity containers checked separately below. In
+// particular no target IDs, references, state rows, queue edges or order are
+// removed. The current output is never rewritten or relabelled as historical.
+function targetPhaseMechanics(result: SimulationResult) {
+  const { runManifest: _manifest, resolvedRuntimeOptions: _options, reproducibilityKey: _key, ...mechanics } = result;
+  return mechanics;
+}
+
+// Exact queue correspondence for these five synthetic scenarios. The current
+// disabled-clock runtime retains true future tasks: later Burning Fuel expiry
+// plus its two targetDecay wakes, then (Fuel case) F75 tick/wake or (EC case)
+// F610 periodic tick. These occupy queue positions without executing in-window.
+// H=5 uses the target-local queue, so its positions are deliberately unchanged.
+// These closed, injective, order-preserving maps are not a generic offset rule.
+const CURRENT_TARGET_PHASE_ORDER: Record<TargetReactablePhaseGoldenScenarioId, {
+  queuePairs: readonly (readonly [number, number])[]; applicationPointIds: readonly number[];
+}> = {
+  frozenF176: {
+    queuePairs: [
+      [1, 1], [2, 2], [3, 3], [4, 4], [7, 7], [11, 14],
+      [14, 17], [15, 18], [18, 21], [19, 22], [22, 25], [23, 26],
+      [26, 29], [27, 30], [30, 33], [31, 34], [34, 37], [35, 38],
+      [38, 41], [39, 42], [42, 45], [43, 46],
+    ],
+    applicationPointIds: [2, 3],
+  },
+  quickenF600: {
+    queuePairs: [
+      [1, 1], [2, 2], [3, 3], [4, 4], [7, 7], [11, 14],
+      [14, 17], [15, 18], [18, 21], [19, 22], [22, 25], [23, 26],
+      [26, 29], [27, 30], [30, 33], [31, 34], [34, 37], [35, 38],
+      [38, 41], [39, 42], [42, 45], [43, 46],
+    ],
+    applicationPointIds: [2, 3],
+  },
+  burningFuelF61: {
+    queuePairs: [
+      [1, 1], [2, 2], [3, 3], [4, 4], [7, 7], [9, 9],
+      [11, 11], [12, 12], [15, 15], [16, 16], [19, 19], [20, 20],
+      [25, 28], [27, 30], [29, 34],
+    ],
+    applicationPointIds: [2, 12],
+  },
+  electroChargedF570: {
+    queuePairs: [
+      [1, 1], [2, 2], [3, 3], [4, 4], [7, 7], [9, 9],
+      [12, 12], [13, 13], [14, 14], [19, 19], [20, 20], [21, 21],
+      [26, 26], [27, 27], [28, 28], [33, 33], [34, 34], [35, 35],
+      [40, 40], [41, 41], [42, 42], [47, 47], [48, 48], [49, 49],
+      [54, 54], [55, 55], [56, 56], [61, 61], [62, 62], [63, 63],
+      [66, 69], [71, 74], [72, 75], [75, 78], [76, 79], [79, 82],
+      [80, 83], [85, 88], [86, 89], [87, 90], [88, 91], [89, 92],
+      [94, 97], [95, 98], [98, 101], [99, 102], [102, 105], [103, 106],
+      [108, 111], [109, 113], [110, 114], [111, 115],
+    ],
+    applicationPointIds: [2, 26],
+  },
+  frozenHitlag5F181: {
+    queuePairs: [
+      [1, 1], [2, 2], [3, 3], [4, 4], [7, 7], [11, 11],
+      [14, 14], [15, 15], [18, 18], [19, 19], [22, 22], [23, 23],
+      [26, 26], [27, 27], [30, 30], [31, 31], [34, 34], [35, 35],
+      [38, 38], [39, 39], [42, 42], [43, 43],
+    ],
+    applicationPointIds: [2, 3],
+  },
+};
+
+function expectCurrentTargetPhaseContract(
+  scenarioId: TargetReactablePhaseGoldenScenarioId,
+  result: SimulationResult,
+  boundaryFrame: number,
+  abandonedWakeFrame: number | null = null
+): void {
+  const before = JSON.stringify(result);
+  const archivedCase = historicalTargetPhaseArchive.cases.find((row) => row.caseId === scenarioId)!;
+  expect([boundaryFrame, abandonedWakeFrame]).toEqual([archivedCase.boundaryFrame, archivedCase.abandonedWakeFrame]);
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+  expect(result.runManifest.resolvedRuntimeOptions).toEqual(result.resolvedRuntimeOptions);
+  expect(simulationResultSchema.parse(JSON.parse(before))).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  const historical = historicalTargetPhase(scenarioId);
+  expect(result.reproducibilityKey).not.toBe(historical.reproducibilityKey);
+  expect(result.runManifest.reproducibilityKey).toBe(result.reproducibilityKey);
+  const { reproducibilityKey: _oldKey, resolvedRuntimeOptions: _oldOptions, ...oldManifest } = historical.runManifest;
+  const { reproducibilityKey: _currentKey, resolvedRuntimeOptions: _currentOptions, ...currentManifest } = result.runManifest;
+  expect(currentManifest).toEqual(oldManifest);
+  expect(result.resolvedRuntimeOptions).toEqual({ ...historical.resolvedRuntimeOptions, flatStatBuffSemantics: "canonical-v1" });
+
+  const order = CURRENT_TARGET_PHASE_ORDER[scenarioId];
+  const sequenceMap = new Map(order.queuePairs);
+  expect(sequenceMap.size).toBe(order.queuePairs.length);
+  expect(new Set(sequenceMap.values()).size).toBe(sequenceMap.size);
+  expect([...sequenceMap.keys()]).toEqual([...sequenceMap.keys()].sort((a, b) => a - b));
+  expect([...sequenceMap.values()]).toEqual([...sequenceMap.values()].sort((a, b) => a - b));
+  const currentSequence = (old: number): number => {
+    const next = sequenceMap.get(old);
+    if (next === undefined) throw new Error(`Unreviewed target-phase queue position ${old}`);
+    return next;
+  };
+  const mapSequence = <T extends object>(row: T): T => {
+    if (!("eventSequence" in row) || row.eventSequence == null) return row;
+    if (typeof row.eventSequence !== "number") throw new Error("Expected a numeric queue position");
+    return { ...row, eventSequence: currentSequence(row.eventSequence) };
+  };
+  const expected = structuredClone(targetPhaseMechanics(historical));
+  expected.damageEvents = expected.damageEvents.map(mapSequence);
+  expected.hitEvents = expected.hitEvents.map(mapSequence);
+  expected.elementalApplicationIcdLog = expected.elementalApplicationIcdLog.map(mapSequence);
+  expected.hitResolutionLog = expected.hitResolutionLog.map(mapSequence);
+  expected.burningStateLog = expected.burningStateLog.map(mapSequence);
+  expected.auraTimeline = expected.auraTimeline.map(mapSequence);
+  expected.targetPhaseLog = expected.targetPhaseLog.map((phase) => {
+    if (phase.model !== "target-phase-v2") throw new Error("Expected the exact V2 phase contract");
+    return { ...phase, targetTasks: phase.targetTasks.map(mapSequence) };
+  });
+  expected.reactionDamageLog = expected.reactionDamageLog.map((delivery) => ({
+    ...delivery, damageGroupDecisions: delivery.damageGroupDecisions.map((decision) => ({
+      ...decision, damageGroupTaskSequence: currentSequence(decision.damageGroupTaskSequence),
+    })),
+  }));
+  expected.targetStateTimeline.points = expected.targetStateTimeline.points.map(mapSequence);
+  expect(expected.targetStateTimeline.points.filter((point) => point.cause === "direct-hit-application").map((point) => point.id)).toEqual(order.applicationPointIds);
+  for (const [index, id] of order.applicationPointIds.entries()) {
+    const point = expected.targetStateTimeline.points[id]!;
+    expect(point).toMatchObject({ id, cause: "direct-hit-application", eventType: "hit", eventPriority: 3,
+      eventSequence: index === 0 ? 1 : 4, intraEventSequence: 0, targetId: `enemy-${index}` });
+    // The current direct hit-resolution allocation owns substep 0; the same
+    // event's Aura application owns 1. Its original damage/backlinks stay exact.
+    point.intraEventSequence = 1;
+  }
+  if (scenarioId === "frozenHitlag5F181") {
+    expect(expected.targetHitlagLog.map((row) => [row.id, row.hitResolutionLogId, row.eventSequence, row.intraEventSequence])).toEqual([[0, 0, 1, 1], [1, 1, 2, 0]]);
+    expected.targetHitlagLog[0]!.intraEventSequence = 2;
+    expected.targetHitlagLog[1]!.intraEventSequence = 1;
+  } else {
+    expect(expected.targetHitlagLog).toEqual([]);
+  }
+  expect(targetPhaseMechanics(result)).toStrictEqual(expected);
+
+  // Independent arithmetic and schedule oracles, not totals copied from the
+  // historical archive or calls to the implementation's formula helpers.
+  const burningDamage = 1446.8535 * 0.25 * (1 + 16 * 100 / (2000 + 100)) * 0.9;
+  const tickFrames = {
+    frozenF176: [56, 71, 86, 101, 116, 131, 146, 161],
+    quickenF600: [480, 495, 510, 525, 540, 555, 570, 585],
+    burningFuelF61: [15, 30, 45, 60, 61],
+    electroChargedF570: [450, 465, 480, 495, 510, 525, 540, 555],
+    frozenHitlag5F181: [61, 76, 91, 106, 121, 136, 151, 166],
+  }[scenarioId];
+  const ticks = result.damageEvents.filter((event) => event.kind === "transformative-reaction" && event.reaction === "burning");
+  expect(ticks.map((event) => event.frame)).toEqual(tickFrames);
+  ticks.forEach((event, index) => {
+    expect(event.sourceActorId).toBe("phase-driver");
+    expect(event.targetId).toBe(scenarioId === "burningFuelF61" && index < 4 ? "enemy-0" : "enemy-1");
+    expect(event.finalDamage).toBeCloseTo(burningDamage, 10);
+    expect(event.displayDamage).toBe(Math.round(burningDamage));
+  });
+  expect(result.damageEvents.filter((event) => !ticks.includes(event)).every((event) => event.finalDamage === 0)).toBe(true);
+  const total = burningDamage * tickFrames.length;
+  expect(result.totalDamage).toBeCloseTo(total, 10);
+  expect(result.dps).toBeCloseTo(total / result.config.duration, 10);
+  expect(result.byCharacter["phase-driver"]).toBeCloseTo(total, 10);
+  const immuneTicks = result.hitResolutionLog.filter((row) => row.reactionDamageLogId !== null && row.targetId === "enemy-0" && row.element === "electro");
+  expect(immuneTicks).toHaveLength(scenarioId === "electroChargedF570" ? 10 : 0);
+  for (const row of immuneTicks) {
+    expect(row.potentialDamage).toBeCloseTo(1446.8535 * 2 * (1 + 16 * 100 / (2000 + 100)) * 0.9, 10);
+    expect([row.damageAllowed, row.finalDamage]).toEqual([false, 0]);
+  }
+  expect(JSON.stringify(result)).toBe(before);
 }
 
 function makeLifecycleScenarioConfig(
@@ -1333,6 +1534,101 @@ function expectIntegerDisplayDamage(
   ).toEqual(Array(expectedBurningTicks).fill(574));
 }
 
+const hostileTargetPhaseCases: Array<{
+  name: string; scenario: LifecycleScenario; hitlagFrames?: number; trustedNegative?: true; mutate: (result: SimulationResult) => void;
+}> = [
+  { name: "dangling Frozen state log", scenario: "frozen", mutate: (result) => {
+    const transition = phaseAt(result, 176, "enemy-0").reactableTick.transitions[0]!;
+    if (transition.kind !== "frozen-expiry") throw new Error("Expected Frozen expiry");
+    transition.frozenStateLogId = 999;
+  } },
+  { name: "cross-target lifecycle point", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-0").reactableTick.transitions[0]!.targetStateTimelinePointId = 29;
+  } },
+  { name: "dangling callback timeline point", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-1").targetTasks[0]!.targetStateTimelinePointId = 999;
+  } },
+  { name: "callback queue split from its Burning state log", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-1").targetTasks[0]!.eventSequence += 1;
+  } },
+  { name: "dangling callback Burning state log", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-1").targetTasks[0]!.burningStateLogId = 999;
+  } },
+  { name: "wrong target order", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-0").targetOrder = 1;
+  } },
+  { name: "swapped lifecycle and later-target callback rows", trustedNegative: true, scenario: "frozen", mutate: (result) => {
+    [result.targetPhaseLog[20], result.targetPhaseLog[21]] = [result.targetPhaseLog[21]!, result.targetPhaseLog[20]!];
+  } },
+  { name: "wrong lifecycle target deadline", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-0").reactableTick.transitions[0]!.deadlineTargetFrame = 175;
+  } },
+  { name: "dangling owned hit-resolution reference", scenario: "frozen", mutate: (result) => {
+    phaseAt(result, 176, "enemy-0").hitResolutionLogIds.push(999);
+  } },
+  { name: "missing lifecycle timeline backlink", trustedNegative: true, scenario: "frozen", mutate: (result) => {
+    result.targetStateTimeline.points[28]!.links = [];
+  } },
+  { name: "Miss Hitlag audit aliases the landed target resolution", scenario: "frozen", hitlagFrames: 5, mutate: (result) => {
+    result.targetHitlagLog[1]!.hitResolutionLogId = 0;
+  } },
+  { name: "EC expiry loses its periodic stream reference", trustedNegative: true, scenario: "electro-charged", mutate: (result) => {
+    const transition = phaseAt(result, 570, "enemy-0").reactableTick.transitions[1]!;
+    if (transition.kind !== "electro-charged-expiry") throw new Error("Expected EC expiry");
+    transition.periodicReactionLogId = 999;
+  } },
+];
+
+describe("current target-phase causal boundaries", () => {
+  it.each(hostileTargetPhaseCases)("rejects $name at public parsing and real capture import", ({ scenario, hitlagFrames, trustedNegative, mutate }) => {
+    const result = simulate(makeLifecycleScenarioConfig(scenario, "target-phase-v2", { frozenHitlagFrames: hitlagFrames ?? 0 }), { critMode: "noCrit" });
+    const before = JSON.stringify(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
+    const capture = { schemaVersion: "calculator-event-v1", eventId: 0, sourceResult: result };
+    expect(parseSimulationHit(JSON.stringify(capture)).sourceResult).toEqual(result);
+    const forged = structuredClone(result);
+    mutate(forged);
+    expect(JSON.stringify(forged)).not.toBe(before);
+    const parsed = simulationResultSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("Forged target-phase result unexpectedly parsed");
+    expect(() => parseSimulationHit(JSON.stringify({ ...capture, sourceResult: forged }))).toThrow(parsed.error.message);
+    // The trusted API accepts already-constructed/facet-validated results, not
+    // arbitrary JSON (result-integrity.ts). It conditionally owns V2 EC
+    // transitions, plus core ID/timeline proofs; ordinary V2/clock facets belong
+    // to public parsing. Do not invent a standalone full-wire guarantee.
+    if (trustedNegative) expect(() => assertTrustedSimulationResult(forged)).toThrow();
+    expect(JSON.stringify(result)).toBe(before);
+  });
+});
+
+describe("authentic historical target-phase Goldens", () => {
+  it("pins both frozen byte streams and the genuine pre-marker input provenance", () => {
+    expect(byteSha256(historicalTargetPhaseBytes)).toBe("76eb996fdf32bfaa8a93a682fd581048f540b47f5938f4b46c744d4fe640abca");
+    expect(historicalTargetPhaseArchive).toMatchObject({
+      fixtureVersion: "historical-target-reactable-phase-v153-84ff5cd-v1",
+      source: { commit: "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5" },
+    });
+    expect(historicalTargetPhaseArchive.cases.map((row) => row.caseId)).toEqual(goldenScenarioIds);
+    expect(byteSha256(readFileSync(new URL("../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json", import.meta.url)))).toBe("f6bd14ae2a86596cc7d50b2d63b4b75c9c00aeb14cb75f0ada10e3ae4b3f5db0");
+    expect(byteSha256(readFileSync(new URL("../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json", import.meta.url)))).toBe("40f4c76f3469453b08436b2fbd1cddab1af8b9975ce8f1133b3315b03253d5f8");
+  });
+  it.each(goldenScenarioIds)("keeps both original frozen semantic comparisons for %s", (scenarioId) => {
+    const row = historicalTargetPhaseArchive.cases.find((entry) => entry.caseId === scenarioId)!;
+    expectHistoricalGoldenScenario(scenarioId, historicalTargetPhase(scenarioId), row.boundaryFrame, row.abandonedWakeFrame);
+  });
+  it.each(["UPDATE_TARGET_REACTABLE_PHASE_GOLDEN", "UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN"])("refuses frozen replacement through %s", (name) => {
+    const previous = process.env[name];
+    process.env[name] = "1";
+    try {
+      expect(() => expectHistoricalGoldenScenario("frozenF176", historicalTargetPhase("frozenF176"), 176)).toThrow(/are frozen/);
+    } finally {
+      if (previous === undefined) delete process.env[name]; else process.env[name] = previous;
+    }
+  });
+});
+
 describe("target Reactable Golden print gate", () => {
   it.each([
     [undefined, false],
@@ -1448,7 +1744,7 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
     ]);
     expect(result.totalDamage).toBe(4588.592528571428);
     expectIntegerDisplayDamage(result, 8);
-    expectGoldenScenario(
+    expectCurrentTargetPhaseContract(
       "frozenF176",
       result,
       176
@@ -1501,7 +1797,7 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
     ]);
     expect(result.totalDamage).toBe(4588.592528571428);
     expectIntegerDisplayDamage(result, 8);
-    expectGoldenScenario(
+    expectCurrentTargetPhaseContract(
       "quickenF600",
       result,
       600
@@ -1572,7 +1868,7 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
     );
     expect(result.totalDamage).toBe(2867.870330357143);
     expectIntegerDisplayDamage(result, 5);
-    expectGoldenScenario(
+    expectCurrentTargetPhaseContract(
       "burningFuelF61",
       result,
       61
@@ -1688,7 +1984,7 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
     ).toBe(true);
     expect(result.totalDamage).toBe(4588.592528571428);
     expectIntegerDisplayDamage(result, 8);
-    expectGoldenScenario(
+    expectCurrentTargetPhaseContract(
       "electroChargedF570",
       result,
       570
@@ -1883,7 +2179,7 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
     });
     expect(result.totalDamage).toBe(4588.592528571428);
     expectIntegerDisplayDamage(result, 8);
-    expectGoldenScenario(
+    expectCurrentTargetPhaseContract(
       "frozenHitlag5F181",
       result,
       181,

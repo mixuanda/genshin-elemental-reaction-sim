@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import { resolveSourceNoelleBurstParameters } from "../../../packages/sim-core/src/source-noelle-burst-policy";
 import "./source-team-builder.css";
 import { TimelinePlayback, PLAYBACK_SPEEDS } from "./timeline-playback";
@@ -285,6 +286,15 @@ export interface SourceTeamBuilderHandle {
   getCharacterName(characterKey: string): string | undefined;
   renderExecutionLogs(logs: unknown, statusInstances?: unknown, endFrame?: number): void;
   dispose(): void;
+}
+
+/** Actual export action used by the draft button; guard precedes serialization. */
+export function exportSourceTeamDraft(draft: SourceTeamDraft): void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
+  const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
+  anchor.href = url; anchor.download = "source-team-draft.json"; anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBuilderOptions): SourceTeamBuilderHandle {
@@ -914,9 +924,9 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
         teamPresets = deleteSourceTeamPreset(hostVariant, teamPresets, selectedPresetId); selectedPresetId = ""; presetName = draft.name;
         error = ""; status = `已删除“${removedName}”；当前草稿未改变。`; render(); return;
       }
-      if (button.dataset.saveDraft !== undefined) { localStorage.setItem(storageKey, JSON.stringify(draft)); error = ""; status = "草稿已保存到此浏览器。"; render(); return; }
+      if (button.dataset.saveDraft !== undefined) { importSessionPolicy.assertWorkspacePersistenceAllowed(); localStorage.setItem(storageKey, JSON.stringify(draft)); error = ""; status = "草稿已保存到此浏览器。"; render(); return; }
       if (button.dataset.loadDraft !== undefined) { const saved = localStorage.getItem(storageKey) ?? (hostVariant === "classic" ? localStorage.getItem(STORAGE_KEY) : null); if (!saved) throw new Error("此浏览器尚无保存的草稿。"); setDraft(JSON.parse(saved)); status = "已读取本机草稿。"; render(); return; }
-      if (button.dataset.exportDraft !== undefined) { const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "source-team-draft.json"; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); return; }
+      if (button.dataset.exportDraft !== undefined) { exportSourceTeamDraft(draft); return; }
     } catch (cause) { fail(cause); }
   };
   root.oninput = event => {

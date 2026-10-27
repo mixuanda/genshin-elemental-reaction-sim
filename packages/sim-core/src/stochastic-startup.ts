@@ -4,6 +4,7 @@ import { measureDamageWindow, repeatLegalTimelineForDuration, simulateWithStartu
 import { NORMAL_HIT_ENERGY_PROFILE } from "./normal-hit-energy";
 import { SACRIFICIAL_PROFILE } from "./sacrificial";
 import { hasRandomWeaponProc, WEAPON_PROC_RANDOM_PROFILE } from "./weapon-proc";
+import { assertSimulationAnalysisSupported } from "./simulation-analysis-capability";
 
 export interface StochasticStartupPolicy {
   /** Independent seed pairs; default 8, bounded to 2..32. */
@@ -221,6 +222,7 @@ export function analyzeStochasticStartup(config: SimConfig, policy: StochasticSt
     if (controls.shouldCancel?.()) { const error = new Error("随机起步诊断已取消。"); error.name = "AbortError"; throw error; }
   };
   cancel();
+  assertSimulationAnalysisSupported(config);
   const baseSeed = options.randomSeed ?? config.randomSeed;
   const randomWeaponProcs = hasRandomWeaponProc(config.weaponProcModel);
   const runtimeCooldownTemplate = getRuntimeSkillCooldownActors(config).size > 0;

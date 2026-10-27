@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import {z} from 'zod';
 import {restoreSimulationInputs,type RestoredSimulationInputs} from './simulation-record';
 import { migrateConfig, type SimConfig } from '@genshin-dps-lab/schemas';
@@ -76,6 +77,7 @@ export function saveEditedDocument(opened:OpenDocument|null,edited:unknown,stora
   const sourceInputs=runInputsOverride===undefined?opened?.runInputs??null:runInputsOverride;
   const runInputs=sourceInputs?restoreSimulationInputs({...sourceInputs,sourceConfig:config,format:'simulation-record-v1'}):null;
   const document:ProjectDocument={controls:controls===null?null:controlsSchema.parse(controls),runInputs,format:'gidps-document-v1',id:opened?.document?.id??id,config,verification:'not-recomputed',original:opened?.document?.original??opened?.original??null};
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
   storage.setItem(`gidps:document:${document.id}`,JSON.stringify(document));
   return document;
 }

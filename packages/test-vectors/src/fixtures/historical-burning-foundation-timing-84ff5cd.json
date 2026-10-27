@@ -1,0 +1,42 @@
+{
+  "fixtureVersion": "historical-burning-foundation-timing-v1",
+  "sourceCommit": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "originalExitCode": 1,
+  "goldenStatus": "passed",
+  "performanceStatus": "failed",
+  "allOriginalSemanticPrerequisitesPassed": true,
+  "unchangedTimedWorkload": true,
+  "kind": "timing",
+  "durations": [
+    542.7619100000002,
+    443.362787,
+    523.5937480000002,
+    413.61500500000056,
+    421.69275799999923,
+    473.24713000000065,
+    475.5940179999998,
+    436.9677639999991,
+    410.26506599999993,
+    426.8083050000005,
+    449.2064329999994,
+    619.1487020000004,
+    585.4858579999982,
+    736.6089520000005,
+    435.1200829999998,
+    386.2719930000003,
+    463.249597,
+    381.74241099999927,
+    395.3703719999994,
+    385.28839900000094,
+    393.3415879999993
+  ],
+  "summary": {
+    "average": 466.60680376190464,
+    "median": 436.9677639999991,
+    "p95": 619.1487020000004,
+    "maximum": 736.6089520000005
+  },
+  "runs": 21,
+  "medianLimitMs": 100,
+  "maximumLimitMs": 250
+}

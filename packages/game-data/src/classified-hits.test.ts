@@ -1,3 +1,4 @@
+import { defaultContextContract } from "./default-context-contracts";
 import { describe, expect, it } from "vitest";
 import { gameDataCatalog, findTalentSetById } from "./catalog";
 import { getClassifiedCharacterHits, getClassifiedHitCoverage, resolveClassifiedCharacterHits, sourceClassifiedMappings } from "./classified-hits";
@@ -15,10 +16,45 @@ describe("source-classified field-level character calculations", () => {
     expect(coverage.classifiedHits).toBeGreaterThanOrEqual(290);
     expect(coverage.teamSimulationReadyFromTheseMappings).toBe(0);
     for (const character of coverage.perCharacter) {
-      for (const doc of getCharacterDocuments(character.characterId, 10)) {
+      for (let doc of getCharacterDocuments(character.characterId, 10)) {
+        if (doc.gameContext?.skillId === "jean-burst-two-boundaries-complete-c0") {
+          // Default UI inputs deliberately do not assert observed full-cast contact.
+          // Verify the guard before supplying an explicit positive test scenario.
+          const unconfirmed = calculateDocument(doc);
+          expect(unconfirmed.status).toBe("blocked");
+          expect(unconfirmed.totals).toBeUndefined();
+          expect(unconfirmed.blockers).toHaveLength(3);
+          expect(unconfirmed.blockers.every(reason => reason.startsWith("batch-finite-context:"))).toBe(true);
+          for (const missing of ["completeCastConfirmed", "statsStableAcrossHits"] as const) {
+            const incomplete = structuredClone(doc);
+            incomplete.gameContext!.batchFiniteCast = { completeCastConfirmed: true, statsStableAcrossHits: true };
+            incomplete.gameContext!.batchFiniteCast[missing] = false;
+            expect(calculateDocument(incomplete).status, missing).toBe("blocked");
+            expect(calculateDocument(incomplete).totals, missing).toBeUndefined();
+          }
+          doc = structuredClone(doc);
+          doc.gameContext!.batchFiniteCast = { completeCastConfirmed: true, statsStableAcrossHits: true };
+          // Q10 at the existing teaching panel: three independently sourced hits.
+          expect(calculateDocument(doc).totals?.nonCritical).toBeCloseTo(2000 * (7.6464 + 1.4112 + 1.4112) * .5 * .9, 8);
+        }
         expect(calculatorDocumentSchema.safeParse(doc).success, doc.id).toBe(true);
         const result = calculateDocument(doc);
-        if (doc.hits.some((hit) => hit.kind === "blocked")) {
+        const contextContract = defaultContextContract(doc.gameContext?.skillId);
+        if (contextContract) {
+          expect(result.status, doc.id).toBe("blocked");
+          expect(result.totals, doc.id).toBeUndefined();
+          expect(result.blockers, doc.id).toHaveLength(contextContract.defaultBlockerCount);
+          expect([...new Set(result.blockers.map(reason => reason.split(":")[0]))].sort(), doc.id)
+            .toEqual([...contextContract.blockerPrefixes].sort());
+        } else if (doc.gameContext?.skillId === "xiao-burst-activation") {
+          // This exact source action changes state; it has no direct hit or numeric subtotal.
+          expect(doc.hits.map(hit => [hit.id, hit.kind]), doc.id).toEqual([["xiao-q-activation", "non-damaging"]]);
+          expect(doc.selectedHitIds, doc.id).toEqual(["xiao-q-activation"]);
+          expect(result.status, doc.id).toBe("calculated");
+          expect(result.blockers, doc.id).toEqual([]);
+          expect(result.hits.map(hit => [hit.id, hit.status]), doc.id).toEqual([["xiao-q-activation", "non-damaging"]]);
+          expect(result.totals, doc.id).toBeUndefined();
+        } else if (doc.hits.some((hit) => hit.kind === "blocked")) {
           expect(result.status, doc.id).toBe("blocked");
           expect(result.totals, doc.id).toBeUndefined();
         } else {

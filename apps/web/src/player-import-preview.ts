@@ -2,8 +2,8 @@ import { importPlayerInput, applyPreview, type ImportSnapshot } from '../../../p
 import { preparePlayerEquipment, preparePlayerPanel } from './player-import-handoff';
 import { preparePlayerPanelWithManualTalents, type ManualEffectiveTalents } from './player-import-manual-talents';
 
-export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (input: ReturnType<typeof preparePlayerEquipment>['input'], metadata: ReturnType<typeof preparePlayerEquipment>['metadata']) => Promise<void>, openPanel: (character: ReturnType<typeof preparePlayerPanel>['character'], source: string, manualEffectiveTalents?: ManualEffectiveTalents) => Promise<void>): void {
-  root.innerHTML = `<details open><summary>玩家配装预览 → 单技能计算</summary><p>本地解析 GOOD / Enka JSON / 配装纯文本。装备推导与 Enka 最终面板是互斥路线；不会重复叠加装备。公开展柜不能还原条件增益、附着或历史快照，所选技能仍需满足计算器条件。装备路线的条件效果关闭。未知机制仍由计算器提示。这里不提供账号登录。</p><label>本地配装文件<input data-player-file type="file" accept=".json,.txt,application/json,text/plain"></label><label>或粘贴配装文本<textarea data-player-input rows="5"></textarea></label><label><input data-player-fixture type="checkbox">这是合成测试数据</label><button data-player-preview>预览导入</button><button data-player-restore hidden>返回上次完整预览</button><p data-player-status role="status" aria-live="polite"></p><div data-player-builds></div></details>`;
+export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (input: ReturnType<typeof preparePlayerEquipment>['input'], metadata: ReturnType<typeof preparePlayerEquipment>['metadata']) => Promise<void>, openPanel: (character: ReturnType<typeof preparePlayerPanel>['character'], source: string, manualEffectiveTalents?: ManualEffectiveTalents) => Promise<void>): () => void {
+  root.innerHTML = `<details open><summary>玩家配装预览 → 单技能计算</summary><p>本地解析 GOOD / Enka JSON / 配装纯文本。装备推导与 Enka 最终面板是互斥路线；不会重复叠加装备。公开展柜不能还原条件增益、附着或历史快照，所选技能仍需满足计算器条件。装备路线的条件效果关闭。未知机制仍由计算器提示。这里不提供账号登录。</p><label>本地配装文件<input data-player-file type="file" accept=".json,.txt,application/json,text/plain"></label><label>或粘贴配装文本<textarea data-player-input rows="5"></textarea></label><label><input data-player-fixture type="checkbox">这是合成测试数据</label><button data-player-preview>预览导入</button><button data-player-clear>清除本次导入</button><button data-player-restore hidden>返回上次完整预览</button><p data-player-status role="status" aria-live="polite"></p><div data-player-builds></div></details>`;
   const text = root.querySelector<HTMLTextAreaElement>('[data-player-input]')!;
   const status = root.querySelector<HTMLElement>('[data-player-status]')!;
   const list = root.querySelector<HTMLElement>('[data-player-builds]')!;
@@ -12,6 +12,14 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
   let acceptedRaw = '';
   let busy = false;
   let revision = 0;
+  let disposed = false;
+  function clearPreview(): void {
+    revision++; accepted = null; acceptedRaw = ''; text.value = '';
+    root.querySelector<HTMLInputElement>('[data-player-file]')!.value = '';
+    list.replaceChildren(); restore.hidden = true;
+    status.textContent = '本次导入预览已清除；已经交给计算器的资料仍仅限本次会话，刷新页面可清除整个工作区。';
+  }
+  root.querySelector<HTMLButtonElement>('[data-player-clear]')!.onclick = clearPreview;
   function render(snapshot: ImportSnapshot, allowed: boolean, raw: string) {
     list.replaceChildren();
     const source = document.createElement('p');
@@ -30,7 +38,7 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
       button.onclick = async () => {
         if (busy || !allowed || !prepared) return;
         busy = true;button.disabled = true;
-        try { const checked = preparePlayerEquipment(build, snapshot.source);await openCalculator(checked.input, checked.metadata); }
+        try { const checked = preparePlayerEquipment(build, snapshot.source);await openCalculator(checked.input, checked.metadata);clearPreview(); }
         catch (error) { status.textContent = `计算未载入：${error instanceof Error ? error.message : String(error)}。预览保留，可修正后重试。`; }
         finally { busy = false;button.disabled = !allowed || !prepared; }
       };
@@ -43,7 +51,7 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
       panelButton.onclick = async () => {
         if (busy || !panelReady) return;
         busy = true;panelButton.disabled = true;
-        try { const checked = preparePlayerPanel(raw, build, snapshot.source);await openPanel(checked.character, checked.source); }
+        try { const checked = preparePlayerPanel(raw, build, snapshot.source);await openPanel(checked.character, checked.source);clearPreview(); }
         catch(error) { status.textContent = `面板未载入：${error instanceof Error ? error.message : String(error)}。原预览保留。`; }
         finally { busy = false;panelButton.disabled = !panelReady; }
       };
@@ -67,7 +75,7 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
           busy = true;proceed.disabled = true;
           try {
             const checked = preparePlayerPanelWithManualTalents(raw, build, snapshot.source, { auto: fields.auto.valueAsNumber, skill: fields.skill.valueAsNumber, burst: fields.burst.valueAsNumber });
-            await openPanel(checked.character, checked.source, checked.manualEffectiveTalents);
+            await openPanel(checked.character, checked.source, checked.manualEffectiveTalents);clearPreview();
           } catch (error) { status.textContent = `面板未载入：${error instanceof Error ? error.message : String(error)}。原预览保留。`; }
           finally { busy = false;proceed.disabled = !ready(); }
         };
@@ -77,6 +85,7 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
     }
   }
   function preview() {
+    if (disposed) return;
     revision++;
     const result = importPlayerInput(text.value, { fixture: root.querySelector<HTMLInputElement>('[data-player-fixture]')!.checked });
     const applied = applyPreview(accepted, result);
@@ -85,13 +94,15 @@ export function mountPlayerImportPreview(root: HTMLElement, openCalculator: (inp
     if (result.ok) render(result.snapshot, applied.applied, text.value);
     // A rejected parse never clears the last visible successful preview.
     restore.hidden = !accepted || applied.applied;
+    text.value = '';
   }
   root.querySelector<HTMLButtonElement>('[data-player-preview]')!.onclick = preview;
   restore.onclick = () => { if (accepted) { render(accepted, true, acceptedRaw);restore.hidden = true;status.textContent = '已恢复上次完整预览；不是本次失败导入的结果。'; } };
   root.querySelector<HTMLInputElement>('[data-player-file]')!.onchange = async event => {
     const input = event.target as HTMLInputElement, file = input.files?.[0];input.value = '';if (!file) return;
     const request = ++revision;
-    try { const content = await file.text();if (request !== revision) return;text.value = content;preview(); }
+    try { const content = await file.text();if (disposed || request !== revision) return;text.value = content;preview(); }
     catch { if (request === revision) status.textContent = '文件读取失败；原预览保留。'; }
   };
+  return () => { disposed = true; clearPreview(); };
 }

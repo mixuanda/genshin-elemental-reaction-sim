@@ -16698,6 +16698,12 @@ export const simConfigV142Schema = z
  * validator remain the single source of truth for every unchanged field and
  * cross-field rule. The final transform preserves all frozen defaults and
  * normalizations, then restores only the exact 1.44 identity and v3 selector.
+ *
+ * Each version validates and transforms in the same callback so its complete
+ * predecessor is parsed once, not once in a refinement and again in a later
+ * transform. Reuse is local to this invocation; every public parse still
+ * validates its wire, all version-specific rules, and the full predecessor.
+ * Never construct output when either layer has reported an issue.
  */
 const projectSimConfigV144ToV142 = (
   wire: Record<string, unknown>
@@ -16726,7 +16732,7 @@ const simConfigV144ValueSchema = z
   .custom<SimConfigV144>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -16766,20 +16772,16 @@ const simConfigV144ValueSchema = z
     }
 
     const projected = projectSimConfigV144ToV142(wire);
-    const parsed = simConfigV142Schema.safeParse(projected);
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    const predecessor = simConfigV142Schema.safeParse(projected);
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV142Schema.parse(
-      projectSimConfigV144ToV142(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -16827,7 +16829,7 @@ const simConfigV145ValueSchema = z
   .custom<SimConfigV145>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !== REACTION_FORMULA_ROOT_SCHEMA_VERSION
@@ -16929,22 +16931,18 @@ const simConfigV145ValueSchema = z
       });
     }
 
-    const parsed = simConfigV144Schema.safeParse(
+    const predecessor = simConfigV144Schema.safeParse(
       projectSimConfigV145ToV144(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV144Schema.parse(
-      projectSimConfigV145ToV144(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
@@ -17126,7 +17124,7 @@ const simConfigV146ValueSchema = z
   .custom<SimConfigV146>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17214,22 +17212,18 @@ const simConfigV146ValueSchema = z
         }
       }
     });
-    const parsed = simConfigV145Schema.safeParse(
+    const predecessor = simConfigV145Schema.safeParse(
       projectSimConfigV146ToV145(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV145Schema.parse(
-      projectSimConfigV146ToV145(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     const rawRotation = Array.isArray(wire.rotation)
       ? wire.rotation
       : [];
@@ -17424,7 +17418,7 @@ const simConfigV147ValueSchema = z
   .custom<SimConfigV147>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17561,22 +17555,18 @@ const simConfigV147ValueSchema = z
       }
     });
 
-    const parsed = simConfigV146Schema.safeParse(
+    const predecessor = simConfigV146Schema.safeParse(
       projectSimConfigV147ToV146(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV146Schema.parse(
-      projectSimConfigV147ToV146(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     const rawRotation = Array.isArray(wire.rotation)
       ? wire.rotation
       : [];
@@ -17657,7 +17647,7 @@ const simConfigV148ValueSchema = z
   .custom<SimConfigV148>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17719,19 +17709,18 @@ const simConfigV148ValueSchema = z
       }
     }
 
-    const parsed = simConfigV147Schema.safeParse(
+    const predecessor = simConfigV147Schema.safeParse(
       projectSimConfigV148ToV147(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV147Schema.parse(
-      projectSimConfigV148ToV147(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
@@ -17784,7 +17773,7 @@ const simConfigV149ValueSchema = z
   .custom<SimConfigV149>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17846,19 +17835,18 @@ const simConfigV149ValueSchema = z
       }
     }
 
-    const parsed = simConfigV147Schema.safeParse(
+    const predecessor = simConfigV147Schema.safeParse(
       projectSimConfigV149ToV147(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV147Schema.parse(
-      projectSimConfigV149ToV147(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -17910,7 +17898,7 @@ const simConfigV150ValueSchema = z
   .custom<SimConfigV150>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17963,19 +17951,18 @@ const simConfigV150ValueSchema = z
       }
     }
 
-    const parsed = simConfigV149Schema.safeParse(
+    const predecessor = simConfigV149Schema.safeParse(
       projectSimConfigV150ToV149(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV149Schema.parse(
-      projectSimConfigV150ToV149(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion:
@@ -18032,7 +18019,7 @@ const simConfigV151ValueSchema = z
   .custom<SimConfigV151>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (wire.schemaVersion !== BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) {
       context.addIssue({
@@ -18079,19 +18066,18 @@ const simConfigV151ValueSchema = z
       }
     }
 
-    const parsed = simConfigV150Schema.safeParse(
+    const predecessor = simConfigV150Schema.safeParse(
       projectSimConfigV151ToV150(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV150Schema.parse(
-      projectSimConfigV151ToV150(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,

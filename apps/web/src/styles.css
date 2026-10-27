@@ -192,3 +192,11 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 .product-nav-more summary { padding: 10px 14px; cursor: pointer; }
 .product-nav-more[open] { padding-bottom: 8px; }
 .product-nav-more[open] a { display: block; }
+
+/* Compact product chrome leaves room for character / build / result. */
+.topbar { margin-bottom: 12px; gap: 12px; }
+.topbar h1 { font-size: 24px; margin: 3px 0; }
+.topbar .eyebrow { font-size: 10px; }
+.topbar p { font-size: 13px; color: var(--muted); }
+.product-nav { gap: 4px; margin-bottom: 14px; padding-bottom: 8px; }
+.product-nav a, .product-nav-more summary { padding: 8px 10px; }

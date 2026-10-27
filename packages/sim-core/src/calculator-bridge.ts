@@ -1,4 +1,5 @@
 import { parseEventStepResult, EVENT_STEP_RESULT_FORMAT, type EventStepResult } from './event-step-result';
+import { replayDeclaredSwirlAmplification } from "./nested-swirl-amplification";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { getComposableSourceAbility } from "../../game-data/src/source-ability-registry";
 import { assertComposableSourceAbilities } from "./source-action-library";
@@ -6,7 +7,7 @@ import { calculateStatConversion } from "./stat-conversion";
 import { artifactDamageTrace } from "./artifact-damage-runtime";
 import { executeStellarConductAdjustment } from "./stellar-conduct-runtime";
 import { assertTrustedSimulationResult, simulationResultSchema, thrillingTalesForDamageEvent, type CharacterStats, type ScalingStat, type DamageEvent, type SimulationResult, type ActionConditionLogEntry, type WeaponProcLogEntry, type ThrillingTalesLogEntry } from "@genshin-dps-lab/schemas";
-import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, DAMAGE_FORMULA_SOURCES } from "./calculator-formula";
+import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, reactionMasteryBonusExpression, DAMAGE_FORMULA_SOURCES } from "./calculator-formula";
 import { expr, TraceBuilder, traceInput, type CalculationTraceNode } from "./calculation-trace";
 import type { DamageCalculationInput, TransformativeReactionDamageInput } from "./formulas";
 import { getWeaponProcCoefficientFormula } from "./weapon-proc-calculator";
@@ -127,9 +128,31 @@ export function replaySimulationHit(rawCapture: unknown): SimulationHitReplay {
       sameNumber(calculation[field], factors[field], field);
     }
     trace = calculation.trace;
+    let formulaDamage = calculation.finalDamage;
+    const nested = replayDeclaredSwirlAmplification(result, event);
+    if (nested !== null) {
+      // These are freshly executed, privately immutable core nodes, not wire
+      // data. Bind them before adding a dependency on transformativeDamage.
+      for (const node of calculation.trace) policy.appendImmutable([node], node.id, node.id);
+      trace = [];
+      const origin = { kind: "replayed-source-declaration", reference: `actor:${nested.sourceActorId};trigger:${nested.triggerFrame};landing:${nested.landingFrame}` };
+      const masteryBonus = policy.add("nestedAmplifyingEmBonus", "stage.amplifyingEmBonus", reactionMasteryBonusExpression("amplifying"),
+        [traceInput("elementalMastery", nested.elementalMastery, "em", origin)],
+        { explanationKey: "explain.amplifyingEmBonus", applicabilityReason: "扩散使用触发帧精通；不是落地帧精通。" });
+      sameNumber(masteryBonus, nested.elementalMasteryBonus, "nestedAmplifyingEmBonus");
+      const multiplier = policy.add("nestedAmplifyingMultiplier", "stage.reactionMultiplier",
+        expr.mul(expr.input("reactionBase"), expr.add(expr.value(1), expr.input("elementalMasteryBonus"), expr.input("reactionBonus"))),
+        [traceInput("reactionBase", nested.base, "ratio", "compiled-classic-formula-profile"), traceInput("elementalMasteryBonus", masteryBonus, "ratio", origin), traceInput("reactionBonus", nested.reactionBonus, "ratio", origin)],
+        { explanationKey: "explain.reactionMultiplier", applicabilityReason: `${nested.reaction};增幅加成独立重放落地帧声明与命中局部加成。`, childIds: ["nestedAmplifyingEmBonus"] });
+      sameNumber(multiplier, nested.total, "nestedAmplifyingMultiplier");
+      formulaDamage = policy.add("nestedAmplifyingDamage", "stage.afterReaction",
+        expr.mul(expr.input("formulaDamage"), expr.input("reactionMultiplier")),
+        [traceInput("formulaDamage", calculation.finalDamage, "damage", "shared-transformative-core"), traceInput("reactionMultiplier", multiplier, "ratio", origin)],
+        { explanationKey: "explain.afterReaction", unit: "damage", childIds: ["transformativeDamage", "nestedAmplifyingMultiplier"] });
+    }
     potentialDamage = policy.add("reactionGroupPolicy", "stage.reactionGroupPolicy",
       expr.mul(expr.input("formulaDamage"), expr.input("groupMultiplier")),
-      [traceInput("formulaDamage", calculation.finalDamage, "damage", "captured-event"), traceInput("groupMultiplier", event.damageFactors.groupMultiplier, "ratio", "reaction-damage-group-log")],
+      [traceInput("formulaDamage", formulaDamage, "damage", nested === null ? "captured-event" : "source-proven-nested-amplification"), traceInput("groupMultiplier", event.damageFactors.groupMultiplier, "ratio", "reaction-damage-group-log")],
       { explanationKey: "explain.reactionGroupPolicy", unit: "damage" });
   } else {
     const owner = result.config.characters.find((character) => character.id === event.scalingOwnerId);

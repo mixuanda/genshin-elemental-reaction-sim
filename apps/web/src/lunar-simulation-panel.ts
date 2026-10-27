@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import { gameDataRuntimeIndex } from "@genshin-dps-lab/game-data";
 import type { LunarChargedExecutionOptions, SimConfig, SimulationOptions } from "@genshin-dps-lab/schemas";
 import { LUNAR_ARTIFACT_BONUS_RULES, type LunarArtifactBonus, type SpecialCalculationContext, type SpecialOutcome } from "@genshin-dps-lab/reaction-formulas";
@@ -148,6 +149,14 @@ function catalogChoices(): Array<{ key: string; name: string; characterId: strin
 }
 
 /** A separate, cancellable run. It never adds diagnostic intents to ordinary results. */
+/** Actual lunar capture download action; payload construction is lazy behind the guard. */
+export function exportLunarSimulationCapture(json: () => string, branch: string): void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
+  const url = URL.createObjectURL(new Blob([json()], { type: "application/json" }));
+  const link = document.createElement("a"); link.href = url; link.download = branch + "-complete-simulation.json"; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimulationPanelOptions): LunarSimulationPanelController {
   mounted.get(root)?.dispose();
   let worker: Worker | null = null;
@@ -986,9 +995,8 @@ export function renderLunarSimulationPanel(root: HTMLElement, options: LunarSimu
           ...(runExecutionBaseline === null ? {} : { executionBaseline: clone(runExecutionBaseline) }),
         },
       };
-      const url = URL.createObjectURL(new Blob([importedCaptureJson ?? serializeSpecialSimulation(exportCapture)], { type: "application/json" }));
-      const link = document.createElement("a"); link.href = url; link.download = branch + "-complete-simulation.json"; link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      try { exportLunarSimulationCapture(() => importedCaptureJson ?? serializeSpecialSimulation(exportCapture), branch); }
+      catch (error) { status(error instanceof Error ? error.message : '不能导出本次资料。'); }
     }
   });
 

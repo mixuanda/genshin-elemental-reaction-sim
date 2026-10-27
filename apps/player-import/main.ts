@@ -11,6 +11,19 @@ import "./style.css";
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const input = el<HTMLTextAreaElement>("json-input"), status = el("status"), apply = el<HTMLButtonElement>("apply");
 let preview: ImportResult | null = null, current: ImportSnapshot | null = null, generation = 0;
+const clearButton = document.createElement('button');
+clearButton.type = 'button'; clearButton.textContent = '清除本次资料'; clearButton.id = 'clear-session';
+apply.after(clearButton);
+function clearSession(): void {
+  generation++; preview = null; current = null; input.value = '';
+  el<HTMLInputElement>('uid').value = ''; el<HTMLInputElement>('file-input').value = '';
+  el('preview-content').replaceChildren(); el('normalized').textContent = '';
+  el('current').textContent = '暂无已应用数据'; apply.disabled = true;
+  status.textContent = '本次资料已清除；没有删除任何历史本地资料。';
+}
+clearButton.onclick = clearSession;
+window.addEventListener('pagehide', clearSession);
+
 const display = (f: Field<unknown>) => f.state === "known" ? `${f.value}${f.unit === "ratio" ? "（比例）" : ""}` : `${f.state}：${f.note}`;
 const append = (parent: HTMLElement, tag: string, text: string) => { const node = document.createElement(tag); node.textContent = text; parent.append(node); return node; };
 function renderStats(parent: HTMLElement, title: string, stats: Stat[]): void {

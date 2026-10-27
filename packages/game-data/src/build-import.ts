@@ -157,7 +157,7 @@ export function parseEnkaBuilds(raw: unknown, options: { uid: string; fetchedAt?
       const mappedSetId = relicItemId === null ? null : enkaRelicSets[String(relicItemId)]?.[0] ?? null;
       const flatSetId = integer(flat.setId, 1, Number.MAX_SAFE_INTEGER);
       if (mappedSetId !== null && flatSetId !== null && mappedSetId !== flatSetId) { diagnostics.push(diagnostic("artifact-set-conflict", `${path}.equipList[${j}]`, "Enka 套装 ID 与固定物品身份表冲突。")); continue; }
-      const piece = artifact({ setId: mappedSetId ?? flatSetId, slot, rarity: integer(flat.rankLevel, 1, 5), level: relic ? integer(relic.level, 1, 21) === null ? null : Number(relic.level) - 1 : null, main: mainStat, mainValue: percent(mainStat ?? "", mainValue), substats: subs, source: `enka:${options.uid};${options.fetchedAt ?? "unversioned"};item=${String(item.itemId)};relic-map=180a0a1` }, `${path}.equipList[${j}]`, diagnostics, options.dataset);
+      const piece = artifact({ setId: mappedSetId ?? flatSetId, slot, rarity: integer(flat.rankLevel, 1, 5), level: relic ? integer(relic.level, 1, 21) === null ? null : Number(relic.level) - 1 : null, main: mainStat, mainValue: percent(mainStat ?? "", mainValue), substats: subs, source: `enka:public-showcase;${options.fetchedAt ?? "unversioned"};item=${String(item.itemId)};relic-map=180a0a1` }, `${path}.equipList[${j}]`, diagnostics, options.dataset);
       if (piece) artifacts.push(piece);
     }
     if (new Set(artifacts.map(piece => piece.slot)).size !== artifacts.length) diagnostics.push(diagnostic("artifact-slot-duplicate", path, "展示柜有重复圣遗物位置。"));

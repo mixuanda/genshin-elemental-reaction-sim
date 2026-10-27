@@ -204,6 +204,7 @@ import {
   auraStateSnapshotsEqual,
   TargetStateTimelineRecorder
 } from "./target-state-timeline";
+import { copyGeneratedAuraStates } from "./aura-state-copy";
 import {
   ReactionDamageGroupTaskEngine,
   type ReactionDamageGroupAttemptResult,
@@ -13323,10 +13324,10 @@ function simulateConfig(
         fuelDecayPerFrame: prepared.fuelDecayPerFrame,
         fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
         ...callbackAuraProvenance,
-        auraBefore: deepClone(prepared.auraBefore),
+        auraBefore: copyGeneratedAuraStates(prepared.auraBefore),
         auraApplied: [],
         auraConsumed: [],
-        auraAfter: deepClone(prepared.auraAfter),
+        auraAfter: copyGeneratedAuraStates(prepared.auraAfter),
         nextTickFrame: prepared.nextTickFrame,
         clockModel: burningClockModel,
         hitlagStatus: enemyHitlagStatus,
@@ -15814,7 +15815,7 @@ function simulateConfig(
                 burningLog.icdHitIndex = null;
               }
               if (propagatedReactionAudit !== null) {
-                burningLog.auraBefore = deepClone(
+                burningLog.auraBefore = copyGeneratedAuraStates(
                   propagatedReactionAudit.auraBefore ?? []
                 );
                 burningLog.auraApplied = deepClone(
@@ -15823,7 +15824,7 @@ function simulateConfig(
                 burningLog.auraConsumed = deepClone(
                   propagatedReactionAudit.auraConsumed ?? []
                 );
-                burningLog.auraAfter = deepClone(
+                burningLog.auraAfter = copyGeneratedAuraStates(
                   propagatedReactionAudit.auraAfter ?? []
                 );
                 burningLog.applicationAllowed =

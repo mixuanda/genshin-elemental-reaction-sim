@@ -1,0 +1,75 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+const fixture = readFileSync(new URL('./fixtures/player-import/kaeya-good.json', import.meta.url), 'utf8');
+test('synthetic imported build cannot be saved; public preset can; old bytes are unchanged', async ({ page }) => {
+ await page.goto('/builds');
+ await page.evaluate(() => localStorage.setItem('synthetic-existing-record', 'UNCHANGED'));
+ await page.locator('#build-import').setInputFiles({ name: 'synthetic-good.json', mimeType: 'application/json', buffer: Buffer.from(fixture) });
+ await page.getByRole('button', { name: '编辑这套真实配装' }).click();
+ await page.locator('#build-save').click();
+ await expect(page.locator('#build-status')).toContainText('仅供本次计算');
+ expect(await page.evaluate(() => localStorage.getItem('gidps:editable-builds:v1'))).toBeNull();
+ expect(await page.evaluate(() => localStorage.getItem('synthetic-existing-record'))).toBe('UNCHANGED');
+ await page.locator('#build-character').selectOption('character:10000021');
+ await page.locator('#build-save').click();
+ await expect(page.locator('#build-status')).toContainText('已保存');
+ expect(await page.evaluate(() => localStorage.getItem('gidps:editable-builds:v1'))).not.toBeNull();
+});
+test('preview clears raw input and explicit clear removes restore snapshots without touching storage', async ({ page }) => {
+ await page.goto('/builds');
+ await page.locator('[data-player-input]').fill(fixture);
+ await page.locator('[data-player-preview]').click();
+ await expect(page.locator('[data-player-calculate]')).toBeEnabled();
+ await expect(page.locator('[data-player-input]')).toHaveValue('');
+ await page.locator('[data-player-clear]').click();
+ await expect(page.locator('[data-player-builds]')).toBeEmpty();
+ await expect(page.locator('[data-player-restore]')).toBeHidden();
+ expect(await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length }))).toEqual({ local: 0, session: 0 });
+ await page.reload();
+ await expect(page.locator('[data-player-builds]')).toBeEmpty();
+});
+test('legacy file completion after route disposal cannot repopulate detached import DOM', async ({ page }) => {
+ await page.goto('/builds');
+ await page.evaluate(() => {
+  const w = window as unknown as { resolveSyntheticFile: (text: string) => void; detachedImport: Element | null };
+  w.detachedImport = document.querySelector('#build-import-list');
+  File.prototype.text = () => new Promise<string>(resolve => { w.resolveSyntheticFile = resolve; });
+ });
+ await page.locator('#build-import').setInputFiles({ name: 'synthetic-delayed.json', mimeType: 'application/json', buffer: Buffer.from(fixture) });
+ await page.locator('.product-nav a[href="/team"]').click();
+ await page.evaluate(text => (window as unknown as { resolveSyntheticFile: (text: string) => void }).resolveSyntheticFile(text), fixture);
+ await page.waitForTimeout(150);
+ expect(await page.evaluate(() => (window as unknown as { detachedImport: Element }).detachedImport.childElementCount)).toBe(0);
+});
+test('legacy fetch is aborted on route disposal and cannot replace a later public build', async ({ page }) => {
+ let release!: () => void;
+ const delayed = new Promise<void>(resolve => { release = resolve; });
+ await page.route('**/api/showcase/800000001', async route => { await delayed; try { await route.fulfill({ json: { data: { avatarInfoList: [], playerInfo: {} } } }); } catch { /* Aborted by disposal. */ } });
+ await page.goto('/builds');
+ await page.locator('#build-uid').fill('800000001');
+ const failed = page.waitForEvent('requestfailed', request => request.url().includes('/api/showcase/800000001'));
+ await page.locator('#build-fetch').click();
+ await expect(page.locator('#build-import-status')).toContainText('正在读取');
+ await page.locator('.product-nav a[href="/team"]').click();
+ await failed; release();
+ await page.locator('.product-nav a[href="/builds"]').click();
+ await expect(page.locator('#build-import-list')).toBeEmpty();
+ await expect(page.locator('#build-uid')).toHaveValue('');
+});
+test('loading a synthetic saved public build replaces imported equipment and all metadata before ordinary save', async ({ page }) => {
+ await page.goto('/builds');
+ await page.locator('#build-save').click();
+ await expect(page.locator('#build-status')).toContainText('已保存');
+ const before = await page.evaluate(() => JSON.parse(localStorage.getItem('gidps:editable-builds:v1')!));
+ await page.locator('#build-import').setInputFiles({ name: 'synthetic-good.json', mimeType: 'application/json', buffer: Buffer.from(fixture) });
+ await page.getByRole('button', { name: '编辑这套真实配装' }).click();
+ await page.locator('#build-name').fill('PRIVATE_SYNTHETIC');
+ await page.locator('#build-constellation').fill('6');
+ await page.locator('#build-load').click();
+ await expect(page.locator('#build-status')).toContainText('已载入');
+ await page.locator('#build-save').click();
+ await expect(page.locator('#build-status')).toContainText('已保存');
+ const after = await page.evaluate(() => JSON.parse(localStorage.getItem('gidps:editable-builds:v1')!));
+ expect(after).toEqual(before);
+ expect(JSON.stringify(after)).not.toContain('PRIVATE_SYNTHETIC');
+});

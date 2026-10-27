@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { CURRENT_OPTIONAL_RESULT_EXTENSIONS, CURRENT_RESULT_EXTENSIONS } from "../../../schemas/src/current-result-field-contract.test-helper";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import {
@@ -28,6 +30,27 @@ import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/pro
 import { beforeAll, describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
+
+// Captured from the unchanged selected historical identity test, not a relabelled current result.
+const historicalIdentityBytes = readFileSync(new URL("../../../test-vectors/src/fixtures/historical-result-identity-v153-84ff5cd.json", import.meta.url));
+const historicalIdentityArchive = JSON.parse(historicalIdentityBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string };
+  cases: Array<{ caseId: string; sourceWireSha256: string; sourceWireText: string }>;
+};
+const historicalSha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalSameFrameSuperconduct(): SimulationResult {
+  const row = historicalIdentityArchive.cases.find(candidate => candidate.caseId === "same-frame-superconduct");
+  if (!row) throw new Error("Missing pinned historical same-frame Superconduct input");
+  expect(historicalSha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.schemaVersion).toBe("1.53.0");
+  expect(result.reactionDamageLog.some(entry => entry.reaction === "superconduct")).toBe(true);
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
 
 const ZERO_RESISTANCES = {
   pyro: 0,
@@ -593,6 +616,17 @@ beforeAll(() => {
 });
 
 describe("exact current 1.53 SimulationResult schema", () => {
+  it("pins historical identity input and refuses current canonical semantics without mutation", () => {
+    expect(historicalSha256(historicalIdentityBytes)).toBe("b695e39765b30688205ff9375b800dc88aa40c431712e03d0a261a7e93cd15c9");
+    expect(historicalIdentityArchive.fixtureVersion).toBe("historical-result-identity-v153-84ff5cd-v1");
+    expect(historicalIdentityArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalIdentityArchive.cases.map(row => row.caseId)).toEqual(["same-frame-superconduct"]);
+    expect(sameFrameSuperconductResult.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+    const before = JSON.stringify(sameFrameSuperconductResult);
+    expect(() => projectSimulationResultV153ToV152(sameFrameSuperconductResult)).toThrow(/flatStatBuffSemantics/);
+    expect(JSON.stringify(sameFrameSuperconductResult)).toBe(before);
+  });
+
   it("keeps persisted 1.42 and frozen 1.44-1.52 result identities separate", () => {
     expect(
       legacyDefault120sGoldenFixtureV142Schema.safeParse(frozenGoldenV142)
@@ -624,7 +658,7 @@ describe("exact current 1.53 SimulationResult schema", () => {
     );
 
     const projectedV152 = projectSimulationResultV153ToV152(
-      sameFrameSuperconductResult,
+      historicalSameFrameSuperconduct(),
     );
     expect(simulationResultV152Schema.safeParse(projectedV152).success).toBe(
       true,

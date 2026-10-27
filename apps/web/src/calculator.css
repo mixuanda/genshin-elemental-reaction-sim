@@ -150,3 +150,22 @@
 .calculator-character-outputs dl { display: grid; grid-template-columns: 1fr auto; margin: 8px 0 0; gap: 4px 8px; font-size: 12px; }
 .calculator-character-outputs dd { margin: 0; font-variant-numeric: tabular-nums; }
 .calculator-character-outputs > .calculator-hint { grid-column: 1 / -1; }
+
+/* Keep the player task above optional source/audit tooling. */
+.calculator-tools { max-width: 100%; }
+.calculator-tools > summary { cursor: pointer; padding: 9px 12px; color: var(--muted); }
+.calculator-tools[open] { flex-basis: 100%; }
+.calculator-tools .calculator-toolbar { padding: 10px 0; }
+.calculator-header h2 { font-size: 24px; margin: 0 0 4px; }
+.calculator-header p { line-height: 1.5; }
+.calculator-shell { gap: 12px; }
+.calculator-section-nav { position: static; padding: 4px; box-shadow: none; }
+.calculator-section-nav button { min-height: 36px; }
+.player-expected-metric { border-color: var(--accent); background: var(--panel-2); }
+.player-expected-metric .value { color: var(--accent); }
+.player-timing-notice { border-left: 2px solid var(--border); padding-left: 10px; }
+.player-build-context { padding: 10px 12px; border-left: 2px solid var(--accent); }
+@media (max-width: 600px) {
+  .calculator-section-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calculator-header { gap: 6px; }
+}

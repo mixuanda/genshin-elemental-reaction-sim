@@ -2081,7 +2081,11 @@ export class AuraEngine {
     const targetFrame = this.getCurrentTargetFrame();
     const previousTargetFrame = targetFrame - 1;
     this.targetFrameProjectionOverride = previousTargetFrame;
-    const auraBeforeTick = this.snapshot();
+    // Only pending EC cleanup consumes this pre-decay view. Tick decay cannot
+    // arm a new cleanup; keep every lifecycle/cleanup check below unconditional.
+    const auraBeforeTick = this.pendingElectroChargedCleanups.length === 0
+      ? []
+      : this.snapshot();
     const reactableTick = this.captureReactableTick(globalFrame);
 
     try {
@@ -2272,7 +2276,11 @@ export class AuraEngine {
           nextFrame <= frame;
           nextFrame += 1
         ) {
-          const auraBeforeTick = this.snapshot();
+          // No cleanup can be armed inside this synchronous decay Tick, so
+          // an empty pending list needs no otherwise-unused Aura snapshot.
+          const auraBeforeTick = this.pendingElectroChargedCleanups.length === 0
+            ? []
+            : this.snapshot();
           const reactableTick =
             this.captureReactableTick(nextFrame);
           const burningWasActive = this.hasActiveBurning();

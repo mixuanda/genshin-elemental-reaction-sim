@@ -1,11 +1,11 @@
 {
-  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+cyno.1+kazuha-q.1+hutao.2+arlecchino.3+alhaitham.3+durin.8",
+  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.30+tighnari.1+gaming.1+kinich.1+cyno.1+kazuha-q.1+hutao.2+arlecchino.3+alhaitham.3+durin.8+wanderer-primary.1+durin-white-q.1",
   "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
   "scope": "pinned-source-provisional-conditioned-hit-fields",
   "charactersWithHits": 124,
-  "classifiedHits": 1343,
-  "completeActions": 723,
-  "partialActions": 59,
+  "classifiedHits": 1357,
+  "completeActions": 724,
+  "partialActions": 68,
   "blockedMappings": 0,
   "standaloneSpecialComponents": {
     "count": 8,
@@ -688,9 +688,9 @@
       "name": "流浪者",
       "slug": "wanderer",
       "releasePatch": "3.3",
-      "hits": 1,
-      "completeActions": 1,
-      "partialActions": 0,
+      "hits": 14,
+      "completeActions": 2,
+      "partialActions": 8,
       "blockedMappings": 0
     },
     {
@@ -1168,9 +1168,9 @@
       "name": "杜林",
       "slug": "durin",
       "releasePatch": "6.2",
-      "hits": 4,
+      "hits": 5,
       "completeActions": 2,
-      "partialActions": 0,
+      "partialActions": 1,
       "blockedMappings": 0
     },
     {
@@ -3302,6 +3302,267 @@
     }
   ],
   "independentImplementationSources": [
+    {
+      "schemaVersion": 1,
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "numericEvidenceStatus": "single-source-extracted",
+      "status": "Fixed community source, not current-game certification",
+      "files": [
+        {
+          "path": "internal/characters/wanderer/wanderer.go",
+          "sha256": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd",
+          "gitBlob": "4d2bc8068319ae2ecd6a84516d603ee203252928",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/wanderer.go"
+        },
+        {
+          "path": "internal/characters/wanderer/attack.go",
+          "sha256": "f9d407581c920c4909e9577742126f68ac47a6021fa1c2b463527a8833f6efa5",
+          "gitBlob": "72e36762e68d56527ca8d394a364b0397e9d79e5",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/attack.go"
+        },
+        {
+          "path": "internal/characters/wanderer/skill.go",
+          "sha256": "0d0c449c12770964407d081f26fdbde5822a73f19616f61136a3b824f0d1eba1",
+          "gitBlob": "7e04db88622a87fc3ab3808a29829e827002cb1b",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/skill.go"
+        },
+        {
+          "path": "internal/characters/wanderer/burst.go",
+          "sha256": "7e5d27192b504c64c6ae77c28044f200deb42edacb766993fba557af31b1f5cd",
+          "gitBlob": "49e1c296b02cc3bb7d337405b6d4654965084344",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/burst.go"
+        },
+        {
+          "path": "internal/characters/wanderer/asc.go",
+          "sha256": "f418a0abcf94b94a6c2f9220d42547720593a6ba38333c3236d09773b0b8faa1",
+          "gitBlob": "a542b9c4f0b5e93327b77f352813c50e9e881524",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/asc.go"
+        },
+        {
+          "path": "internal/characters/wanderer/cons.go",
+          "sha256": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371",
+          "gitBlob": "711fd1dfc2707bc2fd4321410f45b507814d2543",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/cons.go"
+        },
+        {
+          "path": "internal/characters/wanderer/zz_wanderer.dm.go",
+          "sha256": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+          "gitBlob": "f481a945093ff74b54f146ee71366b672089a314",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/zz_wanderer.dm.go"
+        },
+        {
+          "path": "internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go",
+          "sha256": "8794151b734d749fc6f6c54c8ece794a26e40de62f8280229222d840179862fb",
+          "gitBlob": "b75702a09a043299f73fc936eefa872df78e63a0",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go"
+        }
+      ],
+      "tables": {
+        "attack": [
+          [
+            [
+              0.68714,
+              0.74307,
+              0.799,
+              0.8789,
+              0.93483,
+              0.99875,
+              1.08664,
+              1.17453,
+              1.26242,
+              1.3583,
+              1.45418,
+              1.55006,
+              1.64594,
+              1.74182,
+              1.8377
+            ]
+          ],
+          [
+            [
+              0.65016,
+              0.70308,
+              0.756,
+              0.8316,
+              0.88452,
+              0.945,
+              1.02816,
+              1.11132,
+              1.19448,
+              1.2852,
+              1.37592,
+              1.46664,
+              1.55736,
+              1.64808,
+              1.7388
+            ]
+          ],
+          [
+            [
+              0.47644,
+              0.51522,
+              0.554,
+              0.6094,
+              0.64818,
+              0.6925,
+              0.75344,
+              0.81438,
+              0.87532,
+              0.9418,
+              1.00828,
+              1.07476,
+              1.14124,
+              1.20772,
+              1.2742
+            ],
+            [
+              0.47644,
+              0.51522,
+              0.554,
+              0.6094,
+              0.64818,
+              0.6925,
+              0.75344,
+              0.81438,
+              0.87532,
+              0.9418,
+              1.00828,
+              1.07476,
+              1.14124,
+              1.20772,
+              1.2742
+            ]
+          ]
+        ],
+        "skillNABonus": [
+          1.329825,
+          1.349575,
+          1.369325,
+          1.395,
+          1.41475,
+          1.4345,
+          1.460175,
+          1.48585,
+          1.511525,
+          1.5372,
+          1.562875,
+          1.58855,
+          1.614225,
+          1.6399,
+          1.665575
+        ],
+        "burst": [
+          1.472,
+          1.5824,
+          1.6928,
+          1.84,
+          1.9504,
+          2.0608,
+          2.208,
+          2.3552,
+          2.5024,
+          2.6496,
+          2.7968,
+          2.944,
+          3.128,
+          3.312,
+          3.496
+        ]
+      },
+      "rules": {
+        "normal": "Each Windfavored normal Mult=attack[step][subhit][effectiveNA-1]*skillNABonus[effectiveE-1]. C5 is already included in effectiveE; do not add it again.",
+        "c6": "Parent successful hit callback checks Windfavored and positive Kuugoryoku; one extra0.4*parent.Mult at8f with a fresh snapshot, not a second copy of parent damage.",
+        "a1": "Actual Pyro ATKP30% and Cryo CR20% at selected snapshot; C4 chooses an additional random element only after an actual absorption. Neither means neither of these two offensive buffs, not no Hydro/Electro absorption.",
+        "q": "Five source hits92+6*i share55f snapshot. Windfavored C2 samples spent Kuugoryoku at cast: min(spent*.04,2). Not normal/extra damage; patch137 scopes the existing snapshot modifier.",
+        "limits": "No stance lifecycle, random C4, energy, speed/weapon stack history or queued attack reproduction. Selected C6 extra uses its own panel; not parent panel by default."
+      },
+      "c2ScopePatch": {
+        "path": "packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch",
+        "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa"
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "numericEvidenceStatus": "single-source-extracted",
+      "status": "Fixed community source, not current-game certification",
+      "files": [
+        {
+          "path": "internal/characters/durin/durin.go",
+          "sha256": "62e6281bc5b0827267c2fbcc49fd5dca7711fe932315afa1403fa038a2c2f101",
+          "gitBlob": "1ded3df8c34a2c5d07ce92156d0553c0f1dcd4e4",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/durin.go"
+        },
+        {
+          "path": "internal/characters/durin/attack.go",
+          "sha256": "c993b02659dbee541c4cafc8c160a2e7791c846ec2885c9c3acd4441ae01a675",
+          "gitBlob": "dbf85200c3f3f9feeea9f86647ca6ecf7335cb3d",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/attack.go"
+        },
+        {
+          "path": "internal/characters/durin/skill.go",
+          "sha256": "14bded4b59a93b25f2ee7a49b7fa2bef2598054eddd411790ae7fd87120c256c",
+          "gitBlob": "f168c51ee7a58a05327d19e894513665e3380bcd",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/skill.go"
+        },
+        {
+          "path": "internal/characters/durin/burst.go",
+          "sha256": "1677ee3803d7da93ce283a77188eff52c0bb755c8aa6ad1cb25514315a068516",
+          "gitBlob": "fc86070225f212a346829ca24659ba24d8f0938f",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/burst.go"
+        },
+        {
+          "path": "internal/characters/durin/asc.go",
+          "sha256": "8e7fd4a8022ce67b80955fa95ace832746e5ff9bb01a9320c5482c14b273d972",
+          "gitBlob": "78ea926df4db86c4ea9a7deed9e8fc8363a2f587",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/asc.go"
+        },
+        {
+          "path": "internal/characters/durin/cons.go",
+          "sha256": "9c41cc8fef8675e31b508d789ddbe2c663ca8c2dbc80517285e2d01f0fbc8146",
+          "gitBlob": "ca453ed612e19919e761e587da00b7590fde7a2a",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/cons.go"
+        },
+        {
+          "path": "internal/characters/durin/zz_durin.dm.go",
+          "sha256": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc",
+          "gitBlob": "946bff24f1b7d2dfa22c22da663ecae2b5a64558",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/zz_durin.dm.go"
+        },
+        {
+          "path": "internal/weapons/sword/athameartis/athameartis.go",
+          "sha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+          "gitBlob": "a2958bb374162b7ea377191d0d556df6c7d74236",
+          "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go"
+        }
+      ],
+      "tables": {
+        "burstWhiteDoT": [
+          0.9464,
+          1.01738,
+          1.08836,
+          1.183,
+          1.25398,
+          1.32496,
+          1.4196,
+          1.51424,
+          1.60888,
+          1.70352,
+          1.79816,
+          1.8928,
+          2.0111,
+          2.1294,
+          2.2477
+        ]
+      },
+      "rules": {
+        "whiteTick": "Selected current White Q tick1..20, not the3 initial hits or all20ticks; source multiplier burstWhiteDoT[effectiveQ-1]. Dynamic stats at tick creation/snapshot.",
+        "a4": "Q grants10 stacks at97f. Only white/black DoT calls consume a4Dmg; current burstSrc invalidates prior Q tasks. First10 actual current white ticks use1+min(currentTotalATK/100*.03,.75), later ticks1.",
+        "c1": "White Q C1 gives flat addition to other current on-field actors, never Durin own tick. Black C1 is outside this entry.",
+        "c2": "Actual prior50% Pyro bonus at this snapshot is separate from reaction selection and already-included input share.",
+        "weapon": "Athame R1 burst-onlyCD16% and established selfATK window remain existing equipment rules. This source retains its triggering-hit ATK TODO; not fixed here."
+      }
+    },
     {
       "format": "gidps-alhaitham-primary-projection-v1",
       "repository": "genshinsim/gcsim",

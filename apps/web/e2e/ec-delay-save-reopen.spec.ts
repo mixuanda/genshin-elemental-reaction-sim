@@ -27,6 +27,12 @@ test('EC delay preview and actual run preserve strict evidence through save, reo
  await expect(page.locator('[data-execution-command="0"]')).toContainText('2',{timeout:30000});
  await page.locator('#rotation-save').click();
  await expect.poll(()=>page.evaluate(()=>window.GenshinDpsLab.getLastResult()?.timelineExecution?.commandResults[0]?.startFrame),{timeout:30000}).toBe(2);
+ await expect(page.locator('[data-analysis-unsupported="EVENT_STEP_ANALYSIS_UNSUPPORTED"]')).toContainText('运行模拟');
+ await expect(page.locator('#analysis-steady-run')).toBeDisabled();
+ await expect(page.locator('#analysis-stochastic-run')).toBeDisabled();
+ await expect(page.locator('#analysis-er-run')).toBeDisabled();
+ await expect(page.locator('#analysis-window-output')).toContainText('DPS');
+ await expect(page.locator('#runButton')).toBeEnabled();
  const text=await download(page,'#exportRunButton');const record=JSON.parse(text);
  expect(record.validation).toBe('event-steps-v1');
  expect(record.sourceConfig.timeline.commands[0].atFrame).toBeUndefined();

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getCharacterDocuments } from "../../../apps/web/src/character-calculations";
+import { createMaleChargedFixture as fixture } from "./traveler-male-charged.test-helper";
 import { calculateDocument, convertCalculatorToFinalPanel } from "./calculator";
 import { parseCalculatorDocument, serializeCalculatorDocument } from "./calculator-model";
 import type { CalculatorDocument } from "./calculator-model";
@@ -7,27 +7,6 @@ import { prepareSourceCastDocument } from "./source-cast-context";
 import { travelerMaleChargedConstellationScope, TRAVELER_MALE_CHARGED_ANEMO_CONSTELLATION_SOURCE_REFS } from "./traveler-male-charged-constellations";
 
 const SKILL = "male-charged-aether-anemo-c0";
-const sourceDocuments = new Map<number, CalculatorDocument[]>();
-function fixture(constellation = 6, element = "anemo", level = 10): CalculatorDocument {
-  if (!sourceDocuments.has(level)) sourceDocuments.set(level, getCharacterDocuments("character:10000005", level));
-  const document = structuredClone(sourceDocuments.get(level)!.find(row => row.gameContext?.skillId === `male-charged-aether-${element}-c0`)!);
-  document.scope = "one-cast";
-  document.characterLevel = 90;
-  document.enemy = { level: 90, resistance: .1, defenseAdjustment: 0, defenseIgnore: 0 };
-  document.build = { mode: "manual-final", ascension: 6, source: "Synthetic actual physical charged-hit panel; no extra damage bonus or reaction",
-    stats: { atk: 2000, hp: 20000, def: 800, em: 0, critRate: .5, critDamage: 1 } };
-  document.gameContext!.constellation = constellation;
-  document.gameContext!.travelerMaleChargedCast = {
-    casterId: "aether", targetId: "enemy", freshCastConfirmed: true, noHitlag: true,
-    noInterruption: true, noReplacement: true, fullObservedLifetime: true,
-    observedThroughFrame: 20, statsStableAcrossHits: true,
-    precedingNormalAttackConfirmed: true, normalCounterBeforeCast: 1,
-    actionReadyConfirmed: true, initialStamina: 20, staminaCostMultiplier: 1,
-    targetContacts: { "hit-1": true, "hit-2": true },
-    sharedState: { externalInfusionActive: false, trueMoonStoryBuffEnabled: false },
-  };
-  return document;
-}
 
 describe("Aether Anemo physical charged constellation scope", () => {
   it("calculates the source-proven C6 two-hit physical branch without inventing physical resistance reduction or NA levels", () => {

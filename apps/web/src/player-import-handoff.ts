@@ -17,6 +17,7 @@ export function preparePlayerEquipment(build: PlayerBuild, source: ImportSnapsho
   // The existing core checks identities, weapon compatibility and observed artifact values.
   resolveEquipmentBuild(input);
   const metadata: BuildHandoffMetadata = {
+    sessionOnly: true,
     constellation: e.constellation, baseTalentLevels: { auto: auto!, skill: skill!, burst: burst! },
     label: `${build.identity.value.name} · ${source.kind} · ${source.scope} · ${source.importedAt}${source.fixture ? ' · 合成测试数据' : ''} · 装备推导（未叠加最终面板；装备条件效果关闭）`
   };

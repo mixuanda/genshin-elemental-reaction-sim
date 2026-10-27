@@ -30,6 +30,8 @@ describe("real equipment imports", () => {
     const entry = batch.builds[0]!;
     expect(entry.equipmentInput?.artifacts?.[0]?.observed).toMatchObject({ mainStatValue: 4780, substats: [{ stat: "critRate_", value: 0.105 }] });
     expect(entry.equipmentInput?.refinement).toBe(5);
+    expect(JSON.stringify(entry.equipmentInput)).not.toContain("800000001");
+    expect(entry.equipmentInput?.artifacts?.[0]?.observed?.source).toContain("enka:public-showcase;");
     const noAscension = structuredClone(avatar);
     delete ((noAscension.equipList[0] as { weapon: { promoteLevel?: number } }).weapon).promoteLevel;
     const blocked = parseEnkaBuilds({ playerInfo: {}, avatarInfoList: [noAscension] }, { uid: "800000001" }).builds[0]!;

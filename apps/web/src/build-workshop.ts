@@ -1,3 +1,4 @@
+import { assertBuildPersistenceAllowed } from './import-session-policy';
 import type { CatalogResolvedShowcaseCharacter } from '@genshin-dps-lab/schemas';
 import { mountPlayerImportPreview } from './player-import-preview';
 import type { ManualEffectiveTalents } from './player-import-manual-talents';
@@ -13,7 +14,7 @@ import { renderImportedRosterControls, type ImportedRosterEntry } from './import
 import './build-workshop.css';
 
 const esc = (value: unknown): string => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]!);
-export interface BuildHandoffMetadata { constellation: number; baseTalentLevels: { auto: number; skill: number; burst: number }; label?: string; favoniusParticleDelayFrames?: number; noblesseSelfDelayFrames?: 0 | 1 }
+export interface BuildHandoffMetadata { sessionOnly?: true; constellation: number; baseTalentLevels: { auto: number; skill: number; burst: number }; label?: string; favoniusParticleDelayFrames?: number; noblesseSelfDelayFrames?: 0 | 1 }
 interface SavedBuild { version: 'editable-build-v1'; name: string; input: EquipmentBuildInput; metadata: BuildHandoffMetadata }
 interface WorkshopOptions {
   openImportedPanel(character: CatalogResolvedShowcaseCharacter, source: string, manualEffectiveTalents?: ManualEffectiveTalents): Promise<void>;
@@ -35,14 +36,20 @@ export function focusBuildImport(root: HTMLElement, target: 'uid' | 'file'): voi
   input.scrollIntoView({ block: 'center' });
 }
 
-export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions): void {
+export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions): () => void {
   let saved: SavedBuild[] = [];
+  let importedBuild = false;
+  let disposed = false;
+  let importRevision = 0;
+  let importRequest: AbortController | null = null;
+  const invalidateImport = () => { importRevision++; importRequest?.abort(); importRequest = null; };
+  const isCurrentImport = (revision: number) => !disposed && revision === importRevision;
   try { const raw = localStorage.getItem(storageKey); if (raw) saved = JSON.parse(raw); } catch { /* Saved builds are optional; an unreadable local draft does not prevent editing. */ }
   root.innerHTML = `<article class="card build-workshop"><div class="eyebrow">BUILD LIBRARY</div><h2>角色配装预设</h2><p>先选角色和投入档位，再按你的武器、圣遗物与天赋调整。可以直接计算一个技能，也可以加入队伍。</p><div class="workspace-fields"><label>查找角色<input id="build-search" type="search" placeholder="角色名字"></label><label>角色<select id="build-character"></select></label><label>配装档位<select id="build-tier"><option value="starter">基础投入档</option><option value="developed">进阶投入档</option></select></label></div><p id="build-count"></p><p id="build-preset-note"></p><details><summary>预设的选择依据与范围</summary><div id="build-assumptions"></div></details><div class="workspace-fields"><label>配装名称<input id="build-name"></label><label>命座<input id="build-constellation" type="number" min="0" max="6" step="1"></label><label>普攻基础天赋<input id="build-talent-auto" type="number" min="1" max="10" step="1"></label><label>E 基础天赋<input id="build-talent-skill" type="number" min="1" max="10" step="1"></label><label>Q 基础天赋<input id="build-talent-burst" type="number" min="1" max="10" step="1"></label></div><p class="calculator-hint">这里填写未加命座的基础天赋。预设是可编辑的假设构筑，不是最优配装排名；具体冷却、动画与能量由实际技能执行决定。</p><fieldset id="build-equipment"></fieldset><div id="build-panel-summary" role="status"></div><div class="editor-actions"><button id="build-open-calculator" class="primary">计算此角色的技能</button><label>来源规则<select id="build-source-host"><option value="classic">普通／月曜 · b4</option><option value="stellar">星辉 · a7</option></select></label><label>来源角色形态<select id="build-source-form" disabled><option value="">正在读取来源配置…</option></select></label><button id="build-add-team">加入来源队伍</button><label>本地队伍角色<select id="build-local-team-actor"><option value="">请选择队伍中的角色</option></select></label><button id="build-apply-local-team">应用装备到本地队伍</button><label id="build-favonius-delay-field" hidden>西风微粒到达延迟（帧，若装备西风必填）<input id="build-favonius-delay" type="number" min="0" step="1" placeholder="按来源或实测填写"></label><label id="build-noblesse-delay-field" hidden>宗室自身增益取样分支（若装备宗室四件套必选）<select id="build-noblesse-delay"><option value="">请选择</option><option value="0">自身立即生效 · 0 帧</option><option value="1">自身延迟 · 1 帧</option></select></label><button id="build-save">保存为我的预设</button><button id="build-export">导出配装</button></div><p class="calculator-hint">本地队伍仅应用装备与基础面板；角色天赋、命座和动作仍由该队伍已有的来源能力管理。已实现的装备时序会自动接入，未能精确映射的条款会逐项显示。</p><p id="build-source-status" role="status" aria-live="polite"></p><p id="build-status" role="status" aria-live="polite"></p><details open><summary>我的预设与真实游戏配装</summary><div class="workspace-fields"><label>我的本地预设<select id="build-saved"></select></label><button id="build-load">载入所选预设</button><button id="build-delete">删除所选预设</button><label class="file-button">导入 GOOD / 配装 JSON<input id="build-import" type="file" accept="application/json,.json"></label></div><p>支持 Genshin Optimizer 的 GOOD 装备导出和本页配装文件。文件在浏览器本地读取；武器和圣遗物仍可继续编辑。GOOD 没有保存的阵容、增益状态不会自动补入。</p><div class="workspace-fields"><label>游戏 UID<input id="build-uid" inputmode="numeric" placeholder="9–10 位公开展示柜 UID"></label><button id="build-fetch">读取公开展示柜</button></div><div id="build-import-list"></div><p id="build-import-status" role="status"></p></details></article>`;
   const playerImportHost = document.createElement('section');
   playerImportHost.dataset.playerImport = '';
   root.prepend(playerImportHost);
-  mountPlayerImportPreview(playerImportHost, options.openCalculator, options.openImportedPanel);
+  const disposeImportPreview = mountPlayerImportPreview(playerImportHost, options.openCalculator, options.openImportedPanel);
   const importEntry = document.createElement('section');
   importEntry.className = 'card';
   importEntry.dataset.buildImportEntry = '';
@@ -140,13 +147,15 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
     if (favoniusParticleDelayFrames !== undefined && (!Number.isInteger(favoniusParticleDelayFrames) || favoniusParticleDelayFrames < 0)) throw new Error('西风微粒到达延迟须为非负整数帧。');
     const noblesseText = query<HTMLSelectElement>('#build-noblesse-delay').value;
     const noblesseSelfDelayFrames = noblesseText === '' ? undefined : Number(noblesseText) as 0 | 1;
-    return { ...(favoniusParticleDelayFrames === undefined ? {} : {favoniusParticleDelayFrames}), ...(noblesseSelfDelayFrames === undefined ? {} : {noblesseSelfDelayFrames}), label: field('#build-name').value.trim(), constellation: integer('#build-constellation',0,6), baseTalentLevels:{ auto:integer('#build-talent-auto',1,10), skill:integer('#build-talent-skill',1,10), burst:integer('#build-talent-burst',1,10) } };
+    return { ...(importedBuild ? { sessionOnly: true as const } : {}), ...(favoniusParticleDelayFrames === undefined ? {} : {favoniusParticleDelayFrames}), ...(noblesseSelfDelayFrames === undefined ? {} : {noblesseSelfDelayFrames}), label: field('#build-name').value.trim(), constellation: integer('#build-constellation',0,6), baseTalentLevels:{ auto:integer('#build-talent-auto',1,10), skill:integer('#build-talent-skill',1,10), burst:integer('#build-talent-burst',1,10) } };
   }
   function loadPreset(): void {
+    invalidateImport();
     const preset = getCharacterBuildPreset(selectedCharacter, selectedTier)!;
     const options = tier.options;
     options[0]!.textContent = preset.coverage === 'role-specific' ? '小毕业 · 角色来源模板' : '基础投入 · 通用占位';
     options[1]!.textContent = preset.coverage === 'role-specific' ? '大毕业 · 角色来源模板' : '进阶投入 · 通用占位';
+    importedBuild = true; // Keep failures closed until public fields replace the previous build.
     showCharacters(); editor.setInput(preset.build);
     refreshHandoffFieldVisibility();
     setMeta({name:`${preset.characterName} · ${preset.label}`,constellation:preset.constellation,baseTalentLevels:{auto:preset.talentLevels.normal,skill:preset.talentLevels.skill,burst:preset.talentLevels.burst}});
@@ -154,12 +163,16 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
     query('#build-assumptions').innerHTML=`<p>${esc(preset.sourceNote)}</p><ul>${preset.assumptions.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`;
     try { renderPanel(resolveEquipmentBuild(editor.getInput())); status(preset.blocked.join('；') || '已载入参考配装，所有武器与圣遗物均可修改。'); } catch(error) { status(String(error)); }
     void refreshSourceForms();
+    importedBuild = false;
   }
   function loadSaved(entry: SavedBuild): void {
+    entry = structuredClone(entry);
     if (entry.version !== 'editable-build-v1' || !gameDataCatalog.characters.some(c=>c.id===entry.input.characterId)) throw new Error('配装文件版本或角色身份无法识别。');
     const resolution=resolveEquipmentBuild(entry.input);
+    importedBuild = true; // Fail closed until every editor field is replaced.
     selectedCharacter=entry.input.characterId; field('#build-search').value=''; showCharacters(); editor.setInput(entry.input); refreshHandoffFieldVisibility(); setMeta({...entry.metadata,name:entry.name}); renderPanel(resolution); void refreshSourceForms();
     query('#build-preset-note').textContent='当前为你的可编辑配装。'; query('#build-assumptions').textContent='本配装保留导入或保存时的输入。'; status('已载入配装。');
+    importedBuild = entry.metadata?.sessionOnly === true;
   }
   function snapshot(): SavedBuild { const input=editor.getInput(); resolveEquipmentBuild(input); return {version:'editable-build-v1',name:field('#build-name').value.trim() || '我的配装', input,metadata:readMeta()}; }
   function showSaved(): void { query<HTMLSelectElement>('#build-saved').innerHTML=saved.length ? saved.map((e,i)=>`<option value="${i}">${esc(e.name)}</option>`).join('') : '<option value="">尚无本地预设</option>'; }
@@ -169,13 +182,14 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
   action('#build-open-calculator',async()=>{const e=snapshot(); await options.openCalculator(e.input,e.metadata);});
   action('#build-add-team',async()=>{const e=snapshot(); if(!selectedSourceCharacterKey) throw new Error('请先选择一个明确且可用的来源角色形态。'); await options.addToTeam(e.input,e.metadata,{hostVariant:sourceHost.value as SourceHostVariant,characterKey:selectedSourceCharacterKey});});
   action('#build-apply-local-team',async()=>{const e=snapshot(); if(!localActor.value) throw new Error('请明确选择本地队伍中的角色。'); await options.applyToLocalTeam(localActor.value,e.input,e.metadata);});
-  action('#build-save',()=>{const entry=snapshot(), index=saved.findIndex(e=>e.name===entry.name && e.input.characterId===entry.input.characterId); if(index<0)saved.push(entry); else saved[index]=entry; localStorage.setItem(storageKey,JSON.stringify(saved)); showSaved(); status('已保存到此浏览器，可随时载入或导出。');});
-  action('#build-export',()=>downloadSourceHostJson(snapshot(),'editable-build.json'));
-  action('#build-load',()=>{const value=query<HTMLSelectElement>('#build-saved').value;if(value==='')return;loadSaved(saved[Number(value)]!);});
+  action('#build-save',()=>{assertBuildPersistenceAllowed(importedBuild);const entry=snapshot(), index=saved.findIndex(e=>e.name===entry.name && e.input.characterId===entry.input.characterId); if(index<0)saved.push(entry); else saved[index]=entry; localStorage.setItem(storageKey,JSON.stringify(saved)); showSaved(); status('已保存到此浏览器，可随时载入或导出。');});
+  action('#build-export',()=>{assertBuildPersistenceAllowed(importedBuild);downloadSourceHostJson(snapshot(),'editable-build.json');});
+  action('#build-load',()=>{const value=query<HTMLSelectElement>('#build-saved').value;if(value==='')return;invalidateImport();loadSaved(saved[Number(value)]!);});
   action('#build-delete',()=>{const value=query<HTMLSelectElement>('#build-saved').value;if(value==='')return;saved.splice(Number(value),1);localStorage.setItem(storageKey,JSON.stringify(saved));showSaved();status('已删除所选本地预设。');});
   // External formats are normalized by the same import module before reaching this editor.
-  async function showImported(raw: unknown, format:'good'|'enka', uid = '', fetchedAt?: string):Promise<void> {
+  async function showImported(raw: unknown, format:'good'|'enka', uid = '', fetchedAt?: string, revision = importRevision):Promise<void> {
     const { parseGoodBuilds, parseEnkaBuilds } = await import('../../../packages/game-data/src/build-import');
+    if (!isCurrentImport(revision)) return;
     const batch = format==='good' ? parseGoodBuilds(raw) : parseEnkaBuilds(raw, {uid, ...(fetchedAt ? {fetchedAt} : {})});
     const list=query('#build-import-list');
     list.replaceChildren();
@@ -185,7 +199,7 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
       const title=document.createElement('h4');title.textContent=entry.name;
       const note=document.createElement('p');note.textContent=entry.diagnostics.map(d => d.message).join('；');
       const button=document.createElement('button');button.textContent='编辑这套真实配装';button.disabled=!entry.equipmentInput;
-      button.onclick=()=>{try {const input=entry.equipmentInput!;selectedCharacter=input.characterId;field('#build-search').value='';showCharacters();editor.setInput(input);refreshHandoffFieldVisibility();field('#build-name').value=entry.name;field('#build-constellation').value=entry.constellation===null?'':String(entry.constellation);for(const key of ['auto','skill','burst'] as const)field(`#build-talent-${key}`).value=entry.baseTalentLevels[key]===null?'':String(entry.baseTalentLevels[key]);query('#build-preset-note').textContent=`已导入 ${entry.sourceKey}，保留实际词条。`;renderPanel(resolveEquipmentBuild(input));void refreshSourceForms();status('已载入真实配装；缺失的命座或基础天赋需补齐后再计算或加入队伍。');}catch(error){status(String(error));}};
+      button.onclick=()=>{if(disposed)return;try {importedBuild=true;const input=entry.equipmentInput!;selectedCharacter=input.characterId;field('#build-search').value='';showCharacters();editor.setInput(input);refreshHandoffFieldVisibility();field('#build-name').value=entry.name;field('#build-constellation').value=entry.constellation===null?'':String(entry.constellation);for(const key of ['auto','skill','burst'] as const)field(`#build-talent-${key}`).value=entry.baseTalentLevels[key]===null?'':String(entry.baseTalentLevels[key]);query('#build-preset-note').textContent=`已导入 ${entry.sourceKey}，保留实际词条。`;renderPanel(resolveEquipmentBuild(input));void refreshSourceForms();status('已载入真实配装；缺失的命座或基础天赋需补齐后再计算或加入队伍。');}catch(error){status(String(error));}};
       article.append(title,note,button);list.append(article);
     });
     const rosterHost = document.createElement('div');
@@ -206,7 +220,34 @@ export function renderBuildWorkshop(root: HTMLElement, options: WorkshopOptions)
       addRoster: options.addRosterToTeam,
     });
   }
-  field('#build-import').onchange=event=>{const input=event.target as HTMLInputElement,file=input.files?.[0];if(!file)return;void file.text().then(async text=>{const raw=JSON.parse(text);if(raw.version==='editable-build-v1')loadSaved(raw);else await showImported(raw,'good');}).catch(error=>status(`导入失败：${error}`));input.value='';};
-  action('#build-fetch',async()=>{const uid=field('#build-uid').value.trim();if(!/^[1-9]\d{8,9}$/.test(uid))throw new Error('请填写 9–10 位 UID。');query('#build-import-status').textContent='正在读取公开展示柜…';const response=await fetch(`/api/showcase/${encodeURIComponent(uid)}`);if(!response.ok)throw new Error(`展示柜请求失败（${response.status}）`);const envelope = await response.json() as {data?:unknown;fetchedAt?:string;error?:string};if(envelope.data===undefined)throw new Error(envelope.error ?? '展示柜没有返回角色数据。');await showImported(envelope.data,'enka',uid,envelope.fetchedAt);});
+  field('#build-import').onchange=event=>{
+    const input=event.target as HTMLInputElement,file=input.files?.[0];input.value='';if(!file)return;
+    invalidateImport();const revision=importRevision;
+    void file.text().then(async text=>{
+      if(!isCurrentImport(revision))return;
+      const raw=JSON.parse(text);
+      if(raw.version==='editable-build-v1'){loadSaved(raw);importedBuild=true;}
+      else await showImported(raw,'good','',undefined,revision);
+    }).catch(()=>{if(isCurrentImport(revision))status('导入失败；请检查文件格式。');});
+  };
+  action('#build-fetch',async()=>{
+    const uid=field('#build-uid').value.trim();if(!/^[1-9]\d{8,9}$/.test(uid))throw new Error('请填写 9–10 位 UID。');
+    invalidateImport();const revision=importRevision;const controller=new AbortController();importRequest=controller;
+    query('#build-import-status').textContent='正在读取公开展示柜…';
+    try {
+      const response=await fetch(`/api/showcase/${encodeURIComponent(uid)}`,{signal:controller.signal,credentials:'omit',cache:'no-store'});
+      if(!isCurrentImport(revision))return;
+      if(!response.ok)throw new Error(`展示柜请求失败（${response.status}）`);
+      const envelope=await response.json() as {data?:unknown;fetchedAt?:string};
+      if(!isCurrentImport(revision))return;
+      if(envelope.data===undefined)throw new Error('展示柜没有返回角色数据。');
+      await showImported(envelope.data,'enka',uid,envelope.fetchedAt,revision);
+    } catch { if(isCurrentImport(revision))status('展示柜请求失败；请稍后重试。'); }
+    finally { if(isCurrentImport(revision)){importRequest=null;field('#build-uid').value='';} }
+  });
   showCharacters(); showSaved(); loadPreset();
+  return () => {
+    disposed=true;invalidateImport();disposeImportPreview();
+    field('#build-uid').value='';field('#build-import').value='';query('#build-import-list').replaceChildren();
+  };
 }

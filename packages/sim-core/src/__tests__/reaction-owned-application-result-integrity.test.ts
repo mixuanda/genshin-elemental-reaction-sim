@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   assertTrustedSimulationResult,
   assertTrustedSimulationResultV147,
@@ -21,6 +23,26 @@ import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
+
+const historicalBytes = readFileSync(new URL("../../../test-vectors/src/fixtures/historical-reaction-owned-integrity-v153-84ff5cd.json", import.meta.url));
+const historicalArchive = JSON.parse(historicalBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string };
+  cases: Array<{ caseId: string; sourceWireSha256: string; sourceWireText: string }>;
+};
+const sha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalOverload(): SimulationResult {
+  const row = historicalArchive.cases.find(candidate => candidate.caseId === "overload");
+  if (!row) throw new Error("Missing pinned historical Overload input");
+  expect(sha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.schemaVersion).toBe("1.53.0");
+  expect(result.reactionDamageLog.some(entry => entry.reaction === "overload")).toBe(true);
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
 
 const OPTIONS = {
   energyMode: "configured" as const,
@@ -471,13 +493,24 @@ describe("current V1.53 reaction-owned application result integrity", () => {
     }
   });
 
+  it("pins historical Overload inputs while refusing current canonical semantics without mutation", () => {
+    expect(sha256(historicalBytes)).toBe("a6b951808fe0f9651d1de151364746fa2175a957fda6f583b1110bfccd8c1580");
+    expect(historicalArchive.fixtureVersion).toBe("historical-reaction-owned-integrity-v153-84ff5cd-v1");
+    expect(historicalArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalArchive.cases.map(row => row.caseId)).toEqual(["overload"]);
+    expect(overload.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+    const before = JSON.stringify(overload);
+    expect(() => projectSimulationResultV153ToV152(overload)).toThrow(/flatStatBuffSemantics/);
+    expect(JSON.stringify(overload)).toBe(before);
+  });
+
   it("keeps the frozen V1.47 public and trusted contracts isolated from current V1.53 replay", () => {
     const projected = projectSimulationResultV148ToV147(
       projectSimulationResultV149ToV148(
         projectSimulationResultV150ToV149(
           projectSimulationResultV151ToV150(
             projectSimulationResultV152ToV151(
-              projectSimulationResultV153ToV152(overload),
+              projectSimulationResultV153ToV152(historicalOverload()),
             ),
           ),
         ),

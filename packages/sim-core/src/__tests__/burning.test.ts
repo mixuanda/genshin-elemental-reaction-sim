@@ -3,11 +3,15 @@ import {
   burningStateLogEntrySchema,
   quickenDecayMutationAuditSchema,
   quickenStateLogEntrySchema,
+  simulationResultSchema,
   targetStateTimelineSchema,
+  type AuraStateEntry,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { AuraEngine } from "../aura";
+import { copyGeneratedAuraStates } from "../aura-state-copy";
+import { parseSimulationHit } from "../calculator-bridge";
 import { calcTransformativeReactionDamage } from "../formulas";
 import { simulate } from "../simulator";
 import { TargetLocalClock } from "../target-clock";
@@ -1613,5 +1617,175 @@ describe("Burning simulation integration", () => {
         icdHitIndex: 1
       }
     ]);
+  });
+});
+
+
+describe("Burning tick snapshot allocation", () => {
+  const cases = (["aura-v4", "aura-v8", "aura-v9"] as const).flatMap((mode) =>
+    (["global", "target", "target-hitlag"] as const).map((clockKind) => ({ mode, clockKind })));
+  it.each(cases)("does not materialize unused cleanup snapshots for $mode / $clockKind", ({ mode, clockKind }) => {
+    const clock = clockKind === "global" ? undefined : new TargetLocalClock();
+    const engine = new AuraEngine({ mode, initialAura: [{ element: "dendro", gaugeUnits: 2 }],
+      ...(clock === undefined ? {} : { targetClock: clock }) });
+    engine.processHit({ frame: 0, sourceActorId: "pyro", element: "pyro", application: noIcd(1) });
+    if (clockKind === "target-hitlag") engine.applyTargetHitlag({ globalFrame: 0, haltFrames: 5, factor: 0 });
+    // Test-only call counting observes the private pure snapshot constructor;
+    // all state advancement and expectations use the real public Aura API.
+    const host = engine as unknown as { snapshot: () => ReturnType<AuraEngine["getAuraStateAt"]> };
+    const snapshot = vi.spyOn(host, "snapshot");
+    try {
+      const state = engine.getAuraStateAt(60);
+      const callsForAdvance = snapshot.mock.calls.length;
+      const targetTicks = clockKind === "target-hitlag" ? 55 : 60;
+      const clean = (value: number) => Number(value.toFixed(12));
+      expect(engine.getCurrentTargetFrame()).toBe(targetTicks);
+      expect(state.find((aura) => aura.element === "burningFuel")).toMatchObject({
+        gaugeUnits: clean(1.6 - (targetTicks - 1) / 150),
+        expiresAtFrame: clockKind === "target-hitlag" ? 246 : 241,
+      });
+      expect(state.find((aura) => aura.element === "dendro")).toMatchObject({
+        gaugeUnits: clean(1.6 - targetTicks / 150),
+      });
+      expect(engine.drainElectroChargedCleanupResults()).toEqual([]);
+      const beforeMutation = structuredClone(state);
+      state[0]!.gaugeUnits = -1;
+      expect(engine.getAuraStateAt(60)).toStrictEqual(beforeMutation);
+      // Exactly the requested public observation remains. Before this repair,
+      // each effective target Tick also built an unused EC-cleanup snapshot.
+      expect(callsForAdvance).toBe(1);
+    } finally { snapshot.mockRestore(); }
+  });
+  it.each([-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])("still rejects invalid Aura frame %s without advancing", (frame) => {
+    const engine = new AuraEngine({ mode: "aura-v4", initialAura: [{ element: "dendro", gaugeUnits: 2 }] });
+    engine.processHit({ frame: 0, sourceActorId: "pyro", element: "pyro", application: noIcd(1) });
+    const before = engine.getAuraStateAt(0);
+    expect(() => engine.getAuraStateAt(frame)).toThrow(/frames must be non-decreasing integers/);
+    expect(engine.getCurrentTargetFrame()).toBe(0);
+    expect(engine.getAuraStateAt(0)).toStrictEqual(before);
+  });
+});
+
+describe("generated Burning Aura snapshot copying", () => {
+  const cases: Array<{ name: string; entries: AuraStateEntry[] }> = [
+    { name: "empty state", entries: [] },
+    { name: "permanent Burning", entries: [{ element: "burning", gaugeUnits: 2, expiresAtFrame: null }] },
+    { name: "finite fuel deadline", entries: [{ element: "burningFuel", gaugeUnits: 0.8, expiresAtFrame: 121 }] },
+    { name: "nullable target-clock deadline", entries: [{ element: "burning", gaugeUnits: 2, expiresAtFrame: null, expiresAtTargetFrame: null }] },
+    { name: "independent global and target deadlines", entries: [{ element: "dendro", gaugeUnits: 0.6, expiresAtFrame: 95, expiresAtTargetFrame: 90 }] },
+    { name: "present empty owner list", entries: [{ element: "pyro", gaugeUnits: 0, expiresAtFrame: 0, sourceSlots: [] }] },
+    { name: "ordered independent owners", entries: [{ element: "dendro", gaugeUnits: 0.8, expiresAtFrame: 121, sourceSlots: [{ sourceActorId: "owner-z", gaugeUnits: 0.2 }, { sourceActorId: "主人-a", gaugeUnits: 0.8 }] }] },
+    // Deliberately exercise the runtime JSON omission boundary beyond exact
+    // optional-property typing; production snapshots omit these properties.
+    { name: "explicit undefined optionals", entries: [{ element: "burning", gaugeUnits: 2, expiresAtFrame: null, expiresAtTargetFrame: undefined, sourceSlots: undefined } as unknown as AuraStateEntry] },
+    { name: "JSON negative-zero normalization", entries: [{ element: "hydro", gaugeUnits: -0, expiresAtFrame: -0, expiresAtTargetFrame: -0, sourceSlots: [{ sourceActorId: "owner", gaugeUnits: -0 }] }] },
+    { name: "complete state and owner order", entries: [
+      { element: "pyro", gaugeUnits: 0.5, expiresAtFrame: 80, expiresAtTargetFrame: 75, sourceSlots: [{ sourceActorId: "second", gaugeUnits: 0.5 }] },
+      { element: "dendro", gaugeUnits: 0.8, expiresAtFrame: 121, sourceSlots: [{ sourceActorId: "first", gaugeUnits: 0.8 }] }
+    ] }
+  ];
+  it.each(cases)("matches the former JSON copy for $name", ({ entries }) => {
+    const expected = JSON.parse(JSON.stringify(entries)) as AuraStateEntry[];
+    const parser = vi.spyOn(JSON, "parse");
+    let copied: AuraStateEntry[];
+    try {
+      copied = copyGeneratedAuraStates(entries);
+      expect(parser).not.toHaveBeenCalled();
+    } finally {
+      parser.mockRestore();
+    }
+    expect(copied).toStrictEqual(expected);
+    expect(JSON.stringify(copied)).toBe(JSON.stringify(expected));
+    expect(copied).not.toBe(entries);
+    for (const [index, entry] of copied.entries()) {
+      expect(entry).not.toBe(entries[index]);
+      if (entry.sourceSlots !== undefined) {
+        expect(entry.sourceSlots).not.toBe(entries[index]!.sourceSlots);
+        for (const [slotIndex, slot] of entry.sourceSlots.entries()) {
+          expect(slot).not.toBe(entries[index]!.sourceSlots![slotIndex]);
+        }
+      }
+    }
+  });
+
+  it("isolates both copy and source mutations, including nested owner slots", () => {
+    const source = structuredClone(cases[6]!.entries);
+    const original = structuredClone(source);
+    const copied = copyGeneratedAuraStates(source);
+    copied[0]!.gaugeUnits = 0.1;
+    copied[0]!.sourceSlots![0]!.sourceActorId = "changed-copy";
+    copied[0]!.sourceSlots!.push({ sourceActorId: "new-copy-owner", gaugeUnits: 0.1 });
+    expect(source).toStrictEqual(original);
+    const copyBeforeSourceMutation = structuredClone(copied);
+    source[0]!.expiresAtFrame = 999;
+    source[0]!.sourceSlots![1]!.gaugeUnits = 0.3;
+    source.push({ element: "burning", gaugeUnits: 2, expiresAtFrame: null });
+    expect(copied).toStrictEqual(copyBeforeSourceMutation);
+  });
+
+  it.each(["state", "source-slot"] as const)("preserves and deep-copies unexpected %s extension fields via JSON fallback", (kind) => {
+    const source = structuredClone(cases[6]!.entries);
+    const host = (kind === "state" ? source[0]! : source[0]!.sourceSlots![0]!) as unknown as Record<string, unknown>;
+    host.futureField = { nested: ["must-not-be-stripped", 7] };
+    host.undefinedExtension = undefined;
+    const copied = copyGeneratedAuraStates(source);
+    expect(copied).toStrictEqual(JSON.parse(JSON.stringify(source)));
+    const copiedHost = (kind === "state" ? copied[0]! : copied[0]!.sourceSlots![0]!) as unknown as Record<string, unknown>;
+    expect(copiedHost.futureField).not.toBe(host.futureField);
+    (copiedHost.futureField as { nested: unknown[] }).nested[0] = "copy-only";
+    expect(host.futureField).toStrictEqual({ nested: ["must-not-be-stripped", 7] });
+  });
+
+  it.each(["gauge", "global deadline", "target deadline", "owner gauge"] as const)("retains the original JSON fallback for non-finite %s", (field) => {
+    // These are not valid generated Aura data; the copier must not silently
+    // drop a field or become a new acceptance boundary for them.
+    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+      const source: AuraStateEntry[] = [{ element: "hydro", gaugeUnits: 0.8,
+        expiresAtFrame: 121, expiresAtTargetFrame: 120,
+        sourceSlots: [{ sourceActorId: "owner", gaugeUnits: 0.8 }] }];
+      if (field === "gauge") source[0]!.gaugeUnits = value;
+      if (field === "global deadline") source[0]!.expiresAtFrame = value;
+      if (field === "target deadline") source[0]!.expiresAtTargetFrame = value;
+      if (field === "owner gauge") source[0]!.sourceSlots![0]!.gaugeUnits = value;
+      expect(copyGeneratedAuraStates(source)).toStrictEqual(JSON.parse(JSON.stringify(source)));
+    }
+  });
+
+  it.each(["aura-v4", "aura-v9"] as const)("keeps returned Burning log snapshots independent and public mutations rejected in %s", (mode) => {
+    const config = makeBurningConfig({ duration: 1, initialDendroGaugeUnits: 2 });
+    config.reactionEngine = { mode };
+    if (mode === "aura-v9") {
+      config.targetTaskModel = { mode: "target-phase-v2" };
+      const hit = config.timeline?.abilities?.[0]?.hits?.[0];
+      if (hit === undefined) throw new Error("Expected the configured Burning trigger");
+      // V9 uses actual geometry, never both geometry and a scripted outcome.
+      delete hit.targeting;
+      hit.geometry = {
+        kind: "circle", coordinateSpace: "world", origin: { x: 0, y: 0 }, radius: 1
+      };
+    }
+    const result = simulate(config, { critMode: "noCrit" });
+    const tick = result.burningStateLog.find((row) => row.operation === "tick" && row.damageEventIds.length > 0);
+    if (tick === undefined) throw new Error("Expected the first delivered Burning tick");
+    const event = result.damageEvents[tick.damageEventIds[0]!]!;
+    expect(tick.frame).toBe(15);
+    // Independent classic level-90 Burning/EM/resistance formula.
+    expect(event.finalDamage).toBeCloseTo(1446.8535 * 0.25 * (1 + 16 * 100 / 2100 + 0.2) * 0.9, 9);
+    expect(simulationResultSchema.safeParse(result).success).toBe(true);
+    const capture = { schemaVersion: "calculator-event-v1", eventId: event.id, sourceResult: result };
+    expect(parseSimulationHit(JSON.stringify(capture)).sourceResult.totalDamage).toBe(result.totalDamage);
+    const before = structuredClone(result);
+    expect(tick.auraBefore).not.toBe(event.reactionAudit.auraBefore);
+    expect(tick.auraAfter).not.toBe(event.reactionAudit.auraAfter);
+    const owned = tick.auraBefore.find((entry) => (entry.sourceSlots?.length ?? 0) > 0);
+    if (owned === undefined) throw new Error("Expected source-owned Aura on the first Burning tick");
+    owned.gaugeUnits = 999;
+    owned.sourceSlots![0]!.sourceActorId = "mutated-returned-owner";
+    expect(result.damageEvents).toStrictEqual(before.damageEvents);
+    expect(result.targetStateTimeline).toStrictEqual(before.targetStateTimeline);
+    expect(tick.auraAfter).toStrictEqual(before.burningStateLog[tick.id]!.auraAfter);
+    expect(result.burningStateLog.filter((row) => row.id !== tick.id)).toStrictEqual(before.burningStateLog.filter((row) => row.id !== tick.id));
+    expect(simulationResultSchema.safeParse(result).success).toBe(false);
+    expect(() => parseSimulationHit(JSON.stringify(capture))).toThrow();
   });
 });

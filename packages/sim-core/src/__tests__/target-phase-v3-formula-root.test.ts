@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -13,6 +15,7 @@ import {
   REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  assertTrustedSimulationResult,
   simulationResultSchema,
   targetPhaseV3ResultReferencesSchema,
   type SimConfig,
@@ -25,6 +28,26 @@ import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
+
+const historicalBytes = readFileSync(new URL("../../../test-vectors/src/fixtures/historical-target-phase-formula-v153-84ff5cd.json", import.meta.url));
+const historicalArchive = JSON.parse(historicalBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string };
+  cases: Array<{ caseId: string; sourceWireSha256: string; sourceWireText: string }>;
+};
+const sha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalTargetPhase(): SimulationResult {
+  const row = historicalArchive.cases.find(candidate => candidate.caseId === "target-phase-v3");
+  if (!row) throw new Error("Missing pinned historical target-phase input");
+  expect(sha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.schemaVersion).toBe("1.53.0");
+  expect(result.targetPhaseLog.some(phase => phase.model === "target-phase-v3" && phase.targetTasks.some(task => task.delivery !== null))).toBe(true);
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
 
 type MutableIdentity = {
   schemaVersion: string;
@@ -146,6 +169,18 @@ function cloneWithIdentity(
 }
 
 describe("target-phase-v3 formula-root identity", () => {
+  it("pins historical phase input and refuses current canonical semantics without mutation", () => {
+    expect(sha256(historicalBytes)).toBe("e9b5c86a1bd59f5e059b3fad8d0a91abba9ba93f36004a1c66e982c08750d5a8");
+    expect(historicalArchive.fixtureVersion).toBe("historical-target-phase-formula-v153-84ff5cd-v1");
+    expect(historicalArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalArchive.cases.map(row => row.caseId)).toEqual(["target-phase-v3"]);
+    const current = simulate(makeFormulaRootTargetPhaseV3Config(), { critMode: "noCrit" });
+    expect(current.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+    const before = JSON.stringify(current);
+    expect(() => projectSimulationResultV153ToV152(current)).toThrow(/flatStatBuffSemantics/);
+    expect(JSON.stringify(current)).toBe(before);
+  });
+
   it("accepts the current identity and preserves the exact 1.44-1.49 callback semantics", () => {
     const current = simulate(makeFormulaRootTargetPhaseV3Config(), {
       critMode: "noCrit",
@@ -171,7 +206,7 @@ describe("target-phase-v3 formula-root identity", () => {
     const frozenV149Facet = projectSimulationResultV150ToV149(
       projectSimulationResultV151ToV150(
         projectSimulationResultV152ToV151(
-          projectSimulationResultV153ToV152(current),
+          projectSimulationResultV153ToV152(historicalTargetPhase()),
         ),
       ),
     );

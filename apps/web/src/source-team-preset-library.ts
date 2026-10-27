@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import type { SourceHostVariant, SourceTeamDraft } from "./source-team-builder";
 
 const STORAGE_PREFIX = "gidps-source-team-presets-v1";
@@ -40,6 +41,7 @@ export function listSourceTeamPresets(hostVariant: SourceHostVariant): SourceTea
 }
 
 function persist(hostVariant: SourceHostVariant, presets: SourceTeamPreset[]): SourceTeamPreset[] {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
   const library: SourceTeamPresetLibrary = { schemaVersion: 1, hostVariant, presets: clone(presets) };
   localStorage.setItem(storageKey(hostVariant), JSON.stringify(library));
   return clone(presets);

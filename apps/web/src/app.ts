@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
 import { convertDocumentInput, openProjectDocument, saveEditedDocument, type OpenDocument, type ProjectDocument, type DocumentControls } from './project-document';
 import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster, requestSourceTeamTemplate, getCurrentSourceTeamDraft } from "./source-host-panel";
@@ -270,6 +271,7 @@ let editedDocument: ProjectDocument | null = null;
 let documentCopyId = crypto.randomUUID();
 let editorDraftDirty = false;
 function downloadText(text:string,name:string):void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
   const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
   const link=document.createElement('a');link.href=url;link.download=name;link.click();URL.revokeObjectURL(url);
 }
@@ -3360,6 +3362,7 @@ async function importShowcase(): Promise<void> {
           : { fetchedAt: envelope.fetchedAt })
       })
     );
+    importSessionPolicy.markImportedWorkspace();
     graduationBuild = null;
     status.textContent =
       `导入成功 · ${importedShowcase.characters.length} 名公开角色 · ` +
@@ -3399,6 +3402,7 @@ function activateTab(tabName: string): void {
 }
 
 function downloadJson(): void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
   try {
     syncConfigFromControls();
     if(!saveDocumentEdit(currentConfig))return;
@@ -3545,6 +3549,7 @@ function initEvents(): void {
   );
   byId<HTMLButtonElement>("exportRunButton").addEventListener("click", () => {
     if (!lastSimulationRecord) {if(importedRecordText)downloadText(importedRecordText,'simulation-record-copy.json');return;}
+    importSessionPolicy.assertWorkspacePersistenceAllowed();
     const url = URL.createObjectURL(new Blob([JSON.stringify(exportSimulationRecord(lastSimulationRecord,lastEventStepResult), null, 2)], { type: "application/json" }));
     const link = document.createElement("a"); link.href = url; link.download = "simulation-record.json"; link.click(); URL.revokeObjectURL(url);
   });
@@ -3825,18 +3830,21 @@ async function renderProductRoute(): Promise<void> {
     else if (path === "/builds") {
       const { renderBuildWorkshop, focusBuildImport } = await import("./build-workshop");
       if (generation !== routeGeneration) return;
-      renderBuildWorkshop(panel, {
+      disposeRouteView = renderBuildWorkshop(panel, {
         openImportedPanel: async (character, source, manualEffectiveTalents) => {
+          importSessionPolicy.markImportedWorkspace();
           const controller = await ensureCalculator();
           await controller.loadImportedCharacter(character, source, manualEffectiveTalents);
           navigateProduct('/calculator');
         },
         openCalculator: async (input, metadata) => {
+          if (metadata.sessionOnly) importSessionPolicy.markImportedWorkspace();
           const controller = await ensureCalculator();
           await controller.loadEquipmentBuild(input, metadata);
           navigateProduct("/calculator");
         },
         addToTeam: async (input, metadata, selection) => {
+          if (metadata.sessionOnly) importSessionPolicy.markImportedWorkspace();
           const { loadSourceTeamInventory, equipmentBuildToSourceTeamMember } = await import("./source-team-builder");
           const inventory = await loadSourceTeamInventory(selection.hostVariant);
           const member = equipmentBuildToSourceTeamMember(input, { constellation: metadata.constellation, talents: metadata.baseTalentLevels, characterKey: selection.characterKey }, inventory);
@@ -3844,6 +3852,7 @@ async function renderProductRoute(): Promise<void> {
           navigateProduct("/source-simulation");
         },
         addRosterToTeam: async (entries, selection, mode) => {
+          importSessionPolicy.markImportedWorkspace();
           const { loadSourceTeamInventory, equipmentBuildToSourceTeamMember } = await import("./source-team-builder");
           const inventory = await loadSourceTeamInventory(selection.hostVariant);
           if (inventory.revision !== selection.revision) throw new Error("来源版本已变化，请重新选择来源并确认配装映射。");
@@ -3856,6 +3865,7 @@ async function renderProductRoute(): Promise<void> {
         },
         getLocalTeamActors: () => currentConfig.characters.map(actor => ({ id: actor.id, name: actor.name })),
         applyToLocalTeam: async (actorId, input, metadata) => {
+          if (metadata.sessionOnly) importSessionPolicy.markImportedWorkspace();
           const { applyEquipmentBuildToTeam } = await import("../../../packages/sim-core/src/equipment-team-handoff");
           const { setTeamEquipmentHandoffSummary } = await import("./workspace-panels");
           const result = applyEquipmentBuildToTeam(currentConfig, actorId, input, metadata);

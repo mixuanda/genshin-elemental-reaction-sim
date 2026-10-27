@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import {renderSourceHitModelLimits} from './source-host-model-limits';
 import {
   calculateSourceHostEditableCalculation, createSourceHostEditableCalculation,
@@ -15,6 +16,7 @@ import { renderSourceHostBasePanelProvenance } from "./source-host-base-panel-pr
 
 const esc = (value: unknown): string => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 export function downloadSourceHostJson(value: unknown, filename: string): void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
   const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }));
   const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename; anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
