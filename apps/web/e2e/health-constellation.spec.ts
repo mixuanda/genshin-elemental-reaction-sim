@@ -139,7 +139,7 @@ test("Team health editor runs declared consumption and healing on the shared HP 
   await expect(page.locator("#team-health-condition-note")).toContainText("合成情景假设");
   await (await revealControl(page.locator('[data-health-actor="a"] > summary'))).click();
   await (await revealControl(page.locator('[data-health-actor="a"] [data-health-initial]'))).fill("0.5");
-  await page.getByText("逐行动治疗与生命消耗", { exact: true }).click();
+  await (await revealControl(page.getByText("逐行动治疗、生命消耗与生命之契", { exact: true }))).click();
   const action = page.locator('[data-health-action="0"]');
   await (await revealControl(action.locator('[data-health-add="consume"]'))).click();
   const first = action.locator("[data-health-change]").nth(0);
@@ -163,7 +163,7 @@ test("Team health editor runs declared consumption and healing on the shared HP 
   await (await revealControl(third.locator("[data-hp-amount]"))).fill("0.9");
   await (await revealControl(third.locator("[data-hp-minimum]"))).fill("0.25");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.playerDamageModel).toMatchObject({ mode: "reaction-self-v1", characters: [{ actorId: "a", initialHpRatio: 0.5 }], position: { x: 0, y: 0 }, hitboxRadius: 1 });
   expect(saved.timeline!.abilities[0]!.healthChanges).toMatchObject([

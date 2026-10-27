@@ -27,7 +27,7 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   for (const [id, label] of Object.entries({ filletblade: "吃虎鱼刀", prototypearchaic: "试作古华", snowtombedstarsilver: "雪葬的星银", dragonspinespear: "龙脊长枪", frostbearer: "忍冬之果" })) {
     await expect(weapon.locator(`option[value="${id}"]`)).toContainText(label);
   }
-  await weapon.selectOption("frostbearer");
+  await (await revealControl(weapon)).selectOption("frostbearer");
   await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("1");
   await (await revealControl(page.locator('[data-action="load-weapon-proc"]'))).click();
   await expect(page.locator("#calc-character-status")).toContainText("不需要角色技能或队伍");
@@ -101,7 +101,7 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   expect(unknownAgain.result.status).toBe("blocked");
   expect(unknownAgain.result.totals).toBeUndefined();
 
-  await weapon.selectOption("filletblade");
+  await (await revealControl(weapon)).selectOption("filletblade");
   await expect(page.locator("#calc-proc-trigger-aura-control")).toBeHidden();
   const fillet = await audit(page);
   expect(fillet.document.build).toEqual(saved.build);

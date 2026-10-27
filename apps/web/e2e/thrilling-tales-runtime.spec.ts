@@ -66,7 +66,7 @@ test("Team TTDS declarations apply only on real holder swap and preserve rejecte
   await (await revealControl(page.locator('[data-thrilling-tales-refinement="b"]'))).selectOption("5");
   await expect(page.locator('[data-thrilling-tales-actor="c"]')).not.toBeChecked();
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.thrillingTalesModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: [{ actorId: "a", refinement: 1 }, { actorId: "b", refinement: 5 }] });
   expect(saved.characters).toEqual(config.characters);

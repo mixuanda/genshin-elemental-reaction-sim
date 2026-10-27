@@ -155,7 +155,7 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
   await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await (await revealControl(page.locator('[data-actor="0"][data-key="initialEnergy"]'))).fill("0");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("已通过输入验证并保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
   await (await revealControl(page.getByRole("button", { name: "运行模拟", exact: true }))).click();
   await waitForSimulation(page);
@@ -189,7 +189,7 @@ test("Kuki rejected Q releases the next swap in the ordinary rotation preview an
   await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await (await revealControl(page.locator('[data-actor="0"][data-key="initialEnergy"]'))).fill("0");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("已通过输入验证并保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
   await expect(page.locator('[data-request="3"]')).toHaveValue("564");
   await (await revealControl(page.locator("#rotation-swap-actor"))).selectOption("amber");

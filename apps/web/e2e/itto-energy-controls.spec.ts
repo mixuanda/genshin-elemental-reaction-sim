@@ -157,7 +157,7 @@ test("Team explicit normal-energy weapons and per-hit tags run through the worke
     await (await revealControl(page.locator(`[data-normal-energy-tag][data-energy-action-index="1"][data-energy-hit-index="${i}"]`))).selectOption("extra");
   }
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.normalHitEnergyModel).toEqual({ mode: "fixed-source-independent-stream-v1", actors: [{ actorId: "a", weaponType: "claymore" }, { actorId: "b", weaponType: "sword" }] });
   expect(saved.timeline!.abilities.map(ability => ability.hits?.map(hit => hit.normalHitEnergyTag))).toEqual([["normal", "normal"], ["extra", "extra"]]);

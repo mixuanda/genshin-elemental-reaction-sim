@@ -70,6 +70,8 @@ type CheckpointState = {
 };
 
 async function runWarmup(page: Page): Promise<SimulationStartupResult> {
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
   await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("zero");
   await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("8");
   await (await revealControl(page.locator("#analysis-steady-run"))).click();

@@ -197,7 +197,7 @@ test("Shared stamina rejects an unfunded second actor or waits to the exact reco
     await expect(cost.locator("[data-stamina-zero-use]")).not.toBeChecked();
   }
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.staminaModel).toEqual({ mode: "shared-stamina-v1", profileId: "gcsim-b4ae769-stamina-v1", initialStamina: 10 });
   expect(saved.timeline!.abilities.map(ability => [ability.staminaCost!.amount, ability.staminaCost!.consumeFrame])).toEqual([[10, 6], [10, 3]]);
@@ -249,7 +249,7 @@ test("Shared stamina rejects an unfunded second actor or waits to the exact reco
   await expect(page.locator("#team-stamina-enabled")).toBeChecked();
   await (await revealControl(page.locator("#team-stamina-enabled"))).uncheck();
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const disabled = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(disabled.staminaModel).toBeUndefined();
   expect(disabled.rotation.every(action => action.staminaCost === undefined)).toBe(true);

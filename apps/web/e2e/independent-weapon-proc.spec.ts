@@ -66,7 +66,7 @@ test("Team weapon proc declarations create independent single-target and HP-area
     await (await revealControl(page.locator(`[data-weapon-proc-tag][data-proc-action-index="${index}"][data-proc-hit-index="0"]`))).selectOption("normal");
   }
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.weaponProcModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: declarations });
   expect(saved.characters).toEqual(config.characters);

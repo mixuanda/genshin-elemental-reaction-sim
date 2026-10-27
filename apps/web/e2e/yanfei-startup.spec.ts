@@ -148,6 +148,8 @@ test("Finite stochastic startup runs four continuous trajectories and exports pa
   await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
   await (await revealControl(page.locator("#analysis-stochastic-samples"))).fill("2");
   await (await revealControl(page.locator("#analysis-stochastic-cycles"))).fill("1");
   await (await revealControl(page.locator("#analysis-stochastic-run"))).click();

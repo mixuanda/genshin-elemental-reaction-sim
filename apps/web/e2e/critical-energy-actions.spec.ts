@@ -45,9 +45,13 @@ async function expectCalculatorRoundTrip(page: Page, name: string): Promise<void
 }
 
 test("Keqing Q and Xingqiu E retain sourced passive accounting, single-hit access and complete context in JSON", async ({ page }) => {
+  const started = performance.now();
+  let pageErrorCount = 0;
+  page.on("pageerror", () => { pageErrorCount += 1; });
   await page.goto("/calculator");
   await selectAction(page, "character:10000042", "天街巡游·完整十击", "keqing-burst-complete-cast");
   const keqing = await audit(page);
+  console.info("keqing-ui-checkpoint", { stage: "selected", elapsedMs: performance.now() - started, pageErrorCount });
   expect(keqing.result.status).toBe("calculated");
   expect(keqing.result.hits).toHaveLength(10);
   expect(keqing.document.gameContext?.scopeCoverage).toBe("complete-cast");
@@ -59,6 +63,15 @@ test("Keqing Q and Xingqiu E retain sourced passive accounting, single-hit acces
   await (await revealControl(page.locator("#calc-results .calculator-hit-card").first().locator(":scope > summary"))).click();
   await expect(page.locator('#calc-results [data-trace-node="characterCritRate"]').first()).toContainText("0.15");
   await (await revealControl(page.locator("#calc-keqing-a4-included"))).selectOption("1");
+  // Preserve the exact accounting assertion; fail with state evidence rather than
+  // assuming a global test timeout proves that a control disappeared.
+  const includedPanel = await audit(page);
+  expect(includedPanel.document.build.mode).toBe(keqing.document.build.mode);
+  expect(includedPanel.document.build).toEqual(keqing.document.build);
+  expect(includedPanel.document.gameContext?.keqingBurst?.a4IncludedInPanel).toBe(true);
+  const critControlCount = await page.locator('[data-field="build.stats.critRate"]').count();
+  console.info("keqing-ui-checkpoint", { stage: "included-a4", elapsedMs: performance.now() - started, buildMode: includedPanel.document.build.mode, status: includedPanel.result.status, critControlCount, pageErrorCount });
+  expect(critControlCount).toBe(1);
   await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.65");
   expect((await audit(page)).result.totals).toEqual(keqing.result.totals);
   await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
@@ -144,7 +157,7 @@ test("Explicit Favonius weapon uses actual critical outcomes, exact cooldown and
   await (await revealControl(page.locator('[data-favonius-delay="a"]'))).fill("10");
   await expect(page.locator('[data-favonius-weapon="b"]')).toHaveValue("disabled");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.favoniusModel).toEqual({ mode: "fixed-source-independent-stream-v1", actors: [{ actorId: "a", weaponId: "favoniussword", refinement: 5, particleDelayFrames: 10 }] });
   expect(saved.timeline).toEqual(config.timeline);

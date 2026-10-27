@@ -22,11 +22,14 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Stateful weapon procs remain independent single hits with editable panels, source conflict notes and complete formula explanations", async ({ page }) => {
   await page.goto("/calculator");
   const weapon = page.locator("#calc-proc-weapon");
-  await expect(weapon.locator("option")).toHaveCount(12);
+  // Exact supported independent-proc identity set, not an inferred dynamic count.
+  expect(await weapon.locator("option").evaluateAll(options => options.map(option => (option as HTMLOptionElement).value))).toEqual([
+    "halberd", "ashgravendrinkinghorn", "sequenceofsolitude", "filletblade", "prototypearchaic", "snowtombedstarsilver", "dragonspinespear", "frostbearer", "flute", "debateclub", "crescentpike", "endoftheline", "messenger", "swordofnarzissenkreuz", "eyeofperception", "theviridescenthunt",
+  ]);
   for (const [id, label] of Object.entries({ flute: "笛剑", debateclub: "以理服人", crescentpike: "流月针", endoftheline: "竭泽" })) {
     await expect(weapon.locator(`option[value="${id}"]`)).toContainText(label);
   }
-  await weapon.selectOption("flute");
+  await (await revealControl(weapon)).selectOption("flute");
   await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("1");
   await (await revealControl(page.locator('[data-action="load-weapon-proc"]'))).click();
   await expect(page.locator("#calc-character-status")).toContainText("不需要角色技能或队伍");
@@ -76,7 +79,7 @@ test("Stateful weapon procs remain independent single hits with editable panels,
   await expect(detail.locator("dl")).toContainText("数值：1500");
   await expect(detail).toContainText("完整精度 3000");
 
-  await weapon.selectOption("crescentpike");
+  await (await revealControl(weapon)).selectOption("crescentpike");
   const crescent = await audit(page);
   expect(crescent.document.weaponProc).toEqual({ weaponId: "crescentpike", refinement: 5 });
   expect(crescent.document.build).toEqual(r5.document.build);

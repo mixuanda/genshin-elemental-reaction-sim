@@ -1,10 +1,11 @@
-import { revealControl } from "./release-ui-helpers";
+import { makeConfig, neutralStats } from "../../../packages/sim-core/src/__tests__/fixtures";
+import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import {
   loadWorkedExample,
-  parseSimulationHit,
+  parseSimulationHit, replaySimulationHit,
   type CalculatorDocument,
   type CalculatorResult,
   type CapturedSimulationHit,
@@ -18,7 +19,7 @@ const closeTo = (actual: number | undefined, expected: number): void => {
   expect(Math.abs(actual! - expected)).toBeLessThanOrEqual(ABSOLUTE_TOLERANCE);
 };
 
-async function audit(page: Page): Promise<{ result: CalculatorResult; ruleVersion: string }> {
+async function audit(page: Page): Promise<{ document: CalculatorDocument; result: CalculatorResult; ruleVersion: string }> {
   return JSON.parse((await page.locator("#calc-results .calculator-audit pre").textContent())!);
 }
 
@@ -46,7 +47,7 @@ async function exportDocument<T = CalculatorDocument>(page: Page): Promise<T> {
   return JSON.parse(await readFile(path!, "utf8")) as T;
 }
 
-function showcaseResponse(avatarId: number, skillLevels: Record<string, number> = {}) {
+function showcaseResponse(avatarId: number, skillLevels: Record<string, number> = {}, observedBonusLevels?: Record<string, number>) {
   return {
     fetchedAt: "2026-09-22T00:00:00.000Z",
     cache: "hit",
@@ -57,6 +58,7 @@ function showcaseResponse(avatarId: number, skillLevels: Record<string, number> 
         avatarId,
         propMap: { "4001": { type: 4001, ival: "90" } },
         skillLevelMap: skillLevels,
+        ...(observedBonusLevels === undefined ? {} : { proudSkillExtraLevelMap: observedBonusLevels }),
         fightPropMap: {
           "20": 0.7, "22": 1.2, "23": 1, "28": 0,
           "40": 0.5, "2000": 20000, "2001": 2000, "2002": 800,
@@ -263,6 +265,11 @@ test("formal skill selection tolerates unrelated gaps but blocks missing selecte
     await (await revealControl(page.locator("#calc-skill"))).selectOption(blackSkill!);
     await expect(page.locator("#calc-scope")).toHaveValue("one-cast");
     await expect(page.locator("#calc-hit-selection label")).toHaveCount(3);
+    expect((await audit(page)).result.status).toBe("blocked");
+    await (await revealControl(page.locator('[data-source-cast-state-field="gameContext.durinSkill.statsStableAcrossHits"]'))).selectOption("1");
+    await (await revealControl(page.locator("#calc-talent-level"))).fill("10");
+    await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+    await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(10);
     const document = await exportDocument(page);
     const { result } = await audit(page);
     expect(document.label).toContain("黑度之否");
@@ -299,6 +306,20 @@ test("formal skill selection tolerates unrelated gaps but blocks missing selecte
 
 test("public showcase imports preserve final stats while unknown identities cannot borrow talents", async ({ page }) => {
   {
+    // A known identity without observed bonus-talent evidence must remain blocked.
+    await page.route("**/api/showcase/900000003", route => route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 })),
+    }));
+    await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
+    await (await revealControl(page.locator("#calc-showcase-uid"))).fill("900000003");
+    await (await revealControl(page.locator('[data-action="showcase"]'))).click();
+    await (await revealControl(page.locator('[data-showcase-index="0"]'))).click();
+    await expect(page.locator("#calc-results")).toContainText("不能假定额外等级为0");
+    await expect(page.locator("#calc-document-controls")).toBeEmpty();
+  }
+  {
     await page.route("**/api/showcase/900000001", route => route.fulfill({
       status: 200, contentType: "application/json", body: JSON.stringify(showcaseResponse(19999999)),
     }));
@@ -317,7 +338,7 @@ test("public showcase imports preserve final stats while unknown identities cann
   {
     await page.route("**/api/showcase/900000002", route => route.fulfill({
       status: 200, contentType: "application/json",
-      body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 })),
+      body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 }, {})),
     }));
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
@@ -329,8 +350,13 @@ test("public showcase imports preserve final stats while unknown identities cann
     await (await revealControl(page.locator("#calc-skill"))).selectOption(whiteSkill!);
     await expect(page.locator('[data-field="build.stats.atk"]')).toHaveValue("2000");
     await expect(page.locator("#calc-talent-level")).toHaveValue("10");
-    const document = await exportDocument(page);
-    const { result } = await audit(page);
+    const { document, result } = await audit(page);
+    const downloads: string[] = [];
+    page.on("download", download => downloads.push(download.suggestedFilename()));
+    await (await revealControl(page.locator('[data-action="export"]'))).click();
+    await expect(page.locator("#calc-message")).toContainText("本次工作区包含玩家导入资料，仅供本次计算，不能保存或导出");
+    expect(downloads).toEqual([]);
+    expect((await audit(page)).document).toEqual(document);
     expect(document.build.mode).toBe("imported-final");
     expect(document.hits[0]?.kind === "ordinary" && document.hits[0].terms[0]?.coefficient).toBe(1.9008);
     closeTo(result.totals?.nonCritical, 2566.08);
@@ -362,8 +388,10 @@ test("a simulator hit opens in Calculator with identical trace and roundtrips it
   await expect(page.locator('[data-action="export"]')).toBeEnabled();
   const capturedWire = await exportDocument<unknown>(page);
   const captured = parseSimulationHit(JSON.stringify(capturedWire));
-  expect(captured.schemaVersion).toBe("calculator-event-v2");
-  expect(captured.eventStepResult).toBeDefined();
+  // This historical worker path uses simulate(), not the nearby-wet witnessed protocol.
+    expect((capturedWire as { schemaVersion: string }).schemaVersion).toBe("calculator-event-v1");
+    expect(captured.schemaVersion).toBe("calculator-event-v1");
+  expect(captured.eventStepResult).toBeUndefined();
   const event = captured.sourceResult.damageEvents.find(item => item.id === captured.eventId)!;
   expect(event.enemyStateBeforeHit).toBeDefined();
   expect(event.damageFactors).toBeDefined();
@@ -413,4 +441,72 @@ test("mobile examples preserve special-reaction readiness and preview identity",
     await (await revealControl(page.locator('[data-example-id="fixture-b"]'))).click();
     await expect(page.getByTestId("calc-expected")).toHaveText("3,864");
   }
+});
+
+test("a witnessed worker hit preserves V2 evidence through calculator export and rejects a forged witness", async ({ page }) => {
+  const base = makeConfig();
+  const config = makeConfig({
+    meta: { ...base.meta, name: "Synthetic witnessed calculator direct hit", verificationStatus: "provisional" },
+    duration: 1, cycleLength: 1,
+    characters: [{ ...base.characters[0]!, element: "electro", stats: { ...neutralStats } }],
+    enemy: { level: 90, resistance: 0.1, defReduction: 0,
+      targets: [{ id: "enemy-0", name: "Dry synthetic target", position: { x: 0, y: 0 }, initialAura: [] }] },
+    rotation: [], reactionEngine: { mode: "aura-v8" }, targetTaskModel: { mode: "target-phase-v2" },
+    electroChargedPropagationModel: { mode: "nearby-wet-radius-v1", radius: 3, verificationStatus: "provisional" },
+    timeline: { mode: "legal-frame-v1", fps: 60, legalityMode: "strict", initialActiveCharacterId: "a", swapFrames: 1,
+      abilities: [{ id: "direct", actorId: "a", name: "Synthetic direct hit", kind: "skill",
+        cancelFrame: 11, animationEndFrame: 11, cooldownFrames: 0,
+        hits: [{ id: "direct-hit", frame: 0, scaling: 1, element: "electro",
+          geometry: { kind: "circle", coordinateSpace: "world", origin: { x: 0, y: 0 }, radius: 0.01 },
+          application: { gaugeUnits: 1, icd: { mode: "no-icd-v1" } } }] }],
+      commands: [{ type: "skill", actorId: "a", abilityId: "direct" }] },
+  });
+  await page.goto("/results");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({
+    name: "witnessed-calculator.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)),
+  });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("noCrit");
+  await runImportedScenario(page);
+  await expect(page.locator("#cancelRunButton")).toBeHidden();
+  await expect(page.locator("#simulationProgress")).toHaveText("");
+  await expect(page.locator("#exportRunButton")).toBeEnabled();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await expect(page.locator("#hitTableBody tr[data-hit-id]")).toHaveCount(1);
+  await (await revealControl(page.locator("#hitTableBody tr[data-hit-id]").first())).click();
+  await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
+  await expect(page).toHaveURL(/\/calculator$/);
+  await expect(page.getByTestId("replay-difference")).toHaveText("0");
+  const wire = await exportDocument<Pick<CapturedSimulationHit, "schemaVersion" | "eventId" | "eventStepResult">>(page);
+  expect(wire.schemaVersion).toBe("calculator-event-v2");
+  expect(wire.eventStepResult).toBeDefined();
+  expect(wire).not.toHaveProperty("sourceResult");
+  const parsed = parseSimulationHit(JSON.stringify(wire));
+  expect(parsed.schemaVersion).toBe("calculator-event-v2");
+  expect(parsed.eventStepResult).toEqual(wire.eventStepResult);
+  expect(parsed.sourceResult.damageEvents).toHaveLength(1);
+  const event = parsed.sourceResult.damageEvents.find(row => row.id === wire.eventId)!;
+  // Independent oracle: 1000 ATK × 1 scaling × 0.5 level-defense × 0.9 resistance.
+  closeTo(event.finalDamage, 450);
+  const replay = replaySimulationHit(parsed);
+  closeTo(replay.originalDamage, 450);
+  closeTo(replay.reproducedDamage, 450);
+  closeTo(replay.difference, 0);
+
+  const forged = structuredClone(wire);
+  if (!forged.eventStepResult) throw new Error("Missing real worker witness");
+  expect(forged.eventStepResult.evidence.events.length).toBeGreaterThan(0);
+  expect(forged.eventStepResult.evidence.events[0]!.steps.length).toBeGreaterThan(1);
+  forged.eventStepResult.evidence.events[0]!.steps.splice(1, 1);
+  expect(() => parseSimulationHit(JSON.stringify(forged))).toThrow();
+  await page.goto("/calculator");
+  await expect(page.locator('[data-action="export"]')).toBeDisabled();
+  await importDocument(page, forged);
+  await expect(page.locator("#calc-message")).toContainText("导入失败");
+  await expect(page.locator('[data-action="export"]')).toBeDisabled();
+  await expect(page.getByTestId("replay-difference")).toHaveCount(0);
+  await importDocument(page, wire);
+  await expect(page.getByTestId("replay-difference")).toHaveText("0");
+  await expect(page.locator('[data-action="export"]')).toBeEnabled();
+  expect(await exportDocument<unknown>(page)).toStrictEqual(wire);
 });

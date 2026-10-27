@@ -2,7 +2,7 @@ import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
-import type { CalculatorDocument, CalculatorResult, CapturedSimulationHit } from "@genshin-dps-lab/sim-core";
+import { parseSimulationHit, parseSpecialSimulation, type CapturedSpecialSimulation, type CalculatorDocument, type CalculatorResult } from "@genshin-dps-lab/sim-core";
 import type { SimulationStartupResult } from "../../../packages/sim-core/src/simulation-analysis";
 import type { LunarMixedV2SimulationResult } from "../../../packages/sim-core/src/lunar-mixed-v2-runtime";
 import { makeConfig } from "../../../packages/sim-core/src/__tests__/fixtures";
@@ -47,6 +47,10 @@ test("Nefer C2 and C4 keep per-hit EM accounting and sourced resistance through 
   await expect(page.locator("#calc-skill")).toBeEnabled();
   const skill = await page.locator("#calc-skill option").filter({ hasText: "元素爆发（消耗帷幕快照）" }).getAttribute("value");
   await (await revealControl(page.locator("#calc-skill"))).selectOption(skill!);
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("10");
+  await page.locator("#calc-talent-level").press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
+  await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(10);
   await (await revealControl(page.locator("#calc-constellation"))).selectOption("2");
   await (await revealControl(page.locator('[data-field="build.stats.em"]'))).fill("100");
   for (let i = 0; i < 2; i++) {
@@ -126,9 +130,14 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
   await (await revealControl(page.locator('[data-lb-source-field="constellation"]'))).selectOption(String(request.constellation));
   await (await revealControl(page.locator('[data-lunar-action="run"]'))).click();
   await expect(page.locator('[data-lunar-action="export"]')).toBeEnabled();
-  const report = await downloadJson<{ format: string; declaredAbilities: unknown[]; result: LunarMixedV2SimulationResult }>(page, '[data-lunar-action="export"]');
-  expect(report.format).toBe("lunar-mixed-v2-report-v1");
-  expect(report.declaredAbilities).toEqual(expected.options.abilities);
+  const reportWire = await downloadJson<CapturedSpecialSimulation & { ui?: { declaredAbilities?: unknown[] } }>(page, '[data-lunar-action="export"]');
+  expect(reportWire.schemaVersion).toBe("special-complete-reexecution-v1");
+  expect(reportWire.request.profile).toBe("lunar-mixed-v2");
+  const report = parseSpecialSimulation(JSON.stringify(reportWire));
+  expect(report).toStrictEqual(reportWire);
+  expect(reportWire.ui?.declaredAbilities).toEqual(expected.options.abilities);
+  expect(report.request.abilities).toEqual(expected.options.abilities);
+  if (report.result.schemaVersion !== "lunar-mixed-simulation-v2") throw new Error("Expected mixed-v2 result");
   expect(await page.evaluate(() => window.GenshinDpsLab.getConfig())).toEqual(original);
   const result = report.result;
   expect(result.schemaVersion).toBe("lunar-mixed-simulation-v2");
@@ -164,7 +173,10 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
   expect(origin.reactionDamage).toEqual(result.baseResult.reactionDamageLog.filter(entry => entry.damageEventIds.includes(ordinary.id)));
   await (await revealControl(page.locator(`[data-lunar-open-classic="${ordinary.id}"]`))).click();
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
-  const capture = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
+  const captureWire = await downloadJson<unknown>(page, '[data-action="export"]');
+  const beforeCaptureWire = structuredClone(captureWire);
+  const capture = parseSimulationHit(JSON.stringify(captureWire));
+  expect(captureWire).toStrictEqual(beforeCaptureWire);
   expect(capture.eventId).toBe(ordinary.id);
   expect(capture.sourceResult).toEqual(result.baseResult);
   await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
@@ -208,6 +220,8 @@ test("continuous zero-energy startup keeps all paginated actions, failures and e
   await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
   await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("zero");
   await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("60");
   await (await revealControl(page.locator("#analysis-steady-run"))).click();

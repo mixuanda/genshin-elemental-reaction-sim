@@ -3,9 +3,8 @@ import { Buffer } from "node:buffer";
 import { readFile, writeFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import type { SimConfig } from "@genshin-dps-lab/schemas";
-import type { CalculatorDocument, CalculatorResult, CapturedSpecialSimulation } from "@genshin-dps-lab/sim-core";
+import { parseSpecialSimulation, type CalculatorDocument, type CalculatorResult, type CapturedSpecialSimulation } from "@genshin-dps-lab/sim-core";
 import type { ExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
-import type { LunarBloomSimulationResult } from "../../../packages/sim-core/src/lunar-bloom-runtime";
 import type { LunarExecutionBaselineAudit } from "../src/lunar-simulation-panel";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
@@ -60,13 +59,19 @@ test("lunar Worker applies the original runtime profile once and preserves an ap
   expect(workers.slice(workersBeforeRun)).toHaveLength(1);
   expect(workers.at(-1)).toContain("lunar-simulation-worker");
   await expect(page.locator("[data-lunar-execution-baseline]")).toContainText("runtime-energy-v1");
-  const report = await downloadJson<CapturedSpecialSimulation & { result: LunarBloomSimulationResult; ui?: { executionBaseline?: LunarExecutionBaselineAudit } }>(page, '[data-lunar-action="export"]');
-  const baseline = report.ui!.executionBaseline!;
+  const reportWire = await downloadJson<CapturedSpecialSimulation & { ui?: { executionBaseline?: LunarExecutionBaselineAudit } }>(page, '[data-lunar-action="export"]');
+  expect(reportWire.schemaVersion).toBe("special-complete-reexecution-v1");
+  expect(reportWire.request.profile).toBe("lunar-bloom");
+  const report = parseSpecialSimulation(JSON.stringify(reportWire));
+  expect(report).toStrictEqual(reportWire);
+  if (report.result.schemaVersion !== "lunar-bloom-simulation-v1") throw new Error("Expected Lunar Bloom result");
+  const baseline = reportWire.ui!.executionBaseline!;
   expect(baseline.profile).toEqual(profile);
   expect(baseline.sourceConfig).toEqual(original);
   expect(baseline.sourceConfig.reactionEngine).toBeUndefined();
   expect(baseline.sourceConfig.timeline!.commands).toHaveLength(4);
-  expect(baseline.options).toEqual(runtimeOptions);
+  // Explicit Run creates a new legal-frame calculation; it does not rewrite a stored historical result.
+  expect(baseline.options).toEqual({ ...runtimeOptions, compatibilityMode: "legal-frame-v1" });
   expect(baseline.audit.baselineRuntimeOptions).toMatchObject({ randomSeed: seed, energyMode: "configured", critMode: "noCrit" });
   expect(baseline.audit.changes.map(row => [row.originalStartTick, row.requestedTick, row.addedDelayFrames])).toEqual([[0, 1, 1], [5, 7, 1], [6, 9, 1], [153, 157, 1]]);
   expect(report.request.profile).toBe("lunar-bloom");

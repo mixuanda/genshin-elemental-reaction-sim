@@ -139,6 +139,8 @@ test("Health startup Worker preserves due boundary tasks and extends the real ta
   await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
   await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("9");
   await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("configured");
   await (await revealControl(page.locator("#analysis-steady-run"))).click();

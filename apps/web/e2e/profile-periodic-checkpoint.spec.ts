@@ -30,7 +30,7 @@ test("Execution profiles use the actual energy baseline and retain imported 1.0.
   await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await (await revealControl(page.locator('[data-actor="0"][data-key="initialEnergy"]'))).fill("0");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("已通过输入验证并保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
   await (await revealControl(page.locator("#randomSeedInput"))).fill(seed);
   await (await revealControl(page.locator("#critModeInput"))).selectOption("noCrit");
@@ -145,6 +145,8 @@ test("Deterministic periodic entities and accepted action conditions survive rea
   await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
   await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("9");
   await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("configured");
   await (await revealControl(page.locator("#analysis-steady-run"))).click();

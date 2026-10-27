@@ -167,8 +167,10 @@ test("Amber sourced E and Q execute their delayed energy, summon lifecycle and r
     await expect(page.getByTestId("replay-difference")).toHaveText("0");
     const captureWire = await downloadJson<unknown>(page, '[data-action="export"]');
     const capture = parseSimulationHit(JSON.stringify(captureWire));
-    expect(capture.schemaVersion).toBe("calculator-event-v2");
-    expect(capture.eventStepResult).toBeDefined();
+    // This historical worker path uses simulate(), not the nearby-wet witnessed protocol.
+    expect((captureWire as { schemaVersion: string }).schemaVersion).toBe("calculator-event-v1");
+    expect(capture.schemaVersion).toBe("calculator-event-v1");
+    expect(capture.eventStepResult).toBeUndefined();
     expect(capture.eventId).toBe(event.id);
     expect(capture.sourceResult).toEqual(result);
     if (index === 0) await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();

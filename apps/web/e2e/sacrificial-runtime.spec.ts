@@ -55,7 +55,7 @@ test("Sacrificial normal controls reset one serial charge, execute a third skill
   await (await revealControl(page.locator('[data-sacrificial-weapon="a"]'))).selectOption("sacrificialsword");
   await (await revealControl(page.locator('[data-sacrificial-refinement="a"]'))).selectOption("5");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const equipped = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(equipped.sacrificialModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: [{ actorId: "a", weaponId: "sacrificialsword", refinement: 5 }] });
   expect(equipped.characters).toEqual(config.characters);

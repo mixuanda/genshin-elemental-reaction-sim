@@ -2,7 +2,7 @@ import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
-import type { CalculatorDocument, CalculatorResult } from "@genshin-dps-lab/sim-core";
+import { parseSpecialSimulation, type CapturedSpecialSimulation, type CalculatorDocument, type CalculatorResult } from "@genshin-dps-lab/sim-core";
 import type { LunarMixedSimulationResult } from "../../../packages/sim-core/src/lunar-mixed-runtime";
 
 async function audit(page: Page): Promise<{ document: CalculatorDocument; result: CalculatorResult }> {
@@ -19,6 +19,10 @@ async function selectCharacter(page: Page, name: string): Promise<void> {
   const value = await page.locator("#calc-character option").filter({ hasText: name }).getAttribute("value");
   await (await revealControl(page.locator("#calc-character"))).selectOption(value!);
   await expect(page.locator("#calc-skill")).toBeEnabled();
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("10");
+  await page.locator("#calc-talent-level").press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
+  await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(10);
 }
 
 async function selectSkill(page: Page, name: string): Promise<void> {
@@ -142,8 +146,12 @@ test("mixed Lunar reactions share one run, actual Geo budgets and both calculato
   for (const [index, member] of expected.options.party.entries()) await (await revealControl(page.locator(`[data-lunar-party-index="${index}"]`))).selectOption(member.characterKey);
   await (await revealControl(page.locator('[data-lunar-action="run"]'))).click();
   await expect(page.locator('[data-lunar-action="export"]')).toBeEnabled();
-  const report = await downloadJson<{ format: string; result: LunarMixedSimulationResult }>(page, '[data-lunar-action="export"]');
-  expect(report.format).toBe("lunar-mixed-report-v1");
+  const reportWire = await downloadJson<CapturedSpecialSimulation>(page, '[data-lunar-action="export"]');
+  expect(reportWire.schemaVersion).toBe("special-complete-reexecution-v1");
+  expect(reportWire.request.profile).toBe("lunar-mixed");
+  const report = parseSpecialSimulation(JSON.stringify(reportWire));
+  expect(report).toStrictEqual(reportWire);
+  if (report.result.schemaVersion !== "lunar-mixed-simulation-v1") throw new Error("Expected mixed-v1 result");
   const result = report.result;
   expect(result.schemaVersion).toBe("lunar-mixed-simulation-v1");
   expect(result.profile).toEqual(expected.profile);

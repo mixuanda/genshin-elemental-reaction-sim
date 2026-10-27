@@ -67,7 +67,7 @@ test("Random weapon normal controls use actual deferred Cryo state for the whole
   await (await revealControl(page.locator("#weaponProcModelControls > details > summary").filter({ hasText: "逐命中攻击标签声明" }))).click();
   await (await revealControl(page.locator('[data-weapon-proc-tag][data-proc-action-index="0"][data-proc-hit-index="0"]'))).selectOption("normal");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.weaponProcModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: [{ actorId: "a", weaponId: "frostbearer", refinement: 5, physicalDamageBonus: 0 }] });
   expect(saved.characters).toEqual(config.characters);

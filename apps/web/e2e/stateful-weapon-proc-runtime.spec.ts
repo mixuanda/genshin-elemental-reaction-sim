@@ -97,7 +97,7 @@ test("Stateful weapon normal controls show actual activations and notes, replay 
   }
   await expect(page.locator('[data-weapon-proc-definition="a"] [data-weapon-proc-source-note]')).toContainText("来源冲突");
   await (await revealControl(page.locator("#team-apply"))).click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.weaponProcModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: declarations });
   expect(saved.characters).toEqual(config.characters);

@@ -200,8 +200,10 @@ test("Noelle sourced Q to N rotation records actual conversion, delayed energy a
     expect(restoredTrace).toEqual(sourceTrace);
     const capturedWire = await downloadJson<unknown>(page, '[data-action="export"]');
     const captured = parseSimulationHit(JSON.stringify(capturedWire));
-    expect(captured.schemaVersion).toBe("calculator-event-v2");
-    expect(captured.eventStepResult).toBeDefined();
+    // This historical worker path uses simulate(), not the nearby-wet witnessed protocol.
+    expect((capturedWire as { schemaVersion: string }).schemaVersion).toBe("calculator-event-v1");
+    expect(captured.schemaVersion).toBe("calculator-event-v1");
+    expect(captured.eventStepResult).toBeUndefined();
     expect(captured.eventId).toBe(event.id);
     expect(captured.sourceResult).toEqual(result);
     if (index === 0) await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();

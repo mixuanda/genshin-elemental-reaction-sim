@@ -69,6 +69,8 @@ test("Native aura-v9 target-phase-v2 warmup exports actual phase checkpoints and
   expect(record.result.targetPhaseLog.some(row => row.globalFrame === 108 && row.model === "target-phase-v2")).toBe(true);
   expect(record.result.damageEvents.map(event => [event.frame, event.finalDamage])).toEqual([[0, 500], [108, 750]]);
 
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
   await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("zero");
   await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("8");
   await (await revealControl(page.locator("#analysis-steady-run"))).click();
