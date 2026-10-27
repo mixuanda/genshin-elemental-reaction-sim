@@ -1,5 +1,6 @@
 /** Static test contracts; never infer supported defaults from calculator output. */
 export const DEFAULT_CONTEXT_CONTRACTS = {
+  "mixed-odette-coda-c0": { family: "odette-observed-coda", blockerPrefixes: ["mixed-source"], defaultBlockerCount: 3 },
   "sandrone-burst-ray-stellar-conduct-component": { family: "sandrone-actual-burst-ray", blockerPrefixes: ["observed-special-component"], defaultBlockerCount: 1 },
   "sandrone-burst-ray-stellar-swirl-component": { family: "sandrone-actual-burst-ray", blockerPrefixes: ["observed-special-component"], defaultBlockerCount: 1 },
   "sandrone-skill-prism-stellar-conduct-component": { family: "sandrone-actual-prism", blockerPrefixes: ["observed-special-component"], defaultBlockerCount: 1 },
@@ -8,6 +9,8 @@ export const DEFAULT_CONTEXT_CONTRACTS = {
   "sandrone-charged-beam-stellar-conduct-component": { family: "sandrone-actual-conduct-beam", blockerPrefixes: ["observed-special-component"], defaultBlockerCount: 1 },
   "sandrone-plunge-low-observed-base": { family: "sandrone-observed-physical-plunge", blockerPrefixes: ["observed-plunge"], defaultBlockerCount: 1 },
   "sandrone-plunge-high-observed-base": { family: "sandrone-observed-physical-plunge", blockerPrefixes: ["observed-plunge"], defaultBlockerCount: 1 },
+  "entity-followup-odette-burst-c0": { family: "odette-observed-ordinary-burst", blockerPrefixes: ["entity-followup"], defaultBlockerCount: 6 },
+  "entity-followup-odette-skill-c0": { family: "odette-observed-ordinary-skill", blockerPrefixes: ["entity-followup"], defaultBlockerCount: 3 },
   "alyosha-plunge-low-observed-base": { family: "alyosha-observed-physical-plunge", blockerPrefixes: ["observed-plunge"], defaultBlockerCount: 1 },
   "alyosha-plunge-high-observed-base": { family: "alyosha-observed-physical-plunge", blockerPrefixes: ["observed-plunge"], defaultBlockerCount: 1 },
   "extended-prune-skill-c0": { family: "prune-observed-first-swirl", blockerPrefixes: ["extended-stance"], defaultBlockerCount: 4 },

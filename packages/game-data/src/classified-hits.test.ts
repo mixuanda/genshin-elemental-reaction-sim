@@ -1,3 +1,5 @@
+import { resolveTravelerMaleChargedValues } from "./character-mappings/traveler-male-charged-values";
+import { getManekinSupplementalTalentSet } from "./character-mappings/manekin-raw-mappings";
 import { defaultContextContract } from "./default-context-contracts";
 import { describe, expect, it } from "vitest";
 import { gameDataCatalog, findTalentSetById } from "./catalog";
@@ -7,10 +9,69 @@ import { calculateDocument } from "../../sim-core/src/calculator";
 import { calculatorDocumentSchema, parseCalculatorDocument, serializeCalculatorDocument } from "../../sim-core/src/calculator-model";
 import { releasedRuntimeWorkspace } from "./runtime-workspace";
 
+// Closed raw-only exceptions: these vectors and supplements share one extraction
+// lineage. Equality checks consistency, never an independent game-data cross-check.
+const rawSupplementMappingIds = [
+  "manekin-normal-1-raw-base-hit-1",
+  "manekin-normal-2-raw-base-hit-1",
+  "manekin-normal-3-raw-base-hit-1",
+  "manekin-normal-3-raw-base-hit-2",
+  "manekin-normal-4-raw-base-hit-1",
+  "manekin-charged-raw-base-hit-1",
+  "manekin-charged-raw-base-hit-2",
+  "manekin-plunge-low-raw-base-hit-1",
+  "manekin-plunge-high-raw-base-hit-1",
+  "manekin-skill-pyro-raw-hit-1",
+  "manekin-skill-hydro-raw-hit-1",
+  "manekin-skill-electro-raw-hit-1",
+  "manekin-skill-cryo-raw-hit-1",
+  "manekin-skill-anemo-raw-hit-1",
+  "manekin-skill-geo-raw-hit-1",
+  "manekin-skill-dendro-raw-hit-1",
+  "manekina-normal-1-raw-base-hit-1",
+  "manekina-normal-2-raw-base-hit-1",
+  "manekina-normal-3-raw-base-hit-1",
+  "manekina-normal-3-raw-base-hit-2",
+  "manekina-normal-4-raw-base-hit-1",
+  "manekina-charged-raw-base-hit-1",
+  "manekina-charged-raw-base-hit-2",
+  "manekina-plunge-low-raw-base-hit-1",
+  "manekina-plunge-high-raw-base-hit-1",
+  "manekina-skill-pyro-raw-hit-1",
+  "manekina-skill-hydro-raw-hit-1",
+  "manekina-skill-electro-raw-hit-1",
+  "manekina-skill-cryo-raw-hit-1",
+  "manekina-skill-anemo-raw-hit-1",
+  "manekina-skill-geo-raw-hit-1",
+  "manekina-skill-dendro-raw-hit-1",
+] as const;
+const maleChargedAdjudicatedIds = [
+  "male-charged-aether-anemo-c0-hit-1",
+  "male-charged-aether-anemo-c0-hit-2",
+  "male-charged-aether-geo-c0-hit-1",
+  "male-charged-aether-geo-c0-hit-2",
+  "male-charged-aether-electro-c0-hit-1",
+  "male-charged-aether-electro-c0-hit-2",
+  "male-charged-aether-dendro-c0-hit-1",
+  "male-charged-aether-dendro-c0-hit-2",
+  "male-charged-aether-hydro-c0-hit-1",
+  "male-charged-aether-hydro-c0-hit-2",
+  "male-charged-aether-pyro-c0-hit-1",
+  "male-charged-aether-pyro-c0-hit-2",
+  "male-charged-aether-cryo-c0-hit-1",
+  "male-charged-aether-cryo-c0-hit-2",
+] as const;
+const maleChargedIds = new Set<string>(maleChargedAdjudicatedIds);
+const rawSupplementIds = new Set<string>(rawSupplementMappingIds);
+const rawSupplementOwners = {
+  manekin: { characterId: "character:10000117", talentSetId: "talent-set:manekin" },
+  manekina: { characterId: "character:10000118", talentSetId: "talent-set:manekina" },
+} as const;
+
 const characterId = (slug: string) => gameDataCatalog.characters.find((entry) => entry.slug === slug)!.id;
 
 describe("source-classified field-level character calculations", () => {
-  it("cross-checks every supported level and keeps character-wide mechanics out of hit dependencies", () => {
+  it("checks every supported source vector and keeps character-wide mechanics out of hit dependencies", () => {
     const coverage = getClassifiedHitCoverage();
     expect(coverage.charactersWithHits).toBeGreaterThanOrEqual(60);
     expect(coverage.classifiedHits).toBeGreaterThanOrEqual(290);
@@ -66,13 +127,86 @@ describe("source-classified field-level character calculations", () => {
         expect(parseCalculatorDocument(serializeCalculatorDocument(doc))).toEqual(doc);
       }
     }
+    const supplemented: string[] = [];
+    const fixedOnlyIds = ["observed-emilie-skill-c0-a1", "observed-emilie-burst-c0-a1"] as const;
+    const fixedChecked: string[] = [];
+    const maleChecked: string[] = [];
     for (const mapping of sourceClassifiedMappings) {
-      expect(mapping.sourceCoefficientValues, mapping.id).toHaveLength(15);
-      const ability = findTalentSetById(mapping.talentSetId)!.abilities.find((entry) => entry.key === mapping.abilityKey)!;
-      for (const [index, expected] of mapping.sourceCoefficientValues!.entries()) {
-        expect(Math.abs(ability.parameters[mapping.parameterKey]![index]! - expected), mapping.id).toBeLessThanOrEqual(mapping.coefficientTolerance ?? 0);
+      let talentSet = findTalentSetById(mapping.talentSetId);
+      if (talentSet === null) {
+        expect(rawSupplementIds.has(mapping.id), `Unreviewed missing catalog talent: ${mapping.id}`).toBe(true);
+        const expectedSlug = mapping.id.startsWith("manekina-") ? "manekina" : "manekin";
+        expect(mapping.characterSlug, mapping.id).toBe(expectedSlug);
+        const owner = rawSupplementOwners[expectedSlug];
+        expect(mapping.talentSetId, mapping.id).toBe(owner.talentSetId);
+        expect(mapping.numericEvidenceStatus, mapping.id).toBe("single-source-extracted");
+        talentSet = getManekinSupplementalTalentSet(owner.characterId, owner.talentSetId) ?? null;
+        supplemented.push(mapping.id);
+      }
+      expect(talentSet, mapping.id).not.toBeNull();
+      const ability = talentSet!.abilities.find((entry) => entry.key === mapping.abilityKey);
+      expect(ability, mapping.id).toBeDefined();
+      if (mapping.fixedOnly) {
+        // These two source-fixed A1 roles are not catalog E/Q level vectors.
+        expect((fixedOnlyIds as readonly string[]).includes(mapping.id), mapping.id).toBe(true);
+        expect(mapping.characterSlug).toBe("emilie");
+        expect(mapping.talentSetId).toBe("talent-set:emilie");
+        expect(mapping.abilityKey).toBe("combat2");
+        expect(mapping.parameterKey).toBe("");
+        expect(mapping.sourceCoefficientValues).toBeUndefined();
+        expect(mapping.sourceRepository).toBe("genshinsim/gcsim");
+        expect(mapping.sourceCommit).toBe("b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541");
+        expect(mapping.fixedTerms).toEqual([{ scalingStat: "atk", coefficient: 6,
+          sourceField: "internal/characters/emilie/asc.go:a1:Mult", minimumAscension: 1 }]);
+        for (let level = 1; level <= 15; level++) {
+          const resolved = resolveClassifiedCharacterHits(characterId("emilie"), level);
+          expect(resolved.blockers.some(hit => hit.id === mapping.id)).toBe(false);
+          expect(resolved.hits.find(hit => hit.id === mapping.id)?.terms).toEqual([{ stat: "atk", coefficient: 6,
+            minimumAscension: 1, coefficientField: "genshinsim/gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:internal/characters/emilie/asc.go:a1:Mult" }]);
+        }
+        fixedChecked.push(mapping.id);
+      } else if (maleChargedIds.has(mapping.id)) {
+        // The catalog's shared second charged vector remains raw evidence; the
+        // previously reviewed male-specific adjudication must not overwrite it.
+        expect(mapping.characterSlug).toBe("aether");
+        expect(mapping.sourceCoefficientValues, mapping.id).toHaveLength(15);
+        const character = gameDataCatalog.characters.find(entry => entry.id === "character:10000005")!;
+        const raw = structuredClone(ability!.parameters);
+        for (const [index, expected] of mapping.sourceCoefficientValues!.entries()) {
+          const resolved = resolveTravelerMaleChargedValues({ mapping, character,
+            catalogVersion: gameDataCatalog.catalogVersion, talentSetId: mapping.talentSetId,
+            ability, parameterKey: mapping.parameterKey, talentLevel: index + 1 });
+          expect(resolved?.status, mapping.id).toBe("resolved");
+          if (resolved?.status !== "resolved") throw Error(`Male-source adjudication blocked: ${mapping.id}`);
+          expect(resolved.values[index], mapping.id).toBe(expected);
+          expect(resolved.coefficientField).toMatch(/^frzyc\/genshin-optimizer:180a0a1015cb725c7570cd828eb086749960df98:/);
+        }
+        if (mapping.id.endsWith("hit-2")) expect(raw[mapping.parameterKey]).not.toEqual(mapping.sourceCoefficientValues);
+        else expect(raw[mapping.parameterKey]).toEqual(mapping.sourceCoefficientValues);
+        expect(ability!.parameters).toStrictEqual(raw);
+        maleChecked.push(mapping.id);
+      } else {
+        expect(mapping.sourceCoefficientValues, mapping.id).toHaveLength(15);
+        for (const [index, expected] of mapping.sourceCoefficientValues!.entries()) {
+          expect(Math.abs(ability!.parameters[mapping.parameterKey]![index]! - expected), mapping.id).toBeLessThanOrEqual(mapping.coefficientTolerance ?? 0);
+        }
       }
     }
+    expect(supplemented.sort()).toEqual([...rawSupplementMappingIds].sort());
+    expect(fixedChecked.sort()).toEqual([...fixedOnlyIds].sort());
+    expect(maleChecked.sort()).toEqual([...maleChargedAdjudicatedIds].sort());
+  });
+
+  it("keeps raw supplements bound to their exact owner and outside imported catalog records", () => {
+    for (const owner of Object.values(rawSupplementOwners)) {
+      expect(findTalentSetById(owner.talentSetId)).toBeNull();
+      expect(getManekinSupplementalTalentSet(owner.characterId, owner.talentSetId)?.id).toBe(owner.talentSetId);
+      expect(getManekinSupplementalTalentSet("character:unknown", owner.talentSetId)).toBeUndefined();
+      expect(getManekinSupplementalTalentSet(owner.characterId, "talent-set:unknown")).toBeUndefined();
+      expect(findTalentSetById(owner.talentSetId)).toBeNull();
+    }
+    expect(getManekinSupplementalTalentSet("character:10000117", "talent-set:manekina")).toBeUndefined();
+    expect(getManekinSupplementalTalentSet("character:10000118", "talent-set:manekin")).toBeUndefined();
   });
 
   it("preserves N-input identity and per-instance multihit critical/reaction calculation", () => {
