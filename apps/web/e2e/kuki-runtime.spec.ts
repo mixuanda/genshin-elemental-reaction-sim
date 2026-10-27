@@ -1,3 +1,4 @@
+import { revealControl, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -6,7 +7,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 async function waitForSimulation(page: Page): Promise<void> {
@@ -16,13 +17,13 @@ async function waitForSimulation(page: Page): Promise<void> {
 }
 async function loadKukiSource(page: Page, constellation: "0" | "2"): Promise<void> {
   const source = page.locator("#rotation-source-kuki-skill");
-  if (await source.getAttribute("open") === null) await source.locator(":scope > summary").click();
-  await page.locator("#rotation-kuki-constellation").selectOption(constellation);
-  await page.locator("#rotation-load-source-kuki-skill").click();
+  if (await source.getAttribute("open") === null) await (await revealControl(source.locator(":scope > summary"))).click();
+  await (await revealControl(page.locator("#rotation-kuki-constellation"))).selectOption(constellation);
+  await (await revealControl(page.locator("#rotation-load-source-kuki-skill"))).click();
   await expect(page.locator("#rotation-list li")).toHaveCount(3);
-  await page.locator("#rotation-compile").click();
+  await (await revealControl(page.locator("#rotation-compile"))).click();
   await expect(page.locator("#rotation-timeline")).toContainText("已编译 3 条指令");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
 }
@@ -37,7 +38,7 @@ test("Kuki sourced E heals the actual active actor with owner HP conditions, ret
   };
   await page.goto("/rotation");
   await loadKukiSource(page, "0");
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   const result = record.result;
   expect(record.sourceConfig.dataVersion).toBe("source-kuki:kuki-ring-c0-a6-t1-b4ae769-v1");
   expect(record.sourceConfig.meta.verificationStatus).toBe("provisional");
@@ -95,12 +96,12 @@ test("Kuki sourced E heals the actual active actor with owner HP conditions, ret
   }
   expect(result.particleEvents.map(event => event.spawnFrame)).toEqual(draws.filter(draw => draw.triggered).map(draw => draw.frame));
   expect(result.particleEvents.every(event => event.particleElement === "electro" && event.particleCount === 1 && event.receiveFrame === event.spawnFrame + 100)).toBe(true);
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   const ledger = page.locator("#actionStateAudit [data-periodic-entity-ledger]");
   await expect(ledger.locator('[data-periodic-operation="tick"]')).toHaveCount(8);
   await expect(ledger.locator('[data-periodic-operation="expire"]')).toHaveAttribute("data-periodic-frame", "744");
   const firstTick = ledger.locator('[data-periodic-operation="tick"]').first();
-  await firstTick.locator(`[data-periodic-health-id="${heals[0]!.id}"] > summary`).click();
+  await (await revealControl(firstTick.locator(`[data-periodic-health-id="${heals[0]!.id}"] > summary`))).click();
   expect(JSON.parse((await firstTick.locator("pre").textContent())!)).toEqual({ entity: ticks[0], health: heals[0] });
   await expect(firstTick.locator('[data-periodic-health-trace] [data-trace-node="periodic.low-hp"]')).toContainText("0.15");
   await expect(firstTick.locator('[data-periodic-health-trace] [data-trace-node="health.bonus"]')).toContainText("1.15");
@@ -113,33 +114,33 @@ test("Kuki sourced E heals the actual active actor with owner HP conditions, ret
   }
 
   const ring = result.damageEvents[1]!;
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${ring.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${ring.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page).toHaveURL(/\/calculator$/);
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   expect(await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })))).toEqual(sourceTrace);
   const captured = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
   expect(captured.eventId).toBe(ring.id);
   expect(captured.sourceResult).toEqual(result);
-  await page.locator("#calc-import").setInputFiles({ name: "kuki-real-ring-capture.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "kuki-real-ring-capture.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "kuki-periodic-full-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "kuki-periodic-full-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record.wire)) });
+  await expectReadonlyRecord(page, record);
   await expect(page.locator("#randomSeedInput")).toHaveValue(record.batchSummary.seed);
-  await waitForSimulation(page);
-  const restored = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const restored = await downloadSimulationRecord(page);
   expect(restored.sourceConfig).toEqual(record.sourceConfig);
   expect(restored.result.periodicEntityLog).toEqual(entities);
   expect(restored.result.playerHealthEvents).toEqual(result.playerHealthEvents);
   expect(restored.result.particleTriggerLog).toEqual(draws);
   expect(restored.result.energyLog).toEqual(result.energyLog);
-  await page.locator('.product-nav a[href="/rotation"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
   await loadKukiSource(page, "2");
-  const c2 = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const c2 = await downloadSimulationRecord(page);
   expect(c2.sourceConfig.dataVersion).toBe("source-kuki:kuki-ring-c2-a6-t1-b4ae769-v1");
   expect(c2.result.periodicEntityLog!.filter(event => event.operation === "tick")).toHaveLength(10);
   expect(c2.result.playerHealthEvents!.filter(event => event.operation === "heal")).toHaveLength(10);

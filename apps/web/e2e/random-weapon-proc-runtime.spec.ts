@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -8,7 +9,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -46,34 +47,35 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Random weapon normal controls use actual deferred Cryo state for the whole AoE and preserve replay, checkpoint limits, and two-seed provenance", async ({ page }) => {
   const config = sameFrameCryoInputs();
   await page.goto("/results");
-  await page.locator("#critModeInput").selectOption("noCrit");
-  await page.locator("#iterationInput").fill("1");
-  await page.locator("#importInput").setInputFiles({ name: "random-weapon-callback.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("noCrit");
+  await (await revealControl(page.locator("#iterationInput"))).fill("1");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "random-weapon-callback.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#weaponProcModelEnabled")).not.toBeChecked();
-  await page.locator("#weaponProcModelEnabled").check();
+  await (await revealControl(page.locator("#weaponProcModelEnabled"))).check();
   const weapon = page.locator('[data-weapon-proc-weapon="a"]');
   const available = await weapon.locator("option").evaluateAll(options => options.map(option => (option as HTMLOptionElement).value));
   expect(available).toEqual(expect.arrayContaining(["filletblade", "prototypearchaic", "snowtombedstarsilver", "dragonspinespear", "frostbearer"]));
   await weapon.selectOption("frostbearer");
-  await page.locator('[data-weapon-proc-refinement="a"]').selectOption("5");
-  await page.locator('[data-weapon-proc-physical-bonus="a"]').fill("0");
+  await (await revealControl(page.locator('[data-weapon-proc-refinement="a"]'))).selectOption("5");
+  await (await revealControl(page.locator('[data-weapon-proc-physical-bonus="a"]'))).fill("0");
   await expect(page.locator('[data-weapon-proc-definition="a"]')).toContainText("1.4");
   await expect(page.locator('[data-weapon-proc-aura-definition]')).toContainText("原触发目标");
-  await page.locator("#weaponProcModelControls > details > summary").filter({ hasText: "逐命中攻击标签声明" }).click();
-  await page.locator('[data-weapon-proc-tag][data-proc-action-index="0"][data-proc-hit-index="0"]').selectOption("normal");
-  await page.locator("#team-apply").click();
+  await (await revealControl(page.locator("#weaponProcModelControls > details > summary").filter({ hasText: "逐命中攻击标签声明" }))).click();
+  await (await revealControl(page.locator('[data-weapon-proc-tag][data-proc-action-index="0"][data-proc-hit-index="0"]'))).selectOption("normal");
+  await (await revealControl(page.locator("#team-apply"))).click();
   await expect(page.locator("#team-status")).toContainText("保存");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.weaponProcModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: [{ actorId: "a", weaponId: "frostbearer", refinement: 5, physicalDamageBonus: 0 }] });
   expect(saved.characters).toEqual(config.characters);
   expect(saved.timeline!.abilities[0]!.hits![0]!.attackTag).toBe("normal");
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#runButton").click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#runButton"))).click();
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig).toEqual(saved);
   const result = record.result;
   const triggers = result.weaponProcLog!.filter(entry => entry.outcome === "triggered");
@@ -99,42 +101,42 @@ test("Random weapon normal controls use actual deferred Cryo state for the whole
   expect(nearby.reactionAudit.auraBefore!.some(aura => aura.element === "cryo")).toBe(true);
   expect(result.totalDamage).toBe(1000 * 0.5 + 2 * childDamage);
 
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
-  await page.locator(`#weaponProcAudit [data-weapon-proc-detail="${trigger.id}"] > summary`).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
+  await (await revealControl(page.locator(`#weaponProcAudit [data-weapon-proc-detail="${trigger.id}"] > summary`))).click();
   const auraLedger = page.locator(`#weaponProcAudit [data-weapon-proc-aura="${trigger.id}"]`);
   await expect(auraLedger).toContainText("冰附着 Cryo 无");
   await expect(auraLedger).toContainText("实际选中倍率 1.4");
   await expect(auraLedger).toContainText("范围内其他目标不会分别重选倍率");
   await expect(page.locator(`#weaponProcAudit [data-weapon-proc-random="${trigger.id}"]`)).toContainText(String(trigger.random!.roll));
-  await page.locator(`#weaponProcAudit [data-weapon-proc-hit-detail="${nearby.id}"] > summary`).click();
+  await (await revealControl(page.locator(`#weaponProcAudit [data-weapon-proc-hit-detail="${nearby.id}"] > summary`))).click();
   await expect(page.locator(`#weaponProcAudit [data-weapon-proc-replay="${nearby.id}"]`)).toContainText("差值 0");
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${nearby.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${nearby.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(sourceTrace.length).toBeGreaterThan(0);
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   expect(await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })))).toEqual(sourceTrace);
   const captured = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
   expect(captured.eventId).toBe(nearby.id);
   expect(captured.sourceResult).toEqual(result);
-  await page.locator("#calc-import").setInputFiles({ name: "random-weapon-nearby-hit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "random-weapon-nearby-hit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
 
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "random-weapon-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "random-weapon-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record.wire)) });
+  await expectReadonlyRecord(page, record);
   await expect(page.locator("#randomSeedInput")).toHaveValue(record.options.randomSeed);
-  await waitForSimulation(page);
-  const replayed = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const replayed = await downloadSimulationRecord(page);
   expect(replayed.sourceConfig).toEqual(record.sourceConfig);
   expect(replayed.options).toEqual(record.options);
   expect(replayed.result).toEqual(result);
 
-  await page.getByRole("button", { name: "总览", exact: true }).click();
-  await page.locator("#analysis-warmup-cycles").fill("1");
-  await page.locator("#analysis-steady-run").click();
+  await (await revealControl(page.getByRole("button", { name: "总览", exact: true }))).click();
+  await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("1");
+  await (await revealControl(page.locator("#analysis-steady-run"))).click();
   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
   await expect(page.locator("#analysis-startup-output")).toContainText("随机状态已捕获不等于分布收敛");
   await expect(page.locator("#analysis-startup-output")).not.toContainText("已从完整模拟检查点建立稳态");
@@ -150,10 +152,10 @@ test("Random weapon normal controls use actual deferred Cryo state for the whole
   expect(startup.steadyState!.reasons.join(" ")).toContain("随机状态已捕获不等于分布收敛");
 
   // Two short runs only: validate the real batch metadata, not statistical convergence or gcsim RNG parity.
-  await page.locator("#iterationInput").fill("2");
-  await page.locator("#runButton").click();
+  await (await revealControl(page.locator("#iterationInput"))).fill("2");
+  await (await revealControl(page.locator("#runButton"))).click();
   await waitForSimulation(page);
-  const batch = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const batch = await downloadSimulationRecord(page);
   expect(batch.iterations).toBe(2);
   expect(batch.batchSummary).toMatchObject({ iterations: 2, seed: config.randomSeed,
     rngPolicy: "seeded-particles-and-declared-independent-streams-v1",

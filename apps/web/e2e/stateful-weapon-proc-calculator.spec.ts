@@ -1,3 +1,4 @@
+import { revealControl } from "./release-ui-helpers";
 import { expect, test, type Page } from "@playwright/test";
 import type { CalculatorDocument, CalculatorResult } from "@genshin-dps-lab/sim-core";
 
@@ -26,8 +27,8 @@ test("Stateful weapon procs remain independent single hits with editable panels,
     await expect(weapon.locator(`option[value="${id}"]`)).toContainText(label);
   }
   await weapon.selectOption("flute");
-  await page.locator("#calc-proc-refinement").selectOption("1");
-  await page.locator('[data-action="load-weapon-proc"]').click();
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("1");
+  await (await revealControl(page.locator('[data-action="load-weapon-proc"]'))).click();
   await expect(page.locator("#calc-character-status")).toContainText("不需要角色技能或队伍");
   await expect(page.locator("#calc-character")).toHaveValue("");
   await expect(page.locator("#calc-proc-trigger-aura-control")).toBeHidden();
@@ -46,10 +47,10 @@ test("Stateful weapon procs remain independent single hits with editable panels,
   await expect(coefficient).toBeDisabled();
   await expect(coefficient).toHaveValue("1");
 
-  await page.locator('[data-field="build.stats.atk"]').fill("1500");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1500");
   const edited = await audit(page);
   expectDamage(edited.result, 1500, 1);
-  await page.locator("#calc-proc-refinement").selectOption("5");
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("5");
   const r5 = await audit(page);
   expectDamage(r5.result, 1500, 2);
   expect(r5.document.build).toEqual(edited.document.build);
@@ -66,7 +67,7 @@ test("Stateful weapon procs remain independent single hits with editable panels,
   expect(base.inputs).toEqual(expect.arrayContaining([expect.objectContaining({ key: "atk", value: 1500 }), expect.objectContaining({ key: "weaponProcCoefficient", value: 2 })]));
   expect(base.result!.value).toBe(3000);
   const detail = page.locator('#calc-results [data-detail-id="customBaseDamage"]');
-  await detail.locator(":scope > summary").click();
+  await (await revealControl(detail.locator(":scope > summary"))).click();
   await expect(detail.locator(".trace-detail-content > p").first()).not.toHaveText("");
   await expect(detail.locator("code").first()).toHaveText(base.symbolicFormula);
   await expect(detail.locator(".trace-substitution")).toContainText(base.substitution);

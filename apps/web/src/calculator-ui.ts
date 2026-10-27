@@ -936,7 +936,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
 
   function renderControls(): void {
     inlineRequirements.restore();
-    get<HTMLButtonElement>('[data-action="export"]').disabled = !current;
+    get<HTMLButtonElement>('[data-action="export"]').disabled = !(current || capturedHit);
     get("[data-calculator-example-mode]").hidden = activeExampleId === null;
     if (!current) { get("#calc-document-controls").innerHTML = ""; renderCharacterOutputOverview(); return; }
     const doc = current;
@@ -1163,7 +1163,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     hideSourceSingleSkill();
     get("#calc-source-host-capture").hidden = true;
     get(".calculator-layout").hidden = false;
-    get<HTMLButtonElement>('[data-action="export"]').disabled = !current;
+    get<HTMLButtonElement>('[data-action="export"]').disabled = !(current || capturedHit);
   }
   function clearCompositionEdit(): void {
     pendingCompositionSave = null;
@@ -1444,6 +1444,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const replay = replaySimulationHit(capture);
     rememberCurrent();
     capturedHit = replay.captured; current = null; currentResult = null;
+    clearCompositionEdit();
+    showOrdinaryCalculator();
     invalidFields.clear();
     characterId = ""; importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null; ++selectionRequest;
     get("#calc-imported-binding").hidden = true;

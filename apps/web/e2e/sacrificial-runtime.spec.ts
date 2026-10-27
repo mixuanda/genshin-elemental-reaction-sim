@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -8,7 +9,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -41,41 +42,42 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Sacrificial normal controls reset one serial charge, execute a third skill, and preserve actual hit replay without claiming steady state", async ({ page }) => {
   const config = syntheticTwoChargeSkill();
   await page.goto("/results");
-  await page.locator("#critModeInput").selectOption("noCrit");
-  await page.locator("#energyModeInput").selectOption("zero");
-  await page.locator("#iterationInput").fill("1");
-  await page.locator("#importInput").setInputFiles({ name: "sacrificial-two-charge.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("noCrit");
+  await (await revealControl(page.locator("#energyModeInput"))).selectOption("zero");
+  await (await revealControl(page.locator("#iterationInput"))).fill("1");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "sacrificial-two-charge.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#sacrificialModelEnabled")).not.toBeChecked();
-  await page.locator("#sacrificialModelEnabled").check();
-  await page.locator('[data-sacrificial-weapon="a"]').selectOption("sacrificialsword");
-  await page.locator('[data-sacrificial-refinement="a"]').selectOption("5");
-  await page.locator("#team-apply").click();
+  await (await revealControl(page.locator("#sacrificialModelEnabled"))).check();
+  await (await revealControl(page.locator('[data-sacrificial-weapon="a"]'))).selectOption("sacrificialsword");
+  await (await revealControl(page.locator('[data-sacrificial-refinement="a"]'))).selectOption("5");
+  await (await revealControl(page.locator("#team-apply"))).click();
   await expect(page.locator("#team-status")).toContainText("保存");
   const equipped = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(equipped.sacrificialModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: [{ actorId: "a", weaponId: "sacrificialsword", refinement: 5 }] });
   expect(equipped.characters).toEqual(config.characters);
 
-  await page.locator('.product-nav a[href="/rotation"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
   // Later warmup cycles may wait for real serial recovery; the first cycle must still execute at 1/2/10.
-  await page.locator("#rotation-mode").selectOption("wait");
-  await page.locator('[data-ability-cooldown-start="e"]').fill("0");
-  await page.locator('[data-ability-cooldown-start="e"]').press("Tab");
-  await page.locator("#rotation-action").selectOption("e");
-  await page.locator("#rotation-add").click();
-  await page.locator('[data-request="2"]').fill("10");
-  await page.locator('[data-request="2"]').press("Tab");
-  await page.locator("#rotation-compile").click();
+  await (await revealControl(page.locator("#rotation-mode"))).selectOption("wait");
+  await (await revealControl(page.locator('[data-ability-cooldown-start="e"]'))).fill("0");
+  await (await revealControl(page.locator('[data-ability-cooldown-start="e"]'))).press("Tab");
+  await (await revealControl(page.locator("#rotation-action"))).selectOption("e");
+  await (await revealControl(page.locator("#rotation-add"))).click();
+  await (await revealControl(page.locator('[data-request="2"]'))).fill("10");
+  await (await revealControl(page.locator('[data-request="2"]'))).press("Tab");
+  await (await revealControl(page.locator("#rotation-compile"))).click();
   await expect(page.locator("#rotation-timeline")).toContainText("已编译 3 条指令");
   const thirdPreview = page.locator('[data-rotation-command="2"]');
   await expect(thirdPreview.locator("td").nth(2)).toHaveText("10");
   await expect(thirdPreview.locator("td").nth(3)).toHaveText("执行");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   const result = record.result;
   expect(record.sourceConfig.sacrificialModel).toEqual(equipped.sacrificialModel);
   expect(record.sourceConfig.timeline!.abilities[0]!.cooldownStartFrame).toBe(0);
@@ -110,13 +112,13 @@ test("Sacrificial normal controls reset one serial charge, execute a third skill
   expect(result.energyStats.a).toMatchObject({ gained: 9, spent: 0, final: 9 });
   for (const particle of result.particleEvents) expect(result.actionLog.some(action => action.actionId === particle.sourceActionId)).toBe(true);
 
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   const ledger = page.locator("#sacrificialAudit");
   await expect(ledger).toBeVisible();
   await expect(ledger.locator("[data-sacrificial-id]")).toHaveCount(3);
   await expect(ledger.locator('[data-skill-cooldown-operation="reset"]')).toContainText("队列 2 → 1 项");
   const triggerDetails = ledger.locator(`[data-sacrificial-detail="${trigger.id}"]`);
-  await triggerDetails.locator(":scope > summary").click();
+  await (await revealControl(triggerDetails.locator(":scope > summary"))).click();
   const resetDisplay = triggerDetails.locator(`[data-sacrificial-reset="${reset.id}"]`);
   await expect(resetDisplay.locator("[data-skill-cooldown-before] ol > li")).toHaveCount(2);
   await expect(resetDisplay.locator("[data-skill-cooldown-after] ol > li")).toHaveCount(1);
@@ -128,25 +130,25 @@ test("Sacrificial normal controls reset one serial charge, execute a third skill
   await expect(followingSkill).toContainText("实际获得 3");
 
   const thirdHit = result.damageEvents[2]!;
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${thirdHit.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${thirdHit.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   expect(await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })))).toEqual(sourceTrace);
   const captured = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
   expect(captured.eventId).toBe(thirdHit.id);
   expect(captured.sourceResult.sacrificialLog).toEqual(attempts);
   expect(captured.sourceResult.skillCooldownLog).toEqual(result.skillCooldownLog);
-  await page.locator("#calc-import").setInputFiles({ name: "sacrificial-third-hit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "sacrificial-third-hit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "sacrificial-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "sacrificial-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record.wire)) });
+  await expectReadonlyRecord(page, record);
   await expect(page.locator("#randomSeedInput")).toHaveValue(config.randomSeed!);
-  await waitForSimulation(page);
-  const restored = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const restored = await downloadSimulationRecord(page);
   expect(restored.sourceConfig).toEqual(record.sourceConfig);
   expect(restored.options).toEqual(record.options);
   expect(restored.result.sacrificialLog).toEqual(attempts);
@@ -154,10 +156,10 @@ test("Sacrificial normal controls reset one serial charge, execute a third skill
   expect(restored.result.particleEvents).toEqual(result.particleEvents);
   expect(restored.result.energyLog).toEqual(result.energyLog);
 
-  await page.getByRole("button", { name: "总览", exact: true }).click();
-  await page.locator("#analysis-warmup-energy").selectOption("zero");
-  await page.locator("#analysis-warmup-cycles").fill("1");
-  await page.locator("#analysis-steady-run").click();
+  await (await revealControl(page.getByRole("button", { name: "总览", exact: true }))).click();
+  await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("zero");
+  await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("1");
+  await (await revealControl(page.locator("#analysis-steady-run"))).click();
   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
   await expect(page.locator("#analysis-startup-output")).toContainText("随机状态已捕获不等于分布收敛");
   await expect(page.locator("#analysis-startup-output")).not.toContainText("已从完整模拟检查点建立稳态");

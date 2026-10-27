@@ -1,3 +1,4 @@
+import { revealControl, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -6,7 +7,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -17,9 +18,9 @@ async function waitForSimulation(page: Page): Promise<void> {
 }
 
 async function saveRotation(page: Page): Promise<void> {
-  await page.locator("#rotation-compile").click();
+  await (await revealControl(page.locator("#rotation-compile"))).click();
   await expect(page.locator("#rotation-timeline")).toContainText("已编译 4 条指令");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
 }
@@ -43,13 +44,13 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
   const skillDamage = (sourceAtk * (0.75712 + 8 * 0.2524) + 9 * 200 * 0.25) * 0.5 * 0.9;
 
   await page.goto("/rotation");
-  await page.locator("#rotation-source-kuki-skill-burst > summary").click();
-  await page.locator("#rotation-kuki-burst-constellation").selectOption("0");
-  await page.locator("#rotation-load-source-kuki-skill-burst").click();
+  await (await revealControl(page.locator("#rotation-source-kuki-skill-burst > summary"))).click();
+  await (await revealControl(page.locator("#rotation-kuki-burst-constellation"))).selectOption("0");
+  await (await revealControl(page.locator("#rotation-load-source-kuki-skill-burst"))).click();
   await expect(page.locator("#rotation-list li")).toHaveCount(4);
   await expect(page.locator('[data-request="3"]')).toHaveValue("564");
   await saveRotation(page);
-  const short = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const short = await downloadSimulationRecord(page);
   expect(short.sourceConfig.dataVersion).toBe("source-kuki-eq:kuki-eq-c0-a6-t1-b4ae769-v1");
   expect(short.sourceConfig.meta.verificationStatus).toBe("provisional");
   expect(short.executionProfile).toBeNull();
@@ -84,24 +85,24 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
   const shortTrace = shortCondition.trace as CalculationTraceNode[];
   expect(shortTrace.map(node => node.result!.value)).toEqual([sourceHp * 0.5, 0]);
   expect(shortTrace[1]!.inputs.find(input => input.key === "ownerCurrentHp")!.value).toBe(healingAt564.hpAfter);
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   const ledger = page.locator("#actionStateAudit [data-action-condition-ledger]");
   await expect(ledger.locator("tr[data-action-condition-id]")).toHaveCount(1);
   const shortDetail = ledger.locator(`[data-action-condition-detail="${shortCondition.id}"]`);
-  await shortDetail.locator(":scope > summary").click();
+  await (await revealControl(shortDetail.locator(":scope > summary"))).click();
   await expect(shortDetail.locator(`[data-action-condition-trace] [data-trace-node="action-condition.${groupId}.selected"]`)).toBeVisible();
   const shortFormula = shortDetail.locator(`[data-detail-id="action-condition.${groupId}.selected"]`);
-  await shortFormula.locator(":scope > summary").click();
+  await (await revealControl(shortFormula.locator(":scope > summary"))).click();
   await expect(shortFormula.locator(".trace-substitution")).toBeVisible();
   await expect(shortFormula.locator(".trace-substitution")).toContainText(shortTrace[1]!.substitution);
   expect(JSON.parse((await shortDetail.locator("pre").textContent())!)).toEqual(shortCondition);
 
   // One normal request-frame edit moves Q before the heal; later healing must not shorten this accepted cast.
-  await page.locator('.product-nav a[href="/rotation"]').click();
-  await page.locator('[data-request="3"]').fill("563");
-  await page.locator('[data-request="3"]').press("Tab");
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
+  await (await revealControl(page.locator('[data-request="3"]'))).fill("563");
+  await (await revealControl(page.locator('[data-request="3"]'))).press("Tab");
   await saveRotation(page);
-  const long = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const long = await downloadSimulationRecord(page);
   expect(long.sourceConfig.timeline!.commands[3]).toMatchObject({ atFrame: 563 });
   const longCondition = long.result.actionConditionLog![0]!;
   expect(longCondition).toMatchObject({ actorId: "kuki", groupId, frame: 563, eventPriority: 8, selected: true });
@@ -118,32 +119,32 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
 
   const conditionalHit = longHits.at(-1)!;
   expect(longCondition.hitIds).toContain(conditionalHit.hitId);
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${conditionalHit.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${conditionalHit.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(sourceTrace.slice(0, 2).map(node => node.id)).toEqual(longTrace.map(node => node.id));
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page).toHaveURL(/\/calculator$/);
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   expect(await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })))).toEqual(sourceTrace);
   const captured = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
   expect(captured.eventId).toBe(conditionalHit.id);
   expect(captured.sourceResult).toEqual(long.result);
-  await page.locator("#calc-import").setInputFiles({ name: "kuki-long-burst-conditional-hit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "kuki-long-burst-conditional-hit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(captured)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   const restoredFormula = page.locator(`#calc-results [data-detail-id="action-condition.${groupId}.selected"]`);
-  await restoredFormula.locator(":scope > summary").click();
+  await (await revealControl(restoredFormula.locator(":scope > summary"))).click();
   await expect(restoredFormula.locator(".trace-substitution")).toBeVisible();
   await expect(restoredFormula.locator(".trace-substitution")).toContainText(longTrace[1]!.substitution);
 
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "kuki-hp-conditioned-burst-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(long)) });
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "kuki-hp-conditioned-burst-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(long.wire)) });
+  await expectReadonlyRecord(page, long);
   await expect(page.locator("#randomSeedInput")).toHaveValue(long.batchSummary.seed);
-  await waitForSimulation(page);
-  const restored = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const restored = await downloadSimulationRecord(page);
   expect(restored.sourceConfig).toEqual(long.sourceConfig);
   expect(restored.result.actionConditionLog).toEqual(long.result.actionConditionLog);
   expect(restored.result.playerHealthEvents).toEqual(long.result.playerHealthEvents);
@@ -151,14 +152,14 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
   expect(restored.result.energyCostLog).toEqual(long.result.energyCostLog);
 
   // Edit the real source initial energy. A rejected burst must not create a condition choice or future Q damage.
-  await page.locator('.product-nav a[href="/team"]').click();
-  await page.locator('[data-actor="0"][data-key="initialEnergy"]').fill("0");
-  await page.locator("#team-apply").click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
+  await (await revealControl(page.locator('[data-actor="0"][data-key="initialEnergy"]'))).fill("0");
+  await (await revealControl(page.locator("#team-apply"))).click();
   await expect(page.locator("#team-status")).toContainText("已通过输入验证并保存");
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.getByRole("button", { name: "运行模拟", exact: true }).click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.getByRole("button", { name: "运行模拟", exact: true }))).click();
   await waitForSimulation(page);
-  const failed = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const failed = await downloadSimulationRecord(page);
   expect(failed.sourceConfig.characters[0]!.initialEnergy).toBe(0);
   expect(failed.options.energyMode).toBe("configured");
   expect(failed.result.skippedActions).toHaveLength(1);
@@ -169,7 +170,7 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
   expect(failed.result.energyCostLog).toEqual([]);
   expect(failed.result.damageEvents).toHaveLength(9);
   expect(failed.result.totalDamage).toBeCloseTo(skillDamage, 9);
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   await expect(page.locator("#actionStateAudit [data-action-condition-id]")).toHaveCount(0);
   console.info("Kuki burst runtime browser measurements", JSON.stringify({
     shortQFrame: shortCondition.frame, shortQOwnerHp: shortCondition.ownerCurrentHp, shortQHits: shortHits.length, shortTotalDamage: short.result.totalDamage,
@@ -181,22 +182,22 @@ test("Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted i
 
 test("Kuki rejected Q releases the next swap in the ordinary rotation preview and actual worker execution", async ({ page }) => {
   await page.goto("/rotation");
-  await page.locator("#rotation-source-kuki-skill-burst > summary").click();
-  await page.locator("#rotation-kuki-burst-constellation").selectOption("0");
-  await page.locator("#rotation-load-source-kuki-skill-burst").click();
+  await (await revealControl(page.locator("#rotation-source-kuki-skill-burst > summary"))).click();
+  await (await revealControl(page.locator("#rotation-kuki-burst-constellation"))).selectOption("0");
+  await (await revealControl(page.locator("#rotation-load-source-kuki-skill-burst"))).click();
   await expect(page.locator("#rotation-list li")).toHaveCount(4);
-  await page.locator('.product-nav a[href="/team"]').click();
-  await page.locator('[data-actor="0"][data-key="initialEnergy"]').fill("0");
-  await page.locator("#team-apply").click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
+  await (await revealControl(page.locator('[data-actor="0"][data-key="initialEnergy"]'))).fill("0");
+  await (await revealControl(page.locator("#team-apply"))).click();
   await expect(page.locator("#team-status")).toContainText("已通过输入验证并保存");
-  await page.locator('.product-nav a[href="/rotation"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
   await expect(page.locator('[data-request="3"]')).toHaveValue("564");
-  await page.locator("#rotation-swap-actor").selectOption("amber");
-  await page.locator("#rotation-add-swap").click();
+  await (await revealControl(page.locator("#rotation-swap-actor"))).selectOption("amber");
+  await (await revealControl(page.locator("#rotation-add-swap"))).click();
   await expect(page.locator("#rotation-list li")).toHaveCount(5);
-  await page.locator('[data-request="4"]').fill("565");
-  await page.locator('[data-request="4"]').press("Tab");
-  await page.locator("#rotation-compile").click();
+  await (await revealControl(page.locator('[data-request="4"]'))).fill("565");
+  await (await revealControl(page.locator('[data-request="4"]'))).press("Tab");
+  await (await revealControl(page.locator("#rotation-compile"))).click();
   await expect(page.locator("#rotation-timeline")).toContainText("已编译 5 条指令");
   const rejectedPreview = page.locator('[data-rotation-command="3"]');
   await expect(rejectedPreview.locator("td").nth(3)).toHaveText("未施放：能量 9 / 60");
@@ -205,10 +206,10 @@ test("Kuki rejected Q releases the next swap in the ordinary rotation preview an
   await expect(swapPreview.locator("td").nth(1)).toHaveText("565");
   await expect(swapPreview.locator("td").nth(2)).toHaveText("565");
   await expect(swapPreview.locator("td").nth(3)).toHaveText("执行");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig.characters[0]!.initialEnergy).toBe(0);
   expect(record.sourceConfig.timeline!.commands[4]).toEqual({ type: "swap", characterId: "amber", atFrame: 565 });
   expect(record.result.skippedActions).toHaveLength(1);

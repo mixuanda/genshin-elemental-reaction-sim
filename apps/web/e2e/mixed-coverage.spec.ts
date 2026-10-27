@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -10,19 +11,19 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
 async function selectCharacter(page: Page, name: string): Promise<void> {
   const value = await page.locator("#calc-character option").filter({ hasText: name }).getAttribute("value");
-  await page.locator("#calc-character").selectOption(value!);
+  await (await revealControl(page.locator("#calc-character"))).selectOption(value!);
   await expect(page.locator("#calc-skill")).toBeEnabled();
 }
 
 async function selectSkill(page: Page, name: string): Promise<void> {
   const value = await page.locator("#calc-skill option").filter({ hasText: name }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
 }
 
 async function sourceInput(page: Page, formula: "additiveBaseFormula" | "resistanceReductionFormula", key: string, hitIndex = 0) {
@@ -45,7 +46,7 @@ test("reviewed source resource and resistance formulas, final panels and indepen
   await selectSkill(page, "镂骨彻心（单次，显式争胜消耗）");
   const will = await sourceInput(page, "additiveBaseFormula", "lohenWillConsumed");
   expect(await will.locator("option").evaluateAll(options => options.map(option => (option as HTMLOptionElement).value))).toEqual(["20", "40", "60", "80", "100"]);
-  await page.locator('[data-field="hits.0.additiveBaseDamage"]').fill("500");
+  await (await revealControl(page.locator('[data-field="hits.0.additiveBaseDamage"]'))).fill("500");
   expect((await audit(page)).result.totals?.nonCritical).toBeCloseTo(1274.76, 9);
   await will.selectOption("100");
   const consumed = await audit(page);
@@ -69,53 +70,53 @@ test("reviewed source resource and resistance formulas, final panels and indepen
   for (let i = 0; i < 2; i++) await (await sourceInput(page, "resistanceReductionFormula", "linneaTargetNearby", i)).selectOption("0");
   expect((await audit(page)).result.totals?.nonCritical).toBeCloseTo(1244.16, 9);
   for (let i = 0; i < 2; i++) await (await sourceInput(page, "resistanceReductionFormula", "linneaTargetNearby", i)).selectOption("1");
-  await page.locator('[data-equipment="effectsDisabled"]').check();
-  await page.locator("[data-equipment-apply]").click();
+  await (await revealControl(page.locator('[data-equipment="effectsDisabled"]'))).check();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const equippedLinnea = await audit(page);
   expect(equippedLinnea.document.build.mode).toBe("equipment-derived");
   expect(hitValue(equippedLinnea.result, "effectiveResistance")).toBeCloseTo(-0.2, 12);
-  await page.locator("#calc-build-mode").selectOption("manual-final");
+  await (await revealControl(page.locator("#calc-build-mode"))).selectOption("manual-final");
   const finalLinnea = await audit(page);
   expect(finalLinnea.result.totals).toEqual(equippedLinnea.result.totals);
   for (const hit of finalLinnea.result.hits) {
     expect(hit.trace.find(node => node.id === "characterResistanceReduction")).toMatchObject({ status: "not-applicable", ruleId: "linnea-a1-lumi-c0-optimizer-180a0a1" });
   }
   const finalDocument = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name: "linnea-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(finalDocument)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "linnea-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(finalDocument)) });
   expect((await audit(page)).result.totals).toEqual(equippedLinnea.result.totals);
 
   await selectCharacter(page, "丽莎");
   await selectSkill(page, "苍雷·点按");
-  await page.locator('[data-equipment="weapon"]').selectOption("weapon:14405");
-  await page.locator('[data-equipment="weaponEffectsEnabled"]').check();
-  await page.locator('[data-equipment-formula="normalHitEffectActive"]').selectOption("true");
-  await page.locator('[data-equipment-formula="skillBurstHitEffectActive"]').selectOption("false");
+  await (await revealControl(page.locator('[data-equipment="weapon"]'))).selectOption("weapon:14405");
+  await (await revealControl(page.locator('[data-equipment="weaponEffectsEnabled"]'))).check();
+  await (await revealControl(page.locator('[data-equipment-formula="normalHitEffectActive"]'))).selectOption("true");
+  await (await revealControl(page.locator('[data-equipment-formula="skillBurstHitEffectActive"]'))).selectOption("false");
   for (const slot of ["flower", "plume", "sands", "goblet"]) {
-    await page.locator(`[data-artifact="${slot}"] > summary`).click();
-    await page.locator(`[data-artifact="${slot}"] [data-artifact-field="set"]`).selectOption("artifact-set:15037");
+    await (await revealControl(page.locator(`[data-artifact="${slot}"] > summary`))).click();
+    await (await revealControl(page.locator(`[data-artifact="${slot}"] [data-artifact-field="set"]`))).selectOption("artifact-set:15037");
   }
-  await page.locator('[data-equipment="setEffectsEnabled"]').check();
-  await page.locator('[data-equipment="effectsDisabled"]').check();
+  await (await revealControl(page.locator('[data-equipment="setEffectsEnabled"]'))).check();
+  await (await revealControl(page.locator('[data-equipment="effectsDisabled"]'))).check();
   const previous = await audit(page);
   await expect(page.locator('[data-equipment-elements-state="setBuffElements"]')).toHaveValue("unknown");
-  await page.locator("[data-equipment-apply]").click();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   await expect(page.locator("[data-equipment-status]")).toContainText("setBuffElements");
   expect((await audit(page)).document).toEqual(previous.document);
-  for (const key of ["setBuffElements", "setExtraBuffElements"]) await page.locator(`[data-equipment-elements-state="${key}"]`).selectOption("known");
-  await page.locator("[data-equipment-apply]").click();
+  for (const key of ["setBuffElements", "setExtraBuffElements"]) await (await revealControl(page.locator(`[data-equipment-elements-state="${key}"]`))).selectOption("known");
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const empty = await audit(page);
   expect(empty.document.build.mode).toBe("equipment-derived");
   expect(hitValue(empty.result, "applicableDamageBonus")).toBeCloseTo(0.2, 12);
-  await page.locator('[data-equipment-elements="setBuffElements"] [data-equipment-element="electro"]').check();
-  await page.locator("[data-equipment-apply]").click();
+  await (await revealControl(page.locator('[data-equipment-elements="setBuffElements"] [data-equipment-element="electro"]'))).check();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   expect(hitValue((await audit(page)).result, "applicableDamageBonus")).toBeCloseTo(0.32, 12);
   // The extra window can remain after the base window ends; known [] is not unknown.
-  await page.locator('[data-equipment-elements="setBuffElements"] [data-equipment-element="electro"]').uncheck();
-  await page.locator('[data-equipment-elements="setExtraBuffElements"] [data-equipment-element="electro"]').check();
-  await page.locator("[data-equipment-apply]").click();
+  await (await revealControl(page.locator('[data-equipment-elements="setBuffElements"] [data-equipment-element="electro"]'))).uncheck();
+  await (await revealControl(page.locator('[data-equipment-elements="setExtraBuffElements"] [data-equipment-element="electro"]'))).check();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const tail = await audit(page);
   expect(hitValue(tail.result, "applicableDamageBonus")).toBeCloseTo(0.48, 12);
-  await page.locator("#calc-build-mode").selectOption("manual-final");
+  await (await revealControl(page.locator("#calc-build-mode"))).selectOption("manual-final");
   expect((await audit(page)).result.totals).toEqual(tail.result.totals);
 });
 
@@ -128,17 +129,18 @@ test("mixed Lunar reactions share one run, actual Geo budgets and both calculato
     events: unknown[]; geoBudgets: unknown[];
   };
   await page.goto("/results");
-  await page.locator("#importInput").setInputFiles({ name: "lunar-mixed-reference.synthetic.json", mimeType: "application/json", buffer: await readFile(fixtureUrl) });
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "lunar-mixed-reference.synthetic.json", mimeType: "application/json", buffer: await readFile(fixtureUrl) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText("合成机制验证：共享月感电与月结晶");
   await expect(page.locator("#cancelRunButton")).toBeHidden();
   await expect(page.locator("#simulationProgress")).toHaveText("");
   await expect(page.locator("#exportRunButton")).toBeEnabled();
-  await page.locator('.tab[data-tab="special"]').click();
-  await page.locator('[data-lunar-action="refresh"]').click();
-  await page.locator("#critModeInput").selectOption("average");
-  await page.locator("[data-lunar-profile]").selectOption("lunar-mixed");
-  for (const [index, member] of expected.options.party.entries()) await page.locator(`[data-lunar-party-index="${index}"]`).selectOption(member.characterKey);
-  await page.locator('[data-lunar-action="run"]').click();
+  await (await revealControl(page.locator('.tab[data-tab="special"]'))).click();
+  await (await revealControl(page.locator('[data-lunar-action="refresh"]'))).click();
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("average");
+  await (await revealControl(page.locator("[data-lunar-profile]"))).selectOption("lunar-mixed");
+  for (const [index, member] of expected.options.party.entries()) await (await revealControl(page.locator(`[data-lunar-party-index="${index}"]`))).selectOption(member.characterKey);
+  await (await revealControl(page.locator('[data-lunar-action="run"]'))).click();
   await expect(page.locator('[data-lunar-action="export"]')).toBeEnabled();
   const report = await downloadJson<{ format: string; result: LunarMixedSimulationResult }>(page, '[data-lunar-action="export"]');
   expect(report.format).toBe("lunar-mixed-report-v1");
@@ -155,20 +157,20 @@ test("mixed Lunar reactions share one run, actual Geo budgets and both calculato
   await expect(page.getByTestId("lunar-mixed-charged-damage")).toBeVisible();
   await expect(page.getByTestId("lunar-mixed-crystallize-damage")).toBeVisible();
   const geo = geoConversions[0]!;
-  await page.locator(`[data-lunar-conversion="${geo.id}"] > summary`).click();
+  await (await revealControl(page.locator(`[data-lunar-conversion="${geo.id}"] > summary`))).click();
   await expect(page.locator(`[data-lunar-geo-budget="${geo.id}"]`)).toContainText("普通雷晶片已排入队列");
   expect(JSON.parse((await page.locator(`[data-lunar-conversion="${geo.id}"] .calculator-audit pre`).textContent())!)).toEqual(geo);
   const samples = [result.specialDamageEvents.find(event => event.intent.branch === "lunar-charged-reaction")!, result.specialDamageEvents.find(event => event.intent.branch === "lunar-crystallize-reaction")!];
   for (const [index, event] of samples.entries()) {
-    await page.locator(`[data-lunar-event="${event.id}"] > summary`).click();
+    await (await revealControl(page.locator(`[data-lunar-event="${event.id}"] > summary`))).click();
     await expect(page.locator(`[data-lunar-execution-order="${event.id}"]`)).toContainText(`frame ${event.executionOrder.frame} · priority ${event.executionOrder.priority} · sequence ${event.executionOrder.sequence}`);
-    await page.locator(`[data-lunar-open-calculator="${event.id}"]`).click();
+    await (await revealControl(page.locator(`[data-lunar-open-calculator="${event.id}"]`))).click();
     await expect(page).toHaveURL(/\/calculator$/);
     const replay = await audit(page);
     const hit = replay.document.hits[0]!;
     expect(hit.kind === "special" && hit.context).toEqual(event.context);
     expect(replay.result.totals?.expected).toBeCloseTo(event.damage, 8);
     expect(replay.result.verification).toBe("provisional");
-    if (index === 0) await page.locator('.product-nav a[href="/results"]').click();
+    if (index === 0) await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
   }
 });

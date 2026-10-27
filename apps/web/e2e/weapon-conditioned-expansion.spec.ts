@@ -1,3 +1,4 @@
+import { revealControl } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -9,17 +10,17 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function selectSkill(page: Page, name: string | RegExp): Promise<void> {
   const value = await page.locator("#calc-skill option").filter({ hasText: name }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
 }
 
 async function chooseWeapon(page: Page, weapon: string): Promise<void> {
-  await page.locator('[data-equipment="weapon"]').selectOption(weapon);
-  await page.locator('[data-equipment="ascension"]').selectOption("0");
-  await page.locator('[data-equipment="level"]').fill("1");
-  await page.locator('[data-equipment="weaponAscension"]').selectOption("0");
-  await page.locator('[data-equipment="weaponLevel"]').fill("1");
-  await page.locator('[data-equipment="weaponEffectsEnabled"]').check();
-  await page.locator('[data-equipment="effectsDisabled"]').check();
+  await (await revealControl(page.locator('[data-equipment="weapon"]'))).selectOption(weapon);
+  await (await revealControl(page.locator('[data-equipment="ascension"]'))).selectOption("0");
+  await (await revealControl(page.locator('[data-equipment="level"]'))).fill("1");
+  await (await revealControl(page.locator('[data-equipment="weaponAscension"]'))).selectOption("0");
+  await (await revealControl(page.locator('[data-equipment="weaponLevel"]'))).fill("1");
+  await (await revealControl(page.locator('[data-equipment="weaponEffectsEnabled"]'))).check();
+  await (await revealControl(page.locator('[data-equipment="effectsDisabled"]'))).check();
 }
 
 const formula = (page: Page, key: string) => page.locator(`[data-equipment-formula="${key}"]`);
@@ -28,10 +29,10 @@ const traceValue = (result: CalculatorResult, id: string) => result.trace.find(n
 
 test("new weapon conditions use normal calculator controls, preserve hit scope, and round-trip final panels once", async ({ page }) => {
   await page.goto("/calculator");
-  await page.locator("#calc-character").selectOption("character:10000015");
+  await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000015");
   await expect(page.locator("#calc-skill")).toBeEnabled();
   await selectSkill(page, /普通攻击第 1 段|基础普通攻击 N1/);
-  await page.locator("#calc-talent-level").fill("1");
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
   await chooseWeapon(page, "weapon:11430");
   await expect(formula(page, "weaponEffectActive")).toHaveValue("");
   await expect(formula(page, "weaponStacks")).toHaveValue("");
@@ -47,8 +48,8 @@ test("new weapon conditions use normal calculator controls, preserve hit scope, 
   await formula(page, "weaponStacks").fill("1");
   await formula(page, "offField").selectOption("false");
   await apply(page);
-  await page.locator('[data-field="enemy.level"]').fill("1");
-  await page.locator('[data-field="enemy.resistance"]').fill("0.1");
+  await (await revealControl(page.locator('[data-field="enemy.level"]'))).fill("1");
+  await (await revealControl(page.locator('[data-field="enemy.resistance"]'))).fill("0.1");
   const normal = await audit(page);
   expect(normal.result.status).toBe("calculated");
   expect(normal.document.build.mode).toBe("equipment-derived");
@@ -74,34 +75,34 @@ test("new weapon conditions use normal calculator controls, preserve hit scope, 
   await formula(page, "offField").selectOption("false");
   await apply(page);
   expect((await audit(page)).result.totals).toEqual(normal.result.totals);
-  await page.locator("#calc-build-mode").selectOption("manual-final");
+  await (await revealControl(page.locator("#calc-build-mode"))).selectOption("manual-final");
   expect((await audit(page)).result.totals).toEqual(normal.result.totals);
   const pendingDownload = page.waitForEvent("download");
-  await page.locator('[data-action="export"]').click();
+  await (await revealControl(page.locator('[data-action="export"]'))).click();
   const saved = JSON.parse(await readFile((await (await pendingDownload).path())!, "utf8")) as CalculatorDocument;
   expect(saved.build.mode).toBe("manual-final");
   const savedHit = saved.hits[0]!;
   expect(savedHit.kind === "ordinary" && savedHit.finalizedEquipmentEffects?.some(effect => effect.sourceRefs.some(ref => ref.includes("SturdyBone")))).toBe(true);
-  await page.locator("#calc-import").setInputFiles({ name: "sturdy-bone-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "sturdy-bone-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   expect((await audit(page)).result.totals).toEqual(normal.result.totals);
   await apply(page);
   expect((await audit(page)).result.totals).toEqual(normal.result.totals);
 
-  await page.locator("#calc-character").selectOption("character:10000034");
+  await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000034");
   await expect(page.locator("#calc-skill")).toBeEnabled();
-  await page.locator("#calc-form").selectOption("noelle-burst-inactive");
+  await (await revealControl(page.locator("#calc-form"))).selectOption("noelle-burst-inactive");
   await selectSkill(page, "基础普攻第 1 下");
-  await page.locator("#calc-noelle-burst-active").selectOption("0");
-  await page.locator("#calc-talent-level").fill("1");
+  await (await revealControl(page.locator("#calc-noelle-burst-active"))).selectOption("0");
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
   await chooseWeapon(page, "weapon:12435");
   await expect(formula(page, "weaponStacks").locator("..")).toContainText("主乐章");
   await expect(formula(page, "secondaryWeaponStacks").locator("..")).toContainText("复调");
   await formula(page, "weaponStacks").fill("1");
   await formula(page, "secondaryWeaponStacks").fill("2");
   await apply(page);
-  await page.locator('[data-field="enemy.level"]').fill("1");
-  await page.locator('[data-field="enemy.resistance"]').fill("0.1");
+  await (await revealControl(page.locator('[data-field="enemy.level"]'))).fill("1");
+  await (await revealControl(page.locator('[data-field="enemy.resistance"]'))).fill("0.1");
   const mixed = await audit(page);
   expect(mixed.result.status).toBe("calculated");
   if (mixed.document.build.mode !== "equipment-derived") throw Error("Expected sourced melody build");

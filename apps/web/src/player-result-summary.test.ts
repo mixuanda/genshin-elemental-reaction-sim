@@ -75,3 +75,23 @@ describe('player-first skill summary', () => {
     expect(coreAdapter).toContain('characterLevel: 90');
   });
 });
+
+// Structural wiring regression complements the real captured-hit browser roundtrip.
+// This does not claim DOM execution or browser acceptance.
+it('keeps validated captured-hit export eligible without weakening persistence or replay checks', () => {
+  const ui = readFileSync(new URL('./calculator-ui.ts', import.meta.url), 'utf8');
+  const controls = ui.slice(ui.indexOf('function renderControls()'), ui.indexOf('function renderResults()'));
+  expect(controls).toContain(`get<HTMLButtonElement>('[data-action="export"]').disabled = !(current || capturedHit);`);
+  const ordinary = ui.slice(ui.indexOf('function showOrdinaryCalculator()'), ui.indexOf('function clearCompositionEdit()'));
+  expect(ordinary).toContain(`get<HTMLButtonElement>('[data-action="export"]').disabled = !(current || capturedHit);`);
+  const replay = ui.slice(ui.indexOf('function loadSimulationCapture('), ui.indexOf('function download('));
+  expect(replay.indexOf('const replay = replaySimulationHit(capture);')).toBeGreaterThanOrEqual(0);
+  expect(replay.indexOf('capturedHit = replay.captured')).toBeGreaterThan(replay.indexOf('replaySimulationHit(capture)'));
+  expect(replay.indexOf('clearCompositionEdit();')).toBeGreaterThan(replay.indexOf('capturedHit = replay.captured'));
+  expect(replay.indexOf('showOrdinaryCalculator();')).toBeGreaterThan(replay.indexOf('clearCompositionEdit();'));
+  expect(replay.indexOf('showOrdinaryCalculator();')).toBeLessThan(replay.indexOf('renderControls();'));
+  const sink = ui.slice(ui.indexOf('function download('));
+  expect(sink.indexOf('importSessionPolicy.assertWorkspacePersistenceAllowed();')).toBeGreaterThanOrEqual(0);
+  expect(sink.indexOf('importSessionPolicy.assertWorkspacePersistenceAllowed();')).toBeLessThan(sink.indexOf('new Blob('));
+  expect(ui).toContain('serializeSimulationHit(capturedHit)');
+});

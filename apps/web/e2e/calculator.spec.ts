@@ -1,8 +1,10 @@
+import { revealControl } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import {
   loadWorkedExample,
+  parseSimulationHit,
   type CalculatorDocument,
   type CalculatorResult,
   type CapturedSimulationHit,
@@ -22,13 +24,13 @@ async function audit(page: Page): Promise<{ result: CalculatorResult; ruleVersio
 
 async function loadExample(page: Page, id: string): Promise<void> {
   const tools = page.locator("[data-calculator-example-tools]");
-  if (!await tools.evaluate(element => (element as HTMLDetailsElement).open)) await tools.locator("summary").click();
-  await page.locator("#calc-example-select").selectOption(id);
-  await page.locator('[data-action="load-example"]').click();
+  if (!await tools.evaluate(element => (element as HTMLDetailsElement).open)) await (await revealControl(tools.locator("summary"))).click();
+  await (await revealControl(page.locator("#calc-example-select"))).selectOption(id);
+  await (await revealControl(page.locator('[data-action="load-example"]'))).click();
 }
 
 async function importDocument(page: Page, document: unknown): Promise<void> {
-  await page.locator("#calc-import").setInputFiles({
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({
     name: "calculation.json",
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(document)),
@@ -37,7 +39,7 @@ async function importDocument(page: Page, document: unknown): Promise<void> {
 
 async function exportDocument<T = CalculatorDocument>(page: Page): Promise<T> {
   const downloadEvent = page.waitForEvent("download");
-  await page.locator('[data-action="export"]').click();
+  await (await revealControl(page.locator('[data-action="export"]'))).click();
   const download = await downloadEvent;
   const path = await download.path();
   expect(path).not.toBeNull();
@@ -74,13 +76,17 @@ function showcaseResponse(avatarId: number, skillLevels: Record<string, number> 
 test("calculator independently renders fixture A arithmetic from its execution trace", async ({ page }) => {
   {
     await page.goto("/calculator");
+    await expect(page.locator('[data-action="export"]')).toBeDisabled();
+    await importDocument(page, { schemaVersion: "calculator-event-v2", eventId: 0, eventStepResult: {} });
+    await expect(page.locator("#calc-message")).toContainText("导入失败");
+    await expect(page.locator('[data-action="export"]')).toBeDisabled();
     await loadExample(page, "fixture-a");
-    await expect(page.getByRole("heading", { name: "单技能伤害计算器" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "技能计算器", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Skill calculator" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Skill calculator", exact: true })).toBeVisible();
     await expect(page.getByTestId("calc-expected")).toHaveText("5,340.6");
     expect(await page.evaluate(() => window.GenshinDpsLab.getLastResult())).toBeNull();
     await expect(page.locator("#simulationWorkspace")).toBeHidden();
-    await expect(page.locator("#calc-results .calculator-badge.synthetic").first()).toHaveText("合成教学数据");
+    await expect(page.locator("#calc-results .calculator-badge.synthetic").first()).toHaveText("Synthetic example");
     await expect(page.locator("#calc-character")).toHaveValue("");
     const formalOptions = await page.locator("#calc-character option").allTextContents();
     expect(formalOptions.some(label => /教学 A|教学 B|fixture-|synthetic/.test(label))).toBe(false);
@@ -134,11 +140,11 @@ test("calculator independently renders fixture A arithmetic from its execution t
     })));
     const baseRow = page.locator('#calc-results .calculator-hit-card [data-trace-node="baseDamage"]');
     const detail = baseRow.locator("xpath=following-sibling::tr[1]");
-    await detail.locator(":scope > td > details > summary").click();
+    await (await revealControl(detail.locator(":scope > td > details > summary"))).click();
     await expect(detail.locator(".trace-substitution")).toContainText("4000 + 300");
     await expect(detail.locator(".trace-detail-content")).toContainText("固定攻击力");
     await expect(detail.locator("dl")).toContainText("flatDamage");
-    await expect(page.locator("#calc-results")).toContainText("概率加权");
+    await expect(page.locator("#calc-results")).toContainText("Expected damage is a probability-weighted average");
   }
 });
 
@@ -146,7 +152,7 @@ test("editing inputs and final-panel conversion recalculate without stale values
   {
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-    await page.locator('[data-field="build.characterBaseAtk"]').fill("400");
+    await (await revealControl(page.locator('[data-field="build.characterBaseAtk"]'))).fill("400");
     let result = (await audit(page)).result;
     closeTo(result.trace.find(node => node.id === "build.baseAtk")?.result?.value, 1100);
     closeTo(result.trace.find(node => node.id === "build.finalAtk")?.result?.value, 2180);
@@ -154,27 +160,27 @@ test("editing inputs and final-panel conversion recalculate without stale values
     const table = page.locator("#calc-results .calculator-trace").first();
     await expect(table.locator('[data-trace-node="build.baseAtk"] + tr .trace-substitution')).toContainText("400 + 700");
     await expect(page.getByTestId("calc-expected")).toHaveText("5,787.72");
-    await page.locator('[data-field="build.characterBaseAtk"]').fill("");
+    await (await revealControl(page.locator('[data-field="build.characterBaseAtk"]'))).fill("");
     await expect(page.getByTestId("calc-expected")).toHaveCount(0);
     await expect(page.locator("#calc-results")).toContainText("不保留旧结果");
-    await page.locator('[data-field="build.characterBaseAtk"]').fill("300");
+    await (await revealControl(page.locator('[data-field="build.characterBaseAtk"]'))).fill("300");
     result = (await audit(page)).result;
     closeTo(result.totals?.expected, 5340.6);
   }
   {
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-    await page.locator("#calc-build-mode").selectOption("manual-final");
+    await (await revealControl(page.locator("#calc-build-mode"))).selectOption("manual-final");
     await expect(page.locator('[data-field="build.stats.atk"]')).toHaveValue("2000");
     let result = (await audit(page)).result;
     closeTo(result.totals?.expected, 5340.6);
     expect(result.trace.some(node => node.id === "build.baseAtk")).toBe(false);
     closeTo(result.trace.find(node => node.id === "build.supplied.atk")?.result?.value, 2000);
     await expect(page.locator("#calc-document-controls")).toContainText("前置装备分解不可得");
-    await page.locator('[data-field="build.stats.atk"]').fill("2500");
+    await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("2500");
     result = (await audit(page)).result;
     closeTo(result.totals?.expected, 6582.6);
-    await page.locator("#calc-build-mode").selectOption("equipment-derived");
+    await (await revealControl(page.locator("#calc-build-mode"))).selectOption("equipment-derived");
     closeTo((await audit(page)).result.totals?.expected, 5340.6);
   }
 });
@@ -183,7 +189,7 @@ test("editable two-hit example keeps per-hit totals and JSON roundtrip separate 
   {
     await page.goto("/examples");
     await expect(page.getByRole("heading", { name: "合成教学例题", exact: true })).toBeVisible();
-    await page.locator('[data-example-id="fixture-b"]').click();
+    await (await revealControl(page.locator('[data-example-id="fixture-b"]'))).click();
     await expect(page).toHaveURL(/\/calculator$/);
     const { result } = await audit(page);
     closeTo(result.hits[0]?.expected, 2760);
@@ -204,27 +210,27 @@ test("editable two-hit example keeps per-hit totals and JSON roundtrip separate 
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
     await loadExample(page, "fixture-b");
-    await page.locator("#calc-scope").selectOption("single-hit");
+    await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
     closeTo((await audit(page)).result.totals?.expected, 2760);
-    await page.locator('input[data-hit-id="hit-b"]').check();
+    await (await revealControl(page.locator('input[data-hit-id="hit-b"]'))).check();
     let result = (await audit(page)).result;
     closeTo(result.totals?.expected, 1104);
     expect(result.includedHitIds).toEqual(["hit-b"]);
     expect(result.excludedHitIds).toEqual(["hit-a"]);
-    await page.locator("#calc-scope").selectOption("one-cast");
-    await page.locator('[data-field="hits.1.preReactionDamage"]').fill("800");
+    await (await revealControl(page.locator("#calc-scope"))).selectOption("one-cast");
+    await (await revealControl(page.locator('[data-field="hits.1.preReactionDamage"]'))).fill("800");
     result = (await audit(page)).result;
     closeTo(result.totals?.expected, 4232);
     closeTo(result.totals?.expected, result.hits.reduce((sum, hit) => sum + hit.expected!, 0));
-    await page.locator('input[data-hit-id="hit-a"]').uncheck();
+    await (await revealControl(page.locator('input[data-hit-id="hit-a"]'))).uncheck();
     closeTo((await audit(page)).result.totals?.expected, 1472);
   }
   {
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
     await loadExample(page, "fixture-b");
-    await page.locator('[data-field="hits.1.preReactionDamage"]').fill("800");
-    await page.locator('input[data-hit-id="hit-a"]').uncheck();
+    await (await revealControl(page.locator('[data-field="hits.1.preReactionDamage"]'))).fill("800");
+    await (await revealControl(page.locator('input[data-hit-id="hit-a"]'))).uncheck();
     const before = await exportDocument(page);
     expect(before.scope).toBe("one-cast");
     expect(before.selectedHitIds).toEqual(["hit-b"]);
@@ -237,9 +243,9 @@ test("editable two-hit example keeps per-hit totals and JSON roundtrip separate 
     await expect(page.getByTestId("calc-expected")).toHaveText("1,472");
     expect(await exportDocument(page)).toEqual(before);
     expect((await audit(page)).result).toEqual(beforeResult);
-    await page.locator(".calculator-audit summary").click();
+    await (await revealControl(page.locator(".calculator-audit summary"))).click();
     const reportDownload = page.waitForEvent("download");
-    await page.locator('[data-action="export-report"]').click();
+    await (await revealControl(page.locator('[data-action="export-report"]'))).click();
     const path = await (await reportDownload).path();
     const report = JSON.parse(await readFile(path!, "utf8"));
     expect(report.document).toEqual(before);
@@ -251,10 +257,10 @@ test("formal skill selection tolerates unrelated gaps but blocks missing selecte
   {
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-    await page.locator("#calc-character").selectOption("character:10000123");
+    await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000123");
     await expect(page.locator("#calc-skill")).toBeEnabled();
     const blackSkill = await page.locator("#calc-skill option").filter({ hasText: "黑度之否" }).first().getAttribute("value");
-    await page.locator("#calc-skill").selectOption(blackSkill!);
+    await (await revealControl(page.locator("#calc-skill"))).selectOption(blackSkill!);
     await expect(page.locator("#calc-scope")).toHaveValue("one-cast");
     await expect(page.locator("#calc-hit-selection label")).toHaveCount(3);
     const document = await exportDocument(page);
@@ -265,11 +271,12 @@ test("formal skill selection tolerates unrelated gaps but blocks missing selecte
     expect(result.verification).toBe("provisional");
     expect(result.hits).toHaveLength(3);
     closeTo(result.totals?.expected, result.hits.reduce((sum, hit) => sum + hit.expected!, 0));
-    await expect(page.locator("#calc-results")).toContainText("暂定，尚未独立核验");
+    await expect(page.locator("#calc-results")).toContainText("Provisional; not independently verified");
     await expect(page.locator('[data-field="hits.0.terms.0.coefficient"]')).toHaveAttribute("readonly", "");
     const before = document.hits[0];
-    await page.locator("#calc-talent-level").fill("9");
-    await page.locator("#calc-talent-level").press("Tab");
+    await (await revealControl(page.locator("#calc-talent-level"))).fill("9");
+    await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
     await expect(page.locator(".calculator-result-header")).toContainText("有效天赋等级 9");
     const after = (await exportDocument(page)).hits[0];
     expect(after?.kind === "ordinary" && before?.kind === "ordinary" && after.terms[0]!.coefficient < before.terms[0]!.coefficient).toBe(true);
@@ -297,11 +304,11 @@ test("public showcase imports preserve final stats while unknown identities cann
     }));
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-    await page.locator("#calc-showcase-uid").fill("900000001");
-    await page.locator('[data-action="showcase"]').click();
+    await (await revealControl(page.locator("#calc-showcase-uid"))).fill("900000001");
+    await (await revealControl(page.locator('[data-action="showcase"]'))).click();
     await expect(page.locator("#calc-showcase-status")).toContainText("使用 TTL 缓存");
     await expect(page.locator("#calc-showcase-characters")).toContainText("未匹配角色 19999999");
-    await page.locator('[data-showcase-index="0"]').click();
+    await (await revealControl(page.locator('[data-showcase-index="0"]'))).click();
     await expect(page.locator("#calc-results")).toContainText("不能借用其他角色天赋");
     await expect(page.locator("#calc-results")).toContainText("已保留导入最终面板：攻击力 2,000");
     await expect(page.getByTestId("calc-expected")).toHaveCount(0);
@@ -314,12 +321,12 @@ test("public showcase imports preserve final stats while unknown identities cann
     }));
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-    await page.locator("#calc-showcase-uid").fill("900000002");
-    await page.locator('[data-action="showcase"]').click();
-    await page.locator('[data-showcase-index="0"]').click();
+    await (await revealControl(page.locator("#calc-showcase-uid"))).fill("900000002");
+    await (await revealControl(page.locator('[data-action="showcase"]'))).click();
+    await (await revealControl(page.locator('[data-showcase-index="0"]'))).click();
     await expect(page.locator("#calc-build-mode")).toHaveValue("imported-final");
     const whiteSkill = await page.locator("#calc-skill option").filter({ hasText: "白化之是" }).first().getAttribute("value");
-    await page.locator("#calc-skill").selectOption(whiteSkill!);
+    await (await revealControl(page.locator("#calc-skill"))).selectOption(whiteSkill!);
     await expect(page.locator('[data-field="build.stats.atk"]')).toHaveValue("2000");
     await expect(page.locator("#calc-talent-level")).toHaveValue("10");
     const document = await exportDocument(page);
@@ -334,21 +341,29 @@ test("public showcase imports preserve final stats while unknown identities cann
 });
 
 test("a simulator hit opens in Calculator with identical trace and roundtrips its complete capture", async ({ page }) => {
-  await page.goto("/");
-  await page.locator("#presetSelect").selectOption({ label: "杜林黑 E · 部分机制审计向量" });
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator("#hitTableBody tr[data-hit-id]").first().click();
+  await page.goto("/results");
+  await (await revealControl(page.locator("#presetSelect"))).selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator("#hitTableBody tr[data-hit-id]").first())).click();
   await expect(page.locator("#openHitCalculator")).toBeEnabled();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page).toHaveURL(/\/calculator$/);
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   await expect(page.getByTestId("replay-reproduced")).toHaveText(await page.getByTestId("replay-original").innerText());
   const destinationTrace = await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(destinationTrace).toEqual(sourceTrace);
-  const captured = await exportDocument<CapturedSimulationHit>(page);
-  expect(captured.schemaVersion).toBe("calculator-event-v1");
+  // Valid replay may export even though there is no editable CalculatorDocument.
+  await expect(page.locator('[data-action="export"]')).toBeEnabled();
+  await (await revealControl(page.locator('[data-action="observed-composition"]'))).click();
+  await expect(page.locator('[data-action="export"]')).toBeDisabled();
+  await (await revealControl(page.locator("#calc-composition-close"))).click();
+  await expect(page.locator('[data-action="export"]')).toBeEnabled();
+  const capturedWire = await exportDocument<unknown>(page);
+  const captured = parseSimulationHit(JSON.stringify(capturedWire));
+  expect(captured.schemaVersion).toBe("calculator-event-v2");
+  expect(captured.eventStepResult).toBeDefined();
   const event = captured.sourceResult.damageEvents.find(item => item.id === captured.eventId)!;
   expect(event.enemyStateBeforeHit).toBeDefined();
   expect(event.damageFactors).toBeDefined();
@@ -356,9 +371,19 @@ test("a simulator hit opens in Calculator with identical trace and roundtrips it
   expect(captured.sourceResult.resolvedRuntimeOptions).toBeDefined();
   await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-  await importDocument(page, captured);
+  await (await revealControl(page.locator('[data-action="observed-composition"]'))).click();
+  await expect(page.locator(".calculator-layout")).toBeHidden();
+  await importDocument(page, { schemaVersion: "calculator-event-v2", eventId: 0, eventStepResult: {} });
+  await expect(page.locator("#calc-message")).toContainText("导入失败");
+  await expect(page.locator("#calc-source-host-capture")).toBeVisible();
+  await expect(page.locator(".calculator-layout")).toBeHidden();
+  await expect(page.locator('[data-action="export"]')).toBeDisabled();
+  await importDocument(page, capturedWire);
+  await expect(page.locator("#calc-source-host-capture")).toBeHidden();
+  await expect(page.locator(".calculator-layout")).toBeVisible();
+  await expect(page.locator('[data-action="export"]')).toBeEnabled();
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
-  expect(await exportDocument<CapturedSimulationHit>(page)).toEqual(captured);
+  expect(await exportDocument<unknown>(page)).toStrictEqual(capturedWire);
 });
 
 test("mobile examples preserve special-reaction readiness and preview identity", async ({ page }) => {
@@ -380,12 +405,12 @@ test("mobile examples preserve special-reaction readiness and preview identity",
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");
-    await expect(page.getByRole("heading", { name: "单技能伤害计算器" })).toBeVisible();
-    await page.locator('[data-field="build.flatAtk"]').fill("300");
+    await expect(page.getByRole("heading", { name: "Skill calculator" })).toBeVisible();
+    await (await revealControl(page.locator('[data-field="build.flatAtk"]'))).fill("300");
     closeTo((await audit(page)).result.totals?.expected, 5589);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await page.locator('[data-action="examples"]').click();
-    await page.locator('[data-example-id="fixture-b"]').click();
+    await (await revealControl(page.locator('[data-action="examples"]'))).click();
+    await (await revealControl(page.locator('[data-example-id="fixture-b"]'))).click();
     await expect(page.getByTestId("calc-expected")).toHaveText("3,864");
   }
 });
