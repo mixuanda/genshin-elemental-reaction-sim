@@ -4,7 +4,16 @@ import type {
   SimConfig
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
-import { simulate } from "../simulator";
+import { simulate as simulateHistorical, type SimulationRuntimeOptions } from "../simulator";
+import { simulateEventStepResult } from "../event-step-result";
+
+// Current nearby-Wet runs use their new explicit result protocol. All numerical,
+// Aura, ownership, geometry, cadence and ordering assertions below remain intact.
+// The single-target historical path is intentionally unchanged.
+const simulate = (config:SimConfig,options:SimulationRuntimeOptions={}) =>
+  config.electroChargedPropagationModel?.mode === 'nearby-wet-radius-v1'
+    ? simulateEventStepResult(config,options).result
+    : simulateHistorical(config,options);
 import { makeConfig, neutralStats } from "./fixtures";
 
 const SOURCE_ID = "enemy-0";

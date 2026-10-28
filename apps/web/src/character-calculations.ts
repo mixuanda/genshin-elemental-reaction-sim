@@ -1,6 +1,34 @@
+import {extendAlhaithamDocuments} from './alhaitham-calculation-context';
+import { initializeFaruzanBurstInitialDocument, isFaruzanBurstInitialAction, isFaruzanBurstInitialHit, FARUZAN_BURST_INITIAL_SOURCE_REFS } from "../../../packages/sim-core/src/faruzan-burst-initial-formulas";
+import { initializeWandererPrimaryDocument } from "./wanderer-primary-calculation-context";
+import { initializeDurinBurstDocument } from "./durin-burst-calculation-context";
+import { isWandererPrimaryAction, WANDERER_PRIMARY_SOURCE_REFS } from "../../../packages/sim-core/src/wanderer-primary-formulas";
+import { isDurinBurstAction, DURIN_BURST_SOURCE_REFS } from "../../../packages/sim-core/src/durin-burst-formulas";
+import { initializeNicoleSkillInitialDocument, isNicoleSkillInitialAction, isNicoleSkillInitialHit, NICOLE_SKILL_INITIAL_SOURCE_REFS } from "../../../packages/sim-core/src/nicole-skill-initial-formulas";
+import {isAlhaithamDamageAction,ALHAITHAM_DAMAGE_SOURCE_REFS,ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/alhaitham-damage-formulas';
+import {initializeArlecchinoDamageDocument} from './arlecchino-calculation-context';
+import {isArlecchinoDamageAction,ARLECCHINO_DAMAGE_SOURCE_REFS,ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION} from '../../../packages/sim-core/src/arlecchino-damage-formulas';
+import {applyHutaoDamageContext,createHutaoExampleContext} from './hutao-calculation-context';
+import {isHutaoPrimaryDocument,HUTAO_DAMAGE_SOURCE_REFS,HUTAO_PRIMARY_MAX_CONSTELLATION} from '../../../packages/sim-core/src/hutao-damage-formulas';
+import {extendKinichDocuments} from './kinich-calculation-context';
+import {initializeKazuhaBurstDocument} from './kazuha-calculation-context';
+import {isKazuhaBurstAction} from '../../../packages/sim-core/src/kazuha-burst-formulas';
+import {KAZUHA_BURST_SOURCE_REFS} from '../../../packages/sim-core/src/kazuha-burst-source-values';
+import {applyCynoDamageContext,createCynoExampleContext} from './cyno-calculation-context';
+import {isCynoDamageDocument,CYNO_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/cyno-damage-formulas';
+import {isKinichDamageAction,KINICH_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/kinich-damage-formulas';
+import {isGamingDamageAction,prepareGamingDamageDocument,GAMING_DAMAGE_SOURCE_REFS} from '../../../packages/sim-core/src/gaming-damage-formulas';
+import {extendXiaoDocuments} from "./xiao-calculation-context";
+import {isXiaoDamageAction,XIAO_DAMAGE_SOURCE_REFS} from "../../../packages/sim-core/src/xiao-damage-formulas";
+import {applyTighnariDamageContext,isTighnariDamageAction} from './tighnari-calculation-context';
 import { optimizerSpecialComponents } from "../../../packages/game-data/src/character-mappings/optimizer-special-components";
 import { createObservedSpecialComponentDocument } from "../../../packages/sim-core/src/observed-special-component-formulas";
 import { prepareSourceCastDocument } from "../../../packages/sim-core/src/source-cast-context";
+import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
+import { isDurinSkillAction } from "../../../packages/sim-core/src/durin-skill-formulas";
+import { travelerMaleChargedConstellationScope } from "../../../packages/sim-core/src/traveler-male-charged-constellations";
+import { travelerAnemoConstellationScope } from "../../../packages/sim-core/src/traveler-cross-entity-formulas";
+import { isIansanSwiftConstellationHit } from "../../../packages/sim-core/src/iansan-swift-resolved-formulas";
 import { resolveClassifiedCharacterHits } from "@genshin-dps-lab/game-data/classified-hits";
 import { releasedRuntimeWorkspace, type RuntimeWorkspace } from "@genshin-dps-lab/game-data";
 import { stampCalculatorWorkspaceEvidence } from "./calculator-workspace-trust";
@@ -109,7 +137,35 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     let sourceRefs = hit.sourceRefs;
     const kaeyaSkill = context.skillId === "kaeya-skill" && hit.attackTag === "skill";
     const kaeyaTick = context.skillId === "kaeya-burst-burst" && hit.attackTag === "burst" && context.scopeCoverage === "selected-components";
-    if (context.abilityId.startsWith("talent:kaeya:") && (kaeyaSkill || kaeyaTick)) {
+    const maleChargedScope = travelerMaleChargedConstellationScope(result, hit);
+    const anemoBurstScope = travelerAnemoConstellationScope(result, hit);
+    if (result.gameContext?.nicoleSkillInitial && isNicoleSkillInitialHit(result, hit)) {
+      allowed = context.constellation <= 2; sourceRefs = [...sourceRefs, ...NICOLE_SKILL_INITIAL_SOURCE_REFS];
+      reason = allowed ? "妮可C0–C2本次E初击：8帧E增攻样本、C2平攻和同击动态减抗分别核对，新A1不回填已快照攻击；不加入C1/Q投影。" : "妮可此E初击未审阅C3以上，不能按C2代算。";
+    } else if (isWandererPrimaryAction(result)) {
+      allowed = true; sourceRefs = [...sourceRefs, ...WANDERER_PRIMARY_SOURCE_REFS];
+      reason = "流浪者C0–C6空居普攻、独立C6追加或Q：NA/E/Q有效天赋分别处理，吸收、C6资格及C2取样按实际状态核对，不生成整轮或额外风矢。";
+    } else if (isDurinBurstAction(result)) {
+      allowed = context.constellation <= 2; sourceRefs = [...sourceRefs, ...DURIN_BURST_SOURCE_REFS];
+      reason = allowed ? "杜林C0–C2当前白Q一次追击：前10次A4按真实序号自动判断，C2按此前状态与已含份额核对，不添加本人不应取得的C1队友附伤。" : "杜林白Q此单次追击尚未审阅C3以上，不能用C2代算。";
+    } else if (result.gameContext?.faruzanBurstInitial && isFaruzanBurstInitialHit(result, hit)) {
+      allowed = true; sourceRefs = [...sourceRefs, ...FARUZAN_BURST_INITIAL_SOURCE_REFS];
+      reason = "珐露珊C0–C6所选Q初击：祈风赐福、A4白字与C6暴伤分别恢复；本次Q减抗在初击之后生效。后续坍陷不属于本次单击。";
+    } else if (maleChargedScope) {
+      allowed = maleChargedScope.allowed;
+      reason = maleChargedScope.reason;
+      sourceRefs = [...sourceRefs, ...maleChargedScope.sourceRefs];
+    } else if (anemoBurstScope) {
+      allowed = anemoBurstScope.allowed;
+      reason = anemoBurstScope.reason;
+      sourceRefs = [...sourceRefs, ...anemoBurstScope.sourceRefs];
+    } else if (isIansanSwiftConstellationHit(result, hit)) {
+      allowed = true;
+      reason = "伊安珊C0–C6本次雷霆飞缒：普攻等级与实际Q等级分别计算；本人不取得C2队友30%攻击加成，C6须核对本击实际收到的增伤及已含份额。夜魂、回能及后续队友动作由队伍引擎单独调度。";
+    } else if(isTighnariDamageAction(result)) {
+      allowed = context.skillId !== "tighnari-wreath-complete-c0-c5" || context.constellation <= 5;
+      reason = "提纳里：C1只给重击暴击，C2草伤、C4精通按实际状态恢复；C3/C5由有效等级一次处理。C6花筥额外箭未混入C0–C5总数。";
+    } else if (context.abilityId.startsWith("talent:kaeya:") && (kaeyaSkill || kaeyaTick)) {
       allowed = true;
       sourceRefs = [...sourceRefs, ...kaeyaConstellationSources];
       reason = "固定来源 C1 仅影响普攻/重击条件暴击；C2/C6 改变爆发持续时间或冰棱数量，C4 为护盾。所选 E 或单个 Q tick 的伤害系数保持不变；C3/C5 已由显式有效天赋等级处理。此项不验证整个爆发总次数。";
@@ -122,6 +178,36 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
       reason = allowed
         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
+    } else if(isAlhaithamDamageAction(result)) {
+      allowed=context.constellation<=ALHAITHAM_MAX_IMPLEMENTED_CONSTELLATION;sourceRefs=[...sourceRefs,...ALHAITHAM_DAMAGE_SOURCE_REFS];
+      reason=allowed?"艾尔海森C0–C6所选镜投射：C2精通按实际阶段补差，C3直接使用有效E等级；C4自身草伤和C6双暴分别核对快照实际状态及已含份额，不把队友精通加给自身。不代算Q或完整镜生命周期。":"此镜投射入口超出已审阅命座范围，不能按低命座代算。";
+    } else if(isArlecchinoDamageAction(result)) {
+      allowed=context.constellation<=ARLECCHINO_MAX_IMPLEMENTED_CONSTELLATION;sourceRefs=[...sourceRefs,...ARLECCHINO_DAMAGE_SOURCE_REFS];
+      reason=allowed?"阿蕾奇诺C0–C6红死之宴所选一击：C1附伤系数加1.0，C3直接使用有效普攻等级；C6按本击实际生效及面板已含双暴补差。不追加C2吸收、Q或完整循环。":"此红死之宴单击超出已审阅命座范围，不能按低命座代算。";
+    } else if(isHutaoPrimaryDocument(result)) {
+      allowed=context.constellation<=HUTAO_PRIMARY_MAX_CONSTELLATION;sourceRefs=[...sourceRefs,...HUTAO_DAMAGE_SOURCE_REFS];
+      reason=allowed?"胡桃C0–C6彼岸蝶舞所选火普攻或重击：有效普攻/E等级不重复增加命座，E快照、A4和C6实际生效及暴击率已含量分别核对；不追加血梅香或队友增益。":"此彼岸蝶舞单击超出已审阅命座范围，不能静默降级。";
+    } else if(isKazuhaBurstAction(result)) {
+      allowed=context.constellation<=1;sourceRefs=[...sourceRefs,...KAZUHA_BURST_SOURCE_REFS];
+      reason=allowed?"万叶C0/C1所选Q直接伤害：元素转化时点、逐元素增伤和81f前A4单独检查；C1不增加Q直接命中，不含扩散实体。":"万叶Q此入口尚未接入C2以上的精通与命座快照，不以低命座代算。";
+    } else if(isCynoDamageDocument(result)) {
+      allowed=context.constellation===0;sourceRefs=[...sourceRefs,...CYNO_DAMAGE_SOURCE_REFS];
+      reason=allowed?"赛诺C0启途誓使所选普攻或重击使用Q有效天赋，Q精通及A4动作起手取样独立核对；末途真眼E和完整循环不在此入口。":"启途誓使此单击入口只审阅C0，尚未接入高命座，不能按C0代算。";
+    } else if(isKinichDamageAction(result)) {
+      allowed=context.constellation<=1;sourceRefs=[...sourceRefs,...KINICH_DAMAGE_SOURCE_REFS];
+      reason=allowed?"基尼奇C0/C1所选E命中：环绕射击/贯鳞炮使用独立E天赋，夜魂值、心得、创建时攻击力与C1已含份额分别检查；不代算Q或完整循环。":"基尼奇此入口尚未实现C2以上的首炮增伤、减抗及高命座机制，不能用C0/C1代算。";
+    } else if(isGamingDamageAction(result)) {
+      allowed=true;sourceRefs=[...sourceRefs,...GAMING_DAMAGE_SOURCE_REFS];
+      reason="嘉明所选自身一击：C2实际攻击增益、A4命中生命、C6专属双暴独立核对；有效E/Q等级已含C3/C5，不生成治疗/回能/循环。";
+    } else if(isXiaoDamageAction(result)) {
+      allowed=true;sourceRefs=[...sourceRefs,...XIAO_DAMAGE_SOURCE_REFS];
+      reason="魈实际单击：C1/C2/C4及C6后续E资格不改本击；C3/C5由有效E/独立有效Q等级处理。Q状态、A1时间、E前A4层数与已含份额仍单独确认，不生成整轮。";
+    } else if (isDurinSkillAction(result)) {
+      allowed = context.constellation <= 2;
+      reason = allowed ? "杜林白E/黑E自身命中已核对C0–C2：C1不追加自身E，C2的50%火伤仍按实际快照和已含份额检查；不自动提供Q后台、队友伤害或A1反应状态。" : "杜林E当前仅审阅C0–C2，不以低命座代算更高命座。";
+    } else if (isWandererInitialSingleHit(result, hit)) {
+      allowed = true;
+      reason = "流浪者所选E初击已审阅C0–C6：初击不挂接C6普攻追加回调，C1攻速/风矢、C2爆发增伤不改变本击；C3提升Q、C5提升E，已由显式有效天赋处理。A1/C4吸收可先于第2帧快照改变攻击/暴击，本击仍须通过吸收与面板条件检查；此项不开放完整姿态或空居普攻。";
     } else if (isKukiDamageAction(result)) {
       allowed = context.kukiDamage !== undefined;
       sourceRefs = [...sourceRefs, ...KUKI_DAMAGE_SOURCE_REFS];
@@ -167,6 +253,7 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
     hit.dependencies.push(id);
     result.dependencies.push({ id, status: allowed ? "provisional" : "missing", reason, sourceRefs });
   }
+  if(isTighnariDamageAction(result))return applyTighnariDamageContext(result,result.gameContext?.tighnariDamage??{});
   if(isKukiDamageAction(result)&&result.gameContext?.kukiDamage)return applyKukiDamageContext(result,result.gameContext.kukiDamage);
   if(isColleiSkillAction(result))return applyColleiSkillContext(result,result.gameContext?.colleiSkill??{});
   if(isCharlotteSkillAction(result))return applyCharlotteSkillContext(result,result.gameContext?.charlotteSkill??{a4IncludedInPanel:false});
@@ -233,6 +320,16 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       ],
       dataIdentity: { datasetId: workspace.metadata.snapshotId, gameVersion: workspace.metadata.gameVersion, releaseStatus: workspace.channel === "preview" ? "preview" : workspace.metadata.releaseStatus, evidenceStatus: "provisional" }
     };
+    if(isNicoleSkillInitialAction(document))return initializeNicoleSkillInitialDocument(document);
+    if(isWandererPrimaryAction(document))return initializeWandererPrimaryDocument(document);
+    if(isDurinBurstAction(document))return initializeDurinBurstDocument(document);
+    if(isFaruzanBurstInitialAction(document))return initializeFaruzanBurstInitialDocument(document);
+    if(isArlecchinoDamageAction(document))return initializeArlecchinoDamageDocument(document);
+    if(isHutaoPrimaryDocument(document))return applyHutaoDamageContext(document,createHutaoExampleContext());
+    if(isKazuhaBurstAction(document))return initializeKazuhaBurstDocument(document);
+    if(isCynoDamageDocument(document))return applyCynoDamageContext(document,createCynoExampleContext());
+    if(isGamingDamageAction(document)){document.gameContext!.gamingDamage={c2Included:false,a4Included:false,c6CritRateIncluded:false,c6CritDamageIncluded:false};return prepareGamingDamageDocument(document);}
+    if(isTighnariDamageAction(document))return applyTighnariDamageContext(document,{priorA1Active:false,a1IncludedEm:0,c4IncludedEm:0,includedA4Bonus:0,includedC2Bonus:0,includedC1Crit:0,allHitsConnected:true,statsStableAcrossHits:true});
     if(isKukiDamageAction(document)){
       if(skillId === "kuki-skill-c2-complete-cast") document.gameContext!.constellation = 2;
       return applyKukiDamageContext(document,{ringUninterrupted:true,statsStableAcrossHits:true});
@@ -260,5 +357,5 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
       documents.push(stampCalculatorWorkspaceEvidence(createObservedSpecialComponentDocument(base,component.id),workspace));
     }
   }
-  return documents;
+  return extendAlhaithamDocuments(extendKinichDocuments(extendXiaoDocuments(documents,workspace),workspace),workspace);
 }

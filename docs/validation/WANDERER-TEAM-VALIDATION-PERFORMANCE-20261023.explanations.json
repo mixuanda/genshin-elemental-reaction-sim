@@ -1,0 +1,53 @@
+{
+  "kind": "offline actual formula-call replay, not native/browser latency",
+  "elapsedMs": 17096.252708,
+  "profile": {
+    "calls": 19602,
+    "requestChars": 40644264,
+    "parseMs": 291.37451899968573,
+    "calculateMs": 13285.3203440001,
+    "captureMs": 3136.0244179999677,
+    "responseMs": 43.882742999942366,
+    "totalMs": 16758.77602099963,
+    "traceNodeReferences": 557747,
+    "byKind": {
+      "character-modifier": {
+        "calls": 9894,
+        "totalMs": 2385.1724779997103
+      },
+      "artifact-scalar": {
+        "calls": 8023,
+        "totalMs": 1524.1715119999299
+      },
+      "character-cooldown": {
+        "calls": 92,
+        "totalMs": 165.188683999997
+      },
+      "character-shield": {
+        "calls": 6,
+        "totalMs": 36.75763099999949
+      },
+      "character-energy": {
+        "calls": 647,
+        "totalMs": 1953.569623999983
+      },
+      "damage": {
+        "calls": 610,
+        "totalMs": 7833.314682999997
+      },
+      "character-flat": {
+        "calls": 12,
+        "totalMs": 82.21583500000315
+      },
+      "character-additive": {
+        "calls": 225,
+        "totalMs": 2347.3385820000035
+      },
+      "transformative-base": {
+        "calls": 93,
+        "totalMs": 431.04699200000505
+      }
+    }
+  },
+  "explanationsSha256": "dee0750f66230beb5da48e3c71ade9c5ed13d12fcf8f2cbed0c2d1b53751d3a4"
+}

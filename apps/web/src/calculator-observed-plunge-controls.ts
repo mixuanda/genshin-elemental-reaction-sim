@@ -10,7 +10,7 @@ export function renderObservedPlungeControls(document: CalculatorDocument): stri
   const context = document.gameContext?.observedPlunge ?? {};
   const high = document.gameContext!.skillId.includes("-high-");
   const complete = document.scope !== "single-hit";
-  const characterHasLowHighTemplate = /^(lohen|linnea|sandrone|alyosha)-plunge-(?:low|high)-/.test(document.gameContext!.skillId);
+  const characterHasLowHighTemplate = /^(lohen|linnea|sandrone|alyosha|kachina)-plunge-(?:low|high)-/.test(document.gameContext!.skillId);
   const contactingHits = contactingPlungeHits(document);
   const needsSnapshots = complete && characterHasLowHighTemplate && context.statsStableAcrossHits === false &&
     contactingHits.length > 1;

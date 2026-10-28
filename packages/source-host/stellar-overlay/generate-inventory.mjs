@@ -119,7 +119,10 @@ const extracted = spawnSync(toolchain.go, ['run', resolve(packageDir, '../script
     files: [...readFiles.keys()].filter(path => path.endsWith('.go') && !path.endsWith('_test.go')),
     packages: packages.filter(row => row.kind === 'character').map(row => ({ packagePath: row.packagePath, directFiles: packageFiles(row.packagePath) })) }),
   encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
-  env: { ...process.env, GOROOT: toolchain.goRoot, GOTOOLCHAIN: 'local' }
+  env: { ...process.env, GOROOT: toolchain.goRoot, GOTOOLCHAIN: 'local',
+    GOPATH: resolve(options['--cache-dir'] ?? '/tmp/gidps-source-host-cache', 'gopath'),
+    GOMODCACHE: resolve(options['--cache-dir'] ?? '/tmp/gidps-source-host-cache', 'modules'),
+    GOCACHE: resolve(options['--cache-dir'] ?? '/tmp/gidps-source-host-cache', 'go-build') }
 });
 if (extracted.error || extracted.status !== 0) throw new Error(`Action capability extraction failed: ${extracted.error ?? extracted.stderr}`);
 const capabilityResult = JSON.parse(extracted.stdout);

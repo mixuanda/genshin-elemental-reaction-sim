@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-23",
+  "baseCommit": "fcdf2e9897d14328c67c0b5443398edc39c8765e",
+  "scope": "Only two authorized existing classified-hits tests plus a new focused consumer test file; no production files, source archives, schemas, tolerances or Golden outputs changed.",
+  "runCommand": "./node_modules/.bin/vitest run packages/game-data/src/classified-hits.test.ts packages/game-data/src/classified-identity-replacements.test.ts --testNamePattern='keeps traveler gender and element identity|keeps the new source revision explicit|current classified identity replacements' --reporter=json --outputFile=/tmp/GIDPS-classified-identity-evidence-20261023/final.json",
+  "sourceIdentity": {
+    "optimizer": "180a0a1015cb725c7570cd828eb086749960df98",
+    "gcsimBehavior": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "catalogCorroboration": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "files": [
+      {
+        "path": "packages/game-data/sources/traveler-cross-source-casts/manifest.json",
+        "bytes": 74561,
+        "sha256": "3e348bca2a9624e7b056dce258ae4438a59f9323efc5131601c7f5899220f5f0"
+      },
+      {
+        "path": "packages/game-data/sources/traveler-cross-source-casts/definitions.json",
+        "bytes": 23238,
+        "sha256": "8238409659638b3fb85b95fc425a28a2a46948217d47a382f80737621921d5d9"
+      },
+      {
+        "path": "packages/game-data/sources/traveler-cross-source-casts/source.json.gz",
+        "bytes": 395026,
+        "sha256": "621e22f6ba4e40a00b314424cb67bf5617c61e30ecfdcc65756d7552deb6651c"
+      },
+      {
+        "path": "packages/game-data/sources/iansan-swift-resolved-casts/manifest.json",
+        "bytes": 52910,
+        "sha256": "8e6572c30897aca4ba9b52fb2f713ea9809b7c39522ccdade0f91ece1872d8b8"
+      },
+      {
+        "path": "packages/game-data/sources/iansan-swift-resolved-casts/definitions.json",
+        "bytes": 7960,
+        "sha256": "a981c2d3ceaf64d1972be5f430170b565ea32deb599f9deaa04b21c362b57c3b"
+      },
+      {
+        "path": "packages/game-data/sources/iansan-swift-resolved-casts/source.json.gz",
+        "bytes": 722673,
+        "sha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec"
+      },
+      {
+        "path": "packages/game-data/sources/traveler-male-charged-resolution/manifest.json",
+        "bytes": 63171,
+        "sha256": "0665c2f79ac4cd47e8b257eefbfce2c614fb040c012543d82d83b3974d1b0bbe"
+      },
+      {
+        "path": "packages/game-data/sources/traveler-cryo-state/manifest.json",
+        "bytes": 29982,
+        "sha256": "0a4227acbaa0b319af23b72cf441c3ef741e313fac8b621f35d70eae7da97e79"
+      },
+      {
+        "path": "packages/game-data/sources/traveler-cryo-complete/manifest.json",
+        "bytes": 10656,
+        "sha256": "165a7e8991737aa6a57e99d450a06143d0c336e5d76bf2e16d89669f062f8246"
+      }
+    ],
+    "archiveChecks": "Both existing cross-source/Swift source.json.gz SHA256 values matched their manifests during this task. No new network retrieval or full upstream tree verification. Existing manifests retain their gcsim selected-tree coverage gaps."
+  },
+  "replacedConsumerIdentities": [
+    {
+      "old": "aether-anemo-burst",
+      "current": "traveler-cross-aether-anemo-burst-c0",
+      "originalFirstFailureLine": 161,
+      "talent": "talent:traveleranemo:combat3",
+      "effectiveLevel10Coefficient": 1.4544,
+      "conditions": "Explicit one-cast; C0, story buff inactive, no absorption, fresh uninterrupted/no-hitlag cast, known nine contacts through F363, stable actual panel."
+    },
+    {
+      "old": "iansan-swift-talent-unresolved",
+      "current": "iansan-swift-resolved-c0",
+      "originalFirstFailureLine": 191,
+      "talent": "talent:iansan:combat1.parameters.param5",
+      "effectiveLevel10Coefficient": 1.6643,
+      "conditions": "Explicit one-cast; C0, fast-skill active and legal grounded charged input, actual contact at F25, actual stable panel, prior A1 activity and included ATK share, Q feedback inactive."
+    },
+    {
+      "old": "aether-anemo-charged-base",
+      "current": "male-charged-aether-anemo-c0",
+      "scopeNote": "Later in the same original Traveler test. A second observed undefined failure was retained in after.json at then-line182. Independent first hit only becomes calculable after explicitly excluding external infusion and story buff; unknown whole cast stays blocked."
+    },
+    {
+      "old": "aether-cryo-burst-no-radiance-zero-frostglow",
+      "current": "aether-cryo-burst-state-c0",
+      "scopeNote": "Adapted the already present Cryo branch in the same original Traveler test, without adding a new character or independently rerunning Cryo groups. Explicit F36 no radiance/0 consumed stacks, three known contacts through F80, stable panel and known nonExtra ATK/A4 included EM."
+    }
+  ],
+  "preservedOriginalAssertions": {
+    "traveler": [
+      "Aether Anemo E exact variant/ability and calculation.",
+      "Anemo Q identity and calculation with current C0 conditions.",
+      "Unknown complete charged action blocked; explicitly known independent component calculable.",
+      "Current coverage blocker identity assertions, including absence of superseded Q blocker.",
+      "Aether Cryo Q exact variant/ability, complete cast and three actual hits.",
+      "Lumine Pyro charged original two-hit calculation unchanged."
+    ],
+    "sourceRevision": [
+      "Prune seven hits, complete cast, fixed a7 source reference on every hit, and original independently summed non-critical damage unchanged.",
+      "Odette four hits and selected-components scope unchanged.",
+      "Swift unknown state remains blocked; known source-resolved Swift uses actual NA effective talent and has a positive hand-calculated result.",
+      "Original independent Iansan E remains calculable."
+    ]
+  },
+  "numericOracles": [
+    {
+      "case": "Aether Anemo Q effective10, 9 actual contacts",
+      "expression": "9*2000*1.4544*0.5*0.9",
+      "nonCritical": 11780.64
+    },
+    {
+      "case": "Swift NA effective10, no prior A1",
+      "expression": "2000*1.6643*0.5*0.9",
+      "nonCritical": 1497.87
+    },
+    {
+      "case": "Aether Cryo ordinary Q effective10, no radiance, 0 consumed Frostglow, 3 actual contacts",
+      "expression": "3*2000*0.992358*0.5*0.9",
+      "nonCritical": 2679.3666
+    },
+    {
+      "case": "Both genders Anemo Q effective1, 1 explicitly missed opportunity",
+      "expression": "8*2000*0.808*0.5*0.9",
+      "nonCritical": 5817.6,
+      "expected": 8726.4
+    },
+    {
+      "case": "Swift NA effective1, no prior A1",
+      "expression": "2000*0.84194*0.5*0.9",
+      "nonCritical": 757.746
+    },
+    {
+      "case": "Swift NA effective1, prior A1 actual base ATK800; included0 vs finalATK2160/included160",
+      "expression": "(2000+0.2*800)*0.84194*0.5*0.9",
+      "nonCritical": 818.36568
+    }
+  ],
+  "newNegativeCoverage": [
+    "Anemo story unknown or active, absorption not excluded, missing contact, incomplete observation F362, changing panel without actual snapshots, unsupported C1.",
+    "Swift unknown fast branch, unqualified normal input outside fast even with Nightsoul, unknown prior A1/included share, active Q feedback, wrong combat2 talent, unknown contact, slow charged stamina24 rejected and known25 accepted.",
+    "JSON round trips preserve explicit missed contacts and known prior-A1 included share; missing story/A1 remain unknown and blocked."
+  ],
+  "runs": [
+    {
+      "report": "/tmp/GIDPS-classified-identity-evidence-20261023/before.json",
+      "sha256": "df111e1f2500d014ab3a4f078db4ec3e512413a71278f3425f40e94ed4535610",
+      "passed": 0,
+      "failed": 2,
+      "notSelectedByNameFilter": 9,
+      "collected": 11,
+      "success": false,
+      "failures": [
+        {
+          "testName": "source-classified field-level character calculations keeps traveler gender and element identity, blocking only the conflicting action components",
+          "failureExcerpt": "ZodError: [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]\n    at calculateDocument (/tmp/GIDPS-role-kinich-20261023/packages/sim-core/src/calculator.ts:736:43)\n    at /tmp/GIDPS-role-kinich-20261023/packages/game-data/src/classified-hits.test.ts:161:12"
+        },
+        {
+          "testName": "source-classified field-level character calculations keeps the new source revision explicit and verifies complete tick counts without claiming summon lifetimes",
+          "failureExcerpt": "ZodError: [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]\n    at calculateDocument (/tmp/GIDPS-role-kinich-20261023/packages/sim-core/src/calculator.ts:736:43)\n    at /tmp/GIDPS-role-kinich-20261023/packages/game-data/src/classified-hits.test.ts:191:12"
+        }
+      ]
+    },
+    {
+      "report": "/tmp/GIDPS-classified-identity-evidence-20261023/first-after.json",
+      "sha256": "006fa202552cc5a30540c8e8f74532e67bf353b7891408c8e529f530bfe90a98",
+      "passed": 0,
+      "failed": 2,
+      "notSelectedByNameFilter": 9,
+      "collected": 11,
+      "success": false,
+      "failures": [
+        {
+          "testName": "source-classified field-level character calculations keeps traveler gender and element identity, blocking only the conflicting action components",
+          "failureExcerpt": "AssertionError: expected [ { …(9) } ] to have a length of 9 but got 1\n    at Proxy.<anonymous> (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/expect/dist/index.js:1389:20)\n    at Proxy.<anonymous> (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///workspace/GIDPS-cloud/latest/node_modules/chai/index.js:1700:25)\n    at /tmp/GIDPS-role-kinich-20261023/packages/game-data/src/classified-hits.test.ts:177:30\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+        },
+        {
+          "testName": "source-classified field-level character calculations keeps the new source revision explicit and verifies complete tick counts without claiming summon lifetimes",
+          "failureExcerpt": "AssertionError: expected 'blocked' to be 'calculated' // Object.is equality\n    at /tmp/GIDPS-role-kinich-20261023/packages/game-data/src/classified-hits.test.ts:224:32\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+        }
+      ]
+    },
+    {
+      "report": "/tmp/GIDPS-classified-identity-evidence-20261023/after.json",
+      "sha256": "71a75e1470c8beeae5c847885bdf55ec941dc6a924f91d8ca8536697e72e1daa",
+      "passed": 6,
+      "failed": 1,
+      "notSelectedByNameFilter": 9,
+      "collected": 16,
+      "success": false,
+      "failures": [
+        {
+          "testName": "source-classified field-level character calculations keeps traveler gender and element identity, blocking only the conflicting action components",
+          "failureExcerpt": "ZodError: [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]\n    at calculateDocument (/tmp/GIDPS-role-kinich-20261023/packages/sim-core/src/calculator.ts:736:43)\n    at /tmp/GIDPS-role-kinich-20261023/packages/game-data/src/classified-hits.test.ts:182:12"
+        }
+      ]
+    },
+    {
+      "report": "/tmp/GIDPS-classified-identity-evidence-20261023/final.json",
+      "sha256": "9409c32740c2c48ea3ae864d29eb26a37a8760515e20e9c145059df11c4e06f2",
+      "passed": 7,
+      "failed": 0,
+      "notSelectedByNameFilter": 9,
+      "collected": 16,
+      "success": true,
+      "failures": []
+    }
+  ],
+  "targetedTypecheck": {
+    "command": "./node_modules/.bin/tsc --noEmit -p /tmp/GIDPS-classified-identity-evidence-20261023/tsconfig.targeted.json",
+    "includes": [
+      "packages/game-data/src/classified-hits.test.ts",
+      "packages/game-data/src/classified-identity-replacements.test.ts"
+    ],
+    "exitCode": 0,
+    "log": "/tmp/GIDPS-classified-identity-evidence-20261023/typecheck.log",
+    "logBytes": 0
+  },
+  "limits": [
+    "No full classified-character loop, full regression, browser, native simulation, or 120-second capture run.",
+    "Nine collected tests in the original file were not selected by testNamePattern; they were not changed to skipped tests.",
+    "Does not infer a new total from any historic 79 failures or earlier assertion counts.",
+    "Fixed-source provisional calculations only; no game verification, unmodeled C1+ coverage, absorbed Anemo Q or Iansan active-Q feedback claim."
+  ]
+}

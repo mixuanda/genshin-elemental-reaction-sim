@@ -1,0 +1,19 @@
+{"status":"combat-equivalent-with-observer-order-limit","savedClickToPaintMs":5868.2998046875,"percent":16.157747051790256,"result":{"seed":"20261022","frames":7200,"hits":610,"total":27069474.337322712,"dps":225578.9528110226,"byActor":{"nicole":921151.0747939858,"durin":4621465.1979512945,"faruzan":1851300.261779438,"wanderer":19675557.80279801}},"everyResultByteIdentical":false,"differentFields":["phaseObservations","logs"]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Complete cross-run archive-byte equality remains an explicit failed check.
+
+false !== true
+
+    at file:///workspace/GIDPS-cloud/player-import-integration/scripts/acceptance/compare-team-performance.mjs:116:46 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

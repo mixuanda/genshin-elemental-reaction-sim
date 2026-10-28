@@ -11,18 +11,23 @@ import {
   BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   assertTrustedSimulationResultV151,
+  assertTrustedSimulationResultV153,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   basicReactionSchedulerLogEntrySchema,
   basicReactionSchedulerModelSchema,
   basicReactionSchedulerRootSchema,
   simulationResultV151Schema,
+  simulationResultV153Schema,
   simulationRunManifestV151Schema,
   targetStateTimelinePointSchema,
   type BasicReactionSchedulerModel,
   type SimConfig,
   type SimulationResultForV151,
+  type SimulationResultForV153,
 } from "@genshin-dps-lab/schemas";
 import { z } from "zod";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { simulate } from "../../sim-core/src/simulator";
 import {
@@ -338,19 +343,45 @@ function makeSameFrameMixedSwirlConfig(
   });
 }
 
-function runScenario(
-  model: BasicReactionSchedulerModel,
-): SimulationResultForV151 {
-  const config = makeSameFrameMixedSwirlConfig(model);
+const historicalBytes = readFileSync(new URL(
+  "./fixtures/historical-scheduler-golden-v153-84ff5cd.json", import.meta.url,
+));
+const historicalArchive = JSON.parse(historicalBytes.toString("utf8")) as {
+  fixtureVersion: string;
+  source: { commit: string };
+  cases: Array<{ caseId: string; sourceWireSha256: string; sourceWireText: string }>;
+};
+
+function historicalSource(model: BasicReactionSchedulerModel): SimulationResultForV153 {
+  const caseId = model.mode === LEGACY_SCHEDULER.mode
+    ? "legacy-immediate-v1" : "deferred-attachment-v2";
+  const row = historicalArchive.cases.find((entry) => entry.caseId === caseId);
+  if (!row) throw new Error(`Missing authentic historical mixed-Swirl input ${caseId}`);
+  expect(byteSha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResultForV153;
+  expect(result.config.basicReactionSchedulerModel).toEqual(model);
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultV153Schema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResultV153(result)).toBe(result);
+  return result;
+}
+
+// Only genuine historical output is eligible for the frozen projection chain.
+// Current canonical flat-stat semantics must never be stripped or relabelled.
+function runScenario(model: BasicReactionSchedulerModel): SimulationResultForV151 {
   return projectSimulationResultV152ToV151(
-    projectSimulationResultV153ToV152(
-      simulate(withV152CompatibilityPolicies(config), {
-        compatibilityMode: "legal-frame-v1",
-        critMode: "noCrit",
-        randomSeed: config.randomSeed,
-      }),
-    ),
+    projectSimulationResultV153ToV152(historicalSource(model)),
   );
+}
+
+function runCurrentScenario(model: BasicReactionSchedulerModel): SimulationResultForV153 {
+  const config = makeSameFrameMixedSwirlConfig(model);
+  return simulate(withV152CompatibilityPolicies(config), {
+    compatibilityMode: "legal-frame-v1",
+    critMode: "noCrit",
+    randomSeed: config.randomSeed,
+  });
 }
 
 function scenarioFixture(result: SimulationResultForV151) {
@@ -516,6 +547,14 @@ const candidateEnabled =
   process.env[UPDATE_FLAG] === "1";
 
 describe("Basic reaction scheduler 1.51 Golden review gate", () => {
+  it("pins authentic original inputs separately from the frozen reviewed Golden", () => {
+    expect(byteSha256(historicalBytes)).toBe("9d23b660f8268e71419b352c1645f50dc938fbeea14ee652ebff378a903e3af4");
+    expect(historicalArchive.fixtureVersion).toBe("historical-scheduler-golden-v153-84ff5cd-v1");
+    expect(historicalArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalArchive.cases.map((entry) => entry.caseId)).toEqual([
+      "legacy-immediate-v1", "deferred-attachment-v2",
+    ]);
+  });
   it("keeps reviewed SHA and fixture presence coherent", () => {
     const exists = existsSync(fileURLToPath(FIXTURE_URL));
     if (!/^[0-9a-f]{64}$/.test(REVIEWED_FIXTURE_SHA256)) {
@@ -604,4 +643,180 @@ describe("Basic reaction scheduler 1.51 Golden", () => {
       expect(frozen).toEqual(generated);
     },
   );
+});
+
+describe("Current mixed-Swirl scheduler contract (not a historical wire)", () => {
+  let legacy: SimulationResultForV153;
+  let deferred: SimulationResultForV153;
+  beforeAll(() => {
+    legacy = runCurrentScenario(LEGACY_SCHEDULER);
+    deferred = runCurrentScenario(NATIVE_SCHEDULER);
+  });
+
+  it.each([LEGACY_SCHEDULER, NATIVE_SCHEDULER])(
+    "retains current identity, damage arithmetic and Aura causality for $mode",
+    (model) => {
+      const isDeferred = model.mode === NATIVE_SCHEDULER.mode;
+      const result = isDeferred ? deferred : legacy;
+      expect(runCurrentScenario(model)).toEqual(result);
+      expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+      expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+      expect(result.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+      expect(result.runManifest.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+      expect(simulationResultV153Schema.parse(JSON.parse(JSON.stringify(result)))).toEqual(result);
+      expect(assertTrustedSimulationResultV153(result)).toBe(result);
+
+      // Independent arithmetic for this synthetic level-90, EM=100, 10%-RES
+      // vector. No production damage/EM helper or fixture total is the oracle.
+      const directDamage = 1000 * 0.5 * (1 - 0.1);
+      const swirlDamage = 1446.8535 * 0.6 * (1 + 16 * 100 / (2000 + 100)) * (1 - 0.1);
+      const meltedSwirlDamage = swirlDamage * 1.5 * (1 + 2.78 * 100 / (1400 + 100));
+      expect(result.damageEvents.map((event) => [event.frame, event.sourceActorId, event.targetId])).toEqual([
+        [10, "anemo-pyro", "source-pyro"], [10, "anemo-cryo", "source-cryo"],
+        [11, "anemo-pyro", "source-pyro"], [11, "anemo-cryo", "source-cryo"],
+        [15, "anemo-pyro", "enemy-0"], [15, "anemo-cryo", "enemy-0"],
+      ]);
+      const expectedDamage = [directDamage, directDamage, swirlDamage, swirlDamage,
+        swirlDamage, isDeferred ? swirlDamage : meltedSwirlDamage];
+      result.damageEvents.forEach((event, index) => {
+        expect(event.finalDamage).toBeCloseTo(expectedDamage[index]!, 9);
+        expect(event.displayDamage).toBe(Math.round(expectedDamage[index]!));
+      });
+      const total = expectedDamage.reduce((sum, damage) => sum + damage, 0);
+      expect(result.totalDamage).toBeCloseTo(total, 9);
+      expect(result.dps).toBeCloseTo(total / 1, 9);
+      const sharedHits = result.damageEvents.filter((event) => event.targetId === "enemy-0");
+      expect(sharedHits.map((event) => event.reactionAudit.reaction)).toEqual(
+        isDeferred ? ["none", "none"] : ["none", "reverseMelt"],
+      );
+
+      // Incoming Anemo 1U is fully spent: 1.25*1 + .95 = 2.2U nominal
+      // propagation, 80% attachment, then 45 frames of a 750-frame decay.
+      // Immediate Cryo consumes half of its 2.2U from the existing Pyro.
+      const nominalGauge = 1.25 * 1 + 0.95;
+      const attachedGauge = 0.8 * nominalGauge;
+      const lifetime = 420 + 150 * nominalGauge;
+      const decay = attachedGauge / lifetime * (60 - 15);
+      const finalAura = result.auraEndStates.find((state) => state.targetId === "enemy-0")!.aura;
+      expect(finalAura.map((entry) => entry.element)).toEqual(isDeferred ? ["cryo", "pyro"] : ["pyro"]);
+      for (const entry of finalAura) {
+        expect(entry.gaugeUnits).toBeCloseTo(attachedGauge - decay - (isDeferred ? 0 : 0.5 * nominalGauge), 10);
+      }
+      const rows = result.basicReactionSchedulerLog.filter((row) => row.targetId === "enemy-0");
+      const attacks = rows.filter((row) => row.kind === "swirl-attack-resolution");
+      const commits = rows.filter((row) => row.kind === "deferred-aura-attachment");
+      expect(result.basicReactionSchedulerLog).toHaveLength(isDeferred ? 6 : 1);
+      expect(attacks.map((row) => [row.sourceActorId, row.disposition])).toEqual(isDeferred
+        ? [["anemo-pyro", "deferred"], ["anemo-cryo", "deferred"]]
+        : [["anemo-pyro", "legacy-immediate"]]);
+      expect(commits).toHaveLength(isDeferred ? 2 : 0);
+      for (const attack of attacks) {
+        expect(attack.frame).toBe(15);
+        expect(attack.eventPriority).toBe(5);
+        expect(attack.parentEventSequence).toBe(attack.eventSequence);
+        expect(attack.auraBefore).toEqual([]);
+        expect(attack.auraConsumed).toEqual([]);
+        if (isDeferred) {
+          expect(attack.auraApplied).toEqual([]);
+          expect(attack.auraAfter).toEqual([]);
+          const commit = commits.find((row) => row.id === attack.pairedLogId)!;
+          expect(commit).toMatchObject({
+            frame: 15, eventPriority: 5, pairedLogId: attack.id,
+            parentEventSequence: attack.eventSequence, sourceActorId: attack.sourceActorId,
+            reactionDamageLogId: attack.reactionDamageLogId,
+            hitResolutionLogId: attack.hitResolutionLogId,
+            elementalApplicationIcdLogId: attack.elementalApplicationIcdLogId,
+            reaction: "none", reactions: [], auraConsumed: [],
+            auraApplied: [{ element: attack.element, gaugeUnits: nominalGauge, sourceActorId: attack.sourceActorId }],
+          });
+          expect(commit.eventSequence).toBeGreaterThan(Math.max(...attacks.map((row) => row.eventSequence)));
+        } else {
+          expect(attack.pairedLogId).toBeNull();
+          expect(attack.auraApplied).toEqual([{ element: "pyro", gaugeUnits: nominalGauge, sourceActorId: "anemo-pyro" }]);
+        }
+      }
+      if (isDeferred) {
+        expect(commits.map((row) => row.sourceActorId)).toEqual(["anemo-pyro", "anemo-cryo"]);
+        expect(commits[0]!.eventSequence).toBeLessThan(commits[1]!.eventSequence);
+        expect(commits[0]!.auraBefore).toEqual([]);
+        expect(commits[1]!.auraBefore).toEqual(commits[0]!.auraAfter);
+        expect(commits[1]!.auraAfter.map((entry) => entry.element)).toEqual(["cryo", "pyro"]);
+        for (const entry of commits[1]!.auraAfter) {
+          expect(entry.gaugeUnits).toBeCloseTo(attachedGauge, 10);
+          expect(entry.expiresAtFrame).toBe(15 + lifetime);
+        }
+      }
+      for (const row of result.basicReactionSchedulerLog) {
+        const points = result.targetStateTimeline.points.filter((point) => point.links.some(
+          (link) => link.kind === "basic-reaction-scheduler-log" && link.id === row.id,
+        ));
+        expect(points).toHaveLength(1);
+        expect(points[0]).toMatchObject({
+          frame: row.frame, targetId: row.targetId, eventPriority: row.eventPriority,
+          eventSequence: row.eventSequence, reaction: row.reaction, reactions: row.reactions,
+          auraBefore: row.auraBefore, auraApplied: row.auraApplied,
+          auraConsumed: row.auraConsumed, auraAfter: row.auraAfter,
+          cause: row.kind === "swirl-attack-resolution" ? "reaction-damage-application" : "reaction-aura-attachment",
+        });
+      }
+
+      // Complete mechanics fields also match the authentic prior output; this
+      // is a comparison, never a relabelled or stripped current result.
+      const historical = historicalSource(model);
+      expect(result.damageEvents).toEqual(historical.damageEvents);
+      expect(result.basicReactionSchedulerLog).toEqual(historical.basicReactionSchedulerLog);
+      // Current direct-hit allocation reserves hit resolution at step 0,
+      // then Aura application at step 1 (simulator.ts direct-hit allocator).
+      // Retain every other point/order/link; do not normalize away identities.
+      const expectedTimeline = structuredClone(historical.targetStateTimeline);
+      const directApplications = expectedTimeline.points.filter((point) => point.cause === "direct-hit-application");
+      expect(directApplications.map((point) => [point.id, point.frame, point.targetId, point.eventSequence, point.intraEventSequence])).toEqual([
+        [3, 10, "source-pyro", 3, 0], [4, 10, "source-cryo", 4, 0],
+      ]);
+      for (const point of directApplications) {
+        const resolution = result.hitResolutionLog.find((row) => row.damageEventId === point.primaryDamageEventId)!;
+        expect(resolution).toMatchObject({ frame: 10, eventSequence: point.eventSequence, intraEventSequence: 0 });
+        point.intraEventSequence = 1;
+      }
+      expect(result.targetStateTimeline).toEqual(expectedTimeline);
+      expect(result.auraEndStates).toEqual(historical.auraEndStates);
+      const before = JSON.stringify(result);
+      expect(() => projectSimulationResultV153ToV152(result)).toThrow(/flatStatBuffSemantics/);
+      expect(JSON.stringify(result)).toBe(before);
+    },
+  );
+
+  const hostileCases: Array<[string, (result: SimulationResultForV153) => void]> = [
+    ["duplicate scheduler row", (result) => { result.basicReactionSchedulerLog.push(structuredClone(result.basicReactionSchedulerLog[0]!)); }],
+    ["dangling reciprocal pair", (result) => { result.basicReactionSchedulerLog[1]!.pairedLogId = 999999; }],
+    ["forged parent sequence", (result) => { result.basicReactionSchedulerLog.at(-1)!.parentEventSequence += 1; }],
+    ["missing scheduler timeline backlink", (result) => {
+      const id = result.basicReactionSchedulerLog.at(-1)!.id;
+      for (const point of result.targetStateTimeline.points) point.links = point.links.filter(
+        (link) => link.kind !== "basic-reaction-scheduler-log" || link.id !== id,
+      );
+    }],
+    ["cross-actor reciprocal pair swap", (result) => {
+      const attacks = result.basicReactionSchedulerLog.filter((row) => row.targetId === "enemy-0" && row.kind === "swirl-attack-resolution");
+      const commits = result.basicReactionSchedulerLog.filter((row) => row.targetId === "enemy-0" && row.kind === "deferred-aura-attachment");
+      attacks[0]!.pairedLogId = commits[1]!.id; attacks[1]!.pairedLogId = commits[0]!.id;
+      commits[0]!.pairedLogId = attacks[1]!.id; commits[1]!.pairedLogId = attacks[0]!.id;
+    }],
+    ["false deferred nested Melt", (result) => { result.damageEvents.at(-1)!.reactionAudit.reaction = "reverseMelt"; }],
+    ["forged scheduler policy hash", (result) => { Object.assign(result.runManifest.basicReactionSchedulerRoot, { contentHash: `sha256:${"0".repeat(64)}` }); }],
+  ];
+  it.each(hostileCases)("rejects %s without changing the authentic current wire", (_label, mutate) => {
+    const before = JSON.stringify(deferred);
+    const forged = structuredClone(deferred);
+    mutate(forged);
+    expect(simulationResultV153Schema.safeParse(forged).success).toBe(false);
+    expect(() => assertTrustedSimulationResultV153(forged)).toThrow();
+    expect(JSON.stringify(deferred)).toBe(before);
+  });
+
+  it("keeps additional-field rejection at the public current boundary", () => {
+    const forged = structuredClone(deferred);
+    Object.assign(forged.basicReactionSchedulerLog[0]!, { unreviewedSchedulerProof: true });
+    expect(simulationResultV153Schema.safeParse(forged).success).toBe(false);
+  });
 });

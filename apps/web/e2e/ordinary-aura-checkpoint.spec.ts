@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -9,7 +10,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -52,19 +53,22 @@ type CheckpointState = {
 test("Ordinary aura warmup exports actual decay and ICD checkpoints and preserves amplified hit calculator replay", async ({ page }) => {
   const config = syntheticOrdinaryAuraCycle();
   await page.goto("/results");
-  await page.locator("#critModeInput").selectOption("average");
-  await page.locator("#importInput").setInputFiles({ name: "ordinary-aura-cycle.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("average");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "ordinary-aura-cycle.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig).toEqual(config);
   expect(record.result.config.reactionEngine?.mode).toBe("aura-v7");
   expect(record.result.config.targetTaskModel.mode).toBe("legacy-event-heap-v1");
   expect(record.result.damageEvents.map(event => [event.frame, event.finalDamage])).toEqual([[0, 500], [108, 750]]);
 
-  await page.locator("#analysis-warmup-energy").selectOption("zero");
-  await page.locator("#analysis-warmup-cycles").fill("8");
-  await page.locator("#analysis-steady-run").click();
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
+  await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("zero");
+  await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("8");
+  await (await revealControl(page.locator("#analysis-steady-run"))).click();
   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
   await expect(page.locator("#analysis-steady-cancel")).toBeHidden();
   await expect(page.locator("#analysis-startup-output")).toContainText("已从完整模拟检查点建立稳态");
@@ -107,12 +111,12 @@ test("Ordinary aura warmup exports actual decay and ICD checkpoints and preserve
   // The visible hit table remains the original actual run; startup is a separate complete exported trajectory.
   const pyro = record.result.damageEvents.find(event => event.element === "pyro")!;
   expect(pyro.reaction).toBe("reverseVaporize");
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${pyro.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${pyro.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(sourceTrace.length).toBeGreaterThan(0);
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page).toHaveURL(/\/calculator$/);
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   const restoredTrace = await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));

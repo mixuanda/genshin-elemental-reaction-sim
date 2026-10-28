@@ -2377,7 +2377,7 @@ export const optimizerAdditionalMappingExclusions = [
       "libs/gi/sheets/src/Characters/dataUtil.tsx",
       "libs/gi/wr/src/formula.ts"
     ],
-    "reason": "镂骨彻心与六击Q已由独立资源映射执行 ATK×天赋倍率×(1+0.004×willConsumed)，仅开放已审来源输入档。实际资源累积、奇谋普通/重击循环与自动 a0HighSpirits/A4 触发时序仍未建立；有效天赋等级和最终ATK必须恢复。"
+    "reason": "镂骨彻心与六击Q已由独立资源映射执行 ATK×天赋倍率×(1+0.004×willConsumed)，仅开放已审来源输入档；实际消耗未知时不可虚设 willConsumed=0，明确实际消耗为 0 才能使用零值分支。实际资源累积、奇谋普通/重击循环与自动 a0HighSpirits/A4 触发时序仍未建立；有效天赋等级和最终ATK必须恢复。"
   },
   {
     "characterSlug": "linnea",
@@ -2388,7 +2388,7 @@ export const optimizerAdditionalMappingExclusions = [
       "libs/gi/sheets/src/Characters/dataUtil.tsx",
       "libs/gi/wr/src/formula.ts"
     ],
-    "reason": "露米普通双击已由独立映射和来源减抗AST执行：突破、月兆、露米在场与目标附近条件分别恢复。整段持续召唤攻击次数未验证；其余技能使用 lunarDmgNode，爆发只列 DEF 治疗。非战斗便利箭 0.2 乘区另行处理。"
+    "reason": "露米普通双击已由独立映射和来源减抗AST执行：突破、月兆、露米在场与目标附近条件分别恢复。A1 解锁且露米在场、目标位于附近时，月兆角色数不足 2 为岩抗 −0.15，达到 2 为 −0.30；任一必要条件不成立时不减抗。整段持续召唤攻击次数未验证；其余技能使用 lunarDmgNode，爆发只列 DEF 治疗。非战斗便利箭 0.2 乘区另行处理。"
   },
   {
     "characterSlug": "sandrone",

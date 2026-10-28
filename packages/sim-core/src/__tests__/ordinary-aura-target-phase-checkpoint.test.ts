@@ -79,13 +79,35 @@ describe("ordinary aura-v9 with actual target-phase-v2 checkpoints", () => {
     expect(midFrame.checkpoint).toBeNull();
   });
 
+  it.each(["nonPeriodicReactionStateAvailable", "periodicReactionStateAvailable"] as const)(
+    "rejects the future reaction domain when target-phase-v2 lacks %s", (missing) => {
+      const config = fixture();
+      config.timeline!.abilities.push({ id: "future-electro", actorId: "a", name: "未选择雷能力", kind: "skill",
+        cancelFrame: 0, animationEndFrame: 0, cooldownFrames: 0,
+        hits: [{ frame: 0, scaling: 1, element: "electro", application: application("electro") }] });
+      const capabilities = { ordinaryAuraStateAvailable: true, directDamageGroupStateAvailable: true,
+        targetPhaseV2StateAvailable: true, nonPeriodicReactionStateAvailable: true, periodicReactionStateAvailable: true };
+      expect(phaseCheckpointBlockers(config, capabilities)).toEqual([]);
+      const blockers = phaseCheckpointBlockers(config, { ...capabilities, [missing]: false });
+      expect(blockers).toHaveLength(1);
+      expect(blockers[0]).toContain("完整未来元素输入域");
+      expect(blockers[0]).toContain("尚未导出");
+    });
+
   it("keeps unsupported reactions, clock and tails blocked while captured RNG remains outside deterministic steady state", () => {
     const future = fixture();
     future.timeline!.abilities.push({ id: "electro", actorId: "a", name: "未选择雷能力", kind: "skill", cancelFrame: 0, animationEndFrame: 0, cooldownFrames: 0,
       hits: [{ frame: 0, scaling: 1, element: "electro", application: application("electro"), geometry: { kind: "circle", coordinateSpace: "world", origin: { x: 0, y: 0 }, radius: 1 } }] });
-    const blocked = simulateWithStartup(future, { mode: "steady-state", maximumWarmupCycles: 8, maximumPeriodCycles: 1 });
+    // The producer now exports the non-periodic/periodic reaction domain.
+    // A dormant Electro ability alone no longer means missing private state.
+    const supported = simulateWithStartup(future, { mode: "steady-state", maximumWarmupCycles: 8, maximumPeriodCycles: 1 });
+    expect(supported.status).toBe("steady-state-established");
+    expect(supported.result!.executionAudit!.checkpointCoverage).toEqual({ complete: true, missingDimensions: [], reasons: [] });
+    const unproven = structuredClone(future);
+    unproven.reactionEngine!.debugAllowReactionOverride = true;
+    const blocked = simulateWithStartup(unproven, { mode: "steady-state", maximumWarmupCycles: 8, maximumPeriodCycles: 1 });
     expect(blocked.status).not.toBe("steady-state-established");
-    expect(blocked.result!.executionAudit!.checkpointCoverage.reasons.join()).toContain("完整未来元素输入域");
+    expect(blocked.result!.executionAudit!.checkpointCoverage.reasons.join()).toContain("调试反应覆盖");
     const clocked = fixture(); clocked.targetClockModel = { mode: "target-local-hitlag-v1" };
     expect(phaseCheckpointBlockers(clocked, { ordinaryAuraStateAvailable: true, directDamageGroupStateAvailable: true, targetPhaseV2StateAvailable: true }).join()).toContain("目标时钟");
     const stochastic = simulate(repeatLegalTimelineForDuration(fixture(), 10), { execution: { checkpointFrames: [120], criticalSampling: "seeded-random-v1" } });

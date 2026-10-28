@@ -1,3 +1,4 @@
+import { mountActionPad } from './action-pad';
 import { renderRotationPalette, renderRotationCards, renderRotationExecution } from "./rotation-visual";
 import { renderEnemyShieldControls } from "./enemy-shield-controls";
 import { renderWeaponHitStackControls } from "./weapon-hit-stack-controls";
@@ -455,7 +456,13 @@ export function renderRotationPanel(root: HTMLElement, api: WorkspaceControls): 
     } catch (error) { output.textContent = controller.signal.aborted ? "已取消请求帧预览。" : error instanceof Error ? error.message : String(error); }
     finally { pendingProfilePreview = null; profilePreviewButton.textContent = "预览实际请求帧"; }
   });
+  let actionPad: ReturnType<typeof mountActionPad> | null = null;
+  let lastSavedDraft=JSON.stringify(config);
   const show = (): void => {
+    const draft=clone(config);draft.timeline!.commands=clone(commands);
+    const serialized=JSON.stringify(draft);
+    if(serialized!==lastSavedDraft){api.setConfig(draft,{preserveRuntimeOptions:true});lastSavedDraft=serialized;}
+    actionPad?.update(commands);
     renderRotationCards(root.querySelector<HTMLElement>("#rotation-list")!, commands, config);
     root.querySelectorAll<HTMLButtonElement>("[data-remove]").forEach((b) => b.addEventListener("click", () => { commands.splice(Number(b.dataset.remove), 1); show(); }));
     for (const direction of ["up", "down"] as const) root.querySelectorAll<HTMLButtonElement>(`[data-move-${direction}]`).forEach(button => button.addEventListener("click", () => {
@@ -592,6 +599,14 @@ export function renderRotationPanel(root: HTMLElement, api: WorkspaceControls): 
   };
   root.querySelector("#rotation-mode")!.addEventListener("change", invalidatePreview);
   advanced.addEventListener("change", invalidatePreview);
+  const padHost=document.createElement('section');
+  visualPalette.before(padHost);
+  const fullPalette=document.createElement('details');fullPalette.id='rotation-full-palette';
+  fullPalette.innerHTML='<summary>完整动作列表（高级）</summary>';
+  visualPalette.replaceWith(fullPalette);fullPalette.append(visualPalette);
+  actionPad=mountActionPad(padHost,config,api.getRuntimeOptions,next=>{commands=next;show();});
+  const quick=root.querySelector<HTMLButtonElement>('#rotation-save')!;
+  quick.textContent='快速计算当前完整时长';
   show();
 }
 

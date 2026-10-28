@@ -82,6 +82,14 @@ export function executeSourceHostScalarProvenance(
     let previousId = `${scope}.base`;
     for (const [index, step] of read.steps.entries()) {
       if (step.index !== index) throw new Error(`来源标量 ${read.id} 的 modifier 顺序不连续`);
+      // Pinned Enemy.resist checks expiry first, then element. Unlike some
+      // character modifiers, this getter has no permanent-expiry (-1) branch.
+      if (read.kind === "resistance") {
+        const expected = step.expiryBefore <= read.frame ? "expired"
+          : step.element !== read.element ? "element-mismatch" : "applied";
+        if (step.outcome !== expected)
+          throw new Error(`来源减抗 ${read.id}/${step.key} 的到期帧、元素与生效状态不一致`);
+      }
       if (step.creationFormulaCalculationIds?.length &&
         (new Set(step.creationFormulaCalculationIds).size !== step.creationFormulaCalculationIds.length ||
           step.creationFormulaCalculationIds.some(id => !step.formulaCalculationIds?.includes(id)))) {

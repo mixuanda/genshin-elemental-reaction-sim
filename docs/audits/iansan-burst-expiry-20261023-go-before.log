@@ -1,0 +1,29 @@
+=== RUN   TestIansanBurstExpiryEndsPositiveNightsoul
+=== RUN   TestIansanBurstExpiryEndsPositiveNightsoul/C4_12seconds
+    iansan-burst-expiry_test.go:64: marker ended but retained NS/A1/C4: marker=false NS=true points=54 A1=true stacks=1
+=== RUN   TestIansanBurstExpiryEndsPositiveNightsoul/C6_15seconds
+    iansan-burst-expiry_test.go:64: marker ended but retained NS/A1/C4: marker=false NS=true points=54 A1=false stacks=1
+--- FAIL: TestIansanBurstExpiryEndsPositiveNightsoul (0.00s)
+    --- FAIL: TestIansanBurstExpiryEndsPositiveNightsoul/C4_12seconds (0.00s)
+    --- FAIL: TestIansanBurstExpiryEndsPositiveNightsoul/C6_15seconds (0.00s)
+=== RUN   TestIansanBurstExpiryFollowsActualHitlagExtension
+    iansan-burst-expiry_test.go:88: actual extended marker expired without clearing NS/A1
+--- FAIL: TestIansanBurstExpiryFollowsActualHitlagExtension (0.00s)
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry/beforeEnd
+    iansan-burst-expiry_test.go:102: E entry F720: NS=true, want false
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry/sameFrameAsEnd
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry/afterEnd
+--- FAIL: TestIansanBurstExpiryDoesNotKillLaterSkillEntry (0.00s)
+    --- FAIL: TestIansanBurstExpiryDoesNotKillLaterSkillEntry/beforeEnd (0.00s)
+    --- PASS: TestIansanBurstExpiryDoesNotKillLaterSkillEntry/sameFrameAsEnd (0.00s)
+    --- PASS: TestIansanBurstExpiryDoesNotKillLaterSkillEntry/afterEnd (0.00s)
+=== RUN   TestIansanBurstExpiryStaleInstanceIsInert
+=== RUN   TestIansanBurstExpiryStaleInstanceIsInert/exitThenSkill
+=== RUN   TestIansanBurstExpiryStaleInstanceIsInert/laterQInstance
+--- PASS: TestIansanBurstExpiryStaleInstanceIsInert (0.00s)
+    --- PASS: TestIansanBurstExpiryStaleInstanceIsInert/exitThenSkill (0.00s)
+    --- PASS: TestIansanBurstExpiryStaleInstanceIsInert/laterQInstance (0.00s)
+FAIL
+FAIL	github.com/genshinsim/gcsim/internal/characters/iansan	0.005s
+FAIL

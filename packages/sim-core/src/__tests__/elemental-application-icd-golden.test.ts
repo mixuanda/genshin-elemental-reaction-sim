@@ -19,10 +19,14 @@ import {
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
+  assertTrustedSimulationResult,
   assertTrustedSimulationResultV147,
   elementalApplicationIcdDecisionV147Schema,
   elementalApplicationIcdSelectorSchema,
   simulationResultV147Schema,
+  simulationResultSchema,
   type AbilityDefinition,
   type FrameHitDefinition,
   type SimConfig,
@@ -32,6 +36,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { simulate } from "../simulator";
+import { parseSimulationHit, replaySimulationHit } from "../calculator-bridge";
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
@@ -479,20 +484,24 @@ const OPTIONS = {
   randomSeed: VECTOR_SEED,
 } as const;
 
-function runVector() {
+function projectHistoricalResultToV147(result: SimulationResult) {
   return projectSimulationResultV148ToV147(
     projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
           projectSimulationResultV152ToV151(
             projectSimulationResultV153ToV152(
-              simulate(makeVectorConfig(), OPTIONS),
+              result,
             ),
           ),
         ),
       ),
     ),
   );
+}
+
+function runVector() {
+  return projectHistoricalResultToV147(historicalElementalIcdResult());
 }
 
 function targetTimelineProjection(result: ReturnType<typeof runVector>) {
@@ -511,7 +520,10 @@ function targetTimelineProjection(result: ReturnType<typeof runVector>) {
   };
 }
 
-function decisionProjection(result: ReturnType<typeof runVector>) {
+function decisionProjection(result: {
+  elementalApplicationIcdLog: SimulationResult["elementalApplicationIcdLog"];
+  damageEvents: ReadonlyArray<Pick<SimulationResult["damageEvents"][number], "reaction">>;
+}) {
   return result.elementalApplicationIcdLog.map((entry) => ({
     ...entry,
     reaction:
@@ -615,6 +627,221 @@ const candidateEnabled =
   reviewedFixtureSha256() !== null ||
   process.env[PREVIEW_FLAG] === "1" ||
   process.env[UPDATE_FLAG] === "1";
+
+
+const historicalElementalIcdBytes = readFileSync(new URL(
+  "../../../test-vectors/src/fixtures/historical-elemental-application-icd-v153-84ff5cd.json", import.meta.url,
+));
+const historicalElementalIcdArchive = JSON.parse(historicalElementalIcdBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string }; observedRunCount: number; sourceWireSha256: string; sourceWireText: string;
+};
+function historicalElementalIcdResult(): SimulationResult {
+  expect(byteSha256(historicalElementalIcdBytes)).toBe("3930dbcae13f9ca3bf54288652f46ac5d249354b4d95b7f13c3afb720cac1f41");
+  expect(byteSha256(historicalElementalIcdArchive.sourceWireText)).toBe(historicalElementalIcdArchive.sourceWireSha256);
+  const result = JSON.parse(historicalElementalIcdArchive.sourceWireText) as SimulationResult;
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
+
+function elementalIcdMechanics(result: SimulationResult) {
+  const { runManifest: _manifest, resolvedRuntimeOptions: _options, reproducibilityKey: _key, ...mechanics } = result;
+  return mechanics;
+}
+
+function fixedIcdDecisionAt(result: SimulationResult, id: number) {
+  const decision = result.elementalApplicationIcdLog[id]?.decision;
+  if (decision?.kind !== "fixed-gcsim") {
+    throw new Error(`Expected configured fixed-gcsim ICD decision at ${id}`);
+  }
+  return decision;
+}
+
+function expectCurrentElementalIcdContract(result: SimulationResult): void {
+  const before = JSON.stringify(result);
+  const historical = historicalElementalIcdResult();
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.resolvedRuntimeOptions).toEqual({ ...historical.resolvedRuntimeOptions, flatStatBuffSemantics: "canonical-v1" });
+  expect(result.runManifest.resolvedRuntimeOptions).toEqual(result.resolvedRuntimeOptions);
+  expect(result.runManifest.reproducibilityKey).toBe(result.reproducibilityKey);
+  expect(result.reproducibilityKey).not.toBe(historical.reproducibilityKey);
+  const { reproducibilityKey: _oldKey, resolvedRuntimeOptions: _oldOptions, ...oldManifest } = historical.runManifest;
+  const { reproducibilityKey: _key, resolvedRuntimeOptions: _options, ...manifest } = result.runManifest;
+  expect(manifest).toEqual(oldManifest);
+  expect(simulationResultSchema.parse(JSON.parse(before))).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+
+  // Complete expected mechanics, not a current-wire converter. Only these five
+  // direct application points move from I0 to I1: current hit resolution reserves
+  // I0 first. The old/new resolution positions and every queue/reference remain
+  // explicit. No IDs, phase rows, ICD decisions, Aura fields or damage are erased.
+  const expected = structuredClone(elementalIcdMechanics(historical));
+  expect(expected.targetStateTimeline.points.map((point) => point.id)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+  for (const id of [0, 1, 2, 3, 4]) {
+    const point = expected.targetStateTimeline.points[id + 1]!;
+    expect(point).toMatchObject({ id: id + 1, frame: EXPECTED_DECISIONS[id]!.frame,
+      targetFrame: EXPECTED_DECISIONS[id]!.frame, cause: "direct-hit-application",
+      eventType: "hit", eventPriority: 3, eventSequence: id + 1, intraEventSequence: 0,
+      primaryDamageEventId: id, links: [{ kind: "damage-event", id }] });
+    expect(expected.hitResolutionLog[id]).toMatchObject({ id, frame: EXPECTED_DECISIONS[id]!.frame,
+      eventPriority: 3, eventSequence: id + 1, intraEventSequence: 0, damageEventId: id });
+    point.intraEventSequence = 1;
+  }
+  expect(elementalIcdMechanics(result)).toStrictEqual(expected);
+  expect(decisionProjection(result)).toEqual(EXPECTED_DECISIONS);
+  expect(canonicalSha256(result.elementalApplicationIcdLog)).toBe("66eab58f46d75556a661e51cd0ed16c9cc46d9ff5048365d3bb886b8c9643d62");
+  expect(result.elementalApplicationIcdLog).toEqual(historical.elementalApplicationIcdLog);
+  expect(result.damageEvents).toEqual(historical.damageEvents);
+
+  // Independent neutral ATK1000, level90 vs90 DEF, resistance10%, EM0,
+  // no crit/bonus: 450 ordinary damage and 675 reverse Vaporize. The final
+  // Nahida application multiplier 1.5 changes gauge, NOT the damage multiplier
+  // beyond the ordinary 1.5 Vaporize factor. ICD-blocked hits still deal damage.
+  const defense = (90 + 100) / ((90 + 100) + (90 + 100));
+  const ordinary = 1000 * defense * (1 - 0.1);
+  const vaporize = ordinary * 1.5;
+  const damage = [vaporize, ordinary, ordinary, ordinary, vaporize];
+  expect(ordinary).toBe(450);
+  expect(vaporize).toBe(675);
+  expect(result.damageEvents.map((event) => event.finalDamage)).toEqual(damage);
+  expect(result.totalDamage).toBe(2 * vaporize + 3 * ordinary);
+  expect(result.dps).toBe((2 * vaporize + 3 * ordinary) / 3);
+  expect(result.reactedHits).toBe(2);
+
+  // Fixed actor/tag windows survive group changes. Current-group sequences
+  // consume the shared counter, clamp Chasca's two-slot tail, and preserve the
+  // first window's reset deadline. F149 = 0 + 150 - 1 resets BEFORE this hit,
+  // while F148 does not; Nahida opens a new 60-frame window ending at F208.
+  expect(result.elementalApplicationIcdLog.map((_, id) => fixedIcdDecisionAt(result, id).hitIndex)).toEqual([0, 1, 2, 3, 0]);
+  expect(result.elementalApplicationIcdLog.map((_, id) => fixedIcdDecisionAt(result, id).sequenceIndex)).toEqual([0, 1, 1, 3, 0]);
+  expect(result.elementalApplicationIcdLog.map((_, id) => fixedIcdDecisionAt(result, id).resetAtFrame)).toEqual([149, 149, 149, 149, 208]);
+  expect(result.elementalApplicationIcdLog.map((entry) => entry.effectiveGaugeUnits)).toEqual([1, 0, 0, 0, 1.5]);
+  expect(new Set(result.elementalApplicationIcdLog.map((entry) => entry.hitGroupId)).size).toBe(5);
+  expect(result.elementalApplicationIcdLog.slice(0, 2).map((entry) => entry.hitId)).toEqual(["duplicate-hit", "duplicate-hit"]);
+
+  // Independent aura-v9 durability: 4U becomes 3.2U after the 0.8 aura tax;
+  // lifetime is 420 + 150*4 = 1020 frames. Reverse Vaporize consumes half the
+  // effective Pyro gauge (0.5U then 0.75U) without resetting Hydro's decay rate.
+  // Only expected values are rounded to the documented 12-digit snapshot form.
+  const initialGauge = 4 * 0.8;
+  const lifetime = 420 + 150 * 4;
+  const decayPerFrame = initialGauge / lifetime;
+  const clean = (gauge: number) => Number(gauge.toFixed(12));
+  const hydro = (gauge: number, expiresAtFrame: number) => [{ element: "hydro", gaugeUnits: clean(gauge), expiresAtFrame,
+    sourceSlots: [{ sourceActorId: "__initial__", gaugeUnits: clean(gauge) }] }];
+  const firstExpiry = Math.ceil((initialGauge - 0.5) / decayPerFrame);
+  const lastAfter = initialGauge - 0.5 - 149 * decayPerFrame - 0.75;
+  const lastExpiry = 149 + Math.ceil(lastAfter / decayPerFrame);
+  expect([lifetime, firstExpiry, lastExpiry]).toEqual([1020, 861, 622]);
+  expect(result.auraInitialStates).toHaveLength(1);
+  expect(result.auraInitialStates[0]).toMatchObject({ targetId: "enemy-0", frame: 0, aura: hydro(initialGauge, lifetime) });
+  expect(result.auraEndStates).toHaveLength(1);
+  expect(result.auraEndStates[0]).toMatchObject({ targetId: "enemy-0", frame: 180,
+    aura: hydro(initialGauge - 0.5 - 0.75 - 180 * decayPerFrame, lastExpiry) });
+  expect(result.auraTimeline).toHaveLength(5);
+  expect(result.targetPhaseLog).toHaveLength(5);
+  for (const [id, expectedDecision] of EXPECTED_DECISIONS.entries()) {
+    const { frame, effectiveGaugeUnits, reaction } = expectedDecision;
+    const gaugeBefore = id === 0 ? initialGauge : initialGauge - 0.5 - frame * decayPerFrame;
+    const gaugeConsumed = effectiveGaugeUnits * 0.5;
+    const gaugeAfter = gaugeBefore - gaugeConsumed;
+    const auraBefore = hydro(gaugeBefore, id === 0 ? lifetime : firstExpiry);
+    const auraAfter = hydro(gaugeAfter, id === 4 ? lastExpiry : firstExpiry);
+    const auraApplied = effectiveGaugeUnits === 0 ? [] : [{ element: "pyro", gaugeUnits: effectiveGaugeUnits, sourceActorId: "a" }];
+    const auraConsumed = effectiveGaugeUnits === 0 ? [] : [{ element: "hydro", gaugeUnits: gaugeConsumed,
+      sourceMutations: [{ sourceActorId: "__initial__", gaugeUnitsBefore: clean(gaugeBefore),
+        consumedGaugeUnits: gaugeConsumed, gaugeUnitsAfter: clean(gaugeAfter) }] }];
+    const event = result.damageEvents[id]!;
+    expect(result.hitResolutionLog[id]).toMatchObject({ id, frame, outcome: "landed", landed: true,
+      eventPriority: 3, eventSequence: id + 1, intraEventSequence: 0, damageEventId: id,
+      hitGroupId: expectedDecision.hitGroupId, auraAllowed: true, finalDamage: damage[id] });
+    expect(event).toMatchObject({ id, frame, kind: "direct", eventPriority: 3, eventSequence: id + 1,
+      targetResolutionId: id, targetId: "enemy-0", sourceActorId: "a", scalingOwnerId: "a", creditOwnerId: "a",
+      hitGroupId: expectedDecision.hitGroupId, element: "pyro", reaction, finalDamage: damage[id],
+      damageComposition: { direct: damage[id], additiveReaction: 0, transformativeReaction: 0 },
+      damageFactors: { scaling: 1, scalingValue: 1000, baseDamage: 1000, defenseMultiplier: defense,
+        resistanceMultiplier: 0.9, critMultiplier: 1, groupMultiplier: 1,
+        amplifyingReactionMultiplier: effectiveGaugeUnits > 0 ? 1.5 : 1 },
+      reactionAudit: { icdAllowed: effectiveGaugeUnits > 0, applicationGaugeUnits: effectiveGaugeUnits,
+        auraBefore, auraApplied, auraConsumed, auraAfter } });
+    expect(result.auraTimeline[id]).toMatchObject({ damageEventId: id, frame, eventPriority: 3, eventSequence: id + 1,
+      icdAllowed: effectiveGaugeUnits > 0, reaction, auraBefore, auraApplied, auraConsumed, auraAfter });
+    expect(result.targetStateTimeline.points[id + 1]).toMatchObject({ id: id + 1, frame, targetFrame: frame,
+      pointKind: effectiveGaugeUnits > 0 ? "mutation" : "observation", cause: "direct-hit-application",
+      eventPriority: 3, eventSequence: id + 1, intraEventSequence: 1, primaryDamageEventId: id,
+      links: [{ kind: "damage-event", id }], auraBefore, auraApplied, auraConsumed, auraAfter });
+    // Target Reactable's lazy decay has completed before this direct hit. No
+    // queued task, transition or skipped application may be fabricated here.
+    expect(result.targetPhaseLog[id]).toMatchObject({ model: "target-phase-v2", id, globalFrame: frame,
+      targetFrame: frame, targetOrder: 0, targetTasks: [], hitResolutionLogIds: [id], reactionTaskLogIds: [],
+      auraBeforeTargetTasks: auraBefore, auraAfterTargetTasks: auraBefore,
+      reactableTick: { fromTargetFrame: [0, 0, 1, 2, 148][id], toTargetFrame: frame,
+        auraBefore, transitions: [], auraAfter: auraBefore } });
+    const replay = replaySimulationHit({ schemaVersion: "calculator-event-v1", eventId: id, sourceResult: result });
+    expect(replay.originalDamage).toBe(damage[id]);
+    expect(replay.reproducedDamage).toBe(damage[id]);
+    expect(replay.difference).toBe(0);
+  }
+  expect(result.reactionDamageLog).toEqual([]);
+  expect(result.reactionTaskLog).toEqual([]);
+  expect(result.skippedActions).toEqual([]);
+  expect(JSON.stringify(result)).toBe(before);
+}
+
+const hostileElementalIcdCases: Array<{ name: string; mutate: (result: SimulationResult) => void }> = [
+  { name: "numeric Nahida multiplier collapsed to a boolean", mutate: (result) => { result.elementalApplicationIcdLog[4]!.decision.applicationMultiplier = 1; } },
+  { name: "blocked slot claims allowed application", mutate: (result) => { result.elementalApplicationIcdLog[1]!.decision.allowed = true; } },
+  { name: "blocked slot manufactures effective gauge", mutate: (result) => { result.elementalApplicationIcdLog[2]!.effectiveGaugeUnits = 1; } },
+  { name: "group switch replaces the existing window owner", mutate: (result) => { fixedIcdDecisionAt(result, 1).windowStartGroupId = "nahida-skill"; } },
+  { name: "tail escapes the two-slot sequence", mutate: (result) => { fixedIcdDecisionAt(result, 2).sequenceIndex = 2; } },
+  { name: "F148 prematurely resets the shared counter", mutate: (result) => { fixedIcdDecisionAt(result, 3).hitIndex = 0; } },
+  { name: "F149 new deadline is off by one", mutate: (result) => { fixedIcdDecisionAt(result, 4).resetAtFrame = 209; } },
+  { name: "new window retains the obsolete owner", mutate: (result) => { fixedIcdDecisionAt(result, 4).windowStartGroupId = "default"; } },
+  { name: "duplicate labels alias the wrong damage event", mutate: (result) => { result.elementalApplicationIcdLog[1]!.damageEventId = 0; } },
+  { name: "dangling resolution backlink", mutate: (result) => { result.elementalApplicationIcdLog[0]!.hitResolutionLogId = 999; } },
+  { name: "coordinated ICD row order swap", mutate: (result) => {
+    [result.elementalApplicationIcdLog[0], result.elementalApplicationIcdLog[1]] = [result.elementalApplicationIcdLog[1]!, result.elementalApplicationIcdLog[0]!];
+    result.elementalApplicationIcdLog[0]!.id = 0; result.elementalApplicationIcdLog[1]!.id = 1;
+  } },
+  { name: "missing reset-hit ICD consumption", mutate: (result) => { result.elementalApplicationIcdLog.pop(); } },
+  { name: "Aura point links to a later hit", mutate: (result) => { result.targetStateTimeline.points[1]!.links = [{ kind: "damage-event", id: 4 }]; } },
+  { name: "unversioned ICD decision field", mutate: (result) => { Object.assign(result.elementalApplicationIcdLog[0]!.decision, { unversionedField: true }); } },
+];
+
+describe("current elemental-application ICD contract", () => {
+  it("preserves shared-window timing, numeric gauge, exact causality and independent damage replay", () => {
+    const result = simulate(makeVectorConfig(), OPTIONS);
+    expect(simulate(makeVectorConfig(), OPTIONS)).toStrictEqual(result);
+    expectCurrentElementalIcdContract(result);
+    expect(() => projectHistoricalResultToV147(result)).toThrow(/flatStatBuffSemantics/);
+  });
+  it("pins authentic historical source and unchanged reviewed Golden bytes", () => {
+    expect(historicalElementalIcdArchive).toMatchObject({ fixtureVersion: "historical-elemental-application-icd-v153-84ff5cd-v1",
+      observedRunCount: 2, source: { commit: "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5", tree: "72bd69a8c54a3e115685c7ee52f5862064c70f55" } });
+    historicalElementalIcdResult();
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
+  });
+  it.each(hostileElementalIcdCases)("rejects $name at public parsing and real capture import", ({ mutate }) => {
+    const result = simulate(makeVectorConfig(), OPTIONS);
+    const before = JSON.stringify(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
+    const capture = { schemaVersion: "calculator-event-v1", eventId: 0, sourceResult: result };
+    expect(parseSimulationHit(JSON.stringify(capture)).sourceResult).toEqual(result);
+    const forged = structuredClone(result); mutate(forged);
+    expect(JSON.stringify(forged)).not.toBe(before);
+    const parsed = simulationResultSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("Forged elemental-application ICD result unexpectedly parsed");
+    expect(() => parseSimulationHit(JSON.stringify({ ...capture, sourceResult: forged }))).toThrow(parsed.error.message);
+    // Actual untrusted ingress parses all public facets before trusted integrity;
+    // the internal trusted helper is not a standalone arbitrary-JSON validator.
+    expect(JSON.stringify(result)).toBe(before);
+  });
+});
 
 describe("1.47 elemental-application ICD Golden gate", () => {
   it("keeps the reviewed SHA and fixture presence coherent", () => {

@@ -1,0 +1,13 @@
+diff --git a/internal/characters/iansan/cons.go b/internal/characters/iansan/cons.go
+--- a/internal/characters/iansan/cons.go
++++ b/internal/characters/iansan/cons.go
+@@ -55,6 +55,9 @@ func (c *char) c2Init() {
+ 			Base:         modifier.NewBase(c2Key, -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.Core.Player.Active() != char.Index() {
++					return nil
++				}
+ 				if !c.StatModIsActive(a1Key) {
+ 					return nil
+ 				}

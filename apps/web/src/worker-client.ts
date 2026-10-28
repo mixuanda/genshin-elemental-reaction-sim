@@ -1,3 +1,5 @@
+import type {EventStepResult} from '../../../packages/sim-core/src/event-step-result';
+import { batchPartitions, batchStatistics } from "./batch-statistics";
 import type { SimConfig, SimulationOptions, SimulationResult, TimelineExecution } from "@genshin-dps-lab/schemas";
 import type { AppliedExecutionProfile, ExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
 import type { WEAPON_PROC_RANDOM_PROFILE } from "../../../packages/sim-core/src/weapon-proc";
@@ -8,6 +10,7 @@ export interface SimulationProgress {
 }
 
 export interface WorkerRunControls {
+  concurrency?: number;
   signal?: AbortSignal;
   onProgress?: (progress: SimulationProgress) => void;
   /** Applied once inside the worker using the unmodified reference seed. */
@@ -55,6 +58,8 @@ export type WorkerRequest = {
   config: SimConfig;
   options: SimulationOptions;
   iterations: number;
+  sampleStart?: number;
+  totalIterations?: number;
   executionProfile?: ExecutionProfile;
 } | {
   type: "prepare";
@@ -72,7 +77,7 @@ export interface PreparedSimulation {
 
 export type WorkerResponse =
   | { type: "progress"; completed: number; total: number }
-  | { type: "result"; result: SimulationResult; summary: SimulationBatchSummary; appliedProfile?: AppliedExecutionProfile }
+  | { type: "result"; eventStepResult?: EventStepResult; result: SimulationResult; summary: SimulationBatchSummary; samples?: number[]; appliedProfile?: AppliedExecutionProfile }
   | ({ type: "prepared" } & PreparedSimulation)
   | { type: "error"; message: string };
 
@@ -116,6 +121,10 @@ function requestSimulationWorker(
       cleanup();
       reject(new Error(event.message || "模拟 Worker 执行失败。"));
     };
+    worker.onmessageerror = (): void => {
+      if (settled) return;
+      cleanup(); reject(new Error("模拟 Worker 消息无法反序列化。"));
+    };
     try {
       worker.postMessage(request);
     } catch (error) {
@@ -130,12 +139,40 @@ export async function runSimulationBatchInWorker(
   options: SimulationOptions = {},
   iterations = 1,
   controls: WorkerRunControls = {}
-): Promise<{result: SimulationResult; summary: SimulationBatchSummary; appliedProfile?: AppliedExecutionProfile}> {
-  if (!Number.isInteger(iterations) || iterations < 1 || iterations > 10000) throw new RangeError("迭代次数必须是 1 至 10000 的整数。");
-  const response = await requestSimulationWorker({type: "run", config, options, iterations,
-    ...(controls.executionProfile === undefined ? {} : {executionProfile: controls.executionProfile})}, controls);
-  if (response.type !== "result") throw new Error("模拟 Worker 返回了非运行结果。");
-  return {result: response.result, summary: response.summary, ...(response.appliedProfile === undefined ? {} : {appliedProfile: response.appliedProfile})};
+): Promise<{eventStepResult?: EventStepResult; result: SimulationResult; summary: SimulationBatchSummary; appliedProfile?: AppliedExecutionProfile}> {
+  const partitions = batchPartitions(iterations, controls.concurrency ?? 1);
+  if (controls.signal?.aborted) throw new DOMException("模拟已取消。", "AbortError");
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  controls.signal?.addEventListener("abort", abort, { once: true });
+  const completed = partitions.map(() => 0);
+  const started = performance.now();
+  try {
+    const responses = await Promise.all(partitions.map(async (part, index) => {
+      const response = await requestSimulationWorker({ type: "run", config, options, iterations: part.count,
+        ...(partitions.length === 1 ? {} : { sampleStart: part.start, totalIterations: iterations }),
+        ...(controls.executionProfile === undefined ? {} : { executionProfile: controls.executionProfile }) },
+        { signal: controller.signal, onProgress: progress => {
+          completed[index] = progress.completed;
+          controls.onProgress?.({ completed: completed.reduce((a, b) => a + b, 0), total: iterations });
+        } });
+      if (response.type !== "result") throw new Error("模拟 Worker 返回了非运行结果。");
+      return response;
+    }));
+    const first = responses[0]!;
+    const summary = responses.length === 1 ? first.summary : {
+      ...first.summary, iterations,
+      ...batchStatistics(responses.flatMap(response => {
+        if (!response.samples || response.samples.length !== response.summary.iterations) throw new Error("并行采样结果不完整。");
+        return response.samples;
+      })), elapsedMilliseconds: performance.now() - started,
+    };
+    return { result: first.result, summary, ...(first.eventStepResult ? {eventStepResult:first.eventStepResult} : {}),
+      ...(first.appliedProfile === undefined ? {} : { appliedProfile: first.appliedProfile }) };
+  } finally {
+    controller.abort(); // Any worker failure terminates its still-running siblings.
+    controls.signal?.removeEventListener("abort", abort);
+  }
 }
 
 /** Previews use the same cancellable worker; no runtime baseline runs on the UI thread. */

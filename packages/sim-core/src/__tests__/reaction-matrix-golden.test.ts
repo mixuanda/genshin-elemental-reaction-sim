@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
+  assertTrustedSimulationResult,
   bloomReactionAuditSchema,
   burningReactionAuditSchema,
   burningStateLogEntrySchema,
@@ -47,7 +49,8 @@ import playerDamageMatrixGolden from "../../../test-vectors/fixtures/reaction-ma
 import targetClockMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.33.golden.json";
 import matrixV134Golden from "../../../test-vectors/fixtures/reaction-matrix-1.34.golden.json";
 import matrixV135Golden from "../../../test-vectors/fixtures/reaction-matrix-1.35.golden.json";
-import { simulate } from "../simulator";
+import { simulate, type SimulationRuntimeOptions } from "../simulator";
+import { parseSimulationHit, replaySimulationHit } from "../calculator-bridge";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const FIXED_GCSIM_COMMIT =
@@ -1863,6 +1866,368 @@ function withoutBurningProjectionIdentity(
   };
 }
 
+// Exact, clean-pin original inputs/results; never a current-to-old projector.
+// The archive pins every byte and the 130-call / 79-case source manifest.
+const matrixArchiveBytes = readFileSync(new URL(
+  "../../../test-vectors/src/fixtures/historical-reaction-matrix-v153-84ff5cd.json", import.meta.url,
+));
+const matrixByteSha256 = (value: string | Uint8Array): string => createHash("sha256").update(value).digest("hex");
+interface HistoricalMatrixCase {
+  caseId: string; sourceInputSha256: string; sourceInputText: string;
+  sourceWireSha256: string; sourceWireText: string;
+  observedAt: Array<{ index: number; test: string }>;
+}
+const matrixArchive = JSON.parse(matrixArchiveBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string; observedRunCount: number;
+    originalTests: { total: number; passed: number; failed: number; pending: number } };
+  cases: HistoricalMatrixCase[];
+};
+expect(matrixByteSha256(matrixArchiveBytes)).toBe("35fe73161655b9cb39f297855a142827fd6ba03881fcfbfe60ca91498503ee86");
+type MatrixEra = "authentic historical" | "current engine";
+type MatrixArgs = [config: SimConfig, options?: SimulationRuntimeOptions];
+type MatrixStepCollection = "target" | "core" | "contact" | "coreTimeline" | "freezeBroken";
+interface MatrixCoordinates {
+  queue: readonly (readonly [number, number])[];
+  missingDirect: readonly number[];
+  steps: readonly (readonly [MatrixStepCollection, number, number, number])[];
+}
+// Closed per-input maps, not a mode-wide normalization. All 448 original queue
+// allocations match full payload and order in the read-only 79-case observer.
+// The current ordinary runtime additionally retains 69 real future tasks beyond
+// each duration. These consume sequence numbers without changing the horizon.
+// Every known queue position is listed, including unchanged prefix positions;
+// unknown positions fail. V5/V6/V7 and V9 retain their own distinct mechanics.
+const CURRENT_MATRIX_COORDINATES: Record<string, MatrixCoordinates> = {
+  "aura-v6/reaction-matrix-1.32:melt": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:melt": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:vaporize": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:vaporize": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:overload": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:overload": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:superconduct": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:superconduct": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:electroCharged": { queue: [[0,0],[1,1],[2,3],[3,4],[4,6]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:electroCharged": { queue: [[0,0],[1,1],[2,3],[3,4],[4,6]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:freezeShatter": { queue: [[0,0],[1,1],[2,2],[3,4]], missingDirect: [0,1], steps: [["target",1,0,1],["target",2,0,1],["target",3,1,2]] },
+  "aura-v7/reaction-matrix-1.32:freezeShatter": { queue: [[0,0],[1,1],[2,2],[3,4]], missingDirect: [0,1], steps: [["target",1,0,1],["target",2,0,1],["target",3,1,2]] },
+  "aura-v6/reaction-matrix-1.32:swirl": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [0], steps: [["target",2,0,1]] },
+  "aura-v7/reaction-matrix-1.32:swirl": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [0], steps: [["target",2,0,1]] },
+  "aura-v6/reaction-matrix-1.32:crystallize": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:crystallize": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:catalyze": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0,1,2], steps: [["target",1,0,1],["target",2,0,1],["target",3,0,1]] },
+  "aura-v7/reaction-matrix-1.32:catalyze": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0,1,2], steps: [["target",1,0,1],["target",2,0,1],["target",3,0,1]] },
+  "aura-v6/reaction-matrix-1.32:burning": { queue: [[0,0],[1,1],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:burning": { queue: [[0,0],[1,1],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:bloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [0], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:bloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [0], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:burgeon": { queue: [[0,0],[1,1],[2,2],[3,3],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]], missingDirect: [0,1], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v7/reaction-matrix-1.32:burgeon": { queue: [[0,0],[1,1],[2,2],[3,3],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]], missingDirect: [0,1], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v6/reaction-matrix-1.32:hyperbloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,6]], missingDirect: [0,1], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v7/reaction-matrix-1.32:hyperbloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,6]], missingDirect: [0,1], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v6/reaction-matrix-1.32:cryoMultiReaction": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:cryoMultiReaction": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:electroOrdered": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:electroOrdered": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:elementalResistance": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:elementalResistance": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v6/reaction-matrix-1.32:hydroFrozenEcGuard": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:hydroFrozenEcGuard": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:melt": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:vaporize": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:overload": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:superconduct": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:electroCharged": { queue: [[0,0],[1,1],[2,3],[3,4],[4,6]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:freezeShatter": { queue: [[0,0],[1,1],[2,2],[3,4]], missingDirect: [0,1], steps: [["target",1,0,1],["target",2,0,1],["target",3,1,2]] },
+  "aura-v5/reaction-matrix-1.32:swirl": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [0], steps: [["target",2,0,1]] },
+  "aura-v5/reaction-matrix-1.32:crystallize": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:catalyze": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0,1,2], steps: [["target",1,0,1],["target",2,0,1],["target",3,0,1]] },
+  "aura-v5/reaction-matrix-1.32:burning": { queue: [[0,0],[1,1],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:bloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [0], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v5/reaction-matrix-1.32:burgeon": { queue: [[0,0],[1,1],[2,2],[3,3],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]], missingDirect: [0,1], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v5/reaction-matrix-1.32:hyperbloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,6]], missingDirect: [0,1], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v5/reaction-matrix-1.32:cryoMultiReaction": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:reverseMelt": { queue: [[0,0],[1,1]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:swirlHydro": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:swirlCryo": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:swirlElectro": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:crystallizeHydro": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:crystallizeCryo": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v7/reaction-matrix-1.32:crystallizeElectro": { queue: [[0,0],[1,1],[2,2]], missingDirect: [0], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:melt": { queue: [[0,0],[1,1],[2,2]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:vaporize": { queue: [[0,0],[1,1],[2,2]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:overload": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:superconduct": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:electroCharged": { queue: [[0,0],[1,1],[2,2],[3,5],[4,7],[5,8],[6,9],[7,10]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:freezeShatter": { queue: [[0,0],[1,1],[2,2],[3,3],[4,6],[5,7]], missingDirect: [], steps: [["freezeBroken",0,2,3],["target",1,0,1],["target",2,0,1],["target",3,1,2]] },
+  "aura-v9/reaction-matrix-1.32:swirl": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10],[11,11],[12,12],[13,13],[14,14]], missingDirect: [], steps: [["target",3,0,1]] },
+  "aura-v9/reaction-matrix-1.32:crystallize": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:catalyze": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,7],[6,8]], missingDirect: [], steps: [["target",1,0,1],["target",2,0,1],["target",3,0,1]] },
+  "aura-v9/reaction-matrix-1.32:burning": { queue: [[0,0],[1,1],[2,2],[3,5],[4,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,12],[11,13],[12,14],[13,15],[14,16]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:bloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]], missingDirect: [], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:burgeon": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18]], missingDirect: [], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v9/reaction-matrix-1.32:hyperbloom": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,6],[6,9],[7,10]], missingDirect: [], steps: [["core",0,1,2],["core",2,1,2],["contact",0,3,4],["coreTimeline",1,2,3],["target",1,0,1],["target",2,0,1]] },
+  "aura-v9/reaction-matrix-1.32:cryoMultiReaction": { queue: [[0,0],[1,1],[2,2],[3,3],[4,6]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:electroOrdered": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:elementalResistance": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:hydroFrozenEcGuard": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [], steps: [["core",0,1,2],["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:reverseMelt": { queue: [[0,0],[1,1],[2,2]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:swirlHydro": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:swirlCryo": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:swirlElectro": { queue: [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:crystallizeHydro": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:crystallizeCryo": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [], steps: [["target",1,0,1]] },
+  "aura-v9/reaction-matrix-1.32:crystallizeElectro": { queue: [[0,0],[1,1],[2,2],[3,3]], missingDirect: [], steps: [["target",1,0,1]] },
+};
+
+// These six authentic old results omit direct-resolution queue coordinates.
+// Their original acceptance was established by all unchanged tests on clean
+// 84ff5cd, not by pretending today's stronger validator is that old contract.
+// Keep today's exact refusal visible; do not backfill the archived wires.
+const HISTORICAL_CORE_CONTACT_REFUSALS = new Set([
+  "aura-v6/reaction-matrix-1.32:burgeon",
+  "aura-v7/reaction-matrix-1.32:burgeon",
+  "aura-v6/reaction-matrix-1.32:hyperbloom",
+  "aura-v7/reaction-matrix-1.32:hyperbloom",
+  "aura-v5/reaction-matrix-1.32:burgeon",
+  "aura-v5/reaction-matrix-1.32:hyperbloom",
+]);
+const HISTORICAL_CORE_CONTACT_ISSUES = [
+  { code: "custom", path: ["dendroCoreContactLog", 0, "hitResolutionLogIds", 0], message: "direct core contact requires complete unique targets and their ordered queue events" },
+  { code: "custom", path: ["dendroCoreContactLog", 0, "eventSequence"], message: "direct core contact completion must match the last target queue event" },
+  { code: "custom", path: ["dendroCoreContactLog", 0, "hitResolutionLogIds", 0], message: "core-contact hit resolution does not match its frame, source, hit identity, element, or resolution kind" },
+  { code: "custom", path: ["dendroCoreContactLog", 0, "eventPriority"], message: "current core contact must use its actual direct-hit or source-owned reaction delivery phase" },
+  { code: "custom", path: ["dendroCoreContactLog", 0, "triggerDamageEventIds", 0], message: "core-contact trigger does not match its damage-event provenance" },
+];
+function expectHistoricalCurrentBoundary(id: string, result: SimulationResult): void {
+  if (!HISTORICAL_CORE_CONTACT_REFUSALS.has(id)) {
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
+    return;
+  }
+  const parsed = simulationResultSchema.safeParse(result);
+  expect(parsed.success).toBe(false);
+  if (parsed.success) throw new Error(`Historical core-contact boundary unexpectedly changed: ${id}`);
+  const issues = HISTORICAL_CORE_CONTACT_ISSUES.map((issue) => ({ ...issue, message: `Dendro core references: ${issue.message}` }));
+  expect(parsed.error.issues).toEqual(issues);
+  let trustedMessage: string | undefined;
+  try { assertTrustedSimulationResult(result); } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    trustedMessage = error.message;
+  }
+  expect(trustedMessage).toBe(`Trusted SimulationResult 1.53 integrity validation failed: ${issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`);
+}
+function expectMatrixCoreReferences(era: MatrixEra, result: SimulationResult): void {
+  const id = `${result.config.reactionEngine?.mode}/${result.config.randomSeed}`;
+  if (era === "authentic historical" && HISTORICAL_CORE_CONTACT_REFUSALS.has(id)) {
+    const parsed = dendroCoreResultReferencesSchema.safeParse(result);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error(`Historical core-contact facet unexpectedly changed: ${id}`);
+    expect(parsed.error.issues).toEqual(HISTORICAL_CORE_CONTACT_ISSUES);
+    return;
+  }
+  expect(dendroCoreResultReferencesSchema.parse(result)).toEqual(result);
+}
+
+function authenticMatrixResult(args: MatrixArgs): SimulationResult {
+  const id = `${args[0].reactionEngine?.mode}/${args[0].randomSeed}`;
+  if (!Object.hasOwn(CURRENT_MATRIX_COORDINATES, id)) throw new Error(`Unreviewed matrix input ${id}`);
+  const rows = matrixArchive.cases.filter((row) => row.caseId === id);
+  expect(rows).toHaveLength(1);
+  const row = rows[0]!;
+  expect(matrixByteSha256(row.sourceInputText)).toBe(row.sourceInputSha256);
+  expect(matrixByteSha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  expect(JSON.stringify(args)).toBe(row.sourceInputText);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expectHistoricalCurrentBoundary(id, result);
+  return result;
+}
+
+// Only these three identity containers are compared separately. All numerical,
+// Aura, player, queue, ownership, reference and ordering fields stay in the
+// complete mechanics object. Neither the current result nor its IDs are edited.
+function matrixMechanics(result: SimulationResult): Omit<SimulationResult, "runManifest" | "resolvedRuntimeOptions" | "reproducibilityKey"> {
+  const { runManifest: _manifest, resolvedRuntimeOptions: _options, reproducibilityKey: _key, ...mechanics } = result;
+  return mechanics;
+}
+
+function expectCurrentMatrixContract(args: MatrixArgs, result: SimulationResult): void {
+  const before = JSON.stringify(result);
+  const old = authenticMatrixResult(args);
+  const key = `${args[0].reactionEngine?.mode}/${args[0].randomSeed}`;
+  const coordinates = CURRENT_MATRIX_COORDINATES[key];
+  if (!coordinates) throw new Error(`Unreviewed matrix coordinates ${key}`);
+  expect(result.resolvedRuntimeOptions).toStrictEqual({ ...old.resolvedRuntimeOptions, flatStatBuffSemantics: "canonical-v1" });
+  expect(result.runManifest.resolvedRuntimeOptions).toStrictEqual(result.resolvedRuntimeOptions);
+  expect(result.runManifest.reproducibilityKey).toBe(result.reproducibilityKey);
+  expect(result.reproducibilityKey).not.toBe(old.reproducibilityKey);
+  const { resolvedRuntimeOptions: _oldOptions, reproducibilityKey: _oldKey, ...oldManifest } = old.runManifest;
+  const { resolvedRuntimeOptions: _options, reproducibilityKey: _key, ...manifest } = result.runManifest;
+  expect(manifest).toStrictEqual(oldManifest);
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+
+  const queue = new Map(coordinates.queue);
+  expect(queue.size).toBe(coordinates.queue.length);
+  expect(new Set(queue.values()).size).toBe(queue.size);
+  expect([...queue.keys()]).toEqual([...queue.keys()].sort((a, b) => a - b));
+  expect([...queue.values()]).toEqual([...queue.values()].sort((a, b) => a - b));
+  const nextSequence = (sequence: number): number => {
+    const next = queue.get(sequence);
+    if (next === undefined) throw new Error(`Unreviewed ${key} queue position ${sequence}`);
+    return next;
+  };
+  const mapSequence = <T extends object>(row: T): T => {
+    if (!("eventSequence" in row) || row.eventSequence == null) return row;
+    if (typeof row.eventSequence !== "number") throw new Error("Expected a numeric matrix queue position");
+    return { ...row, eventSequence: nextSequence(row.eventSequence) };
+  };
+  const expected = structuredClone(matrixMechanics(old));
+  expected.damageEvents = expected.damageEvents.map(mapSequence);
+  expected.hitEvents = expected.hitEvents.map(mapSequence);
+  expected.hitResolutionLog = expected.hitResolutionLog.map(mapSequence);
+  expected.auraTimeline = expected.auraTimeline.map(mapSequence);
+  expected.elementalApplicationIcdLog = expected.elementalApplicationIcdLog.map(mapSequence);
+  expected.burningStateLog = expected.burningStateLog.map(mapSequence);
+  expected.playerHitResolutionLog = expected.playerHitResolutionLog.map(mapSequence);
+  expected.playerDamageEvents = expected.playerDamageEvents.map((row) => ({
+    ...mapSequence(row), damageFactors: { ...row.damageFactors,
+      damageGroupDecision: row.damageFactors.damageGroupDecision === null ? null : {
+        ...row.damageFactors.damageGroupDecision,
+        damageGroupTaskSequence: nextSequence(row.damageFactors.damageGroupDecision.damageGroupTaskSequence),
+      },
+    },
+  }));
+  expected.playerHpTimeline.points = expected.playerHpTimeline.points.map(mapSequence);
+  expected.dendroCoreLog = expected.dendroCoreLog.map(mapSequence);
+  expected.dendroCoreContactLog = expected.dendroCoreContactLog.map(mapSequence);
+  expected.dendroCoreTimeline.points = expected.dendroCoreTimeline.points.map(mapSequence);
+  expected.targetStateTimeline.points = expected.targetStateTimeline.points.map(mapSequence);
+  expected.reactionDamageLog = expected.reactionDamageLog.map((row) => ({
+    ...row, damageGroupDecisions: row.damageGroupDecisions.map((decision) => ({
+      ...decision, damageGroupTaskSequence: nextSequence(decision.damageGroupTaskSequence),
+    })),
+  }));
+  expected.basicReactionSchedulerLog = expected.basicReactionSchedulerLog.map((row) => ({
+    ...mapSequence(row), parentEventSequence: nextSequence(row.parentEventSequence),
+  }));
+  expected.targetPhaseLog = expected.targetPhaseLog.map((row) => {
+    if (row.model !== "target-phase-v2") throw new Error(`Unreviewed target-phase model in ${key}`);
+    return { ...row, targetTasks: row.targetTasks.map((task) => mapSequence(task)) };
+  });
+  expected.freezeBrokenAttackLog = expected.freezeBrokenAttackLog.map((row) => ({
+    ...row, triggerEventSequence: nextSequence(row.triggerEventSequence),
+  }));
+
+  // Legacy heap rows previously omitted direct hit-resolution coordinates.
+  // Backfill only the exact pinned missing IDs, from their authentic old direct
+  // damage-event backlink. The receiving direct witness precedes Aura at I0.
+  expect(expected.hitResolutionLog.filter((row) => row.reactionDamageLogId === null && row.eventSequence === undefined).map((row) => row.id)).toEqual(coordinates.missingDirect);
+  for (const id of coordinates.missingDirect) {
+    const row = expected.hitResolutionLog[id];
+    if (!row || row.id !== id) throw new Error(`Missing direct resolution ${key}/${id}`);
+    expect(row).not.toHaveProperty("eventPriority");
+    expect(row).not.toHaveProperty("eventSequence");
+    expect(row).not.toHaveProperty("intraEventSequence");
+    const damage = expected.damageEvents.find((event) => event.id === row.damageEventId);
+    if (!damage || damage.eventSequence === undefined) throw new Error("Missing authentic direct damage backlink");
+    expect(damage).toMatchObject({ kind: "direct", eventPriority: 3, frame: row.frame, targetId: row.targetId, hitId: row.hitId });
+    row.eventPriority = 3;
+    row.eventSequence = damage.eventSequence;
+    row.intraEventSequence = 0;
+  }
+
+  // The new direct hit-resolution witness allocates exactly one earlier local
+  // step. Only these closed original hit-owned rows move; recursive children,
+  // deferred attachment, scheduler phases and all other steps remain untouched.
+  for (const [collection, id, from, to] of coordinates.steps) {
+    const rows = collection === "target" ? expected.targetStateTimeline.points
+      : collection === "core" ? expected.dendroCoreLog
+      : collection === "contact" ? expected.dendroCoreContactLog
+      : collection === "coreTimeline" ? expected.dendroCoreTimeline.points
+      : expected.freezeBrokenAttackLog;
+    const row = rows[id];
+    if (!row || row.id !== id) throw new Error(`Missing exact ${key}/${collection}/${id}`);
+    expect(row.intraEventSequence).toBe(from);
+    expect(to).toBe(from + 1);
+    if ("triggerEventType" in row) {
+      expect(row).toMatchObject({ triggerEventType: "hit", triggerEventPriority: 3 });
+    } else {
+      expect(row).toMatchObject({ eventType: "hit", eventPriority: 3 });
+      if ("cause" in row) expect(["direct-hit-application", "direct-hit-shatter"]).toContain(row.cause);
+    }
+    row.intraEventSequence = to;
+  }
+  expect(matrixMechanics(result), key).toStrictEqual(expected);
+  expect(JSON.stringify(result)).toBe(before);
+}
+
+function runMatrix(era: MatrixEra, ...args: MatrixArgs): SimulationResult {
+  if (era === "authentic historical") return authenticMatrixResult(args);
+  const inputBefore = JSON.stringify(args);
+  const result = simulate(...args);
+  expect(JSON.stringify(args)).toBe(inputBefore);
+  expectCurrentMatrixContract(args, result);
+  if (result.config.reactionEngine?.mode === "aura-v9") expectCurrentMatrixNumbers(result);
+  return result;
+}
+
+function expectCurrentMatrixNumbers(result: SimulationResult): void {
+  // Independent arithmetic for this pinned, provisional classic profile (not
+  // live-server truth): level90 base1446.8535, ATK1000, EM100, no CRIT/buff,
+  // equal-level DEF0.5, resistance10%, reaction bonus20%. No production formula
+  // helper or observed damage factor is used to construct these expectations.
+  const direct = 1000 * 0.5 * 0.9;
+  const amplifying = (base: number, bonus = 0.2) => base * (1 + 2.78 * 100 / 1500 + bonus);
+  const transformative = (base: number, resistance = 0.1) => 1446.8535 * base * (1 + 16 * 100 / 2100 + 0.2) * (1 - resistance);
+  const additive = (base: number) => (1000 + 1446.8535 * base * (1 + 5 * 100 / 1300 + 0.2)) * 0.5 * 0.9;
+  const numbers: Record<string, readonly (readonly [number, ReactionType, number])[]> = {
+    melt: [[0, "melt", direct * amplifying(2)]],
+    vaporize: [[0, "vaporize", direct * amplifying(2)]],
+    overload: [[0, "overload", direct], [1, "overload", transformative(2.75)]],
+    superconduct: [[0, "superconduct", direct], [1, "superconduct", transformative(1.5)]],
+    electroCharged: [[0, "electroCharged", direct], [10, "electroCharged", transformative(2)]],
+    freezeShatter: [[0, "freeze", direct], [12, "none", direct], [12, "shatter", transformative(3)]],
+    // At F5 the live +30% buff affects only the reverse-Vaporize multiplier;
+    // the Swirl transformative payload still owns its original 20% snapshot.
+    swirl: [[0, "swirlPyro", direct], [1, "swirlPyro", transformative(0.6)], [5, "swirlPyro", transformative(0.6) * amplifying(1.5, 0.5)], [5, "swirlPyro", transformative(0.6)]],
+    crystallize: [[0, "crystallizePyro", direct]],
+    catalyze: [[0, "quicken", direct], [12, "aggravate", additive(1.15)], [24, "spread", additive(1.25)]],
+    burning: [[0, "burning", direct], [15, "burning", transformative(0.25)], [30, "burning", transformative(0.25)], [45, "burning", transformative(0.25)], [60, "burning", transformative(0.25)]],
+    // F0 application → F30 core spawn → F330 expiry → F331 Bloom delivery.
+    bloom: [[0, "bloom", direct], [331, "bloom", transformative(2)]],
+    burgeon: [[0, "bloom", direct], [31, "burning", direct], [32, "burgeon", transformative(3)], [46, "burning", transformative(0.25)], [61, "burning", transformative(0.25)]],
+    hyperbloom: [[0, "bloom", direct], [31, "quicken", direct], [91, "hyperbloom", transformative(3)]],
+    cryoMultiReaction: [[0, "reverseMelt", direct * amplifying(1.5)], [1, "superconduct", transformative(1.5)]],
+    electroOrdered: [[0, "overload", direct], [1, "overload", transformative(2.75)], [1, "superconduct", transformative(1.5)]],
+    elementalResistance: [[0, "overload", 1000 * 0.5 * 0.8], [1, "overload", transformative(2.75, 0.3)], [1, "superconduct", transformative(1.5, 0.4)]],
+    hydroFrozenEcGuard: [[0, "vaporize", direct * amplifying(2)]],
+    reverseMelt: [[0, "reverseMelt", direct * amplifying(1.5)]],
+    swirlHydro: [[0, "swirlHydro", direct], [1, "swirlHydro", transformative(0.6)]],
+    swirlCryo: [[0, "swirlCryo", direct], [1, "swirlCryo", transformative(0.6)]],
+    swirlElectro: [[0, "swirlElectro", direct], [1, "swirlElectro", transformative(0.6)]],
+    crystallizeHydro: [[0, "crystallizeHydro", direct]],
+    crystallizeCryo: [[0, "crystallizeCryo", direct]],
+    crystallizeElectro: [[0, "crystallizeElectro", direct]],
+  };
+  const scenario = String(result.config.randomSeed).split(":")[1]!;
+  const expected = numbers[scenario];
+  if (!expected) throw new Error(`Unreviewed current matrix arithmetic ${scenario}`);
+  expect(result.damageEvents.map((event) => [event.id, event.frame, event.reaction])).toEqual(expected.map(([frame, reaction], id) => [id, frame, reaction]));
+  expect(result.damageEvents.map((event) => event.targetId)).toEqual(scenario === "swirl" ? ["enemy-0", "enemy-0", "enemy-1", "enemy-2"] : expected.map(() => "enemy-0"));
+  result.damageEvents.forEach((event, id) => {
+    expect(event.sourceActorId).toBe("matrix");
+    expect(event.finalDamage).toBeCloseTo(expected[id]![2], 10);
+    expect(event.displayDamage).toBe(Math.round(expected[id]![2]));
+  });
+  expect(result.totalDamage).toBeCloseTo(expected.reduce((sum, row) => sum + row[2], 0), 10);
+  if (["bloom", "burgeon", "hyperbloom"].includes(scenario)) {
+    expect(result.dendroCoreLog.find((row) => row.operation === "spawn-scheduled")).toMatchObject({ id: 0, frame: 0, originDamageEventId: 0, spawnFrame: 30, coreDurationFrames: 300 });
+    expect(result.dendroCoreLog.find((row) => row.operation === "spawn")).toMatchObject({ id: 1, frame: 30, originDamageEventId: 0, spawnedAtFrame: 30, expiresAtFrame: 330 });
+  }
+}
+
 describe("1.35 provisional reaction-matrix Golden", () => {
   it("retains the frozen 1.31 fixture as an enemy-side semantic baseline", () => {
     expect(historicalMatrixGolden.config).toMatchObject({
@@ -1925,8 +2290,8 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         ...OPTIONS,
         randomSeed: v6Config.randomSeed
       };
-      const v6Result = simulate(v6Config, options);
-      const v7Result = simulate(v7Config, options);
+      const v6Result = runMatrix("current engine", v6Config, options);
+      const v7Result = runMatrix("current engine", v7Config, options);
 
       expect(v6Result.config.reactionEngine).toEqual({
         mode: "aura-v6"
@@ -2075,7 +2440,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
     }
   });
 
-  it("freezes every baseline reaction vector, strict projection, and run identity", () => {
+  it.each(["authentic historical", "current engine"] as const)("%s: preserves every baseline reaction vector, projection boundary, and run identity", (era) => {
     const actualVectors: Record<string, unknown> = {};
     const observedReactions = new Set<ReactionType>();
 
@@ -2087,8 +2452,8 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         ...OPTIONS,
         randomSeed: config.randomSeed
       };
-      const result = simulate(config, options);
-      const repeated = simulate(
+      const result = runMatrix(era, config, options);
+      const repeated = runMatrix(era,
         makeMatrixConfig(scenarioId, scenario),
         options
       );
@@ -2116,9 +2481,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         result.dendroCoreLog.length > 0 ||
         result.dendroCoreContactLog.length > 0
       ) {
-        expect(
-          dendroCoreResultReferencesSchema.parse(result)
-        ).toEqual(result);
+        expectMatrixCoreReferences(era, result);
       }
       expect(repeated).toEqual(result);
       expect(result.playerHpTimeline.points).toEqual(
@@ -2408,7 +2771,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       expect(result.targetClockLog).toEqual([]);
       expect(result.targetHitlagLog).toEqual([]);
       expect(result.targetTaskPhaseLog).toEqual([]);
-      if (V133_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
+      if (era === "authentic historical" && V133_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
         const historicalVector = (
           historicalMatrixGolden.vectors as Record<
             string,
@@ -2469,7 +2832,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
           );
         }
       }
-      if (V134_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
+      if (era === "authentic historical" && V134_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
         const v134Vector = (
           matrixV134Golden.vectors as unknown as Record<
             string,
@@ -2494,8 +2857,8 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         ...OPTIONS,
         randomSeed: config.randomSeed
       };
-      const result = simulate(config, options);
-      const repeated = simulate(
+      const result = runMatrix(era, config, options);
+      const repeated = runMatrix(era,
         makeMatrixConfig(reaction, {
           ...scenario,
           reactionMode: "aura-v7"
@@ -2581,18 +2944,21 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       process.env.PRINT_REACTION_MATRIX_GOLDEN === "1"
     ) {
       console.log(JSON.stringify(actualVectors, null, 2));
-      return;
     }
-    expect(withoutVersionIdentity(actualVectors)).toEqual(
-      withoutVersionIdentity(
-        matrixV135Golden.vectors as Record<string, unknown>
-      )
-    );
+    // The five frozen hashes describe authentic old output, not current wire
+    // coordinates. The current runner above instead checks every full result.
+    if (era === "authentic historical") {
+      expect(withoutVersionIdentity(actualVectors)).toEqual(
+        withoutVersionIdentity(
+          matrixV135Golden.vectors as Record<string, unknown>
+        )
+      );
+    }
   });
 });
 
 describe("current aura-v9 classic reaction release gate", () => {
-  it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
+  it.each(["authentic historical", "current engine"] as const)("%s: covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", (era) => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe(
       "1.50.0"
     );
@@ -2629,8 +2995,8 @@ describe("current aura-v9 classic reaction release gate", () => {
         ...OPTIONS,
         randomSeed: config.randomSeed
       };
-      const result = simulate(config, options);
-      const repeated = simulate(
+      const result = runMatrix(era, config, options);
+      const repeated = runMatrix(era,
         makeAuraV9MatrixConfig(scenarioId, scenario),
         options
       );
@@ -2940,8 +3306,119 @@ describe("current aura-v9 classic reaction release gate", () => {
     if (process.env.PRINT_AURA_V9_REACTION_MATRIX === "1") {
       console.log(`aura-v9 classic reaction digest: ${digest}`);
     }
-    expect(digest).toBe(
-      AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST
-    );
+    // Keep the exact original aggregate digest on authentic old output. The
+    // current runner retains each complete per-profile wire plus independent
+    // arithmetic; no replacement current digest can hide lost causal fields.
+    if (era === "authentic historical") {
+      expect(digest).toBe(AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST);
+    }
   }, 15_000);
+});
+
+describe("authentic matrix source and current import boundaries", () => {
+  it("pins all five immutable Goldens and all 79 complete original input/result cases", () => {
+    expect(matrixArchive).toMatchObject({
+      fixtureVersion: "historical-reaction-matrix-v153-84ff5cd-v1",
+      source: { commit: "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5", observedRunCount: 130,
+        originalTests: { total: 4, passed: 4, failed: 0, pending: 0 } },
+    });
+    expect(matrixArchive.cases.map((row) => row.caseId)).toEqual(Object.keys(CURRENT_MATRIX_COORDINATES));
+    expect(matrixArchive.cases).toHaveLength(79);
+    expect(new Set(matrixArchive.cases.map((row) => row.caseId)).size).toBe(79);
+    expect(matrixArchive.cases.flatMap((row) => row.observedAt.map((call) => call.index)).sort((a, b) => a - b)).toEqual(Array.from({ length: 130 }, (_, id) => id));
+    for (const [version, digest] of Object.entries({
+      "1.31": "edb5e16d698683e6a64f3ecbf01baa30ab5df012fb0137d907cef9a91d1720cc",
+      "1.32": "4089587e77765a655ccf6f776a32e1bc7e259a10ba3b532fb273274d814962e4",
+      "1.33": "67a6546d8562e3d9720262a26ce5b6a9224fa9e871fabbe0c9b1d0e9e5490231",
+      "1.34": "2a6a08d69f6c819959def335fc7b676f7d8f48bfce7c4700307d5e80be08497e",
+      "1.35": "d21e107dd1ed53f897d5f5d1f45af4735cd99297c281f5123d71e1fbc394d8c5",
+    })) {
+      expect(matrixByteSha256(readFileSync(new URL(`../../../test-vectors/fixtures/reaction-matrix-${version}.golden.json`, import.meta.url)))).toBe(digest);
+    }
+    expect(matrixArchive.cases.filter((row) => HISTORICAL_CORE_CONTACT_REFUSALS.has(row.caseId)).map((row) => row.caseId)).toEqual([...HISTORICAL_CORE_CONTACT_REFUSALS]);
+    for (const row of matrixArchive.cases) authenticMatrixResult(JSON.parse(row.sourceInputText) as MatrixArgs);
+  });
+
+  it("refuses unknown or changed archived inputs and current coordinate drift without mutating the wire", () => {
+    const args = JSON.parse(matrixArchive.cases[0]!.sourceInputText) as MatrixArgs;
+    const result = runMatrix("current engine", ...args);
+    const forged = structuredClone(result);
+    const point = forged.targetStateTimeline.points[1]!;
+    expect(point).toMatchObject({ eventType: "hit", cause: "direct-hit-application", intraEventSequence: 1 });
+    point.intraEventSequence = 0;
+    // Legacy 1.53 accepts its historical I0 application convention. The new
+    // engine's exact current oracle, not a fabricated standalone trusted-API
+    // guarantee, owns rejection of this still-publicly-readable old coordinate.
+    expect(simulationResultSchema.safeParse(forged).success).toBe(true);
+    const before = JSON.stringify(forged);
+    expect(() => expectCurrentMatrixContract(args, forged)).toThrow();
+    expect(JSON.stringify(forged)).toBe(before);
+    const changed = structuredClone(args);
+    changed[0].characters[0]!.stats.baseAtk += 1;
+    expect(() => authenticMatrixResult(changed)).toThrow();
+    changed[0].randomSeed = "unreviewed-matrix-case";
+    expect(() => authenticMatrixResult(changed)).toThrow("Unreviewed matrix input");
+  });
+
+  it("independently replays every current v9 damage event through the real calculator import API", () => {
+    const scenarios = { ...SCENARIOS, ...SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS };
+    expect(Object.keys(scenarios)).toHaveLength(24);
+    let events = 0;
+    for (const [scenario, definition] of Object.entries(scenarios)) {
+      const config = makeAuraV9MatrixConfig(scenario, definition);
+      const result = runMatrix("current engine", config, { ...OPTIONS, randomSeed: config.randomSeed });
+      for (const event of result.damageEvents) {
+        const capture = parseSimulationHit(JSON.stringify({ schemaVersion: "calculator-event-v1", eventId: event.id, sourceResult: result }));
+        expect(capture.sourceResult).toEqual(result);
+        const replay = replaySimulationHit(capture);
+        expect(replay.reproducedDamage).toBeCloseTo(event.finalDamage, 10);
+        expect(replay.difference).toBeCloseTo(0, 10);
+        events += 1;
+      }
+    }
+    expect(events).toBe(53);
+  });
+
+  const hostile: Array<{ name: string; scenario: keyof typeof SCENARIOS; mutate: (result: SimulationResult) => void }> = [
+    { name: "duplicate damage ID", scenario: "overload", mutate: (r) => { r.damageEvents[1]!.id = 0; } },
+    { name: "dangling direct resolution backlink", scenario: "overload", mutate: (r) => { r.hitResolutionLog[0]!.damageEventId = 999; } },
+    { name: "dangling reaction trigger", scenario: "overload", mutate: (r) => { r.reactionDamageLog[0]!.triggerDamageEventId = 999; } },
+    { name: "dangling reaction delivery", scenario: "overload", mutate: (r) => { r.reactionDamageLog[0]!.damageEventIds[0] = 999; } },
+    { name: "wrong reaction group task coordinate", scenario: "overload", mutate: (r) => { r.reactionDamageLog[0]!.damageGroupDecisions[0]!.damageGroupTaskSequence = 999; } },
+    { name: "duplicate target-state point ID", scenario: "overload", mutate: (r) => { r.targetStateTimeline.points[1]!.id = 0; } },
+    { name: "dangling target-state link", scenario: "overload", mutate: (r) => { r.targetStateTimeline.points[1]!.links[0]!.id = 999; } },
+    { name: "changed source config digest", scenario: "melt", mutate: (r) => { r.config.characters[0]!.stats.baseAtk += 1; } },
+    { name: "forged result reproducibility key", scenario: "melt", mutate: (r) => { r.reproducibilityKey = "gdl-v2-fnv1a32-00000000"; } },
+    { name: "strict extra wire field", scenario: "melt", mutate: (r) => { Object.assign(r, { unreviewedField: true }); } },
+    { name: "Frozen resistance overflow", scenario: "freezeShatter", mutate: (r) => { r.frozenStateLog[0]!.freezeResistance = 1.01; } },
+    { name: "Frozen frame/time disagreement", scenario: "freezeShatter", mutate: (r) => { r.frozenStateLog[0]!.timeSeconds += 0.01; } },
+    { name: "wrong Swirl application element", scenario: "swirl", mutate: (r) => { r.damageEvents[0]!.reactionAudit.swirlReactions[0]!.swirledElement = "hydro"; } },
+    { name: "broken deferred attachment reciprocal link", scenario: "swirl", mutate: (r) => {
+      const row = r.basicReactionSchedulerLog.find((entry) => entry.kind === "deferred-aura-attachment");
+      if (!row || row.kind !== "deferred-aura-attachment") throw new Error("Missing deferred attachment control");
+      row.pairedLogId = 999;
+    } },
+    { name: "wrong Crystallize absorbed element", scenario: "crystallize", mutate: (r) => {
+      const audit = r.damageEvents[0]!.reactionAudit.crystallizeReaction;
+      if (!audit) throw new Error("Missing Crystallize control");
+      audit.crystallizedElement = "hydro";
+    } },
+    { name: "wrong additive trigger element", scenario: "catalyze", mutate: (r) => {
+      const additive = r.damageEvents[1]!.reactionAudit.catalyzeReaction?.additive;
+      if (!additive) throw new Error("Missing additive control");
+      additive.triggerElement = "dendro";
+    } },
+    { name: "dangling core origin", scenario: "bloom", mutate: (r) => { r.dendroCoreLog[0]!.originDamageEventId = 999; } },
+    { name: "dangling core-contact removal", scenario: "hyperbloom", mutate: (r) => { r.dendroCoreContactLog[0]!.removalLogIds[0] = 999; } },
+  ];
+  for (const entry of hostile) it(`rejects ${entry.name} at public schema and actual JSON import`, () => {
+    const config = makeAuraV9MatrixConfig(entry.scenario, SCENARIOS[entry.scenario]);
+    const result = runMatrix("current engine", config, { ...OPTIONS, randomSeed: config.randomSeed });
+    const wire = (sourceResult: SimulationResult): string => JSON.stringify({ schemaVersion: "calculator-event-v1", eventId: 0, sourceResult });
+    expect(parseSimulationHit(wire(result)).sourceResult).toEqual(result);
+    const forged = structuredClone(result);
+    entry.mutate(forged);
+    expect(simulationResultSchema.safeParse(forged).success).toBe(false);
+    expect(() => parseSimulationHit(wire(forged))).toThrow();
+  });
 });

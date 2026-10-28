@@ -1,0 +1,15 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ ✓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > recognizes the specified Wanderer party's sourced zero grants without treating Hexerei as Moonsign 3ms
+ ✓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > does not turn one known contributor and three sourced zero grants into an unknown or two-level party 0ms
+ ✓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > derives 0/1/2 from bounded positive and negative facts without any user eligibility choice 1ms
+ ✓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > keeps unknown identity evidence unknown and never substitutes a regional label 0ms
+ ✓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > never turns Moonsign membership or reaction eligibility into an actual per-hit trigger 1ms
+ ✓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > preserves historical levels and captures while deriving a later new-run input 0ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  19:19:05
+   Duration  326ms (transform 138ms, setup 0ms, import 209ms, tests 7ms, environment 0ms)
+

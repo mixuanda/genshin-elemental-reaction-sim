@@ -94,8 +94,8 @@ function mapping(cast: HeldLifecycleTemplate, role: HeldLifecycleRole): SourceHi
 export const heldLifecycleMappings: SourceHitMapping[] = heldLifecycleTemplates.flatMap(cast => Object.values(cast.roles).map(role => mapping(cast, role)));
 
 export const replacedHeldLifecyclePartialMappingIds = new Set([
-  "aether-dendro-burst-pyro-transformed-explosion-burstExplode",
-  "lumine-dendro-burst-pyro-transformed-explosion-burstExplode",
+  // Keep the already-observed Dendro explosion independently selectable for both Travelers.
+  // Its one-hit formula does not certify the lamp lifecycle or a transformation schedule.
   "aether-hydro-skill-dewdrop-no-suffusion-skillDewdrop",
   "lumine-hydro-skill-dewdrop-no-suffusion-skillDewdrop",
   "aether-hydro-burst-tick-burstDot",
@@ -106,6 +106,6 @@ export const replacedHeldLifecyclePartialMappingIds = new Set([
   "lumine-pyro-skill-hold-initial-holdDMG",
   "aether-pyro-skill-scorching-trigger-scorchingThreshold",
   "lumine-pyro-skill-scorching-trigger-scorchingThreshold",
-  "noelle-charged-cycle-hit",
-  "noelle-charged-finisher-hit",
+  // Noelle single-hit components remain selectable alongside the observed full hold.
+  // They keep completeAction=false and never infer hold duration or hit count.
 ]);

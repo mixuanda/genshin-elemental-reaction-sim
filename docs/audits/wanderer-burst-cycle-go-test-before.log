@@ -1,0 +1,11 @@
+=== RUN   TestWandererC2RejectsNonQ
+=== RUN   TestWandererC2RejectsNonQ/Shugen:_The_Curtains’_Melancholic_Sway
+    wanderer_burst_cycle_negative_test.go:53: Q-only C2 leaked into non-Q snapshot: got 2, want 0
+=== RUN   TestWandererC2RejectsNonQ/Arcane_Projection:_Unity
+    wanderer_burst_cycle_negative_test.go:53: Q-only C2 leaked into non-Q snapshot: got 2, want 0
+--- FAIL: TestWandererC2RejectsNonQ (0.00s)
+    --- FAIL: TestWandererC2RejectsNonQ/Shugen:_The_Curtains’_Melancholic_Sway (0.00s)
+    --- FAIL: TestWandererC2RejectsNonQ/Arcane_Projection:_Unity (0.00s)
+FAIL
+FAIL	github.com/genshinsim/gcsim/internal/characters/wanderer	0.004s
+FAIL

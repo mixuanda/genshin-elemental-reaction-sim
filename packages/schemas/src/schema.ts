@@ -10776,12 +10776,15 @@ const dendroCoreDamageEventReferenceSchema = z
     eventPriority: finiteNumber.nonnegative().optional(),
     eventSequence: z.number().int().nonnegative().optional(),
     parentDamageEventId: z.number().int().nonnegative().nullable(),
+    targetResolutionId: z.number().int().nonnegative().optional(),
     sourceActorId: wireNonEmptyStringSchema,
     scalingOwnerId: wireNonEmptyStringSchema,
     creditOwnerId: wireNonEmptyStringSchema,
     actionId: wireNonEmptyStringSchema.optional(),
     hitId: wireNonEmptyStringSchema.optional(),
     hitGroupId: wireNonEmptyStringSchema,
+    targetIndex: z.number().int().nonnegative().optional(),
+    targetCount: z.number().int().positive().optional(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema.optional(),
     frame: z.number().int().nonnegative(),
@@ -10840,6 +10843,8 @@ const dendroCoreHitResolutionReferenceSchema = z
     sourceActionId: wireNonEmptyStringSchema,
     hitId: wireNonEmptyStringSchema,
     hitGroupId: wireNonEmptyStringSchema,
+    targetIndex: z.number().int().nonnegative().optional(),
+    targetCount: z.number().int().positive().optional(),
     targetId: wireNonEmptyStringSchema,
     element: z.enum([
       "pyro",
@@ -12519,7 +12524,63 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       });
     }
 
+    // A direct attack is queued once per target, then contacts cores once
+    // after its last target completes. Reaction damage instead fans out inside
+    // one queue event. Index actual direct members independently of the contact
+    // IDs so dropping an otherwise valid member cannot forge a smaller attack.
+    const directHitsByGroup = new Map<string, typeof result.hitResolutionLog>();
+    for (const hit of result.hitResolutionLog) {
+      if (hit.resolutionKind !== "direct") continue;
+      const members = directHitsByGroup.get(hit.hitGroupId) ?? [];
+      members.push(hit);
+      directHitsByGroup.set(hit.hitGroupId, members);
+    }
+    const directDamageIdsByGroup = new Map<string, number[]>();
+    for (const damage of result.damageEvents) {
+      if (damage.kind !== "direct") continue;
+      const ids = directDamageIdsByGroup.get(damage.hitGroupId) ?? [];
+      ids.push(damage.id);
+      directDamageIdsByGroup.set(damage.hitGroupId, ids);
+    }
     result.dendroCoreContactLog.forEach((contact, index) => {
+      const currentDirect = current && contact.eventType === "hit";
+      const directMembers = currentDirect
+        ? directHitsByGroup.get(contact.hitGroupId) ?? []
+        : [];
+      // This reference facet also accepts historical partial single-hit
+      // fixtures. Multi-target provenance always requires the existing full
+      // targetIndex/targetCount fields; it cannot use that partial shape.
+      const hasTargetMetadata = directMembers.length > 1 || directMembers.some(
+        (hit) => hit.targetIndex !== undefined || hit.targetCount !== undefined
+      );
+      if (currentDirect) {
+        if (directMembers.length === 0 ||
+          directMembers.length !== contact.hitResolutionLogIds.length ||
+          directMembers.some((hit, position) => hit.id !== contact.hitResolutionLogIds[position])) {
+          addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "hitResolutionLogIds"],
+            "direct core contact requires the complete hit-group membership in target order");
+        }
+        const targetIds = new Set<string>();
+        directMembers.forEach((hit, position) => {
+          const previous = directMembers[position - 1];
+          if ((hasTargetMetadata && (hit.targetIndex !== position || hit.targetCount !== directMembers.length)) ||
+            targetIds.has(hit.targetId) || hit.eventSequence === undefined ||
+            (previous !== undefined && (previous.eventSequence === undefined || hit.eventSequence <= previous.eventSequence))) {
+            addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "hitResolutionLogIds", position],
+              "direct core contact requires complete unique targets and their ordered queue events");
+          }
+          targetIds.add(hit.targetId);
+        });
+        const lastMember = directMembers.at(-1);
+        if (lastMember === undefined || contact.eventPriority !== lastMember.eventPriority ||
+          contact.eventSequence !== lastMember.eventSequence) {
+          addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "eventSequence"],
+            "direct core contact completion must match the last target queue event");
+        }
+      }
+      const directMemberByDamageId = new Map(directMembers
+        .filter(hit => hit.damageEventId !== null)
+        .map(hit => [hit.damageEventId, hit]));
       const reactionDamageSuffix =
         contact.triggerReactionDamageLogId === null
           ? ""
@@ -12559,7 +12620,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
             hitResolution.element !== contact.triggerElement ||
             hitResolution.resolutionKind !==
               expectedResolutionKind ||
-            (current && (hitResolution.eventPriority !== contact.eventPriority || hitResolution.eventSequence !== contact.eventSequence))
+            (current && (hitResolution.eventPriority !== contact.eventPriority ||
+              ((!currentDirect || directMembers.length === 1) && hitResolution.eventSequence !== contact.eventSequence)))
           ) {
             addMissingReferenceIssue(
               context,
@@ -12598,6 +12660,14 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           "core-contact hit resolutions must reproduce triggerDamageEventIds in target order"
         );
       }
+      if (currentDirect) {
+        const groupDamageIds = directDamageIdsByGroup.get(contact.hitGroupId) ?? [];
+        if (groupDamageIds.length !== referencedDamageEventIds.length ||
+          groupDamageIds.some((id, position) => id !== referencedDamageEventIds[position])) {
+          addMissingReferenceIssue(context, ["dendroCoreContactLog", index, "triggerDamageEventIds"],
+            "direct core contact must retain every produced target damage event");
+        }
+      }
       const triggeringReactionDamage =
         contact.triggerReactionDamageLogId === null
           ? undefined
@@ -12607,8 +12677,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       if (current) {
         let expectedPriority: number | undefined;
         if (contact.eventType === "hit") {
-          // Complete direct-hit source verification also runs in the shared
-          // delivery facet; this row must retain that exact resolved hit tuple.
+          // The contact retains the last target's completion tuple; every
+          // member still authenticates its own source and damage backlink.
           expectedPriority = result.hitResolutionLog.find(row => contact.hitResolutionLogIds.includes(row.id))?.eventPriority;
           if (expectedPriority !== 3 && expectedPriority !== 13) expectedPriority = undefined;
           if (expectedPriority === 13 && !hasAcceptedAfterFrameHitSource(result.config, result.actionLog ?? [], {
@@ -12673,6 +12743,16 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         (damageEventId, referenceIndex) => {
           const triggerDamageEvent =
             damageEventById.get(damageEventId);
+          const directMember = directMemberByDamageId.get(damageEventId);
+          const directDamageMatchesMember = !currentDirect || (directMember !== undefined && triggerDamageEvent !== undefined &&
+            triggerDamageEvent.targetId === directMember.targetId &&
+            triggerDamageEvent.element === directMember.element &&
+            triggerDamageEvent.eventPriority === directMember.eventPriority &&
+            triggerDamageEvent.eventSequence === directMember.eventSequence &&
+            ((!hasTargetMetadata && triggerDamageEvent.actionId === undefined) || triggerDamageEvent.actionId === directMember.sourceActionId) &&
+            ((!hasTargetMetadata && triggerDamageEvent.hitId === undefined) || triggerDamageEvent.hitId === directMember.hitId) &&
+            ((!hasTargetMetadata && triggerDamageEvent.targetResolutionId === undefined) || triggerDamageEvent.targetResolutionId === directMember.id) &&
+            (!hasTargetMetadata || (triggerDamageEvent.targetIndex === directMember.targetIndex && triggerDamageEvent.targetCount === directMember.targetCount)));
           const expectedHitGroupId =
             contact.eventType === "hit"
               ? triggerDamageEvent?.hitGroupId
@@ -12692,6 +12772,9 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
               `missing damage event ${damageEventId}`
             );
           } else if (
+            // For direct fanout, each damage event belongs to its own target
+            // queue event, not necessarily the final contact queue event.
+            !directDamageMatchesMember ||
             triggerDamageEvent.frame !== contact.frame ||
             triggerDamageEvent.sourceActorId !==
               contact.sourceActorId ||
@@ -12700,7 +12783,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
               (contact.eventType === "hit"
                 ? "direct"
                 : "transformative-reaction") ||
-            (current && (triggerDamageEvent.eventPriority !== contact.eventPriority || triggerDamageEvent.eventSequence !== contact.eventSequence))
+            (current && (triggerDamageEvent.eventPriority !== contact.eventPriority ||
+              (!currentDirect && triggerDamageEvent.eventSequence !== contact.eventSequence)))
           ) {
             addMissingReferenceIssue(
               context,
@@ -16614,6 +16698,12 @@ export const simConfigV142Schema = z
  * validator remain the single source of truth for every unchanged field and
  * cross-field rule. The final transform preserves all frozen defaults and
  * normalizations, then restores only the exact 1.44 identity and v3 selector.
+ *
+ * Each version validates and transforms in the same callback so its complete
+ * predecessor is parsed once, not once in a refinement and again in a later
+ * transform. Reuse is local to this invocation; every public parse still
+ * validates its wire, all version-specific rules, and the full predecessor.
+ * Never construct output when either layer has reported an issue.
  */
 const projectSimConfigV144ToV142 = (
   wire: Record<string, unknown>
@@ -16642,7 +16732,7 @@ const simConfigV144ValueSchema = z
   .custom<SimConfigV144>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -16682,20 +16772,16 @@ const simConfigV144ValueSchema = z
     }
 
     const projected = projectSimConfigV144ToV142(wire);
-    const parsed = simConfigV142Schema.safeParse(projected);
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    const predecessor = simConfigV142Schema.safeParse(projected);
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV142Schema.parse(
-      projectSimConfigV144ToV142(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -16743,7 +16829,7 @@ const simConfigV145ValueSchema = z
   .custom<SimConfigV145>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !== REACTION_FORMULA_ROOT_SCHEMA_VERSION
@@ -16845,22 +16931,18 @@ const simConfigV145ValueSchema = z
       });
     }
 
-    const parsed = simConfigV144Schema.safeParse(
+    const predecessor = simConfigV144Schema.safeParse(
       projectSimConfigV145ToV144(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV144Schema.parse(
-      projectSimConfigV145ToV144(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
@@ -17042,7 +17124,7 @@ const simConfigV146ValueSchema = z
   .custom<SimConfigV146>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17130,22 +17212,18 @@ const simConfigV146ValueSchema = z
         }
       }
     });
-    const parsed = simConfigV145Schema.safeParse(
+    const predecessor = simConfigV145Schema.safeParse(
       projectSimConfigV146ToV145(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV145Schema.parse(
-      projectSimConfigV146ToV145(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     const rawRotation = Array.isArray(wire.rotation)
       ? wire.rotation
       : [];
@@ -17340,7 +17418,7 @@ const simConfigV147ValueSchema = z
   .custom<SimConfigV147>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17477,22 +17555,18 @@ const simConfigV147ValueSchema = z
       }
     });
 
-    const parsed = simConfigV146Schema.safeParse(
+    const predecessor = simConfigV146Schema.safeParse(
       projectSimConfigV147ToV146(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({
-        ...issue,
-        path: issue.path
-      });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV146Schema.parse(
-      projectSimConfigV147ToV146(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     const rawRotation = Array.isArray(wire.rotation)
       ? wire.rotation
       : [];
@@ -17573,7 +17647,7 @@ const simConfigV148ValueSchema = z
   .custom<SimConfigV148>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17635,19 +17709,18 @@ const simConfigV148ValueSchema = z
       }
     }
 
-    const parsed = simConfigV147Schema.safeParse(
+    const predecessor = simConfigV147Schema.safeParse(
       projectSimConfigV148ToV147(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV147Schema.parse(
-      projectSimConfigV148ToV147(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
@@ -17700,7 +17773,7 @@ const simConfigV149ValueSchema = z
   .custom<SimConfigV149>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17762,19 +17835,18 @@ const simConfigV149ValueSchema = z
       }
     }
 
-    const parsed = simConfigV147Schema.safeParse(
+    const predecessor = simConfigV147Schema.safeParse(
       projectSimConfigV149ToV147(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV147Schema.parse(
-      projectSimConfigV149ToV147(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -17826,7 +17898,7 @@ const simConfigV150ValueSchema = z
   .custom<SimConfigV150>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (
       wire.schemaVersion !==
@@ -17879,19 +17951,18 @@ const simConfigV150ValueSchema = z
       }
     }
 
-    const parsed = simConfigV149Schema.safeParse(
+    const predecessor = simConfigV149Schema.safeParse(
       projectSimConfigV150ToV149(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV149Schema.parse(
-      projectSimConfigV150ToV149(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion:
@@ -17948,7 +18019,7 @@ const simConfigV151ValueSchema = z
   .custom<SimConfigV151>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
-  .superRefine((config, context) => {
+  .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
     if (wire.schemaVersion !== BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) {
       context.addIssue({
@@ -17995,19 +18066,18 @@ const simConfigV151ValueSchema = z
       }
     }
 
-    const parsed = simConfigV150Schema.safeParse(
+    const predecessor = simConfigV150Schema.safeParse(
       projectSimConfigV151ToV150(wire)
     );
-    if (parsed.success) return;
-    for (const issue of parsed.error.issues) {
-      context.addIssue({ ...issue, path: issue.path });
+    if (!predecessor.success) {
+      for (const issue of predecessor.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
     }
-  })
-  .transform((config) => {
-    const wire = config as unknown as Record<string, unknown>;
-    const parsed = simConfigV150Schema.parse(
-      projectSimConfigV151ToV150(wire)
-    );
+    if (!predecessor.success || context.issues.length > 0) {
+      return z.NEVER;
+    }
+    const parsed = predecessor.data;
     return {
       ...parsed,
       schemaVersion: BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
@@ -18499,7 +18569,7 @@ const simConfigV153ValueSchema = z
         raw.buffs.forEach((buff, index) => {
           if (playerMaxHpModel?.success !== true && isRecord(buff) && (buff.stat === "hpPct" || buff.stat === "hpFlat")) context.addIssue({
             code: "custom", path: [...path, "buffs", index, "stat"],
-            message: "dynamic HP buffs with health state require explicit playerMaxHpModel source semantics"
+            message: "static max HP: dynamic HP buffs with health state require explicit playerMaxHpModel source semantics"
           });
         });
       };
@@ -26623,9 +26693,18 @@ export function hasAcceptedAfterFrameHitSource(
   return !summonOwners.some(summon => summon.spawnFrame + summon.lifetimeFrames + summon.expiryAttackDelayFrames !== 0);
 }
 
+/** Internal cross-facet positions, built only after full event-witness replay.
+ * Never deserialize these maps or use them as evidence on their own. */
+export interface ReactionStepPositions {
+  hit:ReadonlyMap<number,number>;
+  application:ReadonlyMap<number,number>;
+  hitlag:ReadonlyMap<number,number>;
+}
+
 export function validateReactionDeliveryResultReferences(
   result: ReactionDeliveryResultReferencesValue,
-  context: z.RefinementCtx<ReactionDeliveryResultReferencesValue>
+  context: z.RefinementCtx<ReactionDeliveryResultReferencesValue>,
+  stepPositions?: ReactionStepPositions
 ): void {
     const issue = (
       path: Array<string | number>,
@@ -27562,8 +27641,8 @@ export function validateReactionDeliveryResultReferences(
             hit.eventSequence !== hitlag.eventSequence ||
             hit.intraEventSequence === undefined ||
             hitlag.intraEventSequence !==
-              hit.intraEventSequence +
-                (hit.landed ? 1 : 0) ||
+              (stepPositions ? stepPositions.hitlag.get(hit.id) : hit.intraEventSequence +
+                (hit.landed ? 1 : 0)) ||
             hit.targetId !== hitlag.targetId ||
             hit.targetName !== hitlag.targetName ||
             hit.sourceActorId !== hitlag.sourceActorId ||
@@ -28598,7 +28677,7 @@ export function validateReactionDeliveryResultReferences(
           triggerApplicationPoint.eventSequence !==
             triggerHitResolution?.eventSequence ||
           triggerApplicationPoint.intraEventSequence !==
-            triggerHitResolution?.intraEventSequence ||
+            (stepPositions ? stepPositions.application.get(triggerDamageEvent?.id ?? -1) : triggerHitResolution?.intraEventSequence) ||
           triggerApplicationPoint.reaction !==
             "electroCharged" ||
           triggerApplicationPoint.reactions.length !== 1 ||
@@ -28827,9 +28906,12 @@ export function validateReactionDeliveryResultReferences(
                 undefined &&
               hitResolution.sourceActorFacingDegrees ===
                 triggerHitResolution.sourceActorFacingDegrees;
-            const expectedApplicationIntraEventSequence =
-              propagationAudit.candidates.length +
-              selectedIndex;
+            const expectedApplicationIntraEventSequence = stepPositions
+              ? stepPositions.application.get(damageEventId ?? -1)
+              : propagationAudit.candidates.length + selectedIndex;
+            const expectedHitIntraEventSequence = stepPositions
+              ? stepPositions.hit.get(hitResolutionLogId ?? -1)
+              : expectedApplicationIntraEventSequence! + 1;
             if (
               hitResolution === undefined ||
               hitResolution.id !== hitResolutionLogId ||
@@ -28839,7 +28921,7 @@ export function validateReactionDeliveryResultReferences(
               hitResolution.timeSeconds !==
                 entry.damageFrame / 60 ||
               hitResolution.intraEventSequence !==
-                expectedApplicationIntraEventSequence + 1 ||
+                expectedHitIntraEventSequence ||
               hitResolution.sourceActorId !==
                 entry.sourceActorId ||
               triggerDamageEvent === undefined ||
@@ -29112,7 +29194,7 @@ export function validateReactionDeliveryResultReferences(
               applicationPoint.intraEventSequence !==
                 expectedApplicationIntraEventSequence ||
               hitResolution?.intraEventSequence !==
-                expectedApplicationIntraEventSequence + 1 ||
+                expectedHitIntraEventSequence ||
               applicationPoint.reaction !==
                 "electroCharged" ||
               applicationPoint.reactions.length !== 1 ||
@@ -31312,7 +31394,9 @@ export function validateReactionDeliveryResultReferences(
           parent?.kind === "direct" && parentId < event.id && tickIndex >= 0 && event.eventSequence > parent.eventSequence;
         if (!independentProc) issue(
           ["damageEvents", eventIndex, "parentDamageEventId"],
-          "direct damage requires a null parent or an exact current independent-weapon callback backlink"
+          result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION
+            ? "direct damage requires a null parent or an exact current independent-weapon callback backlink"
+            : "direct damage events must have a null parent"
         );
       }
       const parent = damageById.get(parentId);
@@ -31471,7 +31555,8 @@ export function validateReactionDeliveryResultReferences(
  * before invoking this exact same cross-log refinement.
  */
 export function assertTrustedReactionDeliveryResultReferences<T>(
-  result: T
+  result: T,
+  stepPositions?: ReactionStepPositions
 ): T {
   const trustedResult =
     result as unknown as ReactionDeliveryResultReferencesValue;
@@ -31495,7 +31580,8 @@ export function assertTrustedReactionDeliveryResultReferences<T>(
 
   validateReactionDeliveryResultReferences(
     trustedResult,
-    context
+    context,
+    stepPositions
   );
   if (issues.length !== 0) {
     throw new Error(
@@ -31508,6 +31594,10 @@ export function assertTrustedReactionDeliveryResultReferences<T>(
     );
   }
   return result;
+}
+
+export function reactionDeliveryReferencesWithSteps(stepPositions:ReactionStepPositions) {
+  return reactionDeliveryResultReferencesValueSchema.superRefine((result,context)=>validateReactionDeliveryResultReferences(result,context,stepPositions));
 }
 
 const reactionDeliveryResultReferencesRefinedValueSchema =

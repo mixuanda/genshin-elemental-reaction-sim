@@ -16,6 +16,7 @@ import {
 import { describe, expect, it } from "vitest";
 
 import { simulate } from "../../sim-core/src/simulator";
+import { parseEventStepResult, simulateEventStepResult } from "../../sim-core/src/event-step-result";
 import {
   makeConfig,
   neutralStats,
@@ -332,6 +333,45 @@ function runScenarios() {
   };
 }
 
+const HISTORICAL_URL = new URL("./fixtures/historical-burning-reset-boundary-v153-84ff5cd.json", import.meta.url);
+const HISTORICAL_SHA = "abbf7ec8a9702abcd905ec6f46ec6130c9186458e7e44b28069f95b931ff242c";
+function readHistoricalBoundary(): ReturnType<typeof runScenarios> {
+  const bytes = readFileSync(HISTORICAL_URL);
+  expect(byteSha256(bytes)).toBe(HISTORICAL_SHA);
+  const archive = JSON.parse(bytes.toString("utf8")) as { fixtureVersion: string; source: { commit: string; tree: string }; sourceWireText: string; sourceWireSha256: string };
+  expect(archive).toMatchObject({ fixtureVersion: "historical-burning-reset-boundary-v153-84ff5cd-v1", source: { commit: "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5", tree: "72bd69a8c54a3e115685c7ee52f5862064c70f55" } });
+  expect(archive.sourceWireSha256).toBe("faf320079e17386af1fa5aba903697839a003c406742082d8c14f31614e4a851");
+  expect(byteSha256(Buffer.from(archive.sourceWireText))).toBe(archive.sourceWireSha256);
+  const results = JSON.parse(archive.sourceWireText) as ReturnType<typeof runScenarios>;
+  expect(Object.keys(results)).toEqual(["v1Compatibility", "v2Corrected"]);
+  for (const result of Object.values(results)) {
+    expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+    expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  }
+  return results;
+}
+
+/** Closed historical-to-current expectation, not a normalizer of actual output.
+ * Hit resolution consumes substep0 before direct Aura application consumes1
+ * (simulator nextIntraEventSequence call sites). Queue IDs and every reference
+ * edge, damage event, decision and remaining Aura field are compared intact. */
+function expectedCurrentBoundary(): ReturnType<typeof runScenarios> {
+  const results = readHistoricalBoundary();
+  for (const [key, reproducibilityKey] of [["v1Compatibility", "gdl-v2-fnv1a32-6f781df7"], ["v2Corrected", "gdl-v2-fnv1a32-0e256fab"]] as const) {
+    const result = results[key];
+    result.resolvedRuntimeOptions.flatStatBuffSemantics = "canonical-v1";
+    result.runManifest.resolvedRuntimeOptions.flatStatBuffSemantics = "canonical-v1";
+    result.reproducibilityKey = reproducibilityKey;
+    result.runManifest.reproducibilityKey = reproducibilityKey;
+    for (const index of [4, 13, 14]) {
+      const point = result.targetStateTimeline.points[index]!;
+      expect(point).toMatchObject({ cause: "direct-hit-application", intraEventSequence: 0 });
+      point.intraEventSequence = 1;
+    }
+  }
+  return results;
+}
+
 function makeFixture(results: ReturnType<typeof runScenarios>) {
   const projected = {
     v1Compatibility: projectSimulationResultV150ToV149(
@@ -589,7 +629,8 @@ describe("Burning reset boundary 1.49 Golden", () => {
       expectBoundarySemantics(results.v1Compatibility, "v1");
       expectBoundarySemantics(results.v2Corrected, "v2");
 
-      const generated = makeFixture(results);
+      // Frozen V149 receives authentic pre-marker input, never a stripped current result.
+      const generated = makeFixture(readHistoricalBoundary());
       const frozen = loadPreviewOrCreateReviewedGolden({
         generated,
         fixtureUrl: FIXTURE_URL,
@@ -633,4 +674,72 @@ describe("Burning reset boundary 1.49 Golden", () => {
       expect(frozen).toEqual(generated);
     },
   );
+});
+
+describe("current canonical Burning reset-boundary contract", () => {
+  it("preserves both policy boundaries, independent Burning arithmetic and exact current causal coordinates", () => {
+    const actual = runScenarios();
+    expect(actual).toStrictEqual(expectedCurrentBoundary());
+    // Fixed level90 reaction curve1446.8535, Burning .25, actualEM100,
+    // reaction bonus .2 and resistance .1; no defense/crit multiplier.
+    const tick = 1446.8535 * .25 * (1 + 16 * 100 / (100 + 2000) + .2) * .9;
+    for (const [key, policy] of [["v1Compatibility", "v1"], ["v2Corrected", "v2"]] as const) {
+      const result = actual[key];
+      expectCurrentTrusted(result); expectReciprocalBacklinks(result); expectBoundarySemantics(result, policy);
+      expect(result.damageEvents.map(row => row.frame)).toEqual([0, 15, 15, 119, 120, 134, 134, 135, 135]);
+      expect(result.damageEvents.map(row => row.targetId)).toEqual(["owner-a", "enemy-0", "owner-a", "owner-b", "owner-c", "enemy-0", "owner-b", "enemy-0", "owner-c"]);
+      result.damageEvents.forEach((row, index) => expect(row.finalDamage).toBeCloseTo([0, 3, 4].includes(index) ? 0 : tick, 10));
+      expect(result.totalDamage).toBeCloseTo(6 * tick, 10);
+      for (const [pointIndex, hitIndex, frame, sequence, damageId] of [[4, 0, 0, 3, 0], [13, 5, 119, 20, 3], [14, 6, 120, 29, 4]]) {
+        const point = result.targetStateTimeline.points[pointIndex!]!;
+        expect(point).toMatchObject({ frame, eventPriority: 3, eventSequence: sequence, intraEventSequence: 1, cause: "direct-hit-application", primaryDamageEventId: damageId });
+        expect(point.links).toContainEqual({ kind: "damage-event", id: damageId });
+        expect(result.hitResolutionLog[hitIndex!]!).toMatchObject({ frame, eventPriority: 3, eventSequence: sequence, intraEventSequence: 0, damageEventId: damageId });
+      }
+    }
+  });
+
+  it("keeps strict historical projection rejecting current canonical inputs without mutation", () => {
+    const current = runScenarios(), before = structuredClone(current);
+    for (const result of Object.values(current)) expect(() => projectSimulationResultV153ToV152(result)).toThrow(/flatStatBuffSemantics/);
+    expect(current).toEqual(before);
+    // The complete original reviewed Golden still consumes exact pinned input.
+    expect(makeFixture(readHistoricalBoundary())).toEqual(JSON.parse(readFileSync(FIXTURE_URL, "utf8")));
+  });
+
+  it.each([["v1Compatibility", "v1"], ["v2Corrected", "v2"]] as const)("%s separates legacy substep shape from witnessed event-step integrity", (key, policy) => {
+    const original = runScenarios()[key], forged = structuredClone(original);
+    forged.targetStateTimeline.points[4]!.intraEventSequence = 0;
+    // Historical1.53 validates application ownership, frame/priority/queue links,
+    // but does not attest this direct-hit allocation sequence. Do not pretend it
+    // is the1.54 witness protocol or erase the current engine's exact substep1.
+    expect(simulationResultSchema.parse(forged)).toEqual(forged);
+    expect(() => expect(forged).toStrictEqual(expectedCurrentBoundary()[key])).toThrow();
+    const captured = simulateEventStepResult(makeBoundaryConfig(policy), { critMode: "noCrit", randomSeed: "synthetic-burning-reset-boundary-1.49" });
+    const parsed = parseEventStepResult(JSON.parse(JSON.stringify(captured.wire)));
+    expect(parsed.result.damageEvents).toStrictEqual(original.damageEvents);
+    expect(parsed.result.targetStateTimeline).toStrictEqual(original.targetStateTimeline);
+    const beforeWire = structuredClone(captured.wire);
+    const forgedWire = structuredClone(captured.wire);
+    forgedWire.result.targetStateTimeline.points[4]!.intraEventSequence = 0;
+    expect(() => parseEventStepResult(JSON.parse(JSON.stringify(forgedWire)))).toThrow();
+    expect(parseEventStepResult(captured.wire).result).toStrictEqual(parsed.result);
+    expect(captured.wire).toStrictEqual(beforeWire);
+  });
+
+  for (const key of ["v1Compatibility", "v2Corrected"] as const) {
+    it.each(["application-hit", "hit-application", "damage-hit", "reaction-damage", "application-damage"] as const)(`${key}: public parser rejects forged %s reference`, mutation => {
+      const original = runScenarios()[key];
+      expect(simulationResultSchema.parse(JSON.parse(JSON.stringify(original)))).toEqual(original);
+      const forged = structuredClone(original);
+      if (mutation === "application-hit") forged.elementalApplicationIcdLog[1]!.hitResolutionLogId = 2;
+      if (mutation === "hit-application") forged.hitResolutionLog[1]!.elementalApplicationIcdLogId = 2;
+      if (mutation === "damage-hit") forged.damageEvents[1]!.targetResolutionId = 2;
+      if (mutation === "reaction-damage") forged.reactionDamageLog[0]!.damageEventIds = [1];
+      if (mutation === "application-damage") forged.elementalApplicationIcdLog[1]!.damageEventId = 2;
+      expect(simulationResultSchema.safeParse(JSON.parse(JSON.stringify(forged))).success).toBe(false);
+      expect(() => expect(forged).toStrictEqual(expectedCurrentBoundary()[key])).toThrow();
+      expect(simulationResultSchema.parse(original)).toEqual(original);
+    });
+  }
 });

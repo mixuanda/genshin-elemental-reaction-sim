@@ -1,0 +1,315 @@
+{
+  "baseCommit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+  "status": "targeted-acceptance-passed-not-deployed",
+  "nativeRuns": {
+    "count": 3,
+    "framesEach": 1440,
+    "profiles": [
+      "old-stellar",
+      "fixed-stellar",
+      "fixed-classic"
+    ],
+    "mathAndResultValidationBaseCommit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+    "extra120sRuns": 0,
+    "actualResult": {
+      "status": "passed",
+      "window": "[0,1440)",
+      "frameRate": 60,
+      "scope": "C2 snapshot ownership, independent affected-hit multiplication and within-Stellar event invariance; no assertion of identical rotations between different upstream commits or 120s Stellar energy feasibility",
+      "captures": {
+        "stellarBefore": {
+          "directory": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before",
+          "resultSha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+          "wasmSha256": "0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55",
+          "hits": 111,
+          "totalDamage": 5376250.930706368
+        },
+        "stellarAfter": {
+          "directory": "/tmp/GIDPS-c2-crossmode-20261023/stellar-after",
+          "resultSha256": "f04d3e16c349adcd2ccb12cbd5f4010dd69740e8e87ef3ff9c00999465ebf1ce",
+          "wasmSha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
+          "hits": 111,
+          "totalDamage": 5240983.400556944
+        },
+        "classicAfter": {
+          "directory": "/tmp/GIDPS-c2-crossmode-20261023/classic-after",
+          "resultSha256": "268dc4c9e56a5fd1bb56630732ff0cd46ae0d4b9cf8a0c8f4cd2c80bb3570aa1",
+          "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+          "hits": 112,
+          "totalDamage": 5258774.21518096
+        }
+      },
+      "sameSeedAndInput": true,
+      "stellarHitIdentitiesAndOrderUnchanged": true,
+      "unchangedStellarReceipts": [
+        "energyApplications",
+        "abilityInvocations",
+        "randomness",
+        "taskLifecycle",
+        "eventRegistrations",
+        "eventEmissions",
+        "eventListenerCalls",
+        "eventProducers",
+        "hitCallbackBatches",
+        "hitCallbacks"
+      ],
+      "stellarDamageCorrections": [
+        {
+          "attackId": 110,
+          "frame": 1169,
+          "actor": "wanderer",
+          "ability": "Shugen: The Curtains’ Melancholic Sway",
+          "oldDamage": 41685.58831971607,
+          "correctedDamage": 28059.507313026177,
+          "removedDamageBonus": 2
+        },
+        {
+          "attackId": 109,
+          "frame": 1169,
+          "actor": "wanderer",
+          "ability": "Normal 2 (Windfavored)",
+          "oldDamage": 104213.9707992902,
+          "correctedDamage": 70148.76828256543,
+          "removedDamageBonus": 2
+        },
+        {
+          "attackId": 122,
+          "frame": 1284,
+          "actor": "wanderer",
+          "ability": "Arcane Projection: Unity",
+          "oldDamage": 196980.87272355004,
+          "correctedDamage": 109404.62609754133,
+          "removedDamageBonus": 2
+        }
+      ],
+      "removedTotalDamage": 135267.53014942337,
+      "fixedChecks": {
+        "stellar": {
+          "c2Value": 2,
+          "resourceAtCreation": {
+            "currentPoints": 32,
+            "maxPoints": 120
+          },
+          "qStart": 1162,
+          "qHits": [
+            {
+              "attackId": 111,
+              "frame": 1254,
+              "snapshotFrame": 1217,
+              "damage": 115009.35811691318
+            },
+            {
+              "attackId": 112,
+              "frame": 1260,
+              "snapshotFrame": 1217,
+              "damage": 102692.6949798774
+            },
+            {
+              "attackId": 113,
+              "frame": 1266,
+              "snapshotFrame": 1217,
+              "damage": 102692.6949798774
+            },
+            {
+              "attackId": 114,
+              "frame": 1272,
+              "snapshotFrame": 1217,
+              "damage": 102692.6949798774
+            },
+            {
+              "attackId": 115,
+              "frame": 1278,
+              "snapshotFrame": 1217,
+              "damage": 102692.6949798774
+            }
+          ],
+          "nonQConsumption": 0
+        },
+        "classic": {
+          "c2Value": 2,
+          "resourceAtCreation": {
+            "currentPoints": 31,
+            "maxPoints": 120
+          },
+          "qStart": 1169,
+          "qHits": [
+            {
+              "attackId": 113,
+              "frame": 1261,
+              "snapshotFrame": 1224,
+              "damage": 104740.66542790308
+            },
+            {
+              "attackId": 114,
+              "frame": 1267,
+              "snapshotFrame": 1224,
+              "damage": 102692.6949798774
+            },
+            {
+              "attackId": 115,
+              "frame": 1273,
+              "snapshotFrame": 1224,
+              "damage": 102692.6949798774
+            },
+            {
+              "attackId": 116,
+              "frame": 1279,
+              "snapshotFrame": 1224,
+              "damage": 102692.6949798774
+            },
+            {
+              "attackId": 117,
+              "frame": 1285,
+              "snapshotFrame": 1224,
+              "damage": 102692.6949798774
+            }
+          ],
+          "nonQConsumption": 0
+        }
+      }
+    }
+  },
+  "browser": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "platform": "linux",
+    "nativeRuns": 0,
+    "archiveSha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+    "originalExportByteIdentical": true,
+    "failedImportPreservesArchive": true,
+    "correctedModes": [
+      {
+        "mode": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "hits": 111,
+        "firstQIndex": 98,
+        "savedApplicationsUnchanged": true
+      },
+      {
+        "mode": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "hits": 112,
+        "firstQIndex": 99,
+        "savedApplicationsUnchanged": true
+      }
+    ],
+    "errors": []
+  },
+  "focusedTests": {
+    "sharedConsumerTests": 19,
+    "passed": 19,
+    "oldSuiteRerun": false,
+    "oldSuiteBaseline": {
+      "pass": 3196,
+      "fail": 79,
+      "skip": 1
+    },
+    "retainedOldFailureFocusedRun": {
+      "fail": 1,
+      "notSelected": 10
+    }
+  },
+  "fixedCommitsBeforeUI": [
+    "28d2984284ba4acf0ad80d2f4df434fb201982e5 fix: retain C2 scope in forwarded burst snapshots",
+    "9e9a1f1a9abb587741ed77ce7002aec8d3c8185f fix: validate Wanderer C2 consumers across source modes",
+    "0236c55e89ce352e0c029c2e2c2c9b4214c3ac62 Classify retained failures around C2 and player workflows",
+    "9892445d26227008a3eca40a56538fa35f6a4317 fix(stellar): share Wanderer C2 snapshot scope and rebuild native host",
+    "6da23014f3d3653c8b6943170bbb43723cf59d64 docs(validation): verify shared Wanderer C2 patch on Stellar source"
+  ],
+  "typecheck": "passed",
+  "frontendBundle": "completed",
+  "historicalInputsAndCandidateAssetsUnchanged": true,
+  "production": {
+    "attemptedThisTurn": false,
+    "status": "stopped-by-prior-denial-and-parent-instruction",
+    "target": "gidps.mixuanda.top"
+  },
+  "notes": [
+    "The first browser failure demonstrated an overstrict C2 helper-kind check; fixed by deriving scope from the actual inherited attack snapshot. Negative general Stats tests retained.",
+    "The second browser attempt received Vite cached old verifier code. Actual HTTP response confirmed the stale condition. Restarted only existing local preview; cold browser acceptance passed.",
+    "Compilation succeeded once. Inventory toolchain-cache error and resumed finalization are separately recorded in stellar-wanderer-c2-build-20261023.json.",
+    "Stellar120s energy feasibility and real Windows execution remain untested. C2 scope agreement does not claim equal damage across different pinned queue-after tables."
+  ],
+  "evidenceFiles": [
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/crossmode-audit.json",
+      "bytes": 4364,
+      "sha256": "38fb9ba1009492bdf19dfac1eb8e9f994b6a8af45e8322d2f39bf128146a5489"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/cross-pin-frame-explanation.json",
+      "bytes": 1698,
+      "sha256": "78cb0bc660ff6808e8d793e8d490fbc1cdb8f93e69df2f6e0a18ac064def03be"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before.log",
+      "bytes": 235,
+      "sha256": "c96f6096616fb5825073f3c55dbc6fc0e8de540455e9c5953463af6edb34c8b4"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-after.log",
+      "bytes": 235,
+      "sha256": "f638178cbcf9f7119e67b546c8c7c3947923be673edcbfb16161019343a9c457"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/classic-after.log",
+      "bytes": 234,
+      "sha256": "ce5cc7e7069a78fc470660718f9832920b07b6a4dde79c0cf1a91100bc54d506"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/frontend-build.log",
+      "bytes": 8519,
+      "sha256": "d4c75887f5c8a980cc7f922b71ce2c33640ddf2d5887d4ff8f96a836fb545bd7"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/frontend-bundle-final.log",
+      "bytes": 7461,
+      "sha256": "f413e8198dec9a36f9615f268096742a485acf1c68351c4340685ab5b777fb02"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/typecheck-final.log",
+      "bytes": 426,
+      "sha256": "a335af3d948aa795f09046e2e7e7a6d2e7fc3b42cb557030c183a51c175f75a4"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/archive-browser.log",
+      "bytes": 5078,
+      "sha256": "e584521ba6d0b38a8057788d70a856144c213f77cbc1d0ea7bf09acafaaef652"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/archive-browser-final.log",
+      "bytes": 5078,
+      "sha256": "e584521ba6d0b38a8057788d70a856144c213f77cbc1d0ea7bf09acafaaef652"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/archive-browser-cold.log",
+      "bytes": 543,
+      "sha256": "366cf086d937288a5e2c133bcda49b0e1396abfb788b5a870a9e471dc1264de0"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/browser/acceptance.json",
+      "bytes": 683,
+      "sha256": "1ab499c3eefd763434dbc07be8d2893d311d9eaedd520fef42e2ed13e44785cf"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/browser/old-stellar-readonly.png",
+      "bytes": 261173,
+      "sha256": "3cc3bbb25ffa33be456e502ae8350b50cafc65486386fa509565ee772d8df8e7"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before/run.complete.json",
+      "bytes": 866,
+      "sha256": "3c30dc8d0f468e071f8b32adda83ab6f45be27794143f1934b106c46b8dd5f33"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-after/run.complete.json",
+      "bytes": 866,
+      "sha256": "b7457bef7ff19a31ee9f9ac76c00cb5ad7c363525b8fcc5a5446f6b7834ff0ce"
+    },
+    {
+      "path": "/tmp/GIDPS-c2-crossmode-20261023/classic-after/run.complete.json",
+      "bytes": 866,
+      "sha256": "4c1151dee9452e7949fc0893031e2c291cac68a92338c9a2d9a1e89af47131fd"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { eventStepProtocol, verifiedStepPositions, directHitStepWitnessSink, type PropagationStepEvent, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
 import { EnemyShieldHost, type EnemyShieldPhaseTask } from "./enemy-shield-host";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { WeaponHitStackRuntime, type WeaponHitStackRuntimeDecision } from "./weapon-hit-stack-runtime";
@@ -203,6 +204,7 @@ import {
   auraStateSnapshotsEqual,
   TargetStateTimelineRecorder
 } from "./target-state-timeline";
+import { copyGeneratedAuraStates } from "./aura-state-copy";
 import {
   ReactionDamageGroupTaskEngine,
   type ReactionDamageGroupAttemptResult,
@@ -319,7 +321,7 @@ const stellarSwirlRuntimeSink = Symbol("stellar-swirl-runtime-sink");
 const lunarMixedRuntimeSink = Symbol("lunar-mixed-runtime-sink");
 const lunarMixedV2RuntimeSink = Symbol("lunar-mixed-v2-runtime-sink");
 
-export interface SimulationRuntimeOptions extends SimulationOptions {
+export interface SimulationRuntimeOptions extends SimulationOptions, DirectHitStepObserverOptions {
   plugins?: readonly SimulationRuntimePluginV153[];
 }
 
@@ -2959,7 +2961,9 @@ function simulateConfig(
   });
   let sequence = 0;
   let executingEvent: Pick<InternalEvent, "frame" | "priority" | "sequence"> | undefined;
-  let nextExecutionIntraSequence = (): number => 0;
+  const directHitStepEvents: DirectHitStepEvent[] = [];
+  const propagationStepEvents: PropagationStepEvent[] = [];
+  let nextExecutionIntraSequence = (_site?: DirectHitStepSite): number => 0;
   let freezeBrokenCallbackTaskSequence = 1_000_000_000;
   const freezeBrokenCallbackCountByTriggerSequence = new Map<number, number>();
   const push = <TPayload>(
@@ -4793,7 +4797,7 @@ function simulateConfig(
         }
       }
       artifactBuffLog.push({ ...decision, id, frame: event.frame, timeSeconds: event.frame / 60,
-        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next(),
+        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next({kind:'artifact-buff',id}),
         actionLogIndex: null, parentDamageEventId: null, playerHealthEventId: null, reactionTaskLogId: null,
         parentArtifactBuffLogId: null, ...links });
       for (const task of decision.delayedApplications) push(task.applyFrame / 60, "artifactBuffApply", { task, parentArtifactBuffLogId: id });
@@ -9191,7 +9195,7 @@ function simulateConfig(
     resolvedGeometry: ResolvedWorldHitGeometry | null;
     eventPriority: number;
     eventSequence: number;
-    nextIntraEventSequence: () => number;
+    nextIntraEventSequence: (site?: DirectHitStepSite) => number;
   }): void => {
     if (hit.targetHitlag !== undefined) {
       applyConfiguredTargetHitlag({
@@ -9208,7 +9212,7 @@ function simulateConfig(
         landed,
         eventPriority,
         eventSequence,
-        intraEventSequence: nextIntraEventSequence()
+        intraEventSequence: nextIntraEventSequence({kind:'hitlag',hitResolutionLogId:targetResolutionId})
       });
     }
     const aggregate = hitCallbackAggregates.get(hitGroupId) ?? {
@@ -10093,8 +10097,16 @@ function simulateConfig(
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
     let intraEventSequence = 0;
-    const nextIntraEventSequence = (): number =>
-      intraEventSequence++;
+    let observedPropagation: PropagationStepEvent | undefined;
+    const observedSteps: DirectHitStepEvent | undefined = (runtimeOptions[directHitStepWitnessSink] !== undefined || runtimeOptions[eventStepProtocol]) && event.type === "hit"
+      ? {frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,allocationCount:0,steps:[]} : undefined;
+    if (observedSteps) directHitStepEvents.push(observedSteps);
+    const nextIntraEventSequence = (site?: DirectHitStepSite): number => {
+      const allocated = intraEventSequence++;
+      if(observedPropagation) { observedPropagation.operations.push({operation:'allocate',sequence:allocated,site:site ?? {kind:'unclassified'}}); observedPropagation.allocationCount=intraEventSequence; }
+      if (observedSteps) { if(site?.kind==='hit-resolution') observedSteps.hitResolutionLogId=site.id; observedSteps.steps.push({sequence:allocated,site:site ?? {kind:'unclassified'}}); observedSteps.allocationCount=intraEventSequence; }
+      return allocated;
+    };
     nextExecutionIntraSequence = nextIntraEventSequence;
     if (event.type === "artifactBuffApply") {
       handleArtifactBuff({ kind: "delayed-buff", frame: event.frame, task: event.payload.task }, { parentArtifactBuffLogId: event.payload.parentArtifactBuffLogId });
@@ -13312,10 +13324,10 @@ function simulateConfig(
         fuelDecayPerFrame: prepared.fuelDecayPerFrame,
         fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
         ...callbackAuraProvenance,
-        auraBefore: deepClone(prepared.auraBefore),
+        auraBefore: copyGeneratedAuraStates(prepared.auraBefore),
         auraApplied: [],
         auraConsumed: [],
-        auraAfter: deepClone(prepared.auraAfter),
+        auraAfter: copyGeneratedAuraStates(prepared.auraAfter),
         nextTickFrame: prepared.nextTickFrame,
         clockModel: burningClockModel,
         hitlagStatus: enemyHitlagStatus,
@@ -13990,6 +14002,12 @@ function simulateConfig(
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
       if (!sourceActor || !reactionLog) continue;
+      if((runtimeOptions[directHitStepWitnessSink] !== undefined || runtimeOptions[eventStepProtocol]) && targetingMode === 'electro-charged-nearby-wet') {
+        observedPropagation={frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,
+          reactionDamageLogId,sourceActorId:actorId,sourceTargetId,triggerDamageEventId,
+          allocationCount:intraEventSequence,operations:[]};
+        propagationStepEvents.push(observedPropagation);
+      }
       const burningRootInlineDeliveryState =
         burningRootInlineDeliveryByReactionDamageLogId.get(
           reactionDamageLogId
@@ -14130,7 +14148,7 @@ function simulateConfig(
                 eventPriority: event.priority,
                 eventSequence: event.sequence,
                 intraEventSequence:
-                  nextIntraEventSequence(),
+                  nextIntraEventSequence({kind:'propagation-candidate',reactionDamageLogId,targetId:target.id}),
                 reaction: "electroCharged",
                 reactions: ["electroCharged"],
                 primaryDamageEventId: null,
@@ -14580,6 +14598,7 @@ function simulateConfig(
                         action.sourceAbilityId
                     })
               };
+            if(observedPropagation) observedPropagation.operations.push({operation:'observe-hit',sequence:intraEventSequence,hitResolutionLogId:targetResolutionId,targetId:plan.targetId});
             hitResolutionLog.push(targetResolution);
             reactionHitResolutionLogIds.push(targetResolutionId);
             reactionLog.hitResolutionLogIds.push(targetResolutionId);
@@ -14827,7 +14846,7 @@ function simulateConfig(
                 eventType: event.type,
                 eventPriority: event.priority,
                 eventSequence: event.sequence,
-                intraEventSequence: nextIntraEventSequence(),
+                intraEventSequence: nextIntraEventSequence(electroChargedPropagationAudit !== null ? {kind:'propagation-application',reactionDamageLogId,targetId:plan.targetId,damageEventId:pendingReactionDamageEventId} : undefined),
                 reaction:
                   electroChargedPropagationAudit !== null
                     ? "electroCharged"
@@ -15796,7 +15815,7 @@ function simulateConfig(
                 burningLog.icdHitIndex = null;
               }
               if (propagatedReactionAudit !== null) {
-                burningLog.auraBefore = deepClone(
+                burningLog.auraBefore = copyGeneratedAuraStates(
                   propagatedReactionAudit.auraBefore ?? []
                 );
                 burningLog.auraApplied = deepClone(
@@ -15805,7 +15824,7 @@ function simulateConfig(
                 burningLog.auraConsumed = deepClone(
                   propagatedReactionAudit.auraConsumed ?? []
                 );
-                burningLog.auraAfter = deepClone(
+                burningLog.auraAfter = copyGeneratedAuraStates(
                   propagatedReactionAudit.auraAfter ?? []
                 );
                 burningLog.applicationAllowed =
@@ -16348,7 +16367,7 @@ function simulateConfig(
       timeSeconds,
       eventPriority: event.priority,
       eventSequence: event.sequence,
-      intraEventSequence: nextIntraEventSequence(),
+      intraEventSequence: nextIntraEventSequence({kind:'hit-resolution',id:targetResolutionId}),
       cycle,
       sourceActorId: actorId,
       sourceActionId: action.id,
@@ -16894,7 +16913,7 @@ function simulateConfig(
         eventType: event.type,
         eventPriority: event.priority,
         eventSequence: event.sequence,
-        intraEventSequence: nextIntraEventSequence(),
+        intraEventSequence: nextIntraEventSequence({kind:'aura-application',damageEventId:pendingDirectDamageEventId}),
         reaction: reactionAudit.reaction,
         reactions: reactionAudit.reactions,
         primaryDamageEventId: pendingDirectDamageEventId,
@@ -18794,6 +18813,13 @@ function simulateConfig(
       "single-target-v1 cannot emit Electro-Charged propagation candidate observations."
     );
   }
+  // Diagnostic observers receive detached values and cannot change production output.
+  // The explicit new protocol replays all witnesses before supplying exact positions;
+  // default and historical calls retain their original reference rules.
+  runtimeOptions[directHitStepWitnessSink]?.({events:deepClone(directHitStepEvents.filter(e=>e.allocationCount>0)),propagationEvents:deepClone(propagationStepEvents),result:deepClone(simulationResult)});
+  const eventStepPositions = runtimeOptions[eventStepProtocol]
+    ? verifiedStepPositions({events:directHitStepEvents.filter(e=>e.allocationCount>0),propagationEvents:propagationStepEvents,result:simulationResult})
+    : undefined;
   assertTrustedReactionDeliveryResultReferences({
     schemaVersion: simulationResult.schemaVersion,
     engineVersion: simulationResult.engineVersion,
@@ -18918,7 +18944,7 @@ function simulateConfig(
             simulationResult.targetStateTimeline
         }
       : {})
-  });
+  }, eventStepPositions);
   const hasElectroChargedCleanupAudit =
     simulationResult.reactionTaskLog.some(
       (task) => task.electroChargedCleanup !== null

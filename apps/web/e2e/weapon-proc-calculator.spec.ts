@@ -1,3 +1,4 @@
+import { revealControl } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -20,9 +21,9 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 
 test("Independent weapon procs need no team and retain edited final context across refinement, ATK or HP scaling and JSON", async ({ page }) => {
   await page.goto("/calculator");
-  await page.locator("#calc-proc-weapon").selectOption("halberd");
-  await page.locator("#calc-proc-refinement").selectOption("1");
-  await page.locator('[data-action="load-weapon-proc"]').click();
+  await (await revealControl(page.locator("#calc-proc-weapon"))).selectOption("halberd");
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("1");
+  await (await revealControl(page.locator('[data-action="load-weapon-proc"]'))).click();
   await expect(page.locator("#calc-character-status")).toContainText("不需要角色技能或队伍");
   await expect(page.locator("#calc-character")).toHaveValue("");
   const initial = await audit(page);
@@ -38,17 +39,17 @@ test("Independent weapon procs need no team and retain edited final context acro
   await expect(page.locator('[data-field="hits.0.terms.0.coefficient"]')).toHaveAttribute("readonly", "");
 
   for (const [field, value] of Object.entries({ atk: 1500, hp: 20000, critRate: 0.2, critDamage: 1.5 })) {
-    await page.locator(`[data-field="build.stats.${field}"]`).fill(String(value));
+    await (await revealControl(page.locator(`[data-field="build.stats.${field}"]`))).fill(String(value));
   }
-  await page.locator('[data-field="characterLevel"]').fill("80");
-  await page.locator('[data-field="enemy.level"]').fill("100");
-  await page.locator('[data-field="enemy.resistance"]').fill("0.2");
+  await (await revealControl(page.locator('[data-field="characterLevel"]'))).fill("80");
+  await (await revealControl(page.locator('[data-field="enemy.level"]'))).fill("100");
+  await (await revealControl(page.locator('[data-field="enemy.resistance"]'))).fill("0.2");
   // Explicit combined physical/general bonus, with no host normal/E/Q-only bonus.
-  await page.locator('[data-field="hits.0.damageBonus"]').fill("0.35");
+  await (await revealControl(page.locator('[data-field="hits.0.damageBonus"]'))).fill("0.35");
   const multiplier = (1 + 0.35) * ((80 + 100) / ((80 + 100) + (100 + 100))) * (1 - 0.2);
   const edited = await audit(page);
   expectDamage(edited.result, 1500 * 1.6 * multiplier, 0.2, 1.5);
-  await page.locator("#calc-proc-refinement").selectOption("5");
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("5");
   const refined = await audit(page);
   expectDamage(refined.result, 1500 * 3.2 * multiplier, 0.2, 1.5);
   expect(refined.document.build).toEqual(edited.document.build);
@@ -60,27 +61,27 @@ test("Independent weapon procs need no team and retain edited final context acro
   const baseTrace = refined.result.hits[0]!.trace.find(node => node.id === "customBaseDamage")!;
   expect(baseTrace.result!.value).toBe(1500 * 3.2);
   const explanation = page.locator('#calc-results [data-detail-id="customBaseDamage"]');
-  await explanation.locator(":scope > summary").click();
+  await (await revealControl(explanation.locator(":scope > summary"))).click();
   await expect(explanation.locator(".trace-substitution")).toBeVisible();
   await expect(explanation.locator(".trace-substitution")).toContainText(baseTrace.substitution);
   await expect(explanation).toContainText("weaponProcCoefficient");
 
-  await page.locator("#calc-proc-weapon").selectOption("ashgravendrinkinghorn");
+  await (await revealControl(page.locator("#calc-proc-weapon"))).selectOption("ashgravendrinkinghorn");
   const hpProc = await audit(page);
   expect(hpProc.document.id).toBe("weapon-proc:ashgravendrinkinghorn:r5");
   expect(hpProc.document.build).toEqual(refined.document.build);
   expect(hpProc.document.enemy).toEqual(refined.document.enemy);
   expect(hpProc.document.hits[0]).toMatchObject({ element: "physical", attackTag: "proc", damageBonus: 0.35, terms: [{ stat: "hp", coefficient: 0.8 }] });
   expectDamage(hpProc.result, 20000 * 0.8 * multiplier, 0.2, 1.5);
-  await page.locator('[data-field="build.stats.atk"]').fill("9999");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("9999");
   expect((await audit(page)).result.totals).toEqual(hpProc.result.totals);
-  await page.locator('[data-field="build.stats.hp"]').fill("25000");
+  await (await revealControl(page.locator('[data-field="build.stats.hp"]'))).fill("25000");
   const changedHp = await audit(page);
   expectDamage(changedHp.result, 25000 * 0.8 * multiplier, 0.2, 1.5);
-  await page.locator("#calc-proc-refinement").selectOption("1");
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("1");
   const hornR1 = await audit(page);
   expectDamage(hornR1.result, 25000 * 0.4 * multiplier, 0.2, 1.5);
-  await page.locator("#calc-proc-weapon").selectOption("sequenceofsolitude");
+  await (await revealControl(page.locator("#calc-proc-weapon"))).selectOption("sequenceofsolitude");
   const bowR1 = await audit(page);
   expect(bowR1.document.id).toBe("weapon-proc:sequenceofsolitude:r1");
   expectDamage(bowR1.result, 25000 * 0.4 * multiplier, 0.2, 1.5);
@@ -90,9 +91,9 @@ test("Independent weapon procs need no team and retain edited final context acro
   await expect(sourceCoefficient).toHaveValue("0.4");
 
   const downloading = page.waitForEvent("download");
-  await page.locator('[data-action="export"]').click();
+  await (await revealControl(page.locator('[data-action="export"]'))).click();
   const saved = JSON.parse(await readFile((await (await downloading).path())!, "utf8")) as CalculatorDocument;
-  await page.locator("#calc-import").setInputFiles({ name: "independent-weapon-proc.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "independent-weapon-proc.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   await expect(page.locator("#calc-proc-weapon")).toHaveValue("sequenceofsolitude");
   await expect(page.locator("#calc-proc-refinement")).toHaveValue("1");

@@ -15,6 +15,9 @@ import {
   FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
   FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
   assertTrustedSimulationResultV152,
+  assertTrustedSimulationResult,
+  simulationResultSchema,
+  type SimulationResult,
   freezeBrokenAttackLogEntrySchema,
   freezeBrokenAttackRootV1Schema,
   freezeBrokenAttackRootV2Schema,
@@ -371,16 +374,10 @@ function runScenario(
     definition.slug,
     model,
   );
-  return projectSimulationResultV153ToV152(
-    simulate(config, {
-      compatibilityMode: "legal-frame-v1",
-      critMode: "noCrit",
-      randomSeed: config.randomSeed,
-    }),
-  );
+  return projectSimulationResultV153ToV152(historicalWire(config.randomSeed));
 }
 
-function combatOutputView(result: SimulationResultForV152) {
+function combatOutputView(result: SimulationResultForV152 | SimulationResult) {
   return {
     damageEvents: result.damageEvents,
     hitEvents: result.hitEvents,
@@ -892,4 +889,158 @@ describe("Freeze Broken attack 1.52 Golden", () => {
       expect(frozen).toEqual(generated);
     },
   );
+});
+
+const HISTORICAL_URL = new URL('./fixtures/historical-freeze-broken-attack-v153-84ff5cd.json', import.meta.url);
+const historicalArchive = JSON.parse(readFileSync(HISTORICAL_URL, 'utf8')) as { source: {commit: string}; cases: {caseId: string; sourceWireSha256: string; sourceWireText: string}[] };
+function historicalWire(id: string): SimulationResult {
+ const row = historicalArchive.cases.find(row => row.caseId === id);
+ if (!row) throw new Error(`Missing authentic Freeze Broken input: ${id}`);
+ expect(byteSha256(Buffer.from(row.sourceWireText))).toBe(row.sourceWireSha256);
+ return JSON.parse(row.sourceWireText) as SimulationResult;
+}
+function currentWire(definition: ScenarioDefinition, model: FreezeBrokenAttackModelV152): SimulationResult {
+ const config = bindScenarioIdentity(definition.makeConfig(), definition.slug, model);
+ return simulate(config, {compatibilityMode:'legal-frame-v1',critMode:'noCrit',randomSeed:config.randomSeed});
+}
+// Closed expected-only protocol migration. Full payload/order correspondence was
+// observed for all 18 cases: only retained future frozen/shard expiry tasks add
+// queue slots. Direct resolution owns I0, Aura application I1; depletion and
+// Freeze Broken audit follow in the same event. Never normalize actual output.
+const CURRENT_KEYS: Record<ScenarioSlug, readonly [string,string]> = {
+  "natural-decay": [
+    "gdl-v2-fnv1a32-b42f59f5",
+    "gdl-v2-fnv1a32-a64db815"
+  ],
+  "poise": [
+    "gdl-v2-fnv1a32-e6feaa54",
+    "gdl-v2-fnv1a32-f1b9bd71"
+  ],
+  "shatter": [
+    "gdl-v2-fnv1a32-e04df6c3",
+    "gdl-v2-fnv1a32-f8e63455"
+  ],
+  "swirl-frozen": [
+    "gdl-v2-fnv1a32-e4d189df",
+    "gdl-v2-fnv1a32-029161ef"
+  ],
+  "mixed-hydro-frozen-swirl": [
+    "gdl-v2-fnv1a32-d5265330",
+    "gdl-v2-fnv1a32-0be67fcc"
+  ],
+  "crystallize-frozen": [
+    "gdl-v2-fnv1a32-1aa9b77e",
+    "gdl-v2-fnv1a32-7a23db8a"
+  ],
+  "melt-excluded": [
+    "gdl-v2-fnv1a32-98a833a4",
+    "gdl-v2-fnv1a32-c1ae8b45"
+  ],
+  "superconduct-excluded": [
+    "gdl-v2-fnv1a32-34c97db3",
+    "gdl-v2-fnv1a32-bb8ee220"
+  ],
+  "partial-frozen-consumption": [
+    "gdl-v2-fnv1a32-e54bb8cb",
+    "gdl-v2-fnv1a32-61aa4784"
+  ]
+};
+const DIRECT_COUNTS: Record<ScenarioSlug, number> = {'natural-decay':1,poise:2,shatter:2,'swirl-frozen':2,'mixed-hydro-frozen-swirl':3,'crystallize-frozen':3,'melt-excluded':2,'superconduct-excluded':2,'partial-frozen-consumption':2};
+const QUEUE_CHANGES: Partial<Record<ScenarioSlug, readonly [number,number,number,number]>> = {
+ shatter:[3,4,4,5], 'crystallize-frozen':[4,6,6,8], 'superconduct-excluded':[3,4,4,5], 'partial-frozen-consumption':[3,4,5,7],
+};
+function expectedCurrent(definition: ScenarioDefinition, model: FreezeBrokenAttackModelV152): SimulationResult {
+ const config=bindScenarioIdentity(definition.makeConfig(),definition.slug,model);
+ const expected=historicalWire(config.randomSeed);
+ const policy=model.mode===LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE?0:1;
+ const key=CURRENT_KEYS[definition.slug][policy];
+ expect(expected.resolvedRuntimeOptions).not.toHaveProperty('flatStatBuffSemantics');
+ expect(expected.runManifest.resolvedRuntimeOptions).not.toHaveProperty('flatStatBuffSemantics');
+ Object.assign(expected.resolvedRuntimeOptions,{flatStatBuffSemantics:'canonical-v1'});
+ Object.assign(expected.runManifest.resolvedRuntimeOptions,{flatStatBuffSemantics:'canonical-v1'});
+ expected.reproducibilityKey=key;expected.runManifest.reproducibilityKey=key;
+ const count=DIRECT_COUNTS[definition.slug];
+ for(let i=0;i<count;i++){
+  const hit=expected.hitResolutionLog[i]!;
+  for(const field of ['eventPriority','eventSequence','intraEventSequence'])expect(hit).not.toHaveProperty(field);
+  Object.assign(hit,{eventPriority:3,eventSequence:i+1,intraEventSequence:0});
+  const point=expected.targetStateTimeline.points[i+1]!;
+  expect(point.intraEventSequence).toBe(0);point.intraEventSequence=1;
+ }
+ if(['poise','shatter','crystallize-frozen'].includes(definition.slug)){
+  const point=expected.targetStateTimeline.points[count+1]!;expect(point.intraEventSequence).toBe(1);point.intraEventSequence=2;
+ }
+ if(policy===1 && ['poise','shatter','swirl-frozen','mixed-hydro-frozen-swirl','crystallize-frozen'].includes(definition.slug)){
+  const row=expected.freezeBrokenAttackLog[0]!;expect(row.intraEventSequence).toBe(['swirl-frozen','mixed-hydro-frozen-swirl'].includes(definition.slug)?1:2);row.intraEventSequence+=1;
+ }
+ const queues=QUEUE_CHANGES[definition.slug];
+ if(queues){
+  const [oldDamage,newDamage,oldReset,newReset]=queues;
+  for(const list of [expected.damageEvents,expected.hitEvents,expected.hitResolutionLog]){
+   const row=list[count]!;expect(row.eventSequence).toBe(oldDamage);row.eventSequence=newDamage;
+  }
+  const reset=expected.reactionDamageGroupResetLog[0]!;expect(reset.taskSequence).toBe(oldReset);reset.taskSequence=newReset;
+  const decision=expected.reactionDamageLog[0]!.damageGroupDecisions[0]!;
+  expect(decision.damageGroupTaskSequence).toBe(oldDamage);decision.damageGroupTaskSequence=newDamage;
+  expect(decision.resetTaskSequence).toBe(oldReset);decision.resetTaskSequence=newReset;
+ }
+ return expected;
+}
+const NUMERIC_CASES: Record<ScenarioSlug, {frames:number[]; factors:number[]; direct:number}> = {
+ 'natural-decay':{frames:[0],factors:[],direct:450}, poise:{frames:[0,6],factors:[],direct:900},
+ shatter:{frames:[0,6,6],factors:[3],direct:900},'swirl-frozen':{frames:[0,6,7],factors:[.6],direct:900},
+ 'mixed-hydro-frozen-swirl':{frames:[0,3,6,7,7],factors:[.6,.6],direct:1350},
+ 'crystallize-frozen':{frames:[0,1,6,6],factors:[3],direct:1350},'melt-excluded':{frames:[0,6],factors:[],direct:1350},
+ 'superconduct-excluded':{frames:[0,6,7],factors:[1.5],direct:900},'partial-frozen-consumption':{frames:[0,6,7],factors:[.6],direct:900},
+};
+describe('current Freeze Broken audit and authentic historical boundary',()=>{
+ it('pins complete historical inputs and immutable reviewed Golden bytes',()=>{
+  expect(byteSha256(readFileSync(HISTORICAL_URL))).toBe('6f73007ba8b0cd27d7540c67a099426fb24cc5c8b85e5d6311f0592aeec59670');
+  expect(historicalArchive.source.commit).toBe('84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5');expect(historicalArchive.cases).toHaveLength(18);
+  expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
+ });
+ for(const definition of [...Object.values(POSITIVE_SCENARIOS),...Object.values(NEGATIVE_SCENARIOS)]){
+  it(`keeps independent current mechanics, audit-only causality and full wire for ${definition.slug}`,()=>{
+   const pair=[currentWire(definition,V1_MODEL),currentWire(definition,V2_MODEL)];
+   for(const [i,result] of pair.entries()){
+    expect(simulationResultSchema.parse(result)).toEqual(result);expect(assertTrustedSimulationResult(result)).toBe(result);
+    expect(result).toStrictEqual(expectedCurrent(definition,i===0?V1_MODEL:V2_MODEL));
+    const oracle=NUMERIC_CASES[definition.slug];
+    expect(result.damageEvents.map(event=>event.frame)).toEqual(oracle.frames);
+    // E1=1, ATK1000, equal-level DEF=.5, RES=.1; EM0. Transformative
+    // level90=1446.8535, Shatter3/Swirl.6/Superconduct1.5. Melt doubles body.
+    expect(result.totalDamage).toBeCloseTo(oracle.direct+oracle.factors.reduce((sum,f)=>sum+1446.8535*f*.9,0),8);
+    const count=DIRECT_COUNTS[definition.slug];
+    const direct=result.damageEvents.slice(0,count);
+    expect(direct.map(event=>event.finalDamage)).toEqual(definition.slug==='melt-excluded'?[450,900]:Array(count).fill(450));
+    result.damageEvents.slice(count).forEach((event,j)=>expect(event.finalDamage).toBeCloseTo(1446.8535*oracle.factors[j]!*.9,8));
+    expect(result.damageEvents.every(event=>event.targetId==='enemy-0')).toBe(true);
+    const positive=Object.values(POSITIVE_SCENARIOS).some(d=>d.slug===definition.slug);
+    expect(result.freezeBrokenAttackLog).toHaveLength(i===1&&positive?1:0);
+    expect(result.mechanicsStatus).toBe(i===1&&positive?'partial':'complete');
+    for(const row of result.freezeBrokenAttackLog){expect(row).toMatchObject({executionStatus:'reference-audit-only-not-dispatched',damageEventId:null,hitResolutionLogId:null,attack:{durability:0,multiplier:0,flatDamage:0,sourceIsSim:true,doNotLog:true},endOfFramePhase:{damage:0}});}
+    const before=structuredClone(result);expect(()=>projectSimulationResultV153ToV152(result)).toThrow(/flatStatBuffSemantics/);expect(result).toStrictEqual(before);
+   }
+   expect(combatOutputView(pair[0]!)).toStrictEqual(combatOutputView(pair[1]!));
+  });
+ }
+});
+
+describe('current Freeze Broken public reference rejection',()=>{
+ const mutations: {name:string; mutate:(wire:SimulationResult)=>void}[] = [
+  {name:'missing audit',mutate:r=>{r.freezeBrokenAttackLog=[];}},
+  {name:'duplicate audit',mutate:r=>{r.freezeBrokenAttackLog.push({...structuredClone(r.freezeBrokenAttackLog[0]!),id:1});}},
+  {name:'missing Frozen source',mutate:r=>{r.freezeBrokenAttackLog[0]!.sourceFrozenStateLogId=999;}},
+  {name:'wrong source Freeze damage',mutate:r=>{r.freezeBrokenAttackLog[0]!.sourceFreezeDamageEventId=null;}},
+  {name:'wrong trigger queue',mutate:r=>{r.freezeBrokenAttackLog[0]!.triggerEventSequence=999;}},
+  {name:'fabricated Freeze Broken damage',mutate:r=>{r.damageEvents[0]!.actionName='Freeze Broken';}},
+ ];
+ for(const mutation of mutations)it(`rejects ${mutation.name} without changing valid control`,()=>{
+  const valid=currentWire(POSITIVE_SCENARIOS.naturalDecay,V2_MODEL),before=structuredClone(valid);
+  expect(simulationResultSchema.parse(valid)).toEqual(valid);
+  const forged=structuredClone(valid);mutation.mutate(forged);
+  expect(simulationResultSchema.safeParse(forged).success).toBe(false);
+  expect(()=>expect(forged).toStrictEqual(expectedCurrent(POSITIVE_SCENARIOS.naturalDecay,V2_MODEL))).toThrow();
+  expect(valid).toStrictEqual(before);expect(simulationResultSchema.parse(valid)).toEqual(valid);
+ });
 });

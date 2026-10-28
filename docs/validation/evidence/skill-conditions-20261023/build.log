@@ -1,0 +1,105 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> npm run check:workspace && tsc --noEmit
+
+
+> genshin-dps-lab@1.0.0 check:workspace
+> node scripts/check-workspace-resolution.mjs
+
+Workspace package entries resolve to this checkout.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 995 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                                                  30.73 kB │ gzip:   9.57 kB
+dist/assets/source-host-worker-B8_2QjUH.js                                                    1,622.61 kB
+dist/assets/analysis-worker-CuiJTNjD.js                                                       3,371.43 kB
+dist/assets/simulation-worker-Ci_vEwqq.js                                                    12,277.70 kB
+dist/assets/lunar-simulation-worker---HKynP3.js                                              12,287.90 kB
+dist/assets/build-workshop-B8fjee3Y.css                                                           0.82 kB │ gzip:   0.37 kB
+dist/assets/calculator-ui-z9tUFpzV.css                                                            3.37 kB │ gzip:   0.82 kB
+dist/assets/source-host-calculator-DT01GEFX.css                                                  11.21 kB │ gzip:   2.52 kB
+dist/assets/index-QE8fck4N.css                                                                   25.36 kB │ gzip:   5.68 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js                                                          0.15 kB │ gzip:   0.15 kB
+dist/assets/source-team-handoff-LHKOZ8Xx.js                                                       1.25 kB │ gzip:   0.78 kB
+dist/assets/catalog-index-CPhRT2fx.js                                                             1.94 kB │ gzip:   0.88 kB
+dist/assets/catalog-index-DdTo7vOa.js                                                             1.94 kB │ gzip:   0.88 kB
+dist/assets/update-schema-CP4ESLjk.js                                                             3.09 kB │ gzip:   1.31 kB
+dist/assets/source-single-skill-import-DXXjG97Q.js                                                3.40 kB │ gzip:   1.68 kB
+dist/assets/team-candidates-panel-DDiU_OH1.js                                                     3.71 kB │ gzip:   1.89 kB
+dist/assets/source-damage-curve-DtUL4yiM.js                                                       6.71 kB │ gzip:   3.26 kB
+dist/assets/supplemental-BJOGrvZa2.js                                                             6.78 kB │ gzip:   2.46 kB
+dist/assets/supplemental-BtdzD0Lr.js                                                              6.90 kB │ gzip:   2.48 kB
+dist/assets/build-import-NLOsg3TY.js                                                              9.52 kB │ gzip:   4.00 kB
+dist/assets/source-damage-curve-panel-d4n2CCTD.js                                                11.06 kB │ gzip:   5.04 kB
+dist/assets/calculation-trace-Dq1xUArh.js                                                        11.29 kB │ gzip:   3.83 kB
+dist/assets/equipment-team-handoff-B8o2wbay.js                                                   12.91 kB │ gzip:   5.30 kB
+dist/assets/artifact-build-CBDbM2CW.js                                                           19.17 kB │ gzip:   7.25 kB
+dist/assets/equipment-controls-CXwzGgxi.js                                                       19.22 kB │ gzip:   6.85 kB
+dist/assets/update-panel-B_iO4CMs.js                                                             19.79 kB │ gzip:   7.60 kB
+dist/assets/character-build-presets-BTXhFsn_.js                                                  27.97 kB │ gzip:  11.05 kB
+dist/assets/source-host-calculator-C7aQe3Py.js                                                   38.42 kB │ gzip:  13.40 kB
+dist/assets/source-single-skill-panel-DG6E0WYV.js                                                42.30 kB │ gzip:  14.74 kB
+dist/assets/catalog-Dnbj9awR2.js                                                                 68.36 kB │ gzip:  12.20 kB
+dist/assets/catalog-BFSWA7Ce.js                                                                  71.10 kB │ gzip:  11.69 kB
+dist/assets/lunar-simulation-panel-BHe5YCbJ.js                                                   76.94 kB │ gzip:  24.86 kB
+dist/assets/character-calculations-BieByack.js                                                   85.18 kB │ gzip:  29.51 kB
+dist/assets/source-action-library-DmBZt4it.js                                                   110.86 kB │ gzip:  36.09 kB
+dist/assets/showcase-DgevWlna.js                                                                129.06 kB │ gzip:  27.57 kB
+dist/assets/build-workshop-C-wLVIA0.js                                                          129.73 kB │ gzip:  36.56 kB
+dist/assets/libs__gi__dm__src__dm__artifact__ReliquaryExcelConfigData_idmap_gen-DRXeXo4b.js     163.76 kB │ gzip:  24.69 kB
+dist/assets/evidence-v1-ybQAWRem.js                                                             181.37 kB │ gzip:   6.95 kB
+dist/assets/evidence-v1-GxB6lYLs.js                                                             183.33 kB │ gzip:   6.98 kB
+dist/assets/supplemental-x8hxEe9p.js                                                            341.70 kB │ gzip:  69.06 kB
+dist/assets/calculator-ui-wxJXCHYp.js                                                           746.95 kB │ gzip: 211.99 kB
+dist/assets/index-ZtVNP05d.js                                                                   832.62 kB │ gzip: 258.58 kB
+dist/assets/update-status-Bb_n6YrE.js                                                           848.15 kB │ gzip: 195.43 kB
+dist/assets/calculator-bridge-2iH0xciB.js                                                       932.26 kB │ gzip: 247.47 kB
+dist/assets/equipment-build-Cogm3NTw.js                                                         937.25 kB │ gzip: 178.51 kB
+dist/assets/source-host-wire-DWaHDhYU.js                                                      1,318.18 kB │ gzip: 272.07 kB
+dist/assets/src--deQocER.js                                                                   1,509.73 kB │ gzip: 347.23 kB
+dist/assets/catalog-B5LbS22_.js                                                               1,971.42 kB │ gzip: 319.09 kB
+dist/assets/src-BTHb9MIA.js                                                                   3,385.25 kB │ gzip: 815.42 kB
+dist/assets/current-cjMXz_cw.js                                                               3,386.83 kB │ gzip: 111.31 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/source-team-builder.ts is dynamically imported by src/app.ts, src/source-host-panel.ts but also statically imported by src/build-workshop.ts, src/source-single-skill-import.ts, src/source-single-skill-panel.ts, src/source-single-skill.ts, src/source-team-handoff.ts, ..., dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/workspace-panels.ts is dynamically imported by src/app.ts but also statically imported by src/app.ts, dynamic import will not move module into another chunk.
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vite:worker-import-meta-url (39%)
+  - vite:css-post (13%)
+  - vite:build-import-analysis (12%)
+  - vite:terser (12%)
+  - vite:asset (11%)
+See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.
+
+✓ built in 3.58s
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

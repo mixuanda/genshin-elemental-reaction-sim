@@ -1,0 +1,43 @@
+--- a/internal/characters/iansan/burst.go
++++ b/internal/characters/iansan/burst.go
+@@ -78,6 +78,7 @@
+ 	c.ConsumeEnergy(6)
+ 
+ 	c.burstSrc = c.Core.F
++	c.burstExpiryTask(c.burstSrc)
+ 	c.burstRestoreNS = 0
+ 	c.updateATKBuff(c.burstSrc)()
+ 	c.restorePointsTask(c.burstSrc)
+@@ -88,6 +89,22 @@
+ 		CanQueueAfter:   burstFrames[action.ActionSwap],
+ 		State:           action.BurstState,
+ 	}, nil
++}
++
++// Follow the actual marker expiry, including any native hitlag extension.
++// The global clock avoids delaying cleanup on a frozen character task queue.
++// Native status expiry is inclusive, so cleanup runs at expiry + 1.
++func (c *char) burstExpiryTask(src int) {
++	c.Core.Tasks.Add(func() {
++		if c.burstSrc != src {
++			return
++		}
++		if c.StatusIsActive(burstStatus) {
++			c.burstExpiryTask(src)
++			return
++		}
++		c.exitNightsoul()
++	}, c.StatusDuration(burstStatus)+1)
+ }
+ 
+ func (c *char) burstInit() {
+--- a/internal/characters/iansan/skill.go
++++ b/internal/characters/iansan/skill.go
+@@ -97,6 +97,7 @@
+ func (c *char) exitNightsoul() {
+ 	c.nightsoulSrc = -1
+ 	c.burstSrc = -1
++	c.c4Stacks = 0
+ 	c.nightsoulState.ExitBlessing()
+ 	c.nightsoulState.ClearPoints()
+ 	c.DeleteStatus(burstStatus)

@@ -96,9 +96,16 @@ describe("actual ordinary Aura and ICD checkpoints", () => {
     expect(ordinaryAuraDomainBlockers(initial)).not.toEqual([]);
     const infusion = fixture(); infusion.timeline!.abilities[0]!.hits![0]!.infusion = { statusKey: "dormant", element: "geo", application: noIcd() };
     expect(ordinaryAuraDomainBlockers(infusion).join()).toContain("geo");
-    const blocked = simulateWithStartup(future, { mode: "steady-state", maximumWarmupCycles: 8, maximumPeriodCycles: 1 });
+    // The producer now exports the non-periodic/periodic reaction domain.
+    // A dormant Electro ability alone no longer means missing private state.
+    const supported = simulateWithStartup(future, { mode: "steady-state", maximumWarmupCycles: 8, maximumPeriodCycles: 1 });
+    expect(supported.status).toBe("steady-state-established");
+    expect(supported.result!.executionAudit!.checkpointCoverage).toEqual({ complete: true, missingDimensions: [], reasons: [] });
+    const unproven = structuredClone(future);
+    unproven.reactionEngine!.debugAllowReactionOverride = true;
+    const blocked = simulateWithStartup(unproven, { mode: "steady-state", maximumWarmupCycles: 8, maximumPeriodCycles: 1 });
     expect(blocked.status).not.toBe("steady-state-established");
-    expect(blocked.result!.executionAudit!.checkpointCoverage.reasons.join()).toContain("完整未来元素输入域");
+    expect(blocked.result!.executionAudit!.checkpointCoverage.reasons.join()).toContain("调试反应覆盖");
     const stochastic = simulate(expanded, { execution: { checkpointFrames: [29], criticalSampling: "seeded-random-v1" } });
     expect(stochastic.executionAudit!.checkpointCoverage).toEqual({ complete: true, missingDimensions: [], reasons: [] });
     expect(stochastic.executionAudit!.phaseCheckpoints[0]!.state.icdAndTriggerHistory).toMatchObject({

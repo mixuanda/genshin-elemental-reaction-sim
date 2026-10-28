@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "c8a3024f96aea587f43913a72267fb3839198e47",
+  "scope": "Exact Aether Anemo male physical charged action C0-C6; other forms remain C0; old ID and source bundles unchanged.",
+  "command": "./node_modules/.bin/vitest run packages/sim-core/src/traveler-male-charged-constellations.test.ts apps/web/src/calculator-traveler-male-charged-requirements.test.ts packages/sim-core/src/lifecycle-source-batch.test.ts --testNamePattern='Aether Anemo physical charged constellation scope|Aether Anemo male charged requirement links|resolves seven male-specific two-hit charged attacks' --reporter=json --outputFile=/tmp/GIDPS-aether-anemo-charged-evidence-20261023/after.json",
+  "runs": [
+    {
+      "path": "/tmp/GIDPS-aether-anemo-charged-evidence-20261023/before.json",
+      "sha256": "7ec3ce7163c679249630f97e105093971c0e6a5775ef6c22f766c2514f133645",
+      "passed": 0,
+      "failed": 1,
+      "notSelectedByNameFilter": 0,
+      "failures": [
+        {
+          "name": "Aether Anemo physical charged constellation scope calculates the source-proven C6 two-hit physical branch without inventing physical resistance reduction or NA levels",
+          "error": "AssertionError: expected [ …(2) ] to deeply equal []\n    at /tmp/GIDPS-role-kinich-20261023/packages/sim-core/src/traveler-male-charged-constellations.test.ts:30:29\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///workspace/GIDPS-cloud/latest/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+        }
+      ]
+    },
+    {
+      "path": "/tmp/GIDPS-aether-anemo-charged-evidence-20261023/after.json",
+      "sha256": "49c8ee5fb7ecc5730d0d2f864ef5e8f241a7d3de58fd7d5a4210be89b297566f",
+      "passed": 26,
+      "failed": 0,
+      "notSelectedByNameFilter": 3,
+      "failures": []
+    }
+  ],
+  "sourceManifest": "packages/game-data/sources/traveler-male-charged-constellations/manifest.json",
+  "numericOracles": {
+    "NA10FirstNonCritical": 994.5,
+    "NA10SecondNonCritical": 1080.18,
+    "NA10BothNonCritical": 2074.68,
+    "NA10BothCritical": 4149.36,
+    "NA10BothExpected": 3112.02,
+    "NA13BothNonCritical": 2514.024,
+    "actualF9Atk1800F20Atk2200NonCritical": 2083.2480000000005
+  },
+  "sharedIntegration": "Root owns public per-hit constellation gate and default requirement registry. Dedicated adapter tests inject the new adapter; browser/default registry are not claimed by this local evidence.",
+  "limits": [
+    "No full regression, full TypeScript check, native run, 120-second simulation, production, push, licence or credentials changes.",
+    "Three existing lifecycle groups were not selected, not rewritten to skipped.",
+    "No source identity upgrades beyond the manifest statements.",
+    "No automatic action, energy, CD or full-cycle proof."
+  ]
+}

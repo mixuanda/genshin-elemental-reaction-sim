@@ -1,0 +1,1563 @@
+{
+  "goal": "/goal Iansan C4 restoration chain and legal 120-second rotation",
+  "status": "passed-with-explicit-scope-limits",
+  "baseCommit": "314218dd990813224488ebbb5faff2c41c1ab993",
+  "branch": "cloud/player-import-integration-20261021",
+  "fixes": [
+    {
+      "commit": "a1bc223",
+      "patch": "141-iansan-burst-expiry.patch"
+    },
+    {
+      "commit": "88a5822",
+      "patch": "142-iansan-c6-burst-entry-overflow.patch"
+    }
+  ],
+  "sourceAndNativeValidation": "docs/validation/IANSAN-C4-NATIVE-20261023.json",
+  "baseline": {
+    "evidence": "docs/audits/iansan-120-kinich-20261023.json",
+    "Q": [
+      {
+        "actor": "iansan",
+        "intended": 6,
+        "actual": 2,
+        "skipped": 4
+      },
+      {
+        "actor": "kaeya",
+        "intended": 6,
+        "actual": 3,
+        "skipped": 3
+      }
+    ],
+    "damage": {
+      "hits": 208,
+      "totalDamage": 76605.56459049942,
+      "dps": 638.3797049208284,
+      "perActor": {
+        "iansan": 30872.23236937466,
+        "kaeya": 45733.33222112474
+      }
+    }
+  },
+  "legalCandidate": {
+    "equipmentEvidence": "docs/audits/iansan-kaeya-recharge-20261023.validation.json",
+    "captureDirectory": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge",
+    "capture": {
+      "endedAt": "2026-10-23T16:04:39.732Z",
+      "inputSha256": "e9a3524c097cf110faad849a444680d27a032d633299a27f07bd0faa0cbb1413",
+      "completionMode": "offline-after-saved-native",
+      "files": [
+        {
+          "name": "host.json",
+          "bytes": 285,
+          "sha256": "73ab31b74fe7f16e586d08ab54aaf492bb8d1cf0fb4852774bf38f0d85709231"
+        },
+        {
+          "name": "run.build-manifest.json",
+          "bytes": 163581,
+          "sha256": "0c8bf23de678d04b348b50b8cd84889e2423be65d36cfeef7eb35205f87bdf02"
+        },
+        {
+          "name": "run.candidate-equipment.json",
+          "bytes": 10365,
+          "sha256": "f158fd30624f692c1c893329592724c2ef3de745e396220de24ec5a77c817a99"
+        },
+        {
+          "name": "run.candidate-gcsl",
+          "bytes": 1826,
+          "sha256": "046ecf61765f3494b64a00c814d1b37b4e2b42b277eb22c14d2fa35ca5715916"
+        },
+        {
+          "name": "run.candidate-lock.json",
+          "bytes": 2013,
+          "sha256": "f90239cada77cc04dd239ad2a33557391026cd72ba27f0fe7762b24443bb5d6c"
+        },
+        {
+          "name": "run.candidate-preflight.json",
+          "bytes": 707,
+          "sha256": "3a9bd1e574f77494d5f2253a63f04f7e64579725a3e6b28a303ff5b4adc9c4d9"
+        },
+        {
+          "name": "run.candidate-validation.json",
+          "bytes": 31089,
+          "sha256": "d4e866b5c336e0f9329e3a06d45a55d8139d3709ac35eda1afb6204143cb9f08"
+        },
+        {
+          "name": "run.formula-replay.ndjson",
+          "bytes": 599564320,
+          "sha256": "0e830030a0d98441028a3a56110fd3e49138762e2917288bbdbaf232b32a37ce"
+        },
+        {
+          "name": "run.gcsl",
+          "bytes": 1826,
+          "sha256": "046ecf61765f3494b64a00c814d1b37b4e2b42b277eb22c14d2fa35ca5715916"
+        },
+        {
+          "name": "run.native.json",
+          "bytes": 8538053,
+          "sha256": "ccc8679e75e433bc7d9570ab94151b104a4434762b57e72508073773da6bb99e"
+        },
+        {
+          "name": "run.recovery.json",
+          "bytes": 590,
+          "sha256": "02198aa17f8d06b8417a983a6c2ab401ed5e1f4acddb6fc8a4285a015068fb54"
+        },
+        {
+          "name": "run.request.json",
+          "bytes": 2232,
+          "sha256": "e9a3524c097cf110faad849a444680d27a032d633299a27f07bd0faa0cbb1413"
+        },
+        {
+          "name": "run.result.json",
+          "bytes": 8562220,
+          "sha256": "46bd31ca0d7f577f8869c68c21776d86dd60c060a0f26bbe910e6c1d3fd3e466"
+        },
+        {
+          "name": "run.source-lock.json",
+          "bytes": 7839,
+          "sha256": "7d42db40f80040767c0499c98b6dfc052bbbe10e9874b6b5446bfd21b46d74b9"
+        },
+        {
+          "name": "run.summary.json",
+          "bytes": 2272,
+          "sha256": "e2cd2958508fade54f44c911b5009a865a9baac1ce9ffd67982f05b5ebf944c2"
+        },
+        {
+          "name": "runner-start.json",
+          "bytes": 75,
+          "sha256": "2ecf1d984688f6ff10bb34696f32a4e58d11dd125c1db5476e66a19ff4dc9282"
+        }
+      ]
+    },
+    "independentAudit": {
+      "path": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge/independent-audit.json",
+      "bytes": 425063,
+      "sha256": "a46cc99f324a2ccb66f92746110a315bc00d48190be194ba9447b2c93f176fb3"
+    },
+    "independentAuditStatus": "passed",
+    "nativeBasePanelsChecked": 665,
+    "panels": {
+      "iansan": {
+        "baseAttack": 821.78432472,
+        "atkPercent": 1.2307000000000001,
+        "flatAttack": 349.9,
+        "critRate": 1,
+        "rawCritRate": 1.0028,
+        "critDamage": 0.5,
+        "energyRecharge": 2.537068198,
+        "artifactStats": {
+          "hp": 5078.75,
+          "cr": 0.9528,
+          "er": 1.2308,
+          "atk%": 0.9907,
+          "def": 115.75,
+          "atk": 349.9
+        },
+        "rolls": 45
+      },
+      "kaeya": {
+        "baseAttack": 677.3802041000001,
+        "atkPercent": 0.8162,
+        "flatAttack": 330.45,
+        "critRate": 1,
+        "rawCritRate": 1.0028,
+        "critDamage": 0.5,
+        "energyRecharge": 2.805331802,
+        "artifactStats": {
+          "hp": 5078.75,
+          "cr": 0.9528,
+          "er": 0.9261,
+          "atk%": 0.8162,
+          "def": 115.75,
+          "atk": 330.45,
+          "cryo%": 0.466
+        },
+        "rolls": 45
+      }
+    },
+    "energyWriteCount": 130,
+    "particleAmountCount": [
+      {
+        "writeId": 3,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-iansan",
+        "frame": 139,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 4,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-iansan",
+        "frame": 139,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 5,
+        "isActive": true,
+        "amount": 30.444818376,
+        "source": "iansan",
+        "frame": 154,
+        "actor": "iansan",
+        "particleCount": 4,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 6,
+        "isActive": false,
+        "amount": 8.9770617664,
+        "source": "iansan",
+        "frame": 154,
+        "actor": "kaeya",
+        "particleCount": 4,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 8,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 370,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 9,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 370,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 10,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 423,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 11,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 423,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 13,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 793,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 14,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 793,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 15,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 829,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 16,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 829,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 19,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 1235,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 20,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 1235,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 21,
+        "isActive": false,
+        "amount": 4.059309116800001,
+        "source": "kaeya",
+        "frame": 1235,
+        "actor": "iansan",
+        "particleCount": 2,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 22,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "kaeya",
+        "frame": 1235,
+        "actor": "kaeya",
+        "particleCount": 2,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 25,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-iansan",
+        "frame": 1375,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 26,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-iansan",
+        "frame": 1375,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 27,
+        "isActive": true,
+        "amount": 30.444818376,
+        "source": "iansan",
+        "frame": 1390,
+        "actor": "iansan",
+        "particleCount": 4,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 28,
+        "isActive": false,
+        "amount": 8.9770617664,
+        "source": "iansan",
+        "frame": 1390,
+        "actor": "kaeya",
+        "particleCount": 4,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 30,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 1646,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 31,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 1646,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 32,
+        "isActive": false,
+        "amount": 4.059309116800001,
+        "source": "kaeya",
+        "frame": 1659,
+        "actor": "iansan",
+        "particleCount": 2,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 33,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "kaeya",
+        "frame": 1659,
+        "actor": "kaeya",
+        "particleCount": 2,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 35,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 2065,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 36,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 2065,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 37,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 2086,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 38,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 2086,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 43,
+        "isActive": true,
+        "amount": 7.611204594,
+        "source": "kaeya",
+        "frame": 2471,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 44,
+        "isActive": false,
+        "amount": 20.198388974400004,
+        "source": "kaeya",
+        "frame": 2471,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 46,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-iansan",
+        "frame": 2555,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 47,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-iansan",
+        "frame": 2555,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 48,
+        "isActive": true,
+        "amount": 30.444818376,
+        "source": "iansan",
+        "frame": 2570,
+        "actor": "iansan",
+        "particleCount": 4,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 49,
+        "isActive": false,
+        "amount": 8.9770617664,
+        "source": "iansan",
+        "frame": 2570,
+        "actor": "kaeya",
+        "particleCount": 4,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 51,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 2786,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 52,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 2786,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 55,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 2856,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 56,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 2856,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 58,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 3226,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 59,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 3226,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 60,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 3262,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 61,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 3262,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 65,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-kaeya",
+        "frame": 3668,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 66,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-kaeya",
+        "frame": 3668,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 67,
+        "isActive": true,
+        "amount": 7.611204594,
+        "source": "kaeya",
+        "frame": 3668,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 68,
+        "isActive": false,
+        "amount": 20.198388974400004,
+        "source": "kaeya",
+        "frame": 3668,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 70,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-iansan",
+        "frame": 3752,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 71,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-iansan",
+        "frame": 3752,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 72,
+        "isActive": true,
+        "amount": 30.444818376,
+        "source": "iansan",
+        "frame": 3767,
+        "actor": "iansan",
+        "particleCount": 4,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 73,
+        "isActive": false,
+        "amount": 8.9770617664,
+        "source": "iansan",
+        "frame": 3767,
+        "actor": "kaeya",
+        "particleCount": 4,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 75,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 4053,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 76,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 4053,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 77,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 4053,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 78,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 4053,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 81,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 4459,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 82,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 4459,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 83,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 4498,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 84,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 4498,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 87,
+        "isActive": true,
+        "amount": 5.074136396,
+        "source": "kaeya",
+        "frame": 4865,
+        "actor": "iansan",
+        "particleCount": 2,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 88,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "kaeya",
+        "frame": 4865,
+        "actor": "kaeya",
+        "particleCount": 2,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 90,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-iansan",
+        "frame": 4949,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 91,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-iansan",
+        "frame": 4949,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 92,
+        "isActive": true,
+        "amount": 30.444818376,
+        "source": "iansan",
+        "frame": 4964,
+        "actor": "iansan",
+        "particleCount": 4,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 93,
+        "isActive": false,
+        "amount": 8.9770617664,
+        "source": "iansan",
+        "frame": 4964,
+        "actor": "kaeya",
+        "particleCount": 4,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 95,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 5180,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 96,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 5180,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 98,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 5250,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 99,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 5250,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 102,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 5620,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 103,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 5620,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 104,
+        "isActive": false,
+        "amount": 6.0889636752000005,
+        "source": "kaeya",
+        "frame": 5656,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 105,
+        "isActive": true,
+        "amount": 25.247986218,
+        "source": "kaeya",
+        "frame": 5656,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 108,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-kaeya",
+        "frame": 6062,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 109,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-kaeya",
+        "frame": 6062,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 110,
+        "isActive": true,
+        "amount": 5.074136396,
+        "source": "kaeya",
+        "frame": 6062,
+        "actor": "iansan",
+        "particleCount": 2,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 111,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "kaeya",
+        "frame": 6062,
+        "actor": "kaeya",
+        "particleCount": 2,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 113,
+        "isActive": true,
+        "amount": 15.222409188,
+        "source": "favonius-iansan",
+        "frame": 6146,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 114,
+        "isActive": false,
+        "amount": 13.465592649600001,
+        "source": "favonius-iansan",
+        "frame": 6146,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 115,
+        "isActive": true,
+        "amount": 30.444818376,
+        "source": "iansan",
+        "frame": 6161,
+        "actor": "iansan",
+        "particleCount": 4,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 116,
+        "isActive": false,
+        "amount": 8.9770617664,
+        "source": "iansan",
+        "frame": 6161,
+        "actor": "kaeya",
+        "particleCount": 4,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 119,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 6447,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 120,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 6447,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 121,
+        "isActive": false,
+        "amount": 4.059309116800001,
+        "source": "kaeya",
+        "frame": 6447,
+        "actor": "iansan",
+        "particleCount": 2,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 122,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "kaeya",
+        "frame": 6447,
+        "actor": "kaeya",
+        "particleCount": 2,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 125,
+        "isActive": false,
+        "amount": 4.059309116800001,
+        "source": "kaeya",
+        "frame": 6853,
+        "actor": "iansan",
+        "particleCount": 2,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 126,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "kaeya",
+        "frame": 6853,
+        "actor": "kaeya",
+        "particleCount": 2,
+        "ER": 2.805331802
+      },
+      {
+        "writeId": 127,
+        "isActive": false,
+        "amount": 12.177927350400001,
+        "source": "favonius-kaeya",
+        "frame": 6892,
+        "actor": "iansan",
+        "particleCount": 3,
+        "ER": 2.537068198
+      },
+      {
+        "writeId": 128,
+        "isActive": true,
+        "amount": 16.831990812,
+        "source": "favonius-kaeya",
+        "frame": 6892,
+        "actor": "kaeya",
+        "particleCount": 3,
+        "ER": 2.805331802
+      }
+    ],
+    "energyReconciliation": [
+      {
+        "actor": "iansan",
+        "startup": 70,
+        "actuallyReceived": 420.0,
+        "actuallySpent": 420,
+        "final": 70
+      },
+      {
+        "actor": "kaeya",
+        "startup": 60,
+        "actuallyReceived": 360.0,
+        "actuallySpent": 360,
+        "final": 60
+      }
+    ],
+    "energySources": [
+      {
+        "actor": "iansan",
+        "source": "iansan-c1",
+        "operation": "flat-change",
+        "requested": 90.0,
+        "credited": 90.0,
+        "wasted": 0.0,
+        "events": 6
+      },
+      {
+        "actor": "iansan",
+        "source": "favonius-iansan",
+        "operation": "particle-apply",
+        "requested": 91.334455128,
+        "credited": 91.334455128,
+        "wasted": 0.0,
+        "events": 6
+      },
+      {
+        "actor": "kaeya",
+        "source": "favonius-iansan",
+        "operation": "particle-apply",
+        "requested": 80.79355589760002,
+        "credited": 0.0,
+        "wasted": 80.79355589760002,
+        "events": 6
+      },
+      {
+        "actor": "iansan",
+        "source": "iansan",
+        "operation": "particle-apply",
+        "requested": 182.668910256,
+        "credited": 158.204295762,
+        "wasted": 24.464614494000003,
+        "events": 6
+      },
+      {
+        "actor": "kaeya",
+        "source": "iansan",
+        "operation": "particle-apply",
+        "requested": 53.862370598400005,
+        "credited": 0.0,
+        "wasted": 53.862370598400005,
+        "events": 6
+      },
+      {
+        "actor": "iansan",
+        "source": "favonius-kaeya",
+        "operation": "particle-apply",
+        "requested": 188.75787393120004,
+        "credited": 55.09056713,
+        "wasted": 133.6673068012,
+        "events": 15
+      },
+      {
+        "actor": "kaeya",
+        "source": "favonius-kaeya",
+        "operation": "particle-apply",
+        "requested": 245.7470658552001,
+        "credited": 154.25604134600002,
+        "wasted": 91.49102450920002,
+        "events": 15
+      },
+      {
+        "actor": "iansan",
+        "source": "kaeya",
+        "operation": "particle-apply",
+        "requested": 96.408591524,
+        "credited": 25.37068198,
+        "wasted": 71.03790954399999,
+        "events": 17
+      },
+      {
+        "actor": "kaeya",
+        "source": "kaeya",
+        "operation": "particle-apply",
+        "requested": 361.88780245800007,
+        "credited": 192.74395865399998,
+        "wasted": 169.14384380400003,
+        "events": 17
+      },
+      {
+        "actor": "kaeya",
+        "source": "na-ca-on-hit",
+        "operation": "flat-change",
+        "requested": 24.0,
+        "credited": 13.0,
+        "wasted": 11.0,
+        "events": 24
+      }
+    ],
+    "qDecisions": [
+      {
+        "actor": "iansan",
+        "frame": 1,
+        "energy": 70,
+        "maxEnergy": 70,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": null,
+        "nextActionSequence": 1
+      },
+      {
+        "actor": "kaeya",
+        "frame": 206,
+        "energy": 60,
+        "maxEnergy": 60,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 4,
+        "nextActionSequence": 5
+      },
+      {
+        "actor": "iansan",
+        "frame": 1228,
+        "energy": 70,
+        "maxEnergy": 70,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 30,
+        "nextActionSequence": 31
+      },
+      {
+        "actor": "kaeya",
+        "frame": 1442,
+        "energy": 60,
+        "maxEnergy": 60,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 34,
+        "nextActionSequence": 35
+      },
+      {
+        "actor": "iansan",
+        "frame": 2410,
+        "energy": 70,
+        "maxEnergy": 70,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 58,
+        "nextActionSequence": 59
+      },
+      {
+        "actor": "kaeya",
+        "frame": 2622,
+        "energy": 60,
+        "maxEnergy": 60,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 62,
+        "nextActionSequence": 63
+      },
+      {
+        "actor": "iansan",
+        "frame": 3607,
+        "energy": 70,
+        "maxEnergy": 70,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 86,
+        "nextActionSequence": 87
+      },
+      {
+        "actor": "kaeya",
+        "frame": 3819,
+        "energy": 60,
+        "maxEnergy": 60,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 90,
+        "nextActionSequence": 91
+      },
+      {
+        "actor": "iansan",
+        "frame": 4804,
+        "energy": 70,
+        "maxEnergy": 70,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 114,
+        "nextActionSequence": 115
+      },
+      {
+        "actor": "kaeya",
+        "frame": 5016,
+        "energy": 60,
+        "maxEnergy": 60,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 118,
+        "nextActionSequence": 119
+      },
+      {
+        "actor": "iansan",
+        "frame": 6001,
+        "energy": 70,
+        "maxEnergy": 70,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 142,
+        "nextActionSequence": 143
+      },
+      {
+        "actor": "kaeya",
+        "frame": 6213,
+        "energy": 60,
+        "maxEnergy": 60,
+        "remainingCD": 0,
+        "ready": true,
+        "deficit": 0,
+        "reason": "ready",
+        "implicitSwapSequence": 146,
+        "nextActionSequence": 147
+      }
+    ],
+    "allIntendedQExecuted": true,
+    "missedQ": [],
+    "cooldownCounts": {
+      "durations": 36,
+      "abilityChecks": 36
+    },
+    "favonius": {
+      "procCount": 21,
+      "perActor": {
+        "iansan": 6,
+        "kaeya": 15
+      },
+      "qualification": "Every observed proc links a real positive critical hit, current on-field owner, expired actual hitlag-extended R5 CD, event listener, particle-delivery task and actual energy writes. No scheduled free particles."
+    },
+    "preQOverflowWitness": {
+      "observations": [
+        {
+          "phaseFrame": 1,
+          "actualBurstFrame": 1,
+          "observedPointsOverflow": 0,
+          "observedC4Stacks": 0,
+          "observedMovementBuffer": 0,
+          "interveningNightsoulMutationCount": 0
+        },
+        {
+          "phaseFrame": 1228,
+          "actualBurstFrame": 1237,
+          "observedPointsOverflow": 0,
+          "observedC4Stacks": 0,
+          "observedMovementBuffer": 0,
+          "interveningNightsoulMutationCount": 0
+        },
+        {
+          "phaseFrame": 2410,
+          "actualBurstFrame": 2417,
+          "observedPointsOverflow": 0,
+          "observedC4Stacks": 0,
+          "observedMovementBuffer": 0,
+          "interveningNightsoulMutationCount": 0
+        },
+        {
+          "phaseFrame": 3607,
+          "actualBurstFrame": 3614,
+          "observedPointsOverflow": 0,
+          "observedC4Stacks": 0,
+          "observedMovementBuffer": 0,
+          "interveningNightsoulMutationCount": 0
+        },
+        {
+          "phaseFrame": 4804,
+          "actualBurstFrame": 4811,
+          "observedPointsOverflow": 0,
+          "observedC4Stacks": 0,
+          "observedMovementBuffer": 0,
+          "interveningNightsoulMutationCount": 0
+        },
+        {
+          "phaseFrame": 6001,
+          "actualBurstFrame": 6008,
+          "observedPointsOverflow": 0,
+          "observedC4Stacks": 0,
+          "observedMovementBuffer": 0,
+          "interveningNightsoulMutationCount": 0
+        }
+      ],
+      "scope": "Directly visible pre-Q private fields and unchanged intervening resource logs in this no-movement axis only. Does not resolve the general cross-marker overflow-return rule."
+    },
+    "nightsoul": {
+      "finalPoints": 0.0,
+      "counts": {
+        "enter nightsoul blessing": 12,
+        "consume nightsoul points": 774,
+        "generate nightsoul points": 78,
+        "exit nightsoul blessing": 6,
+        "clear nightsoul points": 6
+      },
+      "interpretation": "Resource mutations are replayed exactly. GeneratePoints logs aggregate movement/A1/C4 contributions; this report does not infer their split from the amount."
+    },
+    "damage": {
+      "hits": 246,
+      "totalDamage": 798971.2144022143,
+      "dps": 6658.093453351786,
+      "perActor": {
+        "iansan": 189461.63667119577,
+        "kaeya": 609509.577731019
+      },
+      "perAbility": [
+        {
+          "actor": "iansan",
+          "ability": "The Three Principles of Power",
+          "damage": 86951.16093041484
+        },
+        {
+          "actor": "iansan",
+          "ability": "Thunderbolt Rush",
+          "damage": 57859.69444811992
+        },
+        {
+          "actor": "iansan",
+          "ability": "Swift Stormflight",
+          "damage": 25118.259042660935
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Glacial Waltz",
+          "damage": 258502.99640880132
+        },
+        {
+          "actor": "kaeya",
+          "ability": "superconduct",
+          "damage": 11719.51335
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Frostgnaw",
+          "damage": 118128.6457743087
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Normal 0",
+          "damage": 48321.879504516044
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Normal 1",
+          "damage": 40815.71274066224
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Normal 2",
+          "damage": 49504.59723150472
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Normal 3",
+          "damage": 49879.99451441958
+        },
+        {
+          "actor": "kaeya",
+          "ability": "Normal 4",
+          "damage": 32636.23820680615
+        },
+        {
+          "actor": "iansan",
+          "ability": "superconduct",
+          "damage": 19532.522249999998
+        }
+      ],
+      "handHit": {
+        "calculationId": 42,
+        "frame": 207,
+        "baseAttack": 821.78432472,
+        "nonExtraAttack": 2347.4111580969043,
+        "qUpdateCalculationId": 41,
+        "qUpdateFrame": 201,
+        "qUpdatePoints": 43.599999999999966,
+        "qAddedAttack": 633.8010126861642,
+        "finalAttack": 2981.2121707830684,
+        "normal10Coefficient": 1.6643,
+        "damageBonus": 0.25,
+        "defense": 0.5,
+        "resistance": 0.9,
+        "crit": true,
+        "expected": 4186.376507110157,
+        "actual": 4186.376507110156
+      }
+    },
+    "actorContributionFloatingPointDifference": 4.656612873077393e-10,
+    "activitySecondsWithHit": 112,
+    "recovery": {
+      "nativeExecutionCount": 1,
+      "originalNativeSha256": "ccc8679e75e433bc7d9570ab94151b104a4434762b57e72508073773da6bb99e",
+      "originalFailure": "RangeError: Invalid string length while JSON.stringify(resolver.calculations), after native was fully saved",
+      "originalFailureLog": "../legal-recharge-native-run.log",
+      "traceOrigin": "offline-same-native-request-replay",
+      "traceFormat": "NDJSON, stream one formula record at a time; do not JSON.parse the complete file",
+      "nativeAndCallbacksTiming": "Unavailable: original serializer failed before saving the timing record",
+      "recoveredAt": "2026-10-23T16:04:38.835Z"
+    },
+    "nativeRuns": 1,
+    "newNativeRunsDuringRecovery": 0
+  },
+  "browser": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "platform": "linux",
+    "nativeRuns": 0,
+    "savedInput": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge/run.result.json",
+    "savedInputSha256": "46bd31ca0d7f577f8869c68c21776d86dd60c060a0f26bbe910e6c1d3fd3e466",
+    "exportedSha256": "42bbdca686c4782e73cd34ff25fc1a1394067167f2d4f9465e72d786526efdb9",
+    "wasmSha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+    "frames": 7200,
+    "actualHits": 246,
+    "total": 798971.2144022143,
+    "byActor": {
+      "iansan": 189461.63667119577,
+      "kaeya": 609509.577731019
+    },
+    "frameCurve": true,
+    "cumulativeSteps": true,
+    "standaloneExplanation": true,
+    "applicationsAndEnergyUnchanged": true,
+    "desktopAndNarrow": true,
+    "errors": []
+  },
+  "screenshots": [
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/browser/iansan-120-overview.png",
+      "bytes": 125772,
+      "sha256": "c45dec26ae07731f0a270bb8b49046464348a0ebfbc04374bd9596d9f3032d40",
+      "libraryFileId": "libfile_16f841ede6c48191bbb9dd4da06de581",
+      "fileId": "file_000000003cb081f5a13bce2e74d4c726"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/browser/iansan-120-curve.png",
+      "bytes": 606814,
+      "sha256": "545a63a70e31f4b52f8f3a187c60885c4599e5b7e9bc5e80aafb1e36e5dffeaa",
+      "libraryFileId": "libfile_50de9df058ec8191943f458d48dd7921",
+      "fileId": "file_00000000cef481f5b116b475430a04ce"
+    },
+    {
+      "path": "/tmp/GIDPS-iansan-c4-20261023/browser/iansan-120-narrow.png",
+      "bytes": 72987,
+      "sha256": "81275529ad5b1b87017732891dbaea030884584383670100ea23e3b1a27d7edf"
+    }
+  ],
+  "fullSuite": {
+    "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerunThisBatch": false
+  },
+  "release": {
+    "productionAttempted": false,
+    "productionUpdated": false,
+    "reason": "Production remains paused under prior denial; no deployment retry or alternative channel."
+  },
+  "limits": [
+    "C4-only isolated callbacks and C6-including-C4 120-second two-character rotation; not all-character or four-character coverage.",
+    "General cross-marker overflow semantics remain unproved; observed zero before each Q makes this candidate independent of that branch.",
+    "No inferred motion: neither run injects movement; no phlogiston or in-game movement validation.",
+    "One seed per changed equipment input, initial full energy once, no repeated reset; not a random mean, inventory recommendation, optimal graduation build, 100% buff uptime or infinite steady-state guarantee.",
+    "Pinned Kaeya Q collision geometry remains approximate; explanation capture remains partial.",
+    "Browser source-category labels remain partly unclassified; actual actor ownership, raw ability names and damage sums are preserved.",
+    "Large formula trace is offline same-request replay NDJSON after an initial serialization failure; raw native combat capture is unchanged."
+  ]
+}

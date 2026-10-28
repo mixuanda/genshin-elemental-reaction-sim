@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -11,7 +12,7 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 }
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 async function waitForSimulation(page: Page): Promise<void> {
@@ -24,24 +25,25 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 
 async function selectKukiAction(page: Page, label: string, skillId: string): Promise<void> {
   const value = await page.locator("#calc-skill option").filter({ hasText: label }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
   expect((await audit(page)).document.gameContext!.skillId).toBe(skillId);
 }
 
 test("Kuki full E and Q variants retain conditioned EM and HP context without requiring a team", async ({ page }) => {
   await page.goto("/calculator");
-  await page.locator("#calc-character").selectOption("character:10000065");
+  await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000065");
   await expect(page.locator("#calc-skill")).toBeEnabled();
   await selectKukiAction(page, "完整初击＋8环击", "kuki-skill-c0-complete-cast");
-  await page.locator("#calc-talent-level").fill("1");
-  await page.locator("#calc-talent-level").press("Tab");
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
+  await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
   await expect.poll(async () => (await audit(page)).document.gameContext!.effectiveTalentLevel).toBe(1);
-  await page.locator("#calc-ascension").selectOption("4");
+  await (await revealControl(page.locator("#calc-ascension"))).selectOption("4");
   for (const [field, value] of Object.entries({ atk: 1000, hp: 20000, em: 200, critRate: 0.5, critDamage: 1 })) {
-    await page.locator(`[data-field="build.stats.${field}"]`).fill(String(value));
+    await (await revealControl(page.locator(`[data-field="build.stats.${field}"]`))).fill(String(value));
   }
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]').selectOption("1");
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]').selectOption("1");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]'))).selectOption("1");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]'))).selectOption("1");
   const e0 = await audit(page);
   expect(e0.result.status).toBe("calculated");
   expect(e0.result.hits).toHaveLength(9);
@@ -49,27 +51,27 @@ test("Kuki full E and Q variants retain conditioned EM and HP context without re
   const e0NonCrit = (1000 * (0.75712 + 8 * 0.2524) + 9 * 0.25 * 200) * 0.5 * 0.9;
   expect(e0.result.totals!.nonCritical).toBeCloseTo(e0NonCrit, 9);
   expect(e0.result.totals!.expected).toBeCloseTo(e0NonCrit * 1.5, 9);
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]').selectOption("unknown");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]'))).selectOption("unknown");
   expect((await audit(page)).result.status).toBe("blocked");
-  await page.locator("#calc-scope").selectOption("single-hit");
-  await page.locator('[data-hit-id="kuki-skill-c0-complete-cast-initial"]').check();
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
+  await (await revealControl(page.locator('[data-hit-id="kuki-skill-c0-complete-cast-initial"]'))).check();
   const initial = await audit(page);
   expect(initial.result.status).toBe("calculated");
   expect(initial.result.totals!.expected).toBeCloseTo((1000 * 0.75712 + 200 * 0.25) * 0.5 * 0.9 * 1.5, 9);
   await expect(page.locator('#calc-results [data-trace-node="customBaseDamage"]')).toContainText("807.12");
-  await page.locator("#calc-scope").selectOption("one-cast");
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]').selectOption("1");
-  await page.locator("#calc-constellation").selectOption("2");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("one-cast");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]'))).selectOption("1");
+  await (await revealControl(page.locator("#calc-constellation"))).selectOption("2");
   await selectKukiAction(page, "完整初击＋10环击", "kuki-skill-c2-complete-cast");
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]').selectOption("1");
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]').selectOption("1");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]'))).selectOption("1");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.ringUninterrupted"]'))).selectOption("1");
   const e2 = await audit(page);
   expect(e2.result.status).toBe("calculated");
   expect(e2.result.hits).toHaveLength(11);
   expect(e2.result.totals!.expected).toBeCloseTo((1000 * (0.75712 + 10 * 0.2524) + 11 * 0.25 * 200) * 0.5 * 0.9 * 1.5, 9);
 
   await selectKukiAction(page, "施放HP≤50%·完整12击", "kuki-burst-low-hp-complete-cast");
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]').selectOption("1");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]'))).selectOption("1");
   const ratio = page.locator('[data-field="gameContext.kukiDamage.burstHpRatioAtCast"]');
   await ratio.fill("0.5");
   const low = await audit(page);
@@ -82,24 +84,24 @@ test("Kuki full E and Q variants retain conditioned EM and HP context without re
   await ratio.fill("0.5001");
   expect((await audit(page)).result.status).toBe("blocked");
   await ratio.fill("");
-  await page.locator("#calc-scope").selectOption("single-hit");
-  await page.locator('[data-hit-id="kuki-burst-low-hp-complete-cast-tick-instance-1"]').check();
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
+  await (await revealControl(page.locator('[data-hit-id="kuki-burst-low-hp-complete-cast-tick-instance-1"]'))).check();
   expect((await audit(page)).result.totals!.expected).toBeCloseTo(qHitNonCrit * 1.5, 9);
-  await page.locator('[data-hit-id="kuki-burst-low-hp-complete-cast-tick-instance-8"]').check();
+  await (await revealControl(page.locator('[data-hit-id="kuki-burst-low-hp-complete-cast-tick-instance-8"]'))).check();
   expect((await audit(page)).result.status).toBe("blocked");
   await ratio.fill("0.5");
   expect((await audit(page)).result.totals!.expected).toBeCloseTo(qHitNonCrit * 1.5, 9);
-  await page.locator("#calc-scope").selectOption("one-cast");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("one-cast");
   const beforeExport = await audit(page);
   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name: "kuki-low-hp-complete-q.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "kuki-low-hp-complete-q.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   const restored = await audit(page);
   expect(restored.document.gameContext).toEqual(beforeExport.document.gameContext);
   expect(restored.result.totals).toEqual(low.result.totals);
   expect(restored.result.hits.map(hit => hit.trace)).toEqual(beforeExport.result.hits.map(hit => hit.trace));
   await selectKukiAction(page, "施放HP＞50%·完整7击", "kuki-burst-high-hp-complete-cast");
-  await page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]').selectOption("1");
+  await (await revealControl(page.locator('[data-kuki-state-field="gameContext.kukiDamage.statsStableAcrossHits"]'))).selectOption("1");
   await ratio.fill("0.5001");
   const high = await audit(page);
   expect(high.result.status).toBe("calculated");
@@ -133,12 +135,15 @@ function delayedHealthFixture() {
 test("Health startup Worker preserves due boundary tasks and extends the real tail before certifying periodic state", async ({ page }) => {
   const config = delayedHealthFixture();
   await page.goto("/results");
-  await page.locator("#importInput").setInputFiles({ name: "delayed-health-phase.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "delayed-health-phase.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator("#analysis-warmup-cycles").fill("9");
-  await page.locator("#analysis-warmup-energy").selectOption("configured");
-  await page.locator("#analysis-steady-run").click();
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
+  await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("9");
+  await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("configured");
+  await (await revealControl(page.locator("#analysis-steady-run"))).click();
   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
   await expect(page.locator("#analysis-startup-output")).toContainText("已从完整模拟检查点建立稳态");
   const report = await downloadJson<{ startup: SimulationStartupResult }>(page, "#analysis-export");
@@ -166,6 +171,6 @@ test("Health startup Worker preserves due boundary tasks and extends the real ta
   const frames = await ledger.locator("[data-player-health-event] td:first-child").allTextContents();
   expect(frames.every(value => Number(value.split("f")[0]) < 1080)).toBe(true);
   const lastHeal = ledger.locator('[data-player-health-operation="heal"]').last();
-  await lastHeal.locator("details > summary").click();
+  await (await revealControl(lastHeal.locator("details > summary"))).click();
   await expect(lastHeal.locator('[data-trace-node="health.after"]')).toContainText("5,000");
 });

@@ -1,0 +1,61 @@
+{
+  "schema": "iansan-120-kinich-candidate-lock-v1",
+  "candidateId": "iansan-kaeya-favonius-recharge-20261023",
+  "producerCommit": "e49f9d353bf85b7a2d3e0bf8e66cf5befd400896",
+  "baselineRequestSha256": "db8382760f42c0570ecea28e9f4eae9f34f2d13aa3192638982da8cc8683346c",
+  "files": {
+    "request.json": {
+      "name": "iansan-kaeya-recharge-20261023.request.json",
+      "sha256": "e9a3524c097cf110faad849a444680d27a032d633299a27f07bd0faa0cbb1413",
+      "bytes": 2232
+    },
+    "equipment.json": {
+      "name": "iansan-kaeya-recharge-20261023.equipment.json",
+      "sha256": "f158fd30624f692c1c893329592724c2ef3de745e396220de24ec5a77c817a99",
+      "bytes": 10365
+    },
+    "validation.json": {
+      "name": "iansan-kaeya-recharge-20261023.validation.json",
+      "sha256": "d4e866b5c336e0f9329e3a06d45a55d8139d3709ac35eda1afb6204143cb9f08",
+      "bytes": 31089
+    },
+    "gcsl": {
+      "name": "iansan-kaeya-recharge-20261023.gcsl",
+      "sha256": "046ecf61765f3494b64a00c814d1b37b4e2b42b277eb22c14d2fa35ca5715916",
+      "bytes": 1826
+    }
+  },
+  "nonEquipmentConfigSha256": "6401c743b37f2c64dd708edbe70acdab88dfcb48ed051cc8cf5a78f73ec33eaf",
+  "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "expectedPanels": {
+    "iansan": {
+      "energyRecharge": 2.5370681979999996,
+      "rawCritRate": 1.0028000000000001,
+      "clampedCritRate": 1,
+      "staticAttack": 2183.054293152904,
+      "artifactStats": {
+        "hp": 5078.75,
+        "cr": 0.9528000000000001,
+        "er": 1.2308,
+        "atk%": 0.9907000000000001,
+        "def": 115.75,
+        "atk": 349.9
+      }
+    },
+    "kaeya": {
+      "energyRecharge": 2.8053318020000004,
+      "rawCritRate": 1.0028000000000001,
+      "clampedCritRate": 1,
+      "staticAttack": 1560.7079266864205,
+      "artifactStats": {
+        "hp": 5078.75,
+        "cr": 0.9528000000000001,
+        "er": 0.9261,
+        "atk%": 0.8162000000000001,
+        "def": 115.75,
+        "atk": 330.45,
+        "cryo%": 0.466
+      }
+    }
+  }
+}

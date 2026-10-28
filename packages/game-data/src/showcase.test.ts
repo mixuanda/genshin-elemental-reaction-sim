@@ -1,3 +1,4 @@
+// Account identifiers below are synthetic; no real player identifier is required.
 import { describe, expect, it } from "vitest";
 import { runtimeDatasetMetadata } from "./runtime-metadata";
 import {
@@ -17,7 +18,7 @@ const rawShowcase = {
     {
       avatarId: 10000075,
       propMap: {
-        "4001": { type: 4001, ival: "100" }
+        "4001": { type: 4001, val: "100", ival: "100" }
       },
       talentIdList: [751, 752],
       skillLevelMap: { "10751": 10 },
@@ -73,9 +74,34 @@ const rawShowcase = {
 };
 
 describe("Enka showcase adapter", () => {
+  it.each([
+    { val: "90" },
+    { val: 90 },
+    { val: "90", ival: "1" }
+  ])("uses authoritative propMap.val for the UID level: %j", (levelProp) => {
+    const imported = parseEnkaShowcase({
+      ...rawShowcase,
+      avatarInfoList: [{ ...rawShowcase.avatarInfoList[0], propMap: { "4001": levelProp } }]
+    }, { uid: "900000003" });
+    expect(imported.characters[0]?.level).toBe(90);
+  });
+
+  it.each([
+    { val: "", ival: "90" },
+    { val: "0", ival: "90" },
+    { val: "90.5", ival: "90" },
+    { ival: "90" }
+  ])("keeps invalid or absent authoritative val unknown despite ival/summary: %j", (levelProp) => {
+    const imported = parseEnkaShowcase({
+      ...rawShowcase,
+      avatarInfoList: [{ ...rawShowcase.avatarInfoList[0], propMap: { "4001": levelProp } }]
+    }, { uid: "900000003" });
+    expect(imported.characters[0]?.level).toBeNull();
+  });
+
   it("validates and normalizes account data without turning it into a sim config", () => {
     const result = parseEnkaShowcase(rawShowcase, {
-      uid: "283733593",
+      uid: "900000001",
       fetchedAt: "2026-07-26T00:00:00.000Z"
     });
     expect(result.visibility).toBe("public");
@@ -104,7 +130,7 @@ describe("Enka showcase adapter", () => {
 
   it("keeps graduation state explicitly non-simulatable", () => {
     const result = parseEnkaShowcase(rawShowcase, {
-      uid: "283733593"
+      uid: "900000001"
     });
     const placeholder = createGraduationBuildPlaceholder(
       result.characters[0]!
@@ -133,7 +159,7 @@ describe("Enka showcase adapter", () => {
         ]
       },
       {
-        uid: "283733593",
+        uid: "900000001",
         fetchedAt: "2026-07-26T00:00:00.000Z"
       }
     );
@@ -201,7 +227,7 @@ describe("Enka showcase adapter", () => {
           }
         ]
       },
-      { uid: "283733593" }
+      { uid: "900000001" }
     );
     const resolved = resolveShowcaseCatalog(imported);
     expect(resolved.diagnostics).toEqual({
@@ -231,7 +257,7 @@ describe("Enka showcase adapter", () => {
           }
         ]
       },
-      { uid: "283733593" }
+      { uid: "900000001" }
     );
     const resolved = resolveShowcaseCatalog(imported);
     expect(resolved.diagnostics.unmatchedSkillIds).toEqual([]);
@@ -251,9 +277,23 @@ describe("Enka showcase adapter", () => {
           level: 60
         }
       },
-      { uid: "283733593" }
+      { uid: "900000001" }
     );
     expect(result.visibility).toBe("closed-or-empty");
     expect(result.characters).toEqual([]);
   });
+});
+
+it('preserves absent panel fields and level as unknown, distinct from legitimate zero', () => {
+  const missing = parseEnkaShowcase({playerInfo:{},avatarInfoList:[{avatarId:10000075,fightPropMap:{'28':0,'20':0,'30':0}}]}, {uid:'900000003'}).characters[0]!;
+  expect(missing.level).toBeNull();
+  expect(missing.stats.attack).toBeNull();
+  expect(missing.stats.critDamage).toBeNull();
+  expect(missing.stats.elementalMastery).toBe(0);
+  expect(missing.stats.critRate).toBe(0);
+  expect(missing.stats.damageBonuses.physical).toBe(0);
+  expect(missing.stats.damageBonuses.anemo).toBeNull();
+  for(const value of ['', '90.5', '0']) {
+    expect(parseEnkaShowcase({playerInfo:{showAvatarInfoList:[{avatarId:10000075,level:90}]},avatarInfoList:[{avatarId:10000075,propMap:{'4001':{val:value}},fightPropMap:{}}]}, {uid:'900000003'}).characters[0]!.level).toBeNull();
+  }
 });

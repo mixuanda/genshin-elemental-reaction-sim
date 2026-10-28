@@ -19,6 +19,7 @@ async function downloadJson<T>(page: Page, selector: string): Promise<T> {
 test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Lunar artifact conditions roundtrip and the Worker capture preserves the same formula context", async ({ page }) => {
   await page.goto("/calculator");
+  await page.locator("[data-calculator-example-tools] > summary").click();
   await page.locator("#calc-example-select").selectOption("special-artifact-flower-of-paradise-lost-4pc");
   await page.locator('[data-action="load-example"]').click();
   const artifact = page.locator('[data-special-artifact-kind][data-special-artifact-contributor="0"]');
@@ -53,6 +54,7 @@ test("Lunar artifact conditions roundtrip and the Worker capture preserves the s
   await expect(page.locator("#randomSeedInput")).toHaveValue(seed);
   await expect(page.locator("#cancelRunButton")).toBeHidden();
   await expect(page.locator("#exportRunButton")).toBeEnabled();
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("[data-lunar-profile]").selectOption("lunar-bloom");
   await page.locator('[data-lunar-party-index="0"]').selectOption("columbina");

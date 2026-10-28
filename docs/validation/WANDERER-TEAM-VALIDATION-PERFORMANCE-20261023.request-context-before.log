@@ -1,0 +1,327 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > compares every JSON field while ignoring object key order, never array order or values 2ms
+ × packages/sim-core/src/source-host-request-identity.test.ts > accepts a fresh complete receipt with reordered object properties without altering its frame arrays 457ms
+   → expected { …(25) } to deeply equal { …(25) }
+ × packages/sim-core/src/source-host-request-identity.test.ts > rejects native frame tampering even when numeric inputs and outputs match 162ms
+   → expected [Function] to throw an error
+ × packages/sim-core/src/source-host-request-identity.test.ts > rejects native actorIndex tampering even when numeric inputs and outputs match 143ms
+   → expected [Function] to throw an error
+ × packages/sim-core/src/source-host-request-identity.test.ts > rejects native actorKey tampering even when numeric inputs and outputs match 137ms
+   → expected [Function] to throw an error
+ × packages/sim-core/src/source-host-request-identity.test.ts > rejects native ability tampering even when numeric inputs and outputs match 141ms
+   → expected [Function] to throw an error
+ × packages/sim-core/src/source-host-request-identity.test.ts > rejects changed opaque request metadata rather than trusting only the scalar formula input 132ms
+   → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/source-host-request-identity.test.ts > accepts a fresh complete receipt with reordered object properties without altering its frame arrays
+AssertionError: expected { …(25) } to deeply equal { …(25) }
+
+- Expected
++ Received
+
+@@ -34067,11 +34067,55 @@
+      "wasmBytes": 43510567,
+      "wasmSha256": "0bf16a852e3fcd2d86bb342c7844d414507decc9f4c065c6e91b5b64eae9802b",
+    },
+    "executionMode": "auto-wait",
+    "explanationGaps": [
+-     "来源宿主导出实际属性读取、modifier 返回量与逐项加法；闭包内部转换、跨角色读取和部分直接事件修改尚未全部展开，完整数值复现仍不等于完整机制解释。",
++     "触发资格、目标选择、排队和状态生命周期沿用固定版本的原生执行；数值公式回放不等于独立核验全部游戏机制。",
++     "固定公式不重演来源角色的触发与生命周期；实际消费者与目标以本次 Go stat read 回执为准。",
++     "冷却修饰器 Amount 的条件与来源、充能队列和 worker 调度仍由固定 Go 宿主执行。",
++     "可用充能检查和队列空检查仍由固定 Go 宿主执行；b4 与 a7 保留各自的提前返回规则。",
++     "消耗触发条件与时点仍由固定 Go 宿主决定。",
++     "伤害 #10（Guhua Sword: Fatal Rainscreen 0）的攻击倍率 1.68 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #13（Guhua Sword: Fatal Rainscreen 1）的攻击倍率 1.912 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "粒子生成、接收者与时点仍由固定 Go 宿主决定；编辑仅重算本次已捕获的数值分配。",
++     "原生粒子应用不做下界截断；接收者与粒子来源由 Go 决定。",
++     "反应基数 #21（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #22（Oz (Summon)）的攻击倍率 1.1544 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #24（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #25（Thundering Retribution (A4)）的攻击倍率 0.8 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "本次专用反应伤害按已捕获的原生攻击快照及组件计算，但没有完整的 26 槽属性来源回执；未将其归因到不存在的 getter。",
++     "反应基数 #29（electrocharged）使用元素精通 0；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #34（Normal 0）的攻击倍率 0.46612 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #36（electrocharged）使用元素精通 0；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #37（Guhua Sword: Raincutter）的攻击倍率 0.54272 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #38（Guhua Sword: Raincutter）的攻击倍率 0.54272 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #41（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #42（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #43（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #44（Thundering Retribution (A4)）的攻击倍率 0.8 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #48（Normal 1）的攻击倍率 0.47644 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #53（Normal 2）的攻击倍率 0.28552 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #56（Normal 2）的攻击倍率 0.28552 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #58（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #63（Guhua Sword: Raincutter）的攻击倍率 0.54272 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #64（Guhua Sword: Raincutter）的攻击倍率 0.54272 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #65（Guhua Sword: Raincutter）的攻击倍率 0.54272 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #77（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #85（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #91（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #92（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #96（electrocharged）使用元素精通 0；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "反应基数 #99（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #100（Thundering Retribution (A4)）的攻击倍率 0.8 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #106（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #110（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #111（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "反应基数 #115（electrocharged）使用元素精通 0；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "反应基数 #122（electrocharged）使用元素精通 100；本次请求尚未保存该 EM 的属性读取回执，数值公式已展开但其面板来源未连接。",
++     "伤害 #123（Thundering Retribution (A4)）的攻击倍率 0.8 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #127（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
++     "伤害 #135（Oz (Skill)）的攻击倍率 0.888 来自原生字段；尚无可连接的天赋表读取或倍率生成公式。",
+    ],
+    "explanationStatus": "partial",
+    "formulaVersion": "shared-ast-source-host-v1",
+    "healingApplications": [],
+    "lifecycleObservationFrame": 720,
+@@ -40385,178 +40429,18 @@
+        "ordering": {
+          "src": 0,
+          "state": 1,
+        },
+      },
+-     {
+-       "char_index": 0,
+-       "ended": 328,
+-       "event": "icd",
+-       "frame": 328,
+-       "logs": {
+-         "grp": 0,
+-         "reset": 477,
+-         "tag": 0,
+-       },
+-       "msg": "damage reset timer set",
+-       "ordering": {
+-         "grp": 1,
+-         "reset": 2,
+-         "tag": 0,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 328,
+-       "event": "damage",
+-       "frame": 328,
+-       "logs": {
+-         "abil": "Xingqiu Orbital",
+-         "amp": "",
+-         "attack-tag": 0,
+-         "cata": "",
+-         "crit": false,
+-         "damage": 0,
+-         "ele": "hydro",
+-         "pre_damage_mods": [],
+-         "source_frame": 327,
+-         "target": 1,
+-       },
+-       "msg": "Xingqiu Orbital",
+-       "ordering": {
+-         "abil": 7,
+-         "amp": 5,
+-         "attack-tag": 1,
+-         "cata": 6,
+-         "crit": 4,
+-         "damage": 3,
+-         "ele": 2,
+-         "pre_damage_mods": 9,
+-         "source_frame": 8,
+-         "target": 0,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 328,
+-       "event": "element",
+-       "frame": 328,
+-       "logs": {
+-         "abil": "Xingqiu Orbital",
+-         "after": [
+-           "hydro: 20.000",
+-         ],
+-         "applied_ele": "hydro",
+-         "attack_tag": 0,
+-         "dur": 25,
+-         "existing": [
+-           "hydro: 18.596",
+-         ],
+-         "target": 1,
+-       },
+-       "msg": "application",
+-       "ordering": {
+-         "abil": 3,
+-         "after": 6,
+-         "applied_ele": 1,
+-         "attack_tag": 0,
+-         "dur": 2,
+-         "existing": 5,
+-         "target": 4,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 332,
+-       "event": "icd",
+-       "frame": 332,
+-       "logs": {
+-         "grp": 0,
+-         "tag": 56,
+-       },
+-       "msg": "damage counter reset",
+-       "ordering": {
+-         "grp": 1,
+-         "tag": 0,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 332,
+-       "event": "icd",
+-       "frame": 332,
+-       "logs": {
+-         "grp": 0,
+-         "tag": 56,
+-       },
+-       "msg": "ele app counter reset",
+-       "ordering": {
+-         "grp": 1,
+-         "tag": 0,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 349,
+-       "event": "icd",
+-       "frame": 349,
+-       "logs": {
+-         "grp": 0,
+-         "tag": 31,
+-       },
+-       "msg": "damage counter reset",
+-       "ordering": {
+-         "grp": 1,
+-         "tag": 0,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 349,
+-       "event": "icd",
+-       "frame": 349,
+-       "logs": {
+-         "grp": 0,
+-         "tag": 31,
+-       },
+-       "msg": "ele app counter reset",
+-       "ordering": {
+-         "grp": 1,
+-         "tag": 0,
+-       },
+-     },
+-     {
+-       "char_index": 0,
+-       "ended": 363,
+-       "event": "energy",
+-       "frame": 363,
+-       "logs": {
+-         "ER": 1.812531802,
+-         "amt": 1.812531802,
+-         "count": 1,
+-         "ele": "electro",
+-         "is_active": true,
+-         "max_energy": 80,
+-         "party_count": 2,
+-         "post_recovery": 36.25063604,
+-         "pre_recovery": 34.438104238,
+-         "source": "fischl",
+-       },
+-       "msg": "particle",
+-       "ordering": {
+-         "ER": 3,
+-         "amt": 7,
+-         "count": 1,
+-         "ele": 2,
+-         "is_active": 4,
+-         "max_energy": 9,
+-         "party_count": 5,
+-         "post_recovery": 8,
+-         "pre_recovery": 6,
+-         "source": 0,
+-       },
+-     },
++     [Object],
++     [Object],
++     [Object],
++     [Object],
++     [Object],
++     [Object],
++     [Object],
++     [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+
+ ❯ packages/sim-core/src/source-host-request-identity.test.ts:30:79
+     28|
+     29| it("accepts a fresh complete receipt with reordered object properties …
+     30|   expect(createSourceHostResult(reverseKeys(capture), resolver.calcula…
+       |                                                                               ^
+     31| });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  packages/sim-core/src/source-host-request-identity.test.ts > rejects native frame tampering even when numeric inputs and outputs match
+ FAIL  packages/sim-core/src/source-host-request-identity.test.ts > rejects native actorIndex tampering even when numeric inputs and outputs match
+ FAIL  packages/sim-core/src/source-host-request-identity.test.ts > rejects native actorKey tampering even when numeric inputs and outputs match
+ FAIL  packages/sim-core/src/source-host-request-identity.test.ts > rejects native ability tampering even when numeric inputs and outputs match
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ packages/sim-core/src/source-host-request-identity.test.ts:40:72
+     38|   if (field === "frame" || field === "actorIndex") row.request[field]+…
+     39|   else row.request[field] += "-forged";
+     40|   expect(() => createSourceHostResult(altered, resolver.calculations))…
+       |                                                                        ^
+     41| });
+     42|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  packages/sim-core/src/source-host-request-identity.test.ts > rejects changed opaque request metadata rather than trusting only the scalar formula input
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ packages/sim-core/src/source-host-request-identity.test.ts:48:72
+     46|   if (row.request.kind !== "damage") throw new Error("A damage fixture…
+     47|   row.request.rawAttack.forensic = { owner: 999, ordered: [2, 1] };
+     48|   expect(() => createSourceHostResult(altered, resolver.calculations))…
+       |                                                                        ^
+     49| });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  18:58:29
+   Duration  3.36s (transform 1.23s, setup 0ms, import 1.98s, tests 1.17s, environment 0ms)
+

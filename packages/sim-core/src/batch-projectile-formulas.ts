@@ -16,9 +16,17 @@ const actionIds = new Set([
   "klee-skill-complete-cast-c0",
   "chevreuse-burst-complete-cast-c0",
   "neuvillette-skill-complete-cast-c0-arkhe-ready",
+  "neuvillette-skill", // Independent HP hit shares the same explicit A4 accounting.
   "freminet-skill-initial-complete-cast-c0-arkhe-ready",
   ...["press", "hold", "overcharged"].map(form => `chevreuse-skill-${form}-complete-cast-c0-arkhe-ready`),
 ]);
+// Exact source roles only: main attacks retain their independent reaction eligibility.
+const zeroApplicationArkheHits: Readonly<Record<string, string>> = {
+  "freminet-skill-initial-complete-cast-c0-arkhe-ready": "freminet-skill-initial-complete-cast-c0-arkhe-ready-param2",
+  "chevreuse-skill-press-complete-cast-c0-arkhe-ready": "chevreuse-skill-press-complete-cast-c0-arkhe-ready-param7",
+  "chevreuse-skill-hold-complete-cast-c0-arkhe-ready": "chevreuse-skill-hold-complete-cast-c0-arkhe-ready-param7",
+  "chevreuse-skill-overcharged-complete-cast-c0-arkhe-ready": "chevreuse-skill-overcharged-complete-cast-c0-arkhe-ready-param7",
+};
 const prefix = "batch-projectile-cast:";
 const assumptionPrefix = "组合技能来源记账：";
 export const isBatchProjectileCastAction = (document: CalculatorDocument): boolean => actionIds.has(document.gameContext?.skillId ?? "");
@@ -122,6 +130,17 @@ export function prepareBatchProjectileCastDocument(document: CalculatorDocument)
     context.hitStates[hit.id] ??= {};
     hit.dependencies = hit.dependencies.filter(id => !id.startsWith(prefix));
     if (fullCast) hit.dependencies.push(fullId);
+    // This source constraint also applies to Freminet, which intentionally has
+    // no Neuvillette/Chevreuse passive-state requirements below.
+    if (hit.kind === "ordinary" && zeroApplicationArkheHits[game.skillId] === hit.id) {
+      const id = `${prefix}zero-application:${hit.id}`;
+      const incompatible = hit.reaction !== "none" || hit.additiveReaction !== undefined;
+      const sourceRefs = [...new Set([...hit.sourceRefs, `${sourceRoot}/pkg/enemy/attack.go`])];
+      hit.dependencies.push(id);
+      result.dependencies.push({ id, status: incompatible ? "missing" : "provisional",
+        reason: incompatible ? "The source-defined Arkhe strike has zero elemental application and cannot trigger amplifying or additive reactions." : "The source-defined zero-application Arkhe strike has no reaction assigned.",
+        sourceRefs });
+    }
     if (game.skillId === "klee-skill-complete-cast-c0") hit.sourceRefs = [...new Set([...hit.sourceRefs, ...BATCH_PROJECTILE_KLEE_SOURCE_REFS])];
     if (hit.kind !== "ordinary" || (!neuvillette && !chevreuse)) continue;
     if (neuvillette) delete hit.damageBonusFormula;
@@ -133,6 +152,13 @@ export function prepareBatchProjectileCastDocument(document: CalculatorDocument)
     const reasons: string[] = [];
     if (ascension === undefined) reasons.push("缺少本击实际突破阶段，无法判定来源被动是否解锁。");
     if (neuvillette) {
+      // Pinned skill.go distinguishes the HP body (Durability25) from this
+      // exact ATK-scaled thorn (Durability0). Hydro damage alone cannot react.
+      if (game.skillId === "neuvillette-skill-complete-cast-c0-arkhe-ready"
+        && hit.id === "neuvillette-skill-complete-cast-c0-arkhe-ready-param2"
+        && (hit.reaction !== "none" || hit.additiveReaction !== undefined)) {
+        reasons.push("The source-defined Spiritbreath Thorn has zero elemental application and cannot trigger amplifying or additive reactions.");
+      }
       if ((ascension === undefined || ascension >= 4) && state.actualHpRatio === undefined) reasons.push("缺少本击取样时的实际生命比例，不能默认满血或默认A4为0。");
       if (state.includedHydroBonus === undefined) reasons.push("缺少本击输入增伤已含的A4水伤份额；0才表示明确未含。");
       if (ascension !== undefined && (ascension < 4 || state.actualHpRatio !== undefined) && state.includedHydroBonus !== undefined) hit.damageBonusFormula = createNeuvilletteA4CastFormula(ascension, state);

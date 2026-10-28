@@ -1,0 +1,14 @@
+test_icd_pools_are_per_actor_tag_and_reset_tie_requires_order_evidence (__main__.SavedAuraAcceptance.test_icd_pools_are_per_actor_tag_and_reset_tie_requires_order_evidence) ... ok
+test_rejects_changed_native_icd_decision (__main__.SavedAuraAcceptance.test_rejects_changed_native_icd_decision) ... ok
+test_rejects_changed_observed_aura_without_using_it_as_input (__main__.SavedAuraAcceptance.test_rejects_changed_observed_aura_without_using_it_as_input) ... ok
+test_rejects_durin_refresh_before_the_actual_reaction (__main__.SavedAuraAcceptance.test_rejects_durin_refresh_before_the_actual_reaction) ... ok
+test_rejects_merging_c6_into_normal_attack_icd (__main__.SavedAuraAcceptance.test_rejects_merging_c6_into_normal_attack_icd) ... ok
+test_rejects_positive_gauge_on_a_nicole_projection (__main__.SavedAuraAcceptance.test_rejects_positive_gauge_on_a_nicole_projection) ... ok
+test_rejects_unproven_clock_halt_instead_of_guessing_decay (__main__.SavedAuraAcceptance.test_rejects_unproven_clock_halt_instead_of_guessing_decay) ... ok
+test_saved_capture_from_empty_aura_and_source_icd (__main__.SavedAuraAcceptance.test_saved_capture_from_empty_aura_and_source_icd) ... ok
+test_source_timer_expiry_before_and_after_and_two_source_fire_consumption (__main__.SavedAuraAcceptance.test_source_timer_expiry_before_and_after_and_two_source_fire_consumption) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.866s
+
+OK

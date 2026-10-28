@@ -243,3 +243,23 @@ describe("executed trace graphs", () => {
     expect(traceText("toString")).toBe("toString");
   });
 });
+
+it('indexed trace IDs retain failed-add and child-order validation with identical locale formatting',()=>{
+ const b=new TraceBuilder();
+ expect(()=>b.add('later','later',expr.value(1),[],{childIds:['missing']})).toThrow('Unknown');
+ b.add('later','later',expr.value(-0.000000125),[],{displayDigits:9});
+ expect(()=>b.add('later','duplicate',expr.value(2),[])).toThrow('Duplicate');
+ for(let digits=0;digits<=15;digits++){
+  b.add(`d${digits}`,'decimal',expr.value(12345.6789012345),[],{displayDigits:digits,childIds:['later']});
+  expect(b.nodes.at(-1)!.result!.display).toBe(new Intl.NumberFormat('zh-CN',{maximumFractionDigits:digits}).format(12345.6789012345));
+ }
+ expect(Object.isFrozen(b.nodes[0])).toBe(true);
+});
+
+it('trusts recursively owned trace children but never external shallow-frozen objects',async()=>{
+ const {isImmutableTraceNode}=await import('../calculation-trace');
+ const input=traceInput('atk',12);const b=new TraceBuilder();b.add('hit','hit',expr.input('atk'),[input]);
+ const node=b.nodes[0]!;expect(isImmutableTraceNode(node)).toBe(true);expect(isImmutableTraceNode(node.inputs)).toBe(true);expect(isImmutableTraceNode(node.inputs[0]!)).toBe(true);
+ expect(isImmutableTraceNode(input)).toBe(false);expect(isImmutableTraceNode(Object.freeze({nested:{value:1}}))).toBe(false);
+ expect(()=>{(node.inputs[0] as any).value=99;}).toThrow();expect(node.inputs[0]!.value).toBe(12);
+});

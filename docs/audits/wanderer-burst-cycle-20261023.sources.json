@@ -1,0 +1,48 @@
+{
+  "scope": "Classic only; saved upstream implementation and extracted talent text, not game-certified timing",
+  "classicCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "stellarCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "stellarStatus": "same upstream C2 Amount pattern observed; no 137 registration/build/verification in this change",
+  "upstreamHashes": {
+    "internal/characters/wanderer/cons.go": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371",
+    "internal/characters/wanderer/burst.go": "7e5d27192b504c64c6ae77c28044f200deb42edacb766993fba557af31b1f5cd",
+    "internal/characters/wanderer/skill.go": "0d0c449c12770964407d081f26fdbde5822a73f19616f61136a3b824f0d1eba1",
+    "internal/characters/wanderer/attack.go": "f9d407581c920c4909e9577742126f68ac47a6021fa1c2b463527a8833f6efa5",
+    "internal/characters/wanderer/wanderer.go": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd",
+    "internal/characters/wanderer/zz_wanderer.dm.go": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+    "internal/characters/wanderer/asc.go": "f418a0abcf94b94a6c2f9220d42547720593a6ba38333c3236d09773b0b8faa1",
+    "internal/characters/wanderer/charge.go": "39a59af65e63e53aefaea2def40b5d2bca8359fab7016ad91674b7d31212feb4"
+  },
+  "priorPatchedHashes": {
+    "internal/characters/wanderer/cons.go": "b9eb5043728a3585f9eed1fd8033a47ce431add22f0cc847f7cfc08de11a996f",
+    "internal/characters/wanderer/burst.go": "503d903e4add652d7ff8d06497f8d5ef326a875dad41c95f4dc527cbd08e4f63",
+    "internal/characters/wanderer/skill.go": "a1b5e3ca7e56afcfe8e41c3c089a22d48df9b80f6bfd26efd4587b0ca20fa4bf",
+    "internal/characters/wanderer/attack.go": "db770ea6ed5c4d86a501f1acdb985ca0b7663448872dcdd47de23931ce90eab6",
+    "internal/characters/wanderer/wanderer.go": "5b99342d4adb30f912712499fe973b11bde4b9466d80ebf7b16363990c6d8051",
+    "internal/characters/wanderer/zz_wanderer.dm.go": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+    "internal/characters/wanderer/asc.go": "d9ce452cb6010019cc70b3fd3115df224931079903839e53a7930ad3a5cf725c",
+    "internal/characters/wanderer/charge.go": "b24b74588c4c42e9cb57f974ae8cecf22224de35753da205fb53353d3bbc722d"
+  },
+  "captureSha256": "5d737b64f5e5f73fe22508a3bc0ad38e50525be9c74b875a482e0936b89587e8",
+  "wasmSha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
+  "fixtureSha256": "0a30173ef2d82501616110158d3fdab06900814762c762d5cee18137d44326bc",
+  "talentText": {
+    "package": "genshin-db@5.2.12",
+    "commit": "1bab2cdba4d218fd5caa46b5f54e7884ee8359a2",
+    "packedDataSha256": "ed67decfbb3785be5c62b0eda1ed5433cae210fa98e107641defa2fb576488e0",
+    "publicUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/1bab2cdba4d218fd5caa46b5f54e7884ee8359a2/src/data/English/constellations/wanderer.json",
+    "EnglishC2": {
+      "name": "Niban: Isle Amidst White Waves",
+      "descriptionRaw": "When in the <color=#FFD780FF>Windfavored</color> state, <color=#FFD780FF>Kyougen: Five Ceremonial Plays</color> will see its DMG increased by 4% per point of difference between the max amount of Kuugoryoku Points contrasted with Kuugoryoku's present capacity when using this skill.\nThrough this method, you can increase Kyougen: Five Ceremonial Plays's DMG by a maximum of 200%.",
+      "description": "When in the Windfavored state, Kyougen: Five Ceremonial Plays will see its DMG increased by 4% per point of difference between the max amount of Kuugoryoku Points contrasted with Kuugoryoku's present capacity when using this skill.\nThrough this method, you can increase Kyougen: Five Ceremonial Plays's DMG by a maximum of 200%."
+    },
+    "EnglishC4": {
+      "name": "Yonban: Set Adrift into Spring",
+      "descriptionRaw": "When casting <color=#FFD780FF>Hanega: Song of the Wind</color>, should the Ascension Talent \"Jade-Claimed Flower\" be triggered, the character will gain buffs in correspondence to the contacted Elemental Type(s), and also obtain a random untriggered buff. A maximum of 3 such corresponding elemental buffs can exist simultaneously.\nYou must first unlock the Ascension Talent \"Jade-Claimed Flower.\"",
+      "description": "When casting Hanega: Song of the Wind, should the Ascension Talent \"Jade-Claimed Flower\" be triggered, the character will gain buffs in correspondence to the contacted Elemental Type(s), and also obtain a random untriggered buff. A maximum of 3 such corresponding elemental buffs can exist simultaneously.\nYou must first unlock the Ascension Talent \"Jade-Claimed Flower.\""
+    }
+  },
+  "patch": "packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch",
+  "patchSha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+  "correctedClassicWasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e"
+}

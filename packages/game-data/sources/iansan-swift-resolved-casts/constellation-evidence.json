@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "scope": "C0-C6 current actual Swift and witnessed Q refresh only; original skillId and immutable source bundle unchanged",
+  "supplements": [
+    "manifest.json",
+    "active-burst-evidence.json"
+  ],
+  "sourceArchiveSha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec",
+  "additionalArchiveIdentities": [
+    {
+      "archiveKey": "gcsim/pkg/core/combat/attack.go",
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "bytes": 2494,
+      "computedGitBlobSha1": "b56ff487f078ee302b6bec9a9616697de1dc88e5",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/attack.go"
+    },
+    {
+      "archiveKey": "gcsim/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607,
+      "computedGitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/attack.go"
+    },
+    {
+      "archiveKey": "gcsim/pkg/core/player/character/hitlag.go",
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "bytes": 1566,
+      "computedGitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "archiveKey": "gcsim/pkg/core/player/character/mods.go",
+      "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+      "bytes": 9924,
+      "computedGitBlobSha1": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go"
+    },
+    {
+      "archiveKey": "gcsim/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345,
+      "computedGitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json",
+      "sha256": "c571a86a8924789e8b05dbf1809c254434fda367681fdd4d4aae158ff73cfb6e",
+      "bytes": 9247,
+      "computedGitBlobSha1": "7a734a605d4fd5c7c5bd4afae4da6ef160c80202",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json"
+    }
+  ],
+  "consGoIdentity": {
+    "path": "internal/characters/iansan/cons.go",
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/cons.go",
+    "bytes": 2352,
+    "sha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+    "computedGitBlobSha1": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a",
+    "identityLimit": "Downloaded fixed raw URL, computed byte/blob hashes; no claim of independent tree verification. Original source is not copied into this supplement."
+  },
+  "facts": {
+    "c1": {
+      "energyRestored": 15,
+      "consumedNightsoulThreshold": 6,
+      "cooldownSeconds": 18,
+      "directHitModifier": 0,
+      "scope": "Energy/resource effect only; actual NS at Q update is an observation, not a generated timeline."
+    },
+    "c2": {
+      "ownA1AttackPercent": 0.2,
+      "ownA1GrantSeconds": 15,
+      "otherRecipientAttackPercent": 0.3,
+      "sourceEffect": "c2OnBurst invokes a1AddBuff before the immediate Q ATK update. Owner receives ordinary20% baseATK A1 when unlocked, never the separate30% recipient modifier.",
+      "recipientDifference": "gcsim cons.go c2Init skips the owner but checks A1 only, without an explicit owner-off-field predicate. Optimizer constrains the active target; original description requires owner off field. This supplement does not invent one unified team-recipient formula or patch native behavior."
+    },
+    "c3": {
+      "effectiveSkillLevelBonus": 3,
+      "swiftNormalLevelBonus": 0,
+      "scope": "E level only; existing resolved Swift uses actual effective NA level."
+    },
+    "c4": {
+      "extraNightsoulPerStack": 4,
+      "overflowRefundRatio": 0.5,
+      "scope": "Two stacks from another active party member Q during marker; actual NS restorations/overflow affect future update inputs. No direct hit multiplier or automatic replay of NS history."
+    },
+    "c5": {
+      "effectiveBurstLevelBonus": 3,
+      "scope": "Only already-effective independent burstTalentLevel controls Q cap. Numeric helper and Swift do not add3 again."
+    },
+    "c6": {
+      "burstDurationIncreaseSeconds": 3,
+      "receivedBuffDurationSeconds": 3,
+      "damageBonus": 0.25,
+      "scope": "Actual restoration overflow grants a3s AttackMod to the character active at that grant. Requires actual received effect at this hit; current NS54 or Q active does not prove it. AttackMods apply at damage, not as a new Q-refresh ATK input."
+    }
+  },
+  "a1LifetimeInference": {
+    "decision": "Keep actual A1 state explicit for independent snapshots; current Q active alone is not a complete lifetime proof. No defaulttrue and no50% own buff.",
+    "sharedHitlag": "Q status and A1 StatMod are hitlag-affected on the same owner, but modifier.Add replaces the entire A1 modifier on Swift callback and does not preserve old hitlag extension.",
+    "order": "Swift permits Q24f; its25f attack applies actor hitlag before the end-of-frame enemy callback grants/replaces A1. See charge.go31-36/97-109; combat/attack.go70-84; enemy/attack.go62-78; modifier.go86-104.",
+    "c6Countermodel": {
+      "kind": "Source-order modifier-expiry arithmetic, not a native simulation or claimed complete legal resource rotation",
+      "qCastFrame": 24,
+      "initialQAndA1Expiry": 924,
+      "swiftImpactFrame": 25,
+      "actorHitlagExtension": 3,
+      "qExpiryAfterSwiftHitlag": 927,
+      "replacedA1ExpiryAtFrameEnd": 925,
+      "qOwnImpactFrame": 62,
+      "qOwnHitlagExtension": 2,
+      "finalQExpiry": 929,
+      "finalA1Expiry": 927,
+      "result": "Even same-owner hitlag does not preserve equal expiry after modifier replacement. Q-active does not force A1-active at927-928f in this modifier countermodel."
+    }
+  },
+  "limits": [
+    "No new Q/NS/energy/cooldown/overflow/recipient timeline.",
+    "No C2 teammate30% added to the owner or silently folded into owner Q source ATK.",
+    "No current-panel reconstruction of earlier Q refresh operands.",
+    "No automatic C6 activation from Q/NS/overflow amount; actual holder and active effect must be witnessed.",
+    "Frozen snapshots must already contain the actual C6 contribution; changed constellation/state/effective level cannot reuse an old identity.",
+    "Source/Golden/native modules unchanged; fixed community implementations are not current-game certification."
+  ]
+}

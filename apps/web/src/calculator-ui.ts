@@ -1,4 +1,18 @@
+import { isReadonlySourceFormulaInput, restoreCalculatorFormulaAnswers } from "./calculator-formula-drafts";
+import { importSessionPolicy } from './import-session-policy';
+import {canCreateAlhaithamActualPanelDraft,createAlhaithamActualPanelDraft} from './alhaitham-final-panel-draft';
+import {applyTighnariDamageContext,resetTighnariPanelAccounting} from './tighnari-calculation-context';
+import type { ManualEffectiveTalents } from './player-import-manual-talents';
+import {captureKazuhaImportedDamageBonuses} from '../../../packages/sim-core/src/kazuha-burst-formulas';
+import {renderTighnariControls} from './calculator-tighnari-controls';
 import { mountObservedSkillComposition } from "./calculator-observed-composition";
+import { collectCalculatorRequirements } from "./calculator-requirements";
+import { calculatorActionDisplayName, calculatorResultDisplayName } from "./calculator-action-display";
+import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
+import { bindFaruzanHurricaneTalent } from "./faruzan-calculation-talents";
+import type { SourceCharacterActionKind } from "./source-action-capabilities";
+import { applyFaruzanEPanelExcludesOwnEffectsDeclaration } from "./calculator-faruzan-panel-declaration";
+import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { parseObservedSkillComposition, type ObservedSkillCompositionDocument } from "../../../packages/sim-core/src/observed-skill-composition";
 import { renderArtifactUtilityCalculator } from "./artifact-utility-calculator";
 import { calculatorTraceExecutionDetails } from "./calculator-trace-view";
@@ -39,6 +53,7 @@ import { releasedRuntimeWorkspace, loadPreviewWorkspace, availablePreviewDataset
 import { weaponProcDefinitions, LUNAR_ARTIFACT_BONUS_RULES, type LunarArtifactBonus } from "@genshin-dps-lab/reaction-formulas";
 import type { CatalogResolvedShowcaseCharacter } from "@genshin-dps-lab/schemas";
 import type { EquipmentBuildResolution, EquipmentBuildInput } from "@genshin-dps-lab/game-data/equipment-build";
+import { prepareNicoleSkillInitialEquipmentInput } from "../../../packages/sim-core/src/nicole-skill-initial-weapon-refresh";
 import {
   calculateDocument,
   prepareIncomingThrillingTales,
@@ -74,10 +89,14 @@ import {
 } from "@genshin-dps-lab/sim-core";
 import "./calculator.css";
 import { createWorkspaceCalculatorTrust } from "./calculator-workspace-trust";
+import { createCalculatorRequiredControls } from "./calculator-required-controls";
+import { buildCharacterOutputs, renderCharacterOutputs } from "./calculator-character-outputs";
 import { resolveEquipmentBuild } from "@genshin-dps-lab/game-data/equipment-build";
+import { renderSkillTimingNotice } from "./player-result-summary";
 import { renderTraceHtml } from "./calculator-trace-view";
 export { renderTraceHtml } from "./calculator-trace-view";
 import { applyImportedCalculatorPanel } from "./calculator-import";
+import { hasKnownImportedTalent } from "./imported-talents";
 import { getCharacterDocuments, applyCharacterConstellationScope, applyNoelleBurstContext, applyIttoChargedContext, applyYanfeiChargedContext, applyKeqingBurstContext, applyXingqiuSkillContext, applyNingguangBurstContext, resetKeqingPanelAccounting, applyKukiDamageContext, resetKukiPanelAccounting } from "./character-calculations";
 import { renderIttoControls } from "./calculator-itto-controls";
 import { renderYanfeiControls } from "./calculator-yanfei-controls";
@@ -105,10 +124,10 @@ import { renderTravelerCrossEntityControls, applyTravelerCrossEntityDraft, captu
 import { renderZibaiFiniteControls, applyZibaiFiniteDraft, captureZibaiFiniteDraft, ZIBAI_FINITE_DRAFT_FIELD, editZibaiFiniteDraft, hasZibaiFiniteDraft, renderZibaiFiniteDraft, resetZibaiFiniteDraft } from "./calculator-zibai-finite-controls";
 
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-const number = (value: number | undefined): string => value === undefined ? "不适用" : value.toLocaleString("zh-CN", { maximumFractionDigits: 6 });
+const number = (value: number | null | undefined): string => value === null ? "未知" : value === undefined ? "不适用" : value.toLocaleString("zh-CN", { maximumFractionDigits: 6 });
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const CHARACTER_RESOURCE_DRAFT_FIELD = "observed-character-resource-draft";
-const statLabels: Record<string, string> = { atk: "攻击力", hp: "生命值", def: "防御力", em: "元素精通", critRate: "暴击率（小数）", critDamage: "暴击伤害（小数）", energyRecharge: "元素充能效率（1 = 100%）" };
+const statLabels: Record<string, string> = { atk: "ATK", hp: "HP", def: "DEF", em: "Elemental mastery", critRate: "CRIT rate (decimal)", critDamage: "CRIT DMG (decimal)", energyRecharge: "Energy recharge (1 = 100%)" };
 const statuses: Record<string, string> = { applied: "已应用", "not-applicable": "不适用", assumed: "条件假定", blocked: "数据阻塞" };
 const units: Record<string, string> = { ratio: "倍率 / 比例", damage: "伤害", stat: "面板数值", level: "等级" };
 const exampleCategoryLabel = (category: string): string => ({ synthetic: "合成教学", "source-backed-game": "真实角色 · 来源交叉核对（暂定）", "verified-game": "完整依赖已核验", blocked: "缺证据，已阻塞" })[category] ?? category;
@@ -125,6 +144,7 @@ export interface CalculatorUiOptions {
 }
 
 export interface CalculatorEquipmentBuildMeta {
+  sessionOnly?: true;
   constellation: number;
   baseTalentLevels: { auto: number; skill: number; burst: number };
   label?: string;
@@ -167,6 +187,7 @@ function equipmentTalentLevels(characterId: string, meta: CalculatorEquipmentBui
   }
   if (!levels.size) throw new Error("此角色尚无可映射的普攻、战技或爆发天赋定义。");
   assumptions.unshift(`配装天赋绑定：普攻基础 ${meta.baseTalentLevels.auto}、战技基础 ${meta.baseTalentLevels.skill}、爆发基础 ${meta.baseTalentLevels.burst}；命座 C${meta.constellation}。每种动作独立选择有效来源等级。`);
+  if (meta.label) assumptions.unshift(`配装来源：${meta.label}`);
   return { meta: clone(meta), levels, assumptions };
 }
 
@@ -177,7 +198,7 @@ export interface CalculatorController {
   loadExample(id: string): void;
   loadSimulationCapture(capture: CapturedSimulationHit): void;
   loadSourceHostCapture(capture: SourceHostHitCapture | SourceHostEditableCalculation | SourceHostActionCollection | SourceHostEventCollection | SourceHostPlayerIncomingCapture | SourceHostPlayerIncomingEditable | SourceHostEnergyCapture | SourceHostEnergyEditable | SourceHostCooldownCapture | SourceHostCooldownEditable | SourceHostHealingCapture | SourceHostHealingEditable | SourceHostCharacterShieldCapture | SourceHostCharacterShieldEditable | SourceHostDrainCapture | SourceHostDrainEditable): void;
-  loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source?: string): Promise<void>;
+  loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source?: string, manualEffectiveTalents?: ManualEffectiveTalents): Promise<void>;
   loadEquipmentBuild(input: EquipmentBuildInput, meta: CalculatorEquipmentBuildMeta): Promise<void>;
   renderExamples(container: HTMLElement): void;
   getDocument(): CalculatorDocument | null;
@@ -197,6 +218,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   let candidateDocuments: CalculatorDocument[] = [];
   let importedCharacter: CatalogResolvedShowcaseCharacter | null = null;
   let importedTalentBinding = false;
+  let importedManualTalents: ManualEffectiveTalents | null = null;
   let equipmentTalentBinding: EquipmentTalentBinding | null = null;
   let importedSource = "";
   let selectionRequest = 0;
@@ -204,18 +226,23 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   const invalidFields = new Set<string>();
   const characterDrafts = new Map<string, CalculatorDocument>();
   const actionDrafts = new Map<string, CalculatorDocument>();
+  // A temporary action without Q context must not erase explicitly entered Noelle history.
+  const noelleContextDrafts = new Map<string, NonNullable<NonNullable<CalculatorDocument["gameContext"]>["noelleBurst"]>>();
   let selectedForm = "";
+  let activeExampleId: string | null = null;
   let equipmentControls: { refreshCharacter(): void; getInput(): EquipmentBuildInput; setInput(input: EquipmentBuildInput): void } | null = null;
 
   root.classList.add("calculator-shell");
-  root.innerHTML = `<header class="calculator-header"><div><div class="eyebrow">DAMAGE LAB · CALCULATOR</div><h2>单技能伤害计算器</h2><p>从一次命中到一次完整施放。独立填写面板、目标与条件，即可查看每一步公式、实际代入和结果。</p></div><div class="calculator-toolbar"><button type="button" data-action="source-single-skill">单角色技能执行</button><button type="button" data-action="examples">可编辑例题</button><button type="button" data-action="observed-composition">完整施放 / 观察区间</button><button type="button" data-action="composition-save-component" hidden>保存本段并返回汇总</button><button type="button" data-action="composition-cancel-component" hidden>放弃本段编辑并返回</button><button type="button" data-action="export">导出计算 JSON</button><label class="file-button">导入计算 JSON<input type="file" id="calc-import" accept="application/json,.json"></label></div></header>` +
-    `<div id="calc-message" role="status" aria-live="polite"></div><section id="calc-source-host-capture" hidden></section><section id="calc-source-single-skill" hidden><button type="button" id="calc-source-single-skill-close">返回公式与条件输入</button><div id="calc-source-single-skill-body"></div></section><div class="calculator-layout"><div class="calculator-controls">` +
-    `<fieldset><legend>数据与技能</legend><p><button type="button" data-action="build-presets">浏览全角色小毕业 / 大毕业配装</button></p><label>数据工作区<select id="calc-workspace"><option value="released">已发布目录</option><option value="preview"${availablePreviewDatasets.length ? "" : " disabled"}>隔离预览${availablePreviewDatasets.length ? "" : "（尚无真实快照）"}</option></select></label><label id="calc-preview-snapshot-control" hidden>预览版本<select id="calc-preview-snapshot">${availablePreviewDatasets.map(data => `<option value="${esc(data.snapshotId)}"${data.snapshotId === runtimeSelection.previewWorkspaceSnapshotId ? " selected" : ""}>${esc(data.gameVersion)} · ${data.snapshotId === runtimeSelection.previewWorkspaceSnapshotId ? "当前预览" : "历史快照"} · ${esc(data.snapshotId.slice(9, 21))}</option>`).join("")}</select></label><p id="calc-workspace-status" class="calculator-hint"></p><label>当前工作区角色<select id="calc-character"><option value="">选择角色；教学例题另列</option>${workspace.index.characters.map(c => `<option value="${esc(c.id)}">${esc(c.name)} · 待核实目录</option>`).join("")}</select></label><label id="calc-form-control" hidden>元素 / 战斗形态<select id="calc-form"></select></label><label>技能 / 动作<select id="calc-skill" disabled><option value="">先选择角色，或加载教学例题</option></select></label><label>有效天赋等级<input id="calc-talent-level" type="number" min="1" max="15" step="1" value="10" disabled></label><div id="calc-imported-binding" hidden><p class="calculator-hint">各动作使用其绑定的有效天赋等级，不共用一个等级；配装的基础等级只加算明确映射的命座增级。</p><button type="button" data-action="manual-talents">改为手动天赋等级</button></div><p class="calculator-hint">正式目录默认使用已有定义的 C0 条件；公开导入保留真实命座，按所选命中判断相关依赖。有效天赋等级读取对应的精确来源值，不重复增加命座等级。</p><div id="calc-character-status" class="calculator-hint">角色目录仅提供身份；具体命中依赖完整时才显示结果。</div><div class="calculator-preset-row"><label>例题与来源实例<select id="calc-example-select">${["synthetic", "source-backed-game", "verified-game"].map(category => `<optgroup label="${esc(exampleCategoryLabel(category))}">${WORKED_EXAMPLES.filter(e => e.category === category).map(e => `<option value="${esc(e.id)}">${esc(e.title)}</option>`).join("")}</optgroup>`).join("")}</select></label><button type="button" data-action="load-example">载入例题</button></div></fieldset>` +
-    `<fieldset id="calc-weapon-proc-controls"><legend>武器独立追击</legend><div class="calculator-preset-row"><label>追击来源<select id="calc-proc-weapon">${weaponProcDefinitions.map(weapon => `<option value="${weapon.weaponId}">${esc(weapon.weaponName)} · ${weapon.scalingStat === "atk" ? "攻击力" : "最大生命"}缩放</option>`).join("")}</select></label><label>精炼<select id="calc-proc-refinement">${[1, 2, 3, 4, 5].map(refinement => `<option value="${refinement}">R${refinement}</option>`).join("")}</select></label><button type="button" data-action="load-weapon-proc">打开独立追击计算</button></div><label id="calc-proc-trigger-aura-control" hidden>原触发目标在回调时是否附着冰／冻结<select id="calc-proc-trigger-aura"><option value="">未知，请明确填写</option><option value="0">否，使用普通倍率</option><option value="1">是，使用冰／冻结条件倍率</option></select><small>整次范围追击共用原触发目标的这次状态，不取当前受击目标的附着；未知时不生成伤害。</small></label><p class="calculator-hint">计算一次已经触发并命中的武器追击，不需要创建队伍。首次载入为明确的可编辑教学面板，请替换为实际取样属性；改变武器或精炼时保留当前追击面板和目标。来源倍率固定，结果仍为条件计算。</p></fieldset>` +
-    `<fieldset><legend>公开展示柜</legend><div class="calculator-import-row"><label>UID<input id="calc-showcase-uid" inputmode="numeric" autocomplete="off" placeholder="9–10 位 UID"></label><button type="button" data-action="showcase">读取公开数据</button></div><p class="calculator-hint">只读取 Enka 公开展示。导入最终面板不再次加上装备属性。</p><div id="calc-showcase-status" role="status" aria-live="polite"></div><div id="calc-showcase-characters"></div></fieldset>` +
-    `<fieldset id="calc-equipment-controls"><legend>装备基础推导</legend><p class="calculator-hint">选择正式角色后，可按精确等级、突破与合法武器查表。未选择真实角色时保持教学数值独立。</p></fieldset><div id="calc-document-controls" class="calculator-full"></div></div><div id="calc-results" aria-live="polite"></div></div><section id="calc-artifact-utility" aria-label="圣遗物生存与探索计算"></section>`;
+  root.innerHTML = `<header class="calculator-header"><div><div class="eyebrow">DAMAGE LAB · CALCULATOR</div><h2>Skill calculator</h2><p>Choose a character and action, edit your build and scenario, then see your damage.</p></div><details class="calculator-tools"><summary>More calculation tools</summary><div class="calculator-toolbar"><button type="button" data-action="source-single-skill">Action simulator (Normal / Charged / E / Q)</button><button type="button" class="calculator-secondary-action" data-action="examples">Reference examples</button><button type="button" data-action="observed-composition">Full cast / observed window</button><button type="button" data-action="composition-save-component" hidden>Save component & return</button><button type="button" data-action="composition-cancel-component" hidden>Discard component changes</button><button type="button" data-action="export">Export calculation JSON</button><label class="file-button">Import calculation JSON<input type="file" id="calc-import" accept="application/json,.json"></label></div></details></header>` +
+    `<div class="calculator-entry-actions" data-calculator-player-entry><button type="button" class="primary" data-action="import-build">Import character / build</button><button type="button" data-action="choose-character">Choose character</button></div><aside class="calculator-example-mode" data-calculator-example-mode hidden>You are editing a reference example, not your own character build.<button type="button" data-action="choose-character">Return to character calculator</button></aside><div id="calc-message" role="status" aria-live="polite"></div><section id="calc-source-host-capture" hidden></section><section id="calc-source-single-skill" hidden><button type="button" id="calc-source-single-skill-close">Back to skill calculator</button><div id="calc-source-single-skill-body"></div></section><div class="calculator-layout"><nav class="calculator-section-nav" aria-label="Calculator sections"><button type="button" data-calculator-section="character">Character & action</button><button type="button" data-calculator-section="build">Build & stats</button><button type="button" data-calculator-section="conditions">Scenario</button><button type="button" data-calculator-section="results">Damage result</button></nav><div class="calculator-controls">` +
+    `<fieldset data-calculator-character-step><legend>Character & action</legend><div class="calculator-fields"><label>Character<select id="calc-character"><option value="">Choose your character</option>${workspace.index.characters.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select></label><label id="calc-form-control" hidden>Element / combat form<select id="calc-form"></select></label><label>Skill / action<select id="calc-skill" disabled><option value="">Choose a character first</option></select></label><label>Effective talent level<input id="calc-talent-level" type="number" min="1" max="15" step="1" value="9" disabled></label></div><div id="calc-imported-binding" hidden><p class="calculator-hint">Each action uses its own effective talent level. Only explicitly mapped constellation bonuses are added to base levels.</p><button type="button" data-action="manual-talents">Edit talent levels manually</button></div><div id="calc-character-status" class="calculator-hint">Choose a character to see supported actions. Default talent level: 9; imported levels are preserved.</div><p><button type="button" data-action="build-presets">Choose or edit build</button></p><details data-calculator-catalog-settings><summary>Advanced: data version & sources</summary><label>Data workspace<select id="calc-workspace"><option value="released">Released catalog</option><option value="preview"${availablePreviewDatasets.length ? "" : " disabled"}>Isolated preview${availablePreviewDatasets.length ? "" : " (no snapshot available)"}</option></select></label><label id="calc-preview-snapshot-control" hidden>预览版本<select id="calc-preview-snapshot">${availablePreviewDatasets.map(data => `<option value="${esc(data.snapshotId)}"${data.snapshotId === runtimeSelection.previewWorkspaceSnapshotId ? " selected" : ""}>${esc(data.gameVersion)} · ${data.snapshotId === runtimeSelection.previewWorkspaceSnapshotId ? "当前预览" : "历史快照"} · ${esc(data.snapshotId.slice(9, 21))}</option>`).join("")}</select></label><p id="calc-workspace-status" class="calculator-hint"></p><p id="calc-character-support-status" class="calculator-hint"></p><p class="calculator-hint">正式目录默认使用已有定义的 C0 条件；公开导入保留真实命座，按所选命中判断相关依赖。有效天赋等级读取对应的精确来源值，不重复增加命座等级。</p></details></fieldset>` +
+    `<div id="calc-document-controls" class="calculator-full"></div><details data-calculator-example-tools><summary>Reference examples (optional)</summary><p class="calculator-hint">仅在想查看算例时载入；示例不会作为默认角色或配装。</p><div class="calculator-preset-row"><label>例题与来源实例<select id="calc-example-select">${["synthetic", "source-backed-game", "verified-game"].map(category => `<optgroup label="${esc(exampleCategoryLabel(category))}">${WORKED_EXAMPLES.filter(e => e.category === category).map(e => `<option value="${esc(e.id)}">${esc(e.title)}</option>`).join("")}</optgroup>`).join("")}</select></label><button type="button" data-action="load-example">载入例题</button></div></details>` +
+    `<details><summary>Weapon follow-up damage (optional)</summary><fieldset id="calc-weapon-proc-controls"><legend>武器独立追击</legend><div class="calculator-preset-row"><label>追击来源<select id="calc-proc-weapon">${weaponProcDefinitions.map(weapon => `<option value="${weapon.weaponId}">${esc(weapon.weaponName)} · ${weapon.scalingStat === "atk" ? "ATK" : "最大生命"}缩放</option>`).join("")}</select></label><label>精炼<select id="calc-proc-refinement">${[1, 2, 3, 4, 5].map(refinement => `<option value="${refinement}">R${refinement}</option>`).join("")}</select></label><button type="button" data-action="load-weapon-proc">打开独立追击计算</button></div><label id="calc-proc-trigger-aura-control" hidden>原触发目标在回调时是否附着冰／冻结<select id="calc-proc-trigger-aura"><option value="">未知，请明确填写</option><option value="0">否，使用普通倍率</option><option value="1">是，使用冰／冻结条件倍率</option></select><small>整次范围追击共用原触发目标的这次状态，不取当前受击目标的附着；未知时不生成伤害。</small></label><p class="calculator-hint">计算一次已经触发并命中的武器追击，不需要创建队伍。首次载入为明确的可编辑教学面板，请替换为实际取样属性；改变武器或精炼时保留当前追击面板和目标。来源倍率固定，结果仍为条件计算。</p></fieldset></details>` +
+    `<details data-calculator-showcase><summary>Read a public showcase (optional)</summary><fieldset><legend>公开展示柜</legend><div class="calculator-import-row"><label>UID<input id="calc-showcase-uid" inputmode="numeric" autocomplete="off" placeholder="9–10 位 UID"></label><button type="button" data-action="showcase">读取公开数据</button></div><p class="calculator-hint">只读取 Enka 公开展示。导入最终面板不再次加上装备属性。</p><div id="calc-showcase-status" role="status" aria-live="polite"></div><div id="calc-showcase-characters"></div></fieldset></details>` +
+    `<details data-calculator-equipment-editor><summary>Weapon & artifact editor</summary><fieldset id="calc-equipment-controls"><legend>装备基础推导</legend><p class="calculator-hint">选择正式角色后，可按精确等级、突破与合法武器查表。未选择真实角色时保持教学数值独立。</p></fieldset></details></div><div class="calculator-results-column"><div id="calc-results" aria-live="polite"></div><section id="calc-character-outputs" hidden></section></div></div><details><summary>Artifact utility tools</summary><section id="calc-artifact-utility" aria-label="圣遗物生存与探索计算"></section></details>`;
   renderArtifactUtilityCalculator(root.querySelector<HTMLElement>("#calc-artifact-utility")!);
   const get = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+  const inlineRequirements = createCalculatorRequiredControls(root);
   const message = (text: string, error = false): void => { get("#calc-message").textContent = text; get("#calc-message").className = error ? "calculator-error" : "calculator-hint"; };
   const sourceDraftHandlers: Array<{
     key: keyof NonNullable<CalculatorDocument["gameContext"]>; field: string; prefix: string; input: string; editor: string; status: string;
@@ -277,6 +304,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   function applyEquipmentResolution(resolution: EquipmentBuildResolution): void {
     if (!current || current.dataIdentity.releaseStatus === "synthetic" || characterId !== resolution.build.equipment.characterId) throw new Error("请先选择具有已分类命中定义的正式角色技能。装备属性不会替代缺失的角色天赋。");
     const next = clone(current);
+    if (next.gameContext) {
+      delete next.gameContext.manualEffectiveTalents;
+      delete next.gameContext.importedPanelDamageBonuses;
+    }
     markEditedSourceExample(next, true);
     next.build = resolution.build;
     next.characterLevel = resolution.characterLevel;
@@ -296,6 +327,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (doc.gameContext?.keqingBurst) doc.gameContext.keqingBurst.a4IncludedInPanel = false;
       resetKeqingPanelAccounting(doc, "fresh-equipment");
       resetKukiPanelAccounting(doc, "fresh-equipment");
+      resetTighnariPanelAccounting(doc, "fresh-equipment");
       resetBaizhuPanelAccounting(doc, "fresh-equipment");
       resetCharlottePanelAccounting(doc, "fresh-equipment");
       resetIncomingThrillingTalesPanelAccounting(doc, "fresh-equipment");
@@ -320,7 +352,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     clearPreviousEquipmentEffects(next);
     for (const draft of actionDrafts.values()) if (draft.gameContext?.characterId === characterId) clearPreviousEquipmentEffects(draft);
     equipmentDrafts.delete(equipmentKey(next));
-    importedCharacter = null; importedTalentBinding = false;
+    importedCharacter = null; importedTalentBinding = false; importedManualTalents = null;
     get("#calc-imported-binding").hidden = !equipmentTalentBinding;
     get<HTMLInputElement>("#calc-talent-level").disabled = equipmentTalentBinding !== null;
     loadDocument(applyCharacterConstellationScope(next, workspace), true);
@@ -336,6 +368,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (!equipmentControls) equipmentControls = mountEquipmentControls(get("#calc-equipment-controls"), {
         dataset: workspace,
         getCharacterId: () => characterId || null,
+        prepareInput: input => {
+          if (!current) return input;
+          const prepared = prepareNicoleSkillInitialEquipmentInput(current, input, workspace);
+          if (prepared.blocked) throw new Error(prepared.reason ?? "请先补齐本次E的条件，再应用这套配装。");
+          return prepared.input;
+        },
         onResolve: applyEquipmentResolution
       });
     }
@@ -374,7 +412,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (workspace.channel === "preview") get<HTMLSelectElement>("#calc-preview-snapshot").value = workspace.metadata.snapshotId;
     const status = get("#calc-workspace-status");
     status.className = workspace.channel === "preview" ? "calculator-status provisional" : "calculator-hint";
-    status.textContent = `${workspace.channel === "preview" ? "隔离预览 · 不参与已发布验证比较" : "已发布目录"} · ${workspace.metadata.gameVersion} · ${workspace.metadata.snapshotId}。源发布状态：${workspace.metadata.releaseStatus}。${workspace.channel === "preview" ? "只使用此快照的目录和数值；没有来源映射的内容保持缺失。" : "只有正式晋升且本次相关依赖完整时才显示已核验。"}`;
+    status.textContent = `${workspace.channel === "preview" ? "隔离预览 · 不参与已发布验证比较" : "Released catalog"} · ${workspace.metadata.gameVersion} · ${workspace.metadata.snapshotId}。源发布状态：${workspace.metadata.releaseStatus}。${workspace.channel === "preview" ? "只使用此快照的目录和数值；没有来源映射的内容保持缺失。" : "只有正式晋升且本次相关依赖完整时才显示已核验。"}`;
     for (const selector of ['[data-action="showcase"]', '[data-action="load-weapon-proc"]', '[data-action="load-example"]']) get<HTMLButtonElement>(selector).disabled = workspace.channel === "preview";
   }
 
@@ -390,9 +428,9 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       else { url.searchParams.delete("workspace"); url.searchParams.delete("snapshot"); }
       window.history.replaceState(window.history.state, "", url);
       ++selectionRequest;
-      current = null; currentResult = null; capturedHit = null; characterId = ""; candidateDocuments = [];
-      importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
-      characterDrafts.clear(); actionDrafts.clear(); equipmentDrafts.clear(); invalidFields.clear();
+      current = null; currentResult = null; capturedHit = null; characterId = ""; candidateDocuments = []; activeExampleId = null;
+      importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+      characterDrafts.clear(); actionDrafts.clear(); noelleContextDrafts.clear(); equipmentDrafts.clear(); invalidFields.clear();
       equipmentControls = null;
       get("#calc-equipment-controls").innerHTML = "<legend>装备基础推导</legend>";
       get<HTMLSelectElement>("#calc-character").innerHTML = '<option value="">选择当前工作区角色</option>' + workspace.index.characters.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
@@ -423,7 +461,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (!current?.gameContext?.noelleBurst) return;
     current = applyNoelleBurstContext(current, current.gameContext.noelleBurst, workspace);
     if (current.build.mode === "imported-final" && importedCharacter) {
-      for (const hit of current.hits) if (hit.kind === "ordinary") hit.damageBonus = importedCharacter.stats.damageBonuses[hit.element] ?? 0;
+      for (const hit of current.hits) if (hit.kind === "ordinary") {
+        const bonus = importedCharacter.stats.damageBonuses[hit.element];
+        if (bonus === null || bonus === undefined) { blockCharacter(`导入缺少 ${hit.element} 伤害加成；不能假定为 0。请补齐后重新导入。`); return; }
+        hit.damageBonus = bonus;
+      }
     }
     if (current.gameContext?.skillId === "noelle-burst-cast") get<HTMLInputElement>("#calc-talent-level").value = String(current.gameContext.effectiveTalentLevel);
     // Keep the edited input mounted when focus moves to the next condition.
@@ -439,7 +481,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (!current?.gameContext?.ittoCharged) return;
     current = applyIttoChargedContext(current, current.gameContext.ittoCharged, workspace);
     if (current.build.mode === "imported-final" && importedCharacter) {
-      for (const hit of current.hits) if (hit.kind === "ordinary") hit.damageBonus = importedCharacter.stats.damageBonuses[hit.element] ?? 0;
+      for (const hit of current.hits) if (hit.kind === "ordinary") {
+        const bonus = importedCharacter.stats.damageBonuses[hit.element];
+        if (bonus === null || bonus === undefined) { blockCharacter(`导入缺少 ${hit.element} 伤害加成；不能假定为 0。请补齐后重新导入。`); return; }
+        hit.damageBonus = bonus;
+      }
     }
     for (const input of root.querySelectorAll<HTMLInputElement>('[data-hit-editor] input[readonly][data-field], [data-ttds-controls] input[readonly][data-field]')) {
       let value: unknown = current;
@@ -463,6 +509,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (current.gameContext?.baizhuSkill) current = applyBaizhuSkillContext(current, current.gameContext.baizhuSkill);
     if (current.gameContext?.colleiSkill) current = applyColleiSkillContext(current, current.gameContext.colleiSkill);
     if (current.gameContext?.charlotteSkill) current = applyCharlotteSkillContext(current, current.gameContext.charlotteSkill);
+    if(current.gameContext?.tighnariDamage) current=applyTighnariDamageContext(current,current.gameContext.tighnariDamage);
     if (current.gameContext?.kukiDamage) current = applyKukiDamageContext(current, current.gameContext.kukiDamage);
     if (current.gameContext?.ningguangBurst) current = applyNingguangBurstContext(current, current.gameContext.ningguangBurst);
     if (current.gameContext?.keqingBurst) current = applyKeqingBurstContext(current, current.gameContext.keqingBurst);
@@ -507,7 +554,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       return `<p class="calculator-hint">${esc(context.branch)} · 规则 ${esc(context.ruleVersion)}。本段由上方来源条件、共用构筑或明确历史快照解析。请在上方来源状态与实际记录区域填写本击输入；普通增伤不会自动加入特殊反应。核心执行后，实际采用的面板、被动份额与每步代入在本段结果轨迹中展示。缺少实际事件时保持阻塞，不把模板中的占位值当作实际伤害入口。</p>`;
     }
     const resolved = context.context.mode === "state-resolved";
-    const labels: Record<string, string> = { elementalMastery: "元素精通", specialBaseBonus: "专属基础提升（小数）", reactionBonus: context.branch.startsWith("lunar-") ? "额外手动反应加成（不含下方套装条款）" : "专属反应加成（小数）", specialAdditive: "特殊反应加算伤害", elevationMultiplier: "擢升总倍率（1 = 无提升）", critRate: "独立暴击率（0–1）", critDamage: "独立暴击伤害（小数）" };
+    const labels: Record<string, string> = { elementalMastery: "Elemental mastery", specialBaseBonus: "专属基础提升（小数）", reactionBonus: context.branch.startsWith("lunar-") ? "额外手动反应加成（不含下方套装条款）" : "专属反应加成（小数）", specialAdditive: "特殊反应加算伤害", elevationMultiplier: "擢升总倍率（1 = 无提升）", critRate: "独立暴击率（0–1）", critDamage: "独立暴击伤害（小数）" };
     const provenance = context.context.mode === "state-resolved" ? `实际参考配置事件 ${esc(context.context.sourceEventId)}，取样 ${context.context.snapshotFrame} 帧、结算 ${context.context.deliveryFrame} 帧；参与者与元素量消费已由执行器解析。此快照只读，固定来源参考配置仍不等于完整官服机制核验。` : "启用、参与资格和状态计数均为条件假设，未证明完整实战机制。";
     return `<p class="calculator-hint">${esc(context.branch)} · 规则 ${esc(context.ruleVersion)}。下列参与者最终数值是本分支的实际入口；上方普通面板、防御与普通增伤不参与此特殊公式。${provenance}</p>${resolved ? `<button type="button" data-action="copy-special-context" data-special-copy="${index}">创建条件化编辑副本</button>` : ""}<label>特殊反应启用条件<select data-special-enablement="${index}"${resolved ? " disabled" : ""}>${resolved ? '<option value="resolved-enabled" selected>实际状态执行器已解析启用</option>' : Object.entries({ "assumed-enabled": "明确假定已启用", disabled: "未启用（阻塞特殊公式）", unknown: "未知（阻塞）" }).map(([value, label]) => `<option value="${value}"${context.context.enablement === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>${field(`hits.${index}.context.effectiveResistance`, "特殊伤害相关元素抗性（小数）", context.effectiveResistance)}${context.polestarApplicationCount === undefined ? "" : field(`hits.${index}.context.polestarApplicationCount`, "假定极星领域计数（0–12）", context.polestarApplicationCount, 'min="0" max="12" step="1"')}` + context.contributors.map((contributor, ci) => {
       const path = `hits.${index}.context.contributors.${ci}`;
@@ -524,14 +571,14 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (hit.elementalMasteryAdjustment) formulas.unshift({ path: "elementalMasteryAdjustment.formula", label: "本命中的来源精通调整", formula: hit.elementalMasteryAdjustment.formula });
     if (hit.incomingThrillingTalesFormula) formulas.unshift({ path: "incomingThrillingTalesFormula", label: "本命中的外部讨龙攻击差值", formula: hit.incomingThrillingTalesFormula });
     if (hit.attackAdjustment) formulas.unshift({ path: "attackAdjustment.formula", label: "本命中的来源攻击调整（由角色状态条件生成）", formula: hit.attackAdjustment.formula });
-    const accounting = hit.elementalMasteryAdjustment && !current?.gameContext?.kukiDamage && !current?.gameContext?.travelerCryo && !current?.gameContext?.travelerCryoStateCast && !current?.gameContext?.travelerCrossEntityCast && !current?.gameContext?.observedSpecialComponent && !current?.gameContext?.neferPhantasmCast && !current?.gameContext?.zibaiFiniteCast ? `<div class="calculator-full"><label>本命中精通增益与面板的关系<select data-em-accounting="${index}"><option value="already-in-final-panel"${hit.elementalMasteryAdjustment.accounting === "already-in-final-panel" ? " selected" : ""}>输入面板已包含此增益，不再加入</option><option value="add-to-panel"${hit.elementalMasteryAdjustment.accounting === "add-to-panel" ? " selected" : ""}>输入面板尚未包含，按下方本命中条件加入</option></select></label><p class="calculator-hint">本命中的实际精通同时用于技能缩放与精通反应。各段可以处于不同增益状态；转换为最终面板时保留这个逐段选择，不把某一段的增益加到整个角色。来源增益的生效状态与技能消耗资源分别填写。</p></div>` : "";
+    const accounting = hit.elementalMasteryAdjustment && !current?.gameContext?.tighnariDamage && !current?.gameContext?.kukiDamage && !current?.gameContext?.travelerCryo && !current?.gameContext?.travelerCryoStateCast && !current?.gameContext?.travelerCrossEntityCast && !current?.gameContext?.observedSpecialComponent && !current?.gameContext?.neferPhantasmCast && !current?.gameContext?.zibaiFiniteCast ? `<div class="calculator-full"><label>本命中精通增益与面板的关系<select data-em-accounting="${index}"><option value="already-in-final-panel"${hit.elementalMasteryAdjustment.accounting === "already-in-final-panel" ? " selected" : ""}>输入面板已包含此增益，不再加入</option><option value="add-to-panel"${hit.elementalMasteryAdjustment.accounting === "add-to-panel" ? " selected" : ""}>输入面板尚未包含，按下方本命中条件加入</option></select></label><p class="calculator-hint">本命中的实际精通同时用于技能缩放与精通反应。各段可以处于不同增益状态；转换为最终面板时保留这个逐段选择，不把某一段的增益加到整个角色。来源增益的生效状态与技能消耗资源分别填写。</p></div>` : "";
     return accounting + formulas.map(({ path: formulaPath, label: formulaLabel, formula }) => {
-      const sourceCastFormula = Boolean(current?.gameContext?.travelerCryo || current?.gameContext?.batchProjectileCast || current?.gameContext?.batchPeriodicCast || current?.gameContext?.batchFiniteCast || current?.gameContext?.coordinatedCast || current?.gameContext?.heldLifecycleCast || current?.gameContext?.finiteFollowupCast || current?.gameContext?.observedEntityCast || current?.gameContext?.travelerMaleChargedCast || current?.gameContext?.periodicOrdinaryCast || current?.gameContext?.idleStanceCast) && /^(traveler-cryo-|batch-|coordinated-|held-|finite-followup:|observed-|male-charged-|periodic-ordinary:|idle-stance-)/.test(formula.ruleId) || Boolean(current?.gameContext?.entityFollowupCast) && /^(jahoda-|nicole-)/.test(formula.ruleId) || Boolean(current?.gameContext?.mixedSourceCast) && formula.ruleId.startsWith("mixed-") || Boolean(current?.gameContext?.extendedStanceCast) && formula.ruleId.startsWith("extended-stance-") || Boolean(current?.gameContext?.travelerCryoStateCast) && formula.ruleId.startsWith("traveler-cryo-state") || Boolean(current?.gameContext?.travelerCrossEntityCast) && formula.ruleId.startsWith("traveler-cross-entity:") || Boolean(current?.gameContext?.travelerHydroResolvedCast) && formula.ruleId.startsWith("traveler-hydro-resolved:") || Boolean(current?.gameContext?.iansanSwiftResolvedCast) && formula.ruleId.startsWith("iansan-swift-resolved:") || Boolean(current?.gameContext?.zibaiFiniteCast) && formula.ruleId.startsWith("zibai-finite") || Boolean(current?.gameContext?.neferPhantasmCast) && formula.ruleId.startsWith("nefer-phantasm-") || Boolean(current?.gameContext?.observedCharacterResources) && formula.ruleId.startsWith("observed-lohen-resource:") || Boolean(current?.gameContext?.observedPlunge) && formula.ruleId.startsWith("observed-plunge:");
+      const sourceCastFormula = Boolean(current?.gameContext?.nicoleSkillInitial) && formula.ruleId.startsWith("nicole-skill-initial:") || Boolean(current?.gameContext?.wandererPrimary) && formula.ruleId.startsWith("wanderer-primary-") || Boolean(current?.gameContext?.durinBurst) && formula.ruleId.startsWith("durin-white-q-") || Boolean(current?.gameContext?.faruzanBurstInitial) && formula.ruleId.startsWith("faruzan-burst-initial:") || Boolean(current?.gameContext?.alhaithamDamage) && ["alhaitham-damage-projection-trigger-em-b4ae769","alhaitham-damage-a4-impact-em-b4ae769","alhaitham-damage-c2-snapshot-em-b4ae769","alhaitham-damage-a4-c4-snapshot-b4ae769","alhaitham-damage-c6-snapshot-cr-b4ae769","alhaitham-damage-c6-snapshot-cd-b4ae769"].includes(formula.ruleId) || Boolean(current?.gameContext?.arlecchinoDamage) && ["arlecchino-damage-pre-consumption-bond-base-b4ae769","arlecchino-damage-passive-pyro-accounting-b4ae769","arlecchino-damage-c6-crit-rate-b4ae769","arlecchino-damage-c6-crit-damage-b4ae769"].includes(formula.ruleId) || Boolean(current?.gameContext?.hutaoDamage) && ["hutao-damage-e-hp-to-extra-atk-b4ae769","hutao-damage-a4-low-hp-b4ae769","hutao-damage-c6-crit-rate-b4ae769"].includes(formula.ruleId) || Boolean(current?.gameContext?.kazuhaBurst) && formula.ruleId.startsWith("kazuha-burst-") || Boolean(current?.gameContext?.cynoDamage) && formula.ruleId.startsWith("cyno-damage-") || Boolean(current?.gameContext?.kinichDamage) && formula.ruleId.startsWith("kinich-damage-") || Boolean(current?.gameContext?.gamingDamage) && formula.ruleId.startsWith("gaming-damage-") || Boolean(current?.gameContext?.xiaoDamage) && formula.ruleId.startsWith("xiao-damage-") || Boolean(current?.gameContext?.durinSkill) && formula.ruleId.startsWith("durin-c2-") || Boolean(current?.gameContext?.travelerCryo || current?.gameContext?.batchProjectileCast || current?.gameContext?.batchPeriodicCast || current?.gameContext?.batchFiniteCast || current?.gameContext?.coordinatedCast || current?.gameContext?.heldLifecycleCast || current?.gameContext?.finiteFollowupCast || current?.gameContext?.observedEntityCast || current?.gameContext?.travelerMaleChargedCast || current?.gameContext?.periodicOrdinaryCast || current?.gameContext?.idleStanceCast) && /^(traveler-cryo-|batch-|coordinated-|held-|finite-followup:|observed-|male-charged-|periodic-ordinary:|idle-stance-)/.test(formula.ruleId) || Boolean(current?.gameContext?.entityFollowupCast) && /^(jahoda-|nicole-)/.test(formula.ruleId) || Boolean(current?.gameContext?.mixedSourceCast) && formula.ruleId.startsWith("mixed-") || Boolean(current?.gameContext?.extendedStanceCast) && formula.ruleId.startsWith("extended-stance-") || Boolean(current?.gameContext?.travelerCryoStateCast) && formula.ruleId.startsWith("traveler-cryo-state") || Boolean(current?.gameContext?.travelerCrossEntityCast) && formula.ruleId.startsWith("traveler-cross-entity:") || Boolean(current?.gameContext?.travelerHydroResolvedCast) && formula.ruleId.startsWith("traveler-hydro-resolved:") || Boolean(current?.gameContext?.iansanSwiftResolvedCast) && formula.ruleId.startsWith("iansan-swift-resolved:") || Boolean(current?.gameContext?.zibaiFiniteCast) && formula.ruleId.startsWith("zibai-finite") || Boolean(current?.gameContext?.neferPhantasmCast) && formula.ruleId.startsWith("nefer-phantasm-") || Boolean(current?.gameContext?.observedCharacterResources) && formula.ruleId.startsWith("observed-lohen-resource:") || Boolean(current?.gameContext?.observedPlunge) && formula.ruleId.startsWith("observed-plunge:");
       return `<div class="calculator-full"><p class="calculator-hint">${esc(formula.label)} · 规则 ${esc(formula.ruleId)}。${formulaLabel}按来源表达式执行；面板变量由共享核心注入，资源、层数和其他贡献值在下方明确输入。${formula.requirements?.minimumAscension === undefined ? "" : `此公式要求突破阶段至少 ${formula.requirements.minimumAscension}，实际资格由核心判断。`}${formula.requirements?.minimumConstellation === undefined ? "" : `最低命座 C${formula.requirements.minimumConstellation}。`}${formula.requirements?.maximumConstellation === undefined ? "" : `最高适用命座 C${formula.requirements.maximumConstellation}。`}</p><div class="calculator-fields">${formula.inputs.map((input, ii) => {
-        const attributes = [sourceCastFormula || Boolean(current?.weaponProc) && formula.ruleId.startsWith("weapon-proc-") || formulaPath === "incomingThrillingTalesFormula" || !synthetic && (input.origin === "source-table" || formulaPath === "attackAdjustment.formula" || (current?.gameContext?.ittoCharged && formula.ruleId.startsWith("itto-")) || (current?.gameContext?.yanfeiCharged && formula.ruleId.startsWith("yanfei-")) || (current?.gameContext?.keqingBurst && formula.ruleId.startsWith("keqing-")) || (current?.gameContext?.xingqiuSkill && formula.ruleId.startsWith("xingqiu-")) || (current?.gameContext?.ningguangBurst && formula.ruleId.startsWith("ningguang-")) || (current?.gameContext?.kukiDamage && formula.ruleId.startsWith("kuki-")) || (current?.gameContext?.baizhuSkill && formula.ruleId.startsWith("baizhu-")) || (current?.gameContext?.charlotteSkill && formula.ruleId.startsWith("charlotte-"))) ? 'readonly aria-readonly="true"' : "", input.minimum === undefined ? "" : `min="${input.minimum}"`, input.maximum === undefined ? "" : `max="${input.maximum}"`, input.integer ? 'step="1"' : ""].filter(Boolean).join(" ");
+        const attributes = [sourceCastFormula || Boolean(current?.weaponProc) && formula.ruleId.startsWith("weapon-proc-") || formulaPath === "incomingThrillingTalesFormula" || (isReadonlySourceFormulaInput(input, synthetic) || !synthetic && (formulaPath === "attackAdjustment.formula" || (current?.gameContext?.ittoCharged && formula.ruleId.startsWith("itto-")) || (current?.gameContext?.yanfeiCharged && formula.ruleId.startsWith("yanfei-")) || (current?.gameContext?.keqingBurst && formula.ruleId.startsWith("keqing-")) || (current?.gameContext?.xingqiuSkill && formula.ruleId.startsWith("xingqiu-")) || (current?.gameContext?.ningguangBurst && formula.ruleId.startsWith("ningguang-")) || (current?.gameContext?.kukiDamage && formula.ruleId.startsWith("kuki-")) || (current?.gameContext?.baizhuSkill && formula.ruleId.startsWith("baizhu-")) || (current?.gameContext?.charlotteSkill && formula.ruleId.startsWith("charlotte-")))) ? 'readonly aria-readonly="true"' : "", input.minimum === undefined ? "" : `min="${input.minimum}"`, input.maximum === undefined ? "" : `max="${input.maximum}"`, input.integer ? 'step="1"' : ""].filter(Boolean).join(" ");
         const path = `hits.${index}.${formulaPath}.inputs.${ii}.value`;
         const label = `${calculatorTraceText(input.meaningKey)}（${units[input.unit] ?? input.unit}）${input.ownerId ? ` · ${input.ownerId}` : ""}`;
-        if (input.allowedValues) return `<label>${esc(label)}<select data-field="${path}"${sourceCastFormula || Boolean(current?.weaponProc) && formula.ruleId.startsWith("weapon-proc-") || !synthetic && input.origin === "source-table" ? " disabled" : ""}>${input.allowedValues.map(value => `<option value="${value}"${value === input.value ? " selected" : ""}>${value}</option>`).join("")}</select><small>仅列出当前来源已核对的条件输入档位。</small></label>`;
+        if (input.allowedValues) return `<label>${esc(label)}<select data-field="${path}"${sourceCastFormula || Boolean(current?.weaponProc) && formula.ruleId.startsWith("weapon-proc-") || isReadonlySourceFormulaInput(input, synthetic) ? " disabled" : ""}>${input.allowedValues.map(value => `<option value="${value}"${value === input.value ? " selected" : ""}>${value}</option>`).join("")}</select><small>仅列出当前来源已核对的条件输入档位。</small></label>`;
         return field(path, label, input.value, attributes);
       }).join("")}</div></div>`;
     }).join("");
@@ -543,8 +590,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const equipment = doc.build.mode === "equipment-derived" ? doc.build.equipment : undefined;
     const ascension = equipment?.ascension ?? (doc.build.mode !== "equipment-derived" ? doc.build.ascension : undefined) ?? context.ascension;
     const weaponName = equipment ? workspace.index.weapons.find(w => w.id === equipment.weaponId)?.name ?? equipment.weaponId : "";
-    const coverage = result.aggregation.scope === "single-hit" ? "单次命中" : result.aggregation.scope === "complete-cast" ? "所述条件下一次施放的完整已定义集合" : result.aggregation.scope === "declared-hit-set" ? "本例明确声明的命中集合" : "所选已定义分段合计；不是完整施放总伤";
-    return `<dl class="calculator-identity" data-testid="calc-game-identity"><dt>角色 / 形态</dt><dd>${esc(context.characterName)}${context.variantName ? ` · ${esc(context.variantName)}` : ""}<small>${esc(context.characterId)}${context.variantId ? ` / ${esc(context.variantId)}` : ""}</small></dd><dt>技能 / 动作</dt><dd>${esc(context.skillName)}<small>${esc(context.abilityId)} · ${esc(context.skillId)}</small></dd><dt>等级与命座</dt><dd>角色 Lv.${doc.characterLevel}${ascension === undefined ? " · 突破阶段未提供" : ` · 突破 ${ascension}`} · C${context.constellation} · 有效天赋 Lv.${context.effectiveTalentLevel}</dd><dt>配装入口</dt><dd>${equipment ? `${esc(weaponName)} · Lv.${equipment.weaponLevel} · 突破 ${equipment.weaponAscension} · 精炼 ${equipment.refinement}<small>圣遗物 ${equipment.artifacts?.length ?? 0} 件 · 武器条款 ${equipment.weaponEffectsEnabled ? "已启用来源规则" : "未启用"} · 套装条款 ${equipment.setEffectsEnabled ? "已启用来源规则" : "未启用"}</small><small>装备来源版本：${esc(equipment.sourceVersion)}</small>` : doc.build.mode === "imported-final" ? "公开展示柜最终面板" : "明确输入的最终面板；不是已证实的装备分解"}</dd><dt>计算覆盖</dt><dd>${esc(coverage)}<small>${esc(context.attributionPolicy)}</small></dd></dl>`;
+    const coverage = result.aggregation.scope === "single-hit" ? "Single hit" : result.aggregation.scope === "complete-cast" ? "所述条件下一次施放的完整已定义集合" : result.aggregation.scope === "declared-hit-set" ? "本例明确声明的命中集合" : "所选已定义分段合计；不是完整施放总伤";
+    return `<dl class="calculator-identity" data-testid="calc-game-identity"><dt>角色 / 形态</dt><dd>${esc(context.characterName)}${context.variantName ? ` · ${esc(context.variantName)}` : ""}<small>${esc(context.characterId)}${context.variantId ? ` / ${esc(context.variantId)}` : ""}</small></dd><dt>Skill / action</dt><dd>${esc(context.skillName)}<small>${esc(context.abilityId)} · ${esc(context.skillId)}</small></dd><dt>等级与命座</dt><dd>角色 Lv.${doc.characterLevel}${ascension === undefined ? " · 突破阶段未提供" : ` · 突破 ${ascension}`} · C${context.constellation} · 有效天赋 Lv.${context.effectiveTalentLevel}</dd><dt>配装入口</dt><dd>${equipment ? `${esc(weaponName)} · Lv.${equipment.weaponLevel} · 突破 ${equipment.weaponAscension} · 精炼 ${equipment.refinement}<small>圣遗物 ${equipment.artifacts?.length ?? 0} 件 · 武器条款 ${equipment.weaponEffectsEnabled ? "已启用来源规则" : "未启用"} · 套装条款 ${equipment.setEffectsEnabled ? "已启用来源规则" : "未启用"}</small><small>装备来源版本：${esc(equipment.sourceVersion)}</small>` : doc.build.mode === "imported-final" ? "公开展示柜最终面板" : "明确输入的最终面板；不是已证实的装备分解"}</dd><dt>计算覆盖</dt><dd>${esc(coverage)}<small>${esc(context.attributionPolicy)}</small></dd></dl>`;
   }
 
   function actionKey(doc: CalculatorDocument): string {
@@ -588,6 +635,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     if (!current || !characterId || current.dataIdentity.releaseStatus === "synthetic" || [...invalidFields].some(field => field !== CHARACTER_RESOURCE_DRAFT_FIELD && field !== COORDINATED_SCHEDULE_DRAFT_FIELD && field !== HELD_LIFECYCLE_DRAFT_FIELD && !sourceDraftHandlers.some(handler => handler.field === field))) return;
     rememberEquipment(current);
     characterDrafts.set(characterId, clone(current));
+    if (current.gameContext?.noelleBurst) noelleContextDrafts.set(characterId, clone(current.gameContext.noelleBurst));
     actionDrafts.set(actionKey(current), clone(current));
   }
 
@@ -607,11 +655,16 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         else next.gameContext.ascension = buildDraft.gameContext.ascension;
       }
     }
+    if (buildDraft?.build.mode === 'imported-final' && !importedCharacter) {
+      // A saved panel cannot turn teaching defaults into observed battle state.
+      // The exact action's saved conditions are restored below, when present.
+      resetSourceCastPanelAccounting(next, 'imported-final');
+    }
     if (actionDraft?.incomingThrillingTales) next.incomingThrillingTales = clone(actionDraft.incomingThrillingTales);
     else if (buildDraft?.incomingThrillingTales) next.incomingThrillingTales = { ...clone(buildDraft.incomingThrillingTales), hitStates: {} };
     next = prepareIncomingThrillingTales(next);
     if (next.gameContext?.noelleBurst) {
-      const previous = actionDraft?.gameContext?.noelleBurst ?? buildDraft?.gameContext?.noelleBurst;
+      const previous = actionDraft?.gameContext?.noelleBurst ?? buildDraft?.gameContext?.noelleBurst ?? noelleContextDrafts.get(characterId);
       if (previous) next.gameContext.noelleBurst = clone(previous);
       if (next.gameContext.skillId === "noelle-burst-cast") next.gameContext.noelleBurst.active = true;
       if (next.build.mode === "equipment-derived" && !previous) next.gameContext.noelleBurst.accounting = "add-to-panel";
@@ -635,11 +688,25 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (previous) next.gameContext.yanfeiCharged = clone(previous);
       next = applyCharacterConstellationScope(next, workspace);
     }
-    for (const key of ["keqingBurst", "xingqiuSkill", "ningguangBurst", "kukiDamage", "baizhuSkill", "colleiSkill", "charlotteSkill", "travelerCryo", "batchProjectileCast", "batchPeriodicCast", "batchFiniteCast"] as const) {
+    for (const key of ["keqingBurst", "xingqiuSkill", "ningguangBurst", "kukiDamage", "tighnariDamage", "baizhuSkill", "colleiSkill", "charlotteSkill", "travelerCryo", "batchProjectileCast", "batchPeriodicCast", "batchFiniteCast"] as const) {
       if (!next.gameContext?.[key]) continue;
       const previous = actionDraft?.gameContext?.[key] ?? buildDraft?.gameContext?.[key];
       if (previous) Object.assign(next.gameContext[key]!, clone(previous));
     }
+    // The candidate is a fresh C0 definition and has no C2 context yet. Only
+    // restore this exact action's answers; another E branch cannot supply them.
+    if(next.gameContext?.alhaithamDamage&&actionDraft?.gameContext?.alhaithamDamage)next.gameContext.alhaithamDamage=clone(actionDraft.gameContext.alhaithamDamage);
+    if(next.gameContext?.arlecchinoDamage&&actionDraft?.gameContext?.arlecchinoDamage)next.gameContext.arlecchinoDamage=clone(actionDraft.gameContext.arlecchinoDamage);
+    if(next.gameContext?.hutaoDamage&&actionDraft?.gameContext?.hutaoDamage)next.gameContext.hutaoDamage=clone(actionDraft.gameContext.hutaoDamage);
+    if(next.gameContext?.kazuhaBurst&&actionDraft?.gameContext?.kazuhaBurst)next.gameContext.kazuhaBurst=clone(actionDraft.gameContext.kazuhaBurst);
+    if(next.gameContext?.cynoDamage&&actionDraft?.gameContext?.cynoDamage)next.gameContext.cynoDamage=clone(actionDraft.gameContext.cynoDamage);
+    if(next.gameContext?.kinichDamage&&actionDraft?.gameContext?.kinichDamage)next.gameContext.kinichDamage=clone(actionDraft.gameContext.kinichDamage);
+    if(next.gameContext?.gamingDamage&&actionDraft?.gameContext?.gamingDamage)next.gameContext.gamingDamage=clone(actionDraft.gameContext.gamingDamage);
+    if (next.gameContext?.xiaoDamage && actionDraft?.gameContext?.xiaoDamage) next.gameContext.xiaoDamage=clone(actionDraft.gameContext.xiaoDamage);
+    if (next.gameContext && actionDraft?.gameContext?.durinSkill) next.gameContext.durinSkill = clone(actionDraft.gameContext.durinSkill);
+    // These fixed-hit actions preserve answers, not an earlier talent's coefficient dependencies.
+    for (const key of ["nicoleSkillInitial", "faruzanBurstInitial", "wandererPrimary", "durinBurst"] as const) if (next.gameContext?.[key] && actionDraft?.gameContext?.[key]) next.gameContext = { ...next.gameContext, [key]: clone(actionDraft.gameContext[key]!) };
+    if (next.gameContext?.wandererPrimary && next.gameContext.wandererPrimary.skillTalentLevel === undefined && !importedCharacter && !equipmentTalentBinding && !importedManualTalents && buildDraft?.gameContext?.wandererPrimary?.skillTalentLevel !== undefined) next.gameContext.wandererPrimary.skillTalentLevel = buildDraft.gameContext.wandererPrimary.skillTalentLevel;
     // An explicit schedule belongs to this exact action. Restore its generated
     // hits before preparation so event snapshots, manual inputs and selection survive.
     if (next.gameContext?.coordinatedCast && actionDraft?.gameContext?.coordinatedCast) {
@@ -659,19 +726,55 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const previous = actionDraft?.gameContext?.[key];
       if (next.gameContext && previous) next.gameContext = { ...next.gameContext, [key]: clone(previous) };
     }
+    // Known imported levels win. When the normal talent was not exported, an
+    // answer entered after import belongs to the exact action draft and stays.
+    // Applying a fresh panel already clears old evidence before draft restore.
+    if (importedCharacter && importedTalentBinding) {
+      const normal = importedCharacter.resolvedSkills.find(skill => skill.abilityId === "talent:faruzan:combat1");
+      if (normal && hasKnownImportedTalent(normal)) bindFaruzanHurricaneTalent(next, normal.effectiveLevel);
+    }
     if (equipmentTalentBinding && next.gameContext) {
       const context = next.gameContext;
       context.constellation = equipmentTalentBinding.meta.constellation;
       const talentSet = workspace.catalog.talentSets.find(set => set.abilities.some(ability => ability.id === context.abilityId));
+      const skillId = talentSet?.abilities.find(ability => ability.kind === "skill")?.id;
+      const skillLevel = skillId ? equipmentTalentBinding.levels.get(skillId) : undefined;
+      const normalId = talentSet?.abilities.find(ability => ability.kind === "normal")?.id;
+      bindFaruzanHurricaneTalent(next, normalId ? equipmentTalentBinding.levels.get(normalId) : undefined);
+      if (context.hutaoDamage && skillLevel !== undefined) context.hutaoDamage.skillTalentLevel = skillLevel;
+      if (context.wandererPrimary) { if (skillLevel === undefined) delete context.wandererPrimary.skillTalentLevel; else context.wandererPrimary.skillTalentLevel = skillLevel; }
       const burstId = talentSet?.abilities.find(ability => ability.kind === "burst")?.id;
       const burstLevel = burstId ? equipmentTalentBinding.levels.get(burstId) : undefined;
+      bindIansanSwiftBurstTalent(next, burstLevel);
       if (burstLevel !== undefined) {
+        if (context.xiaoDamage) context.xiaoDamage.burstTalentLevel = burstLevel;
         if (context.noelleBurst) context.noelleBurst.effectiveTalentLevel = burstLevel;
         if (context.ittoCharged) context.ittoCharged.burst.effectiveTalentLevel = burstLevel;
         if (context.yanfeiCharged) context.yanfeiCharged.brilliance.effectiveTalentLevel = burstLevel;
       }
-      next.assumptions = [...next.assumptions.filter(value => !value.startsWith("配装天赋绑定：") && value !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。"), ...equipmentTalentBinding.assumptions];
-      if (equipmentTalentBinding.meta.label) next.label = `${equipmentTalentBinding.meta.label} · ${context.skillName} · 有效天赋等级 ${context.effectiveTalentLevel}`;
+      next.assumptions = [...next.assumptions.filter(value => !value.startsWith("配装天赋绑定：") && !value.startsWith("配装来源：") && value !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。").map(value => value.startsWith("C0；只使用列出的伤害表达式。") ? value.replace("C0；", `C${context.constellation} 配装；`) : value), ...equipmentTalentBinding.assumptions];
+      if (equipmentTalentBinding.meta.label) next.label = `${equipmentTalentBinding.meta.label} · ${context.skillName} · Effective talent level ${context.effectiveTalentLevel}`;
+    }
+    if (importedManualTalents && next.gameContext) {
+      next.gameContext.manualEffectiveTalents = clone(importedManualTalents);
+      bindFaruzanHurricaneTalent(next, importedManualTalents.auto);
+      if (next.gameContext.hutaoDamage) next.gameContext.hutaoDamage.skillTalentLevel = importedManualTalents.skill;
+      if (next.gameContext.wandererPrimary) next.gameContext.wandererPrimary.skillTalentLevel = importedManualTalents.skill;
+      const burstLevel = importedManualTalents.burst;
+      if (next.gameContext.xiaoDamage) next.gameContext.xiaoDamage.burstTalentLevel = burstLevel;
+      bindIansanSwiftBurstTalent(next, burstLevel);
+      if (next.gameContext.noelleBurst) next.gameContext.noelleBurst.effectiveTalentLevel = burstLevel;
+      if (next.gameContext.ittoCharged) next.gameContext.ittoCharged.burst.effectiveTalentLevel = burstLevel;
+      if (next.gameContext.yanfeiCharged) next.gameContext.yanfeiCharged.brilliance.effectiveTalentLevel = burstLevel;
+    }
+    if (next.build.mode === 'imported-final' && next.gameContext && buildDraft?.gameContext?.importedPanelDamageBonuses && !importedCharacter) {
+      next.gameContext.importedPanelDamageBonuses = clone(buildDraft.gameContext.importedPanelDamageBonuses);
+      captureKazuhaImportedDamageBonuses(next, next.gameContext.importedPanelDamageBonuses);
+      for (const hit of next.hits) if (hit.kind === 'ordinary') {
+        const bonus = next.gameContext.importedPanelDamageBonuses[hit.element];
+        if (bonus === null) { blockCharacter(`保存的导入面板缺少${hit.element}伤害加成，请补齐后重新导入。`); return; }
+        hit.damageBonus = bonus;
+      }
     }
     next = applyCharacterConstellationScope(next, workspace);
     for (const hit of next.hits) {
@@ -696,16 +799,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
             : next.build.mode === "equipment-derived" && actionDraft?.build.mode !== "equipment-derived" && equipmentDraft ? equipmentDraft.manualBonuses[hit.id] ?? 0
               : before.damageBonus;
           hit.reaction = before.reaction; hit.groupMultiplier = before.groupMultiplier;
-          for (const key of ["baseDamageFormula", "additiveBaseFormula", "damageBonusFormula", "resistanceReductionFormula", "critRateFormula", "critDamageFormula"] as const) if (hit[key] && before[key]) for (const input of hit[key]!.inputs) {
-            const previousInput = before[key]!.inputs.find(candidate => candidate.key === input.key && candidate.ownerId === input.ownerId);
-            if (previousInput && input.origin !== "source-table") input.value = previousInput.value;
-          }
+          for (const key of ["baseDamageFormula", "additiveBaseFormula", "damageBonusFormula", "resistanceReductionFormula", "critRateFormula", "critDamageFormula"] as const) if (hit[key] && before[key]) restoreCalculatorFormulaAnswers(hit[key]!, before[key]!);
           if (hit.elementalMasteryAdjustment && before.elementalMasteryAdjustment) {
             hit.elementalMasteryAdjustment.accounting = before.elementalMasteryAdjustment.accounting;
-            for (const input of hit.elementalMasteryAdjustment.formula.inputs) {
-              const previousInput = before.elementalMasteryAdjustment.formula.inputs.find(candidate => candidate.key === input.key && candidate.ownerId === input.ownerId);
-              if (previousInput && input.origin !== "source-table") input.value = previousInput.value;
-            }
+            restoreCalculatorFormulaAnswers(hit.elementalMasteryAdjustment.formula, before.elementalMasteryAdjustment.formula);
           }
         }
       }
@@ -755,23 +852,24 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         if (snapshot) hit.finalSnapshot = snapshot;
       }
     }
-    if ((!next.gameContext?.coordinatedCast && !next.gameContext?.heldLifecycleCast && !next.gameContext?.finiteFollowupCast && !next.gameContext?.observedEntityCast && !next.gameContext?.travelerMaleChargedCast && !next.gameContext?.periodicOrdinaryCast && !next.gameContext?.idleStanceCast && !next.gameContext?.entityFollowupCast && !next.gameContext?.extendedStanceCast && !next.gameContext?.mixedSourceCast && !next.gameContext?.noellePlungeCast && !next.gameContext?.observedPlunge && !next.gameContext?.travelerCryoStateCast && !next.gameContext?.travelerCrossEntityCast && !next.gameContext?.travelerHydroResolvedCast && !next.gameContext?.iansanSwiftResolvedCast && !next.gameContext?.observedSpecialComponent && !next.gameContext?.neferPhantasmCast && !next.gameContext?.zibaiFiniteCast) || materializingEquipment) finalizeSourceCastPanelAccounting(next);
+    if ((!next.gameContext?.nicoleSkillInitial && !next.gameContext?.wandererPrimary && !next.gameContext?.durinBurst && !next.gameContext?.faruzanBurstInitial && !next.gameContext?.alhaithamDamage && !next.gameContext?.arlecchinoDamage && !next.gameContext?.hutaoDamage && !next.gameContext?.kazuhaBurst && !next.gameContext?.cynoDamage && !next.gameContext?.kinichDamage && !next.gameContext?.gamingDamage && !next.gameContext?.xiaoDamage && !next.gameContext?.coordinatedCast && !next.gameContext?.heldLifecycleCast && !next.gameContext?.finiteFollowupCast && !next.gameContext?.observedEntityCast && !next.gameContext?.travelerMaleChargedCast && !next.gameContext?.periodicOrdinaryCast && !next.gameContext?.idleStanceCast && !next.gameContext?.entityFollowupCast && !next.gameContext?.extendedStanceCast && !next.gameContext?.mixedSourceCast && !next.gameContext?.noellePlungeCast && !next.gameContext?.observedPlunge && !next.gameContext?.travelerCryoStateCast && !next.gameContext?.travelerCrossEntityCast && !next.gameContext?.travelerHydroResolvedCast && !next.gameContext?.iansanSwiftResolvedCast && !next.gameContext?.observedSpecialComponent && !next.gameContext?.neferPhantasmCast && !next.gameContext?.zibaiFiniteCast) || materializingEquipment) finalizeSourceCastPanelAccounting(next);
     get<HTMLSelectElement>("#calc-skill").value = String(index);
     if (next.gameContext) get<HTMLInputElement>("#calc-talent-level").value = String(next.gameContext.effectiveTalentLevel);
-    get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || equipmentTalentBinding !== null;
-    get("#calc-imported-binding").hidden = !importedTalentBinding && !equipmentTalentBinding;
+    get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || importedManualTalents !== null || equipmentTalentBinding !== null;
+    get("#calc-imported-binding").hidden = !importedTalentBinding && !importedManualTalents && !equipmentTalentBinding;
     loadDocument(next, true);
   }
 
   function restoreIdentityControls(doc: CalculatorDocument): void {
     const request = ++selectionRequest;
-    importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+    importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+    importedManualTalents = doc.gameContext?.manualEffectiveTalents ? clone(doc.gameContext.manualEffectiveTalents) : null;
     get("#calc-imported-binding").hidden = true;
     selectedForm = doc.gameContext?.variantId ?? "";
     characterId = doc.gameContext?.characterId ?? "";
     candidateDocuments = doc.gameContext ? [clone(doc)] : [];
     get<HTMLSelectElement>("#calc-character").value = characterId;
-    get<HTMLInputElement>("#calc-talent-level").disabled = !doc.gameContext || detachedPreview();
+    get<HTMLInputElement>("#calc-talent-level").disabled = !doc.gameContext || detachedPreview() || importedManualTalents !== null;
     if (doc.gameContext && !detachedPreview()) {
       get<HTMLInputElement>("#calc-talent-level").value = String(doc.gameContext.effectiveTalentLevel);
       renderCandidateSelectors(actionKey(doc));
@@ -779,7 +877,9 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       characterDrafts.set(characterId, clone(doc));
       actionDrafts.set(actionKey(doc), clone(doc));
       void (async () => {
-        const alternatives = await readCharacterDocuments(doc.gameContext!.characterId, doc.gameContext!.effectiveTalentLevel);
+        const alternatives = doc.gameContext!.manualEffectiveTalents
+          ? await readManualTalentDocuments(doc.gameContext!.characterId, doc.gameContext!.manualEffectiveTalents)
+          : await readCharacterDocuments(doc.gameContext!.characterId, doc.gameContext!.effectiveTalentLevel);
         if (request !== selectionRequest || current?.id !== doc.id) return;
         const preserved = clone(current);
         const key = actionKey(preserved);
@@ -807,17 +907,33 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const entries = candidateDocuments.map((document, index) => ({ document, index })).filter(({ document }) => (document.gameContext?.variantId ?? "") === selectedForm);
     const groups = new Map<string, typeof entries>();
     for (const entry of entries) {
-      const ability = entry.document.gameContext?.abilityId;
-      const group = ability?.endsWith("combat1") ? "普通攻击 / 重击 / 下落" : ability?.endsWith("combat2") ? "元素战技" : ability?.endsWith("combat3") ? "元素爆发" : "已定义技能";
+      const abilityId = entry.document.gameContext?.abilityId;
+      const kind = workspace.catalog.talentSets.flatMap(set => set.abilities).find(ability => ability.id === abilityId)?.kind;
+      const group = kind === "normal" ? "Normal / Charged / Plunging" : kind === "skill" ? "Elemental skill" : kind === "burst" ? "Elemental burst" : "Defined actions";
       groups.set(group, [...(groups.get(group) ?? []), entry]);
     }
-    get<HTMLSelectElement>("#calc-skill").innerHTML = [...groups].map(([group, documents]) => `<optgroup label="${esc(group)}">${documents.map(({document, index}) => `<option value="${index}">${esc(document.gameContext?.skillName ?? document.label)}${document.gameContext?.scopeCoverage === "selected-components" ? " · 已定义部分" : ""}</option>`).join("")}</optgroup>`).join("");
+    get<HTMLSelectElement>("#calc-skill").innerHTML = [...groups].map(([group, documents]) => `<optgroup label="${esc(group)}">${documents.map(({document, index}) => `<option value="${index}">${esc(calculatorActionDisplayName(document))}${document.gameContext?.scopeCoverage === "selected-components" ? " · Partial scope" : ""}</option>`).join("")}</optgroup>`).join("");
     const selected = entries.find(({ document }) => actionKey(document) === preferredKey) ?? entries[0];
+    renderCharacterOutputOverview();
     return selected?.index ?? 0;
   }
 
+  function renderCharacterOutputOverview(): void {
+    const host = get("#calc-character-outputs");
+    const visible = current?.gameContext && candidateDocuments.length && activeExampleId === null;
+    host.hidden = !visible;
+    if (!visible || !current) { host.innerHTML = ""; return; }
+    const selectedCandidateIndex = candidateDocuments.findIndex(candidate => actionKey(candidate) === actionKey(current!));
+    host.innerHTML = `<h3>Other character actions</h3>${renderCharacterOutputs(buildCharacterOutputs(candidateDocuments, workspace.catalog, {
+      selectedCandidateIndex, currentDocument: current, ...(currentResult ? {currentResult} : {}),
+    }))}${current.gameContext?.characterId === "character:10000087" ? `<div data-neuvillette-native-outputs><h4>那维莱特：重击与元素爆发</h4><button type="button" data-action="source-single-skill" data-source-action="charge">重击 · 衡平推裁</button><button type="button" data-action="source-single-skill" data-source-action="burst">Q · 潮水啊，我已归来</button><p class="calculator-hint">使用动作引擎单独配装，首次载入参考构筑，请核对后运行。显示本次模拟观察区间内的命中，当前最终面板不会当作装备再次叠加。</p></div>` : ""}`;
+  }
+
   function renderControls(): void {
-    if (!current) { get("#calc-document-controls").innerHTML = ""; return; }
+    inlineRequirements.restore();
+    get<HTMLButtonElement>('[data-action="export"]').disabled = !(current || capturedHit);
+    get("[data-calculator-example-mode]").hidden = activeExampleId === null;
+    if (!current) { get("#calc-document-controls").innerHTML = ""; renderCharacterOutputOverview(); return; }
     const doc = current;
     const build = doc.build;
     const synthetic = doc.dataIdentity.releaseStatus === "synthetic";
@@ -830,14 +946,15 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       ? field("build.equipment.ascension", "角色突破阶段（来源配装）", build.equipment.ascension, 'readonly aria-readonly="true" min="0" max="6" step="1"')
       : `<label>角色突破阶段（明确条件）<select id="calc-ascension"><option value=""${ascension === undefined ? " selected" : ""}>未提供；不推断被动资格</option>${[0, 1, 2, 3, 4, 5, 6].map(value => `<option value="${value}"${ascension === value ? " selected" : ""}>突破 ${value}</option>`).join("")}</select></label>`;
     const constellationControl = doc.gameContext ? `<label>实际命座<select id="calc-constellation">${[0, 1, 2, 3, 4, 5, 6].map(value => `<option value="${value}"${value === doc.gameContext!.constellation ? " selected" : ""}>C${value}</option>`).join("")}</select><small>只应用已映射规则。面板和有效天赋等级保持当前输入，不自动补属性或天赋等级。</small></label>` : "";
+    const externalBuffControls = renderIncomingThrillingTalesControls(doc);
     const stats = build.mode === "equipment-derived" ?
-      field("build.characterBaseAtk", "角色基础攻击力", build.characterBaseAtk) + field("build.weaponBaseAtk", "武器基础攻击力", build.weaponBaseAtk) + field("build.atkPercent", "攻击力百分比（0.8 = 80%）", build.atkPercent) + field("build.flatAtk", "固定攻击力", build.flatAtk) + field("build.baseHp", "基础生命值", build.baseHp) + field("build.hpPercent", "生命百分比（小数）", build.hpPercent) + field("build.flatHp", "固定生命值", build.flatHp) + field("build.baseDef", "基础防御力", build.baseDef) + field("build.defPercent", "防御百分比（小数）", build.defPercent) + field("build.flatDef", "固定防御力", build.flatDef) + field("build.em", "元素精通", build.em) + field("build.critRate", "暴击率（0.7 = 70%）", build.critRate) + field("build.critDamage", "暴击伤害（1.2 = 120%）", build.critDamage) :
+      field("build.characterBaseAtk", "角色基础攻击力", build.characterBaseAtk) + field("build.weaponBaseAtk", "武器基础攻击力", build.weaponBaseAtk) + field("build.atkPercent", "攻击力百分比（0.8 = 80%）", build.atkPercent) + field("build.flatAtk", "固定攻击力", build.flatAtk) + field("build.baseHp", "基础生命值", build.baseHp) + field("build.hpPercent", "生命百分比（小数）", build.hpPercent) + field("build.flatHp", "固定生命值", build.flatHp) + field("build.baseDef", "基础防御力", build.baseDef) + field("build.defPercent", "防御百分比（小数）", build.defPercent) + field("build.flatDef", "固定防御力", build.flatDef) + field("build.em", "Elemental mastery", build.em) + field("build.critRate", "暴击率（0.7 = 70%）", build.critRate) + field("build.critDamage", "暴击伤害（1.2 = 120%）", build.critDamage) :
       Object.entries(build.stats).flatMap(([key, value]) => value === undefined ? [] : [field(`build.stats.${key}`, statLabels[key] ?? key, value)]).join("");
     get("#calc-document-controls").innerHTML = `<div class="calculator-controls">` +
-      `<fieldset><legend>计算范围</legend><label>范围<select id="calc-scope"><option value="single-hit"${doc.scope === "single-hit" ? " selected" : ""}>单次命中</option><option value="one-cast"${doc.scope === "one-cast" ? " selected" : ""}>${esc(oneCastLabel)}</option></select></label><div id="calc-hit-selection">${doc.hits.map(h => `<label class="calculator-hit-select"><input type="${doc.scope === "single-hit" ? "radio" : "checkbox"}" name="calc-included-hit" data-hit-id="${esc(h.id)}"${doc.selectedHitIds.includes(h.id) ? " checked" : ""}>${esc(h.label)}</label>`).join("")}</div><p class="calculator-hint">只累加勾选且归属于本次施放的命中。未给出时间分母，因此显示伤害，不显示 DPS。</p></fieldset>` +
-      `<fieldset data-build-controls><legend>面板输入</legend><label>面板模式<select id="calc-build-mode"><option value="equipment-derived"${build.mode === "equipment-derived" ? " selected" : ""}${!synthetic && build.mode !== "equipment-derived" && !equipmentDrafts.has(equipmentKey(doc)) ? " disabled" : ""}>基础与装备贡献推导</option><option value="manual-final"${build.mode === "manual-final" ? " selected" : ""}>手动最终面板</option><option value="imported-final"${build.mode === "imported-final" ? " selected" : ""}${!importedCharacter && build.mode !== "imported-final" ? " disabled" : ""}>导入最终面板</option></select></label><p class="calculator-hint">${build.mode === "equipment-derived" ? build.equipment ? "使用所选角色、武器与装备来源推导。精确基础值请在装备区更改；下方百分比与固定项包含本次来源贡献。改动与来源之间的差值作为手动调整单列，不再次叠加来源数值。" : "明确录入基础与属性贡献；教学数值不代表一套真实装备。实际武器被动和圣遗物规则需另有执行证据。" : `以所给最终面板为计算入口，前置装备分解不可得；不重复叠加武器或圣遗物属性。来源：${esc(build.source)}`}</p><div class="calculator-fields">${stats}</div></fieldset>` +
-      `<fieldset data-enemy-controls><legend>角色条件与目标</legend><div class="calculator-fields">${field("characterLevel", "角色等级", doc.characterLevel, 'min="1" max="100"')}${ascensionControls}${constellationControl}${field("enemy.level", "敌人等级", doc.enemy.level, 'min="1" max="999"')}${field("enemy.resistance", "来源减抗前的目标抗性（0.1 = 10%）", doc.enemy.resistance)}${field("enemy.defenseAdjustment", "敌人防御调整（负值为减防）", doc.enemy.defenseAdjustment)}${field("enemy.defenseIgnore", "防御无视（0–1）", doc.enemy.defenseIgnore)}</div></fieldset>` +
-      noelleControls(doc) + renderIttoControls(doc, field) + renderYanfeiControls(doc, field) + renderPassiveSkillControls(doc) + renderNingguangControls(doc) + renderKukiDamageControls(doc) + renderBaizhuSkillControls(doc) + renderColleiCharlotteControls(doc) + renderSourceCastControls(doc) + renderTravelerCryoStateControls(doc) + renderTravelerCrossEntityControls(doc) + renderTravelerHydroResolvedControls(doc) + renderIansanSwiftResolvedControls(doc) + renderObservedSpecialControls(doc) + renderCharacterResourceControls(doc) + renderAlyoshaObservedControls(doc) + renderNeferObservedControls(doc) + renderLinneaObservedControls(doc) + renderSandroneObservedControls(doc) + renderRawSourceStateControls(doc) + renderNeferPhantasmControls(doc) + renderZibaiFiniteControls(doc) + renderIncomingThrillingTalesControls(doc) + doc.hits.map((hit, index) => `<fieldset data-hit-editor="${esc(hit.id)}"${doc.selectedHitIds.includes(hit.id) ? "" : " hidden"}><legend>${esc(hit.label)}</legend>${hit.kind === "ordinary" ? `<div class="calculator-fields">${hit.terms.map((term, ti) => field(`hits.${index}.terms.${ti}.coefficient`, `${statLabels[term.stat]}倍率（2 = 200%）`, term.coefficient, editableTalent) + (term.baseMultiplier === undefined ? "" : field(`hits.${index}.terms.${ti}.baseMultiplier`, `${statLabels[term.stat]}缩放项基础乘数`, term.baseMultiplier, editableTalent))).join("")}${formulaFields(hit, index, synthetic)}${field(`hits.${index}.additiveBaseDamage`, "独立基础伤害加算", hit.finalSnapshot?.additiveBaseDamage ?? hit.additiveBaseDamage, hit.finalSnapshot ? 'readonly aria-readonly="true"' : "")}${field(`hits.${index}.damageBonus`, damageBonusLabel, hit.finalSnapshot?.damageBonus ?? hit.damageBonus, hit.finalSnapshot ? 'readonly aria-readonly="true"' : "")}${field(`hits.${index}.reactionBonus`, reactionBonusLabel, hit.finalSnapshot?.reactionBonus ?? hit.reactionBonus, hit.finalSnapshot ? 'readonly aria-readonly="true"' : "")}${field(`hits.${index}.groupMultiplier`, "独立乘区", hit.groupMultiplier)}${hitResistanceField(hit, index)}${hitCriticalFields(hit, index)}</div><label>条件化增幅反应<select data-reaction-index="${index}">${Object.entries({ none: "无", melt: "火触发融化 ×2", reverseMelt: "冰触发融化 ×1.5", vaporize: "水触发蒸发 ×2", reverseVaporize: "火触发蒸发 ×1.5" }).map(([v, label]) => `<option value="${v}"${hit.reaction === v ? " selected" : ""}>${label}</option>`).join("")}</select></label><p class="calculator-hint">这是对可发生反应的条件假定；不证明实战附着、ICD 或整轮反应覆盖。元素不兼容时计算核心阻塞。</p>` : hit.kind === "resolved" ? `<p class="calculator-hint">${esc(hit.entryPoint)}</p><div class="calculator-fields">${field(`hits.${index}.preReactionDamage`, "反应与暴击前伤害", hit.preReactionDamage)}${field(`hits.${index}.amplificationMultiplier`, "本次命中的条件增幅倍率", hit.amplificationMultiplier)}</div>` : hit.kind === "transformative" ? `<p class="calculator-hint">剧变反应：${esc(hit.reaction)}。不采用普通天赋、防御与暴击乘区。</p>${field(`hits.${index}.reactionBonus`, reactionBonusLabel, hit.reactionBonus)}${hitResistanceField(hit, index)}` : hit.kind === "non-damaging" ? `<p>${esc(hit.reason)}</p>` : hit.kind === "special" ? specialFields(hit, index) : `<p class="calculator-error">${hit.reasons.map(esc).join("；")}</p>`}</fieldset>`).join("") + `</div>`;
+      `<fieldset data-build-controls><legend>Build & stats</legend>${build.mode === "manual-final" ? '<p class="calculator-hint player-build-context" data-manual-build-notice>Edit these reference stats and the target scenario to match your build.</p>' : ""}<button type="button" class="calculator-equipment-link" data-calculator-section="equipment">Edit weapon & artifacts</button><label>Stat input mode<select id="calc-build-mode"><option value="equipment-derived"${build.mode === "equipment-derived" ? " selected" : ""}${!synthetic && build.mode !== "equipment-derived" && !equipmentDrafts.has(equipmentKey(doc)) ? " disabled" : ""}>Derived from equipment</option><option value="manual-final"${build.mode === "manual-final" ? " selected" : ""}>Manual final stats</option><option value="imported-final"${build.mode === "imported-final" ? " selected" : ""}${!importedCharacter && build.mode !== "imported-final" ? " disabled" : ""}>Imported final stats</option></select></label><details class="calculator-panel-source"><summary>Stat sources & accounting</summary><p class="calculator-hint">${build.mode === "equipment-derived" ? build.equipment ? "使用所选角色、武器与装备来源推导。精确基础值请在装备区更改；下方百分比与固定项包含本次来源贡献。改动与来源之间的差值作为手动调整单列，不再次叠加来源数值。" : "明确录入基础与属性贡献；教学数值不代表一套真实装备。实际武器被动和圣遗物规则需另有执行证据。" : `以所给最终面板为计算入口，前置装备分解不可得；不重复叠加武器或圣遗物属性。来源：${esc(build.source)}`}</p></details><div class="calculator-fields">${stats}</div></fieldset>` +
+      `<fieldset data-enemy-controls><legend>Scenario & target</legend><div class="calculator-fields">${field("characterLevel", "Character level", doc.characterLevel, 'min="1" max="100"')}${ascensionControls}${constellationControl}${field("enemy.level", "Enemy level", doc.enemy.level, 'min="1" max="999"')}${field("enemy.resistance", "Target resistance before reductions (0.1 = 10%)", doc.enemy.resistance)}</div><details data-calculator-defense-options${synthetic ? " open" : ""}><summary>Advanced: defense reduction & ignore</summary><div class="calculator-fields">${field("enemy.defenseAdjustment", "敌人防御调整（负值为减防）", doc.enemy.defenseAdjustment)}${field("enemy.defenseIgnore", "防御无视（0–1）", doc.enemy.defenseIgnore)}</div></details></fieldset>` +
+      `<fieldset><legend>Damage scope</legend><label>Scope<select id="calc-scope"><option value="single-hit"${doc.scope === "single-hit" ? " selected" : ""}>Single hit</option><option value="one-cast"${doc.scope === "one-cast" ? " selected" : ""}>${esc(oneCastLabel)}</option></select></label><div id="calc-hit-selection">${doc.hits.map(h => `<label class="calculator-hit-select"><input type="${doc.scope === "single-hit" ? "radio" : "checkbox"}" name="calc-included-hit" data-hit-id="${esc(h.id)}"${doc.selectedHitIds.includes(h.id) ? " checked" : ""}>${esc(h.label)}</label>`).join("")}</div><p class="calculator-hint">Only selected hits attributed to this cast are included. No time window is defined, so this is damage, not DPS.</p></fieldset>` +
+      noelleControls(doc) + renderIttoControls(doc, field) + renderYanfeiControls(doc, field) + renderPassiveSkillControls(doc) + renderNingguangControls(doc) + renderKukiDamageControls(doc) + renderTighnariControls(doc) + renderBaizhuSkillControls(doc) + renderColleiCharlotteControls(doc) + renderSourceCastControls(doc) + renderTravelerCryoStateControls(doc) + renderTravelerCrossEntityControls(doc) + renderTravelerHydroResolvedControls(doc) + renderIansanSwiftResolvedControls(doc) + renderObservedSpecialControls(doc) + renderCharacterResourceControls(doc) + renderAlyoshaObservedControls(doc) + renderNeferObservedControls(doc) + renderLinneaObservedControls(doc) + renderSandroneObservedControls(doc) + renderRawSourceStateControls(doc) + renderNeferPhantasmControls(doc) + renderZibaiFiniteControls(doc) + (externalBuffControls ? `<details data-calculator-external-buffs><summary>队友与外部增益（可选）</summary>${externalBuffControls}</details>` : "") + ((doc.gameContext?.kazuhaBurst || doc.gameContext?.alhaithamDamage) && doc.hits.length > 1 ? `<details data-calculator-primary-hit-settings${doc.gameContext?.kazuhaBurst ? " data-calculator-kazuha-hit-settings" : ""}><summary>逐段增伤与反应设置（可选）</summary>` : "") + doc.hits.map((hit, index) => `<fieldset data-hit-editor="${esc(hit.id)}"${doc.selectedHitIds.includes(hit.id) ? "" : " hidden"}><legend>${esc(hit.label)}</legend>${hit.kind === "ordinary" ? `${field(`hits.${index}.damageBonus`, damageBonusLabel, hit.finalSnapshot?.damageBonus ?? hit.damageBonus, hit.finalSnapshot ? 'readonly aria-readonly="true"' : "")}<details data-calculator-hit-advanced${synthetic ? " open" : ""}><summary>倍率、加算与其他命中参数</summary><div class="calculator-fields">${hit.terms.map((term, ti) => field(`hits.${index}.terms.${ti}.coefficient`, `${statLabels[term.stat]}倍率（2 = 200%）`, term.coefficient, editableTalent) + (term.baseMultiplier === undefined ? "" : field(`hits.${index}.terms.${ti}.baseMultiplier`, `${statLabels[term.stat]}缩放项基础乘数`, term.baseMultiplier, editableTalent))).join("")}${formulaFields(hit, index, synthetic)}${field(`hits.${index}.additiveBaseDamage`, "独立基础伤害加算", hit.finalSnapshot?.additiveBaseDamage ?? hit.additiveBaseDamage, hit.finalSnapshot ? 'readonly aria-readonly="true"' : "")}${field(`hits.${index}.reactionBonus`, reactionBonusLabel, hit.finalSnapshot?.reactionBonus ?? hit.reactionBonus, hit.finalSnapshot ? 'readonly aria-readonly="true"' : "")}${field(`hits.${index}.groupMultiplier`, "独立乘区", hit.groupMultiplier)}${hitResistanceField(hit, index)}${hitCriticalFields(hit, index)}</div></details><label>条件化增幅反应<select data-reaction-index="${index}">${Object.entries({ none: "无", melt: "火触发融化 ×2", reverseMelt: "冰触发融化 ×1.5", vaporize: "水触发蒸发 ×2", reverseVaporize: "火触发蒸发 ×1.5" }).map(([v, label]) => `<option value="${v}"${hit.reaction === v ? " selected" : ""}>${label}</option>`).join("")}</select></label><p class="calculator-hint">这是对可发生反应的条件假定；不证明实战附着、ICD 或整轮反应覆盖。元素不兼容时计算核心阻塞。</p>` : hit.kind === "resolved" ? `<p class="calculator-hint">${esc(hit.entryPoint)}</p><div class="calculator-fields">${field(`hits.${index}.preReactionDamage`, "反应与暴击前伤害", hit.preReactionDamage)}${field(`hits.${index}.amplificationMultiplier`, "本次命中的条件增幅倍率", hit.amplificationMultiplier)}</div>` : hit.kind === "transformative" ? `<p class="calculator-hint">剧变反应：${esc(hit.reaction)}。不采用普通天赋、防御与暴击乘区。</p>${field(`hits.${index}.reactionBonus`, reactionBonusLabel, hit.reactionBonus)}${hitResistanceField(hit, index)}` : hit.kind === "non-damaging" ? `<p>${esc(hit.reason)}</p>` : hit.kind === "special" ? specialFields(hit, index) : `<p class="calculator-error">${hit.reasons.map(esc).join("；")}</p>`}</fieldset>`).join("") + ((doc.gameContext?.kazuhaBurst || doc.gameContext?.alhaithamDamage) && doc.hits.length > 1 ? "</details>" : "") + `</div>`;
     get("#calc-document-controls").querySelectorAll<HTMLInputElement>("[data-field]").forEach(input => { if (invalidFields.has(input.dataset.field!)) input.value = ""; });
     for (const handler of observedLedgerHandlers) {
       const input = root.querySelector<HTMLTextAreaElement>(handler.selector);
@@ -872,38 +989,130 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   }
 
   function renderResults(): void {
+    inlineRequirements.restore();
     if (!current) return;
-    if (invalidFields.size) { currentResult = null; get("#calc-results").innerHTML = `<div class="calculator-status blocked">${invalidFields.has(CHARACTER_RESOURCE_DRAFT_FIELD) || invalidFields.has(COORDINATED_SCHEDULE_DRAFT_FIELD) || invalidFields.has(HELD_LIFECYCLE_DRAFT_FIELD) || sourceDraftHandlers.some(handler => invalidFields.has(handler.field)) || observedLedgerHandlers.some(handler => invalidFields.has(observedLedgerField(handler.key))) ? "请应用或放弃尚未应用的日程草稿；当前不保留旧结果。" : "请完整填写必需输入并修正非法数值；当前不保留旧结果。"}</div>`; return; }
+    if (invalidFields.size) { currentResult = null; renderCharacterOutputOverview(); get("#calc-results").innerHTML = `<div class="calculator-status blocked">${invalidFields.has(CHARACTER_RESOURCE_DRAFT_FIELD) || invalidFields.has(COORDINATED_SCHEDULE_DRAFT_FIELD) || invalidFields.has(HELD_LIFECYCLE_DRAFT_FIELD) || sourceDraftHandlers.some(handler => invalidFields.has(handler.field)) || observedLedgerHandlers.some(handler => invalidFields.has(observedLedgerField(handler.key))) ? "请应用或放弃尚未应用的日程草稿；当前不保留旧结果。" : "请完整填写必需输入并修正非法数值；当前不保留旧结果。"}</div>`; return; }
     try {
       const openDetails = Array.from(get("#calc-results").querySelectorAll<HTMLDetailsElement>("details[data-detail-id][open]")).map(d => d.dataset.detailId);
       const result = calculateDocument(current, currentTrust());
       currentResult = result;
+      renderCharacterOutputOverview();
       const usesBuild = Boolean(current.gameContext?.mixedSourceCast || current.gameContext?.travelerCryoStateCast || current.gameContext?.observedSpecialComponent || current.gameContext?.neferPhantasmCast || current.gameContext?.zibaiFiniteCast) || current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && (hit.kind === "ordinary" || hit.kind === "transformative"));
       const usesBuildCritical = current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && hit.kind === "resolved");
       const data = current.dataIdentity;
-      const releaseLabels: Record<string, string> = { synthetic: "合成教学数据", released: "正式发布来源", "official-next": "官方下一版本", preview: "隔离预览数据", unknown: "发布状态未确认" };
-      const evidenceLabels: Record<string, string> = { synthetic: "不代表真实角色", provisional: "暂定，尚未独立核验", verified: "所选依赖已核验", blocked: "缺少所需证据" };
+      const releaseLabels: Record<string, string> = { synthetic: "Synthetic example", released: "Released source", "official-next": "官方下一版本", preview: "隔离预览数据", unknown: "发布状态未确认" };
+      const evidenceLabels: Record<string, string> = { synthetic: "Synthetic example, not a real build", provisional: "Provisional; not independently verified", verified: "Selected dependencies verified", blocked: "Required evidence missing" };
       const distinctWarnings = result.warnings.filter(warning => !current!.assumptions.includes(warning));
-      get("#calc-results").innerHTML = `<section class="card"><h3 class="calculator-result-header">${esc(current.label)}</h3><span class="calculator-badge ${esc(data.releaseStatus)}">${esc(releaseLabels[data.releaseStatus])}</span><span class="calculator-badge ${esc(result.verification)}">${esc(evidenceLabels[result.verification])}</span><p class="calculator-hint">数据集 ${esc(data.datasetId)} · 版本 ${esc(data.gameVersion)} · 公式 ${esc(current.ruleVersion)}</p>` +
-        documentIdentity(current, result) + '<div data-cast-aggregation-host></div>' +
-        (result.blockers.length ? `<div class="calculator-status blocked"><strong>本次计算被阻塞</strong><ul>${result.blockers.map(b => `<li>${esc(b)}</li>`).join("")}</ul></div>` : "") +
-        `<p class="calculator-hint">${result.hits.some(hit => hit.nonCriticalComparisonOnly) ? "弱点来源保证暴击的命中，其期望等于暴击伤害；非暴击数值仅为移除该条件后的教学对照，本条件下不会发生。其他命中仍按各自概率计算。" : "期望值是概率加权的平均结果，不是保证出现的单次伤害数字。"}</p>` +
-        (current.assumptions.length ? `<div class="calculator-status"><strong>本次假设与归属</strong><ul>${current.assumptions.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>` : "") +
-        (distinctWarnings.length ? `<p class="calculator-hint">${distinctWarnings.map(esc).join("；")}</p>` : "") +
-        `<p class="calculator-hint">纳入：${result.includedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}；排除：${result.excludedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}。</p>` +
+      const requirements = collectCalculatorRequirements(current, { isControlAvailable: selector => root.querySelector(selector) !== null });
+      const requiredFields = requirements.fields.filter(field => field.status !== "missing-control");
+      const unsupportedIdleConstellation = current.gameContext?.idleStanceCast && current.gameContext.constellation !== 0
+        && !(current.selectedHitIds.length === 1 && current.hits.some(hit => current!.selectedHitIds.includes(hit.id) && isWandererInitialSingleHit(current!, hit)));
+      // An observed count regenerates hit IDs within the same action. Keep its
+      // answered controls editable; changing action or scope still resets them.
+      const inlineFields = inlineRequirements.fields(JSON.stringify([current.id,current.scope,current.gameContext?.observedPlunge ? current.gameContext.skillId : current.selectedHitIds,current.gameContext?.constellation]),requiredFields);
+      const panelDeclaration = root.querySelector<HTMLButtonElement>('[data-source-cast-controls="finite-followup"] [data-faruzan-e-panel-declaration]');
+      const needsPanelDeclaration = Boolean(panelDeclaration && requiredFields.some(field => field.adapterId === "faruzan-hurricane-conditions" && field.fieldPath.includes(".hitStates.")));
+      let declarationAction = "";
+      if (panelDeclaration) {
+        panelDeclaration.hidden = needsPanelDeclaration;
+        if (needsPanelDeclaration) {
+          const button = panelDeclaration.cloneNode(true) as HTMLButtonElement; button.hidden = false;
+          declarationAction = `<div class="calculator-inline-condition">${button.outerHTML}<small>仅在确实未计入时确认；也可逐项填写已经计入的实际份额。</small></div>`;
+        }
+      }
+      const conditionRows = declarationAction + inlineFields.map(({field,required},index)=>`<div class="calculator-inline-condition" data-calculator-required-field="${required}" data-calculator-condition-id="${esc(field.id)}"><span class="calculator-hint">${field.hitIds.length===1 ? esc(current!.hits.find(hit=>hit.id===field.hitIds[0])?.label??"") : "本次所选命中"}${required?" · 待填写":""}</span><div data-calculator-inline-control="${index}"></div><button type="button" data-calculator-requirement="${esc(field.controlSelector)}">填写：${esc(field.label)}</button><small>${esc(field.explanation)}</small></div>`).join("");
+      const conditionLinks = !inlineFields.length ? "" : requiredFields.length
+        ? `<section class="calculator-inline-conditions" data-calculator-inline-conditions><h4>Complete this action’s scenario</h4>${conditionRows}</section>`
+        : `<details class="calculator-inline-conditions" data-calculator-inline-conditions data-detail-id="answered-conditions"${inlineRequirements.hasActiveControl() ? " open" : ""}><summary>已填写 ${inlineFields.length} 项战斗条件 · 修改</summary>${conditionRows}</details>`;
+      const unlinked = requirements.blockers.filter(blocker=>blocker.status!=="linked-controls");
+      const blockerPanel = result.blockers.length ? `<div class="calculator-status blocked" data-testid="calculator-required-inputs"><strong>${requiredFields.length ? "Complete the scenario below" : "This action needs additional support or evidence"}</strong>${unlinked.length ? `<p>${[...new Set(unlinked.map(blocker=>blocker.reason))].map(esc).join("；")}</p>` : ""}<details><summary>View missing inputs and support limits</summary><ul>${result.blockers.map(b=>`<li>${esc(b)}</li>`).join("")}</ul></details>${unsupportedIdleConstellation ? '<p>此有限姿态分支只支持 C0。可选择已支持的单次命中，或使用动作执行器。</p><button type="button" data-action="source-single-skill">打开动作执行器（另选配装）</button>' : ""}</div>` : "";
+      const resultLabel = calculatorResultDisplayName(current);
+      get("#calc-results").innerHTML = `<section class="card"><h3 class="calculator-result-header" tabindex="-1">${esc(resultLabel)}</h3><span class="calculator-badge ${esc(data.releaseStatus)}">${esc(releaseLabels[data.releaseStatus])}</span><span class="calculator-badge ${esc(result.verification)}">${esc(evidenceLabels[result.verification])}</span>` +
+        blockerPanel + (requiredFields.length ? conditionLinks : "") + '<div data-cast-aggregation-host></div>' + renderSkillTimingNotice() + (requiredFields.length ? "" : conditionLinks) +
+        `<p class="calculator-hint">${result.hits.some(hit => hit.nonCriticalComparisonOnly) ? "弱点来源保证暴击的命中，其期望等于暴击伤害；非暴击数值仅为移除该条件后的教学对照，本条件下不会发生。其他命中仍按各自概率计算。" : "Expected damage is a probability-weighted average, not a guaranteed single hit."}</p>` +
+        (current.assumptions.length || distinctWarnings.length ? `<details class="calculator-status"><summary>Assumptions & supported scope</summary><ul>${[...current.assumptions, ...distinctWarnings].map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>` : "") +
+        `<details class="calculator-hit-selection-details"><summary>命中范围：计入 ${result.includedHitIds.length} 段 · 排除 ${result.excludedHitIds.length} 段</summary><p class="calculator-hint">纳入：${result.includedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}；排除：${result.excludedHitIds.map(id => esc(current!.hits.find(h => h.id === id)?.label ?? id)).join("、") || "无"}。</p></details>` +
+        `<details class="calculator-method-details" data-detail-id="calculation-method"${activeExampleId !== null ? " open" : ""}><summary>Advanced: calculation evidence & formulas</summary><p class="calculator-hint">数据集 ${esc(data.datasetId)} · 版本 ${esc(data.gameVersion)} · 公式 ${esc(current.ruleVersion)}</p>${documentIdentity(current, result)}` +
         renderTraceHtml(result.trace.filter(node => ["total.", "subtotal.", "neferResources.", "alyoshaObserved.", "neferObserved.", "linneaObserved.", "sandroneObserved.", "zibaiResources."].some(prefix => node.id.startsWith(prefix)) || (node.id.startsWith("build.") && (usesBuild || (usesBuildCritical && /critRate|critDamage/.test(node.id)))))) +
         result.hits.map((hit, index) => `<details class="calculator-hit-card" data-detail-id="hit-card:${esc(hit.id)}"${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? " open" : ""}><summary>${esc(hit.label)} · ${hit.status === "blocked" ? "阻塞" : hit.status === "non-damaging" ? "非伤害状态" : hit.sampled ? `本次抽样 ${number(hit.sampled.damage)} · 解析期望 ${number(hit.expected)}` : ` ${hit.castContribution ? "本次施放期望贡献" : "期望"} ${number(hit.castContribution?.expected ?? hit.expected)}`}</summary>${hit.blockers.length ? `<p class="calculator-error">${hit.blockers.map(esc).join("；")}</p>` : ""}${hit.sampled ? `<section class="calculator-status" data-special-sampled><div class="calculator-summary"><div class="metric"><div class="label">本次抽样实际伤害</div><div class="value" data-testid="calc-sampled">${number(hit.sampled.damage)}</div></div><div class="metric"><div class="label">解析期望对照</div><div class="value" data-testid="calc-sampled-expected">${number(hit.expected)}</div></div></div><p class="calculator-hint">实际值来自本次记录的逐贡献者暴击结果，再经共享公式排序和加权；解析期望仍按原始面板计算所有暴击组合。${hit.sampled.displayedCritical === "ambiguous-tie" ? "最高贡献并列，暴击标记不唯一。" : hit.sampled.displayedCritical === "critical" ? "最高贡献显示暴击。" : "最高贡献显示非暴击。"}完整随机数、比较与排序见下方计算轨迹。</p></section>` : ""}${hit.nonCriticalComparisonOnly ? `<p class="calculator-hint" data-weak-point-comparison>本击按明确弱点来源规则必定暴击，实际期望 ${number(hit.expected)}；非暴击 ${number(hit.nonCritical)} 仅作教学对照，面板暴击率没有被改写。</p>` : ""}${hit.castContribution ? `<p class="calculator-hint">触发后实际一击：非暴击 ${number(hit.nonCritical)}，暴击 ${number(hit.critical)}，期望 ${number(hit.expected)}；主击暴击触发概率 ${number(hit.castContribution.triggerProbability)}，本次施放期望贡献 ${number(hit.castContribution.expected)}。计算过程见下方共享轨迹。</p>` : ""}<div data-hit-trace-index="${index}"${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? ' data-trace-mounted="true"' : ""}>${result.hits.length === 1 || openDetails.includes(`hit-card:${hit.id}`) ? renderTraceHtml(hit.trace) : ""}</div></details>`).join("") +
         (result.counterexample ? `<aside class="calculator-counterexample"><h3>错误捷径对照 · 不计入正式总伤害</h3><p>${esc(result.counterexample.explanation)}</p><p>错误结果 <strong>${number(result.counterexample.incorrect)}</strong>；高估 <strong>${number(result.counterexample.overstatement)}</strong>。</p>${renderTraceHtml(result.counterexample.trace)}</aside>` : "") +
-        `<details class="calculator-audit"><summary>来源、依赖与完整计算记录</summary><p class="calculator-hint">公式与代入来自同一个执行轨迹。下列审计包含未舍入数值、输入来源和规则版本。</p>${sourceLinks([...current.hits.flatMap(hit => hit.sourceRefs), ...current.dependencies.flatMap(dependency => dependency.sourceRefs), ...(current.build.mode === "equipment-derived" ? current.build.equipment?.sourceRefs ?? [] : [])])}<pre>${esc(JSON.stringify({ document: current, dataIdentity: data, gameContext: current.gameContext, ruleVersion: current.ruleVersion, dependencies: current.dependencies, hitSources: current.hits.map(h => ({ id: h.id, sourceRefs: h.sourceRefs })), result }, null, 2))}</pre><button type="button" data-action="export-report">导出完整计算报告</button></details></section>`;
-      mountCalculatorAggregation(get("[data-cast-aggregation-host]"), result.aggregation, { nonCriticalComparisonOnly: result.hits.some(hit => hit.nonCriticalComparisonOnly) });
+        `<details class="calculator-audit"><summary>来源、依赖与完整计算记录</summary><p class="calculator-hint">公式与代入来自同一个执行轨迹。下列审计包含未舍入数值、输入来源和规则版本。</p>${sourceLinks([...current.hits.flatMap(hit => hit.sourceRefs), ...current.dependencies.flatMap(dependency => dependency.sourceRefs), ...(current.build.mode === "equipment-derived" ? current.build.equipment?.sourceRefs ?? [] : [])])}<pre>${esc(JSON.stringify({ document: current, dataIdentity: data, gameContext: current.gameContext, ruleVersion: current.ruleVersion, dependencies: current.dependencies, hitSources: current.hits.map(h => ({ id: h.id, sourceRefs: h.sourceRefs })), result }, null, 2))}</pre><button type="button" data-action="export-report">导出完整计算报告</button></details></details></section>`;
+      inlineRequirements.mount(inlineFields);
+      mountCalculatorAggregation(get("[data-cast-aggregation-host]"), result.aggregation, { nonCriticalComparisonOnly: result.hits.some(hit => hit.nonCriticalComparisonOnly), playerView: activeExampleId === null });
       get("#calc-results").querySelectorAll<HTMLDetailsElement>("details[data-detail-id]").forEach(d => { if (openDetails.includes(d.dataset.detailId)) d.open = true; });
       rememberCurrent();
       options.onChange?.(clone(current), result);
     } catch (error) {
       currentResult = null;
+      renderCharacterOutputOverview();
       get("#calc-results").innerHTML = `<div class="calculator-status blocked" role="alert"><strong>输入未通过校验，当前不生成伤害</strong><p>${esc(error instanceof Error ? error.message : String(error))}</p></div>`;
     }
   }
+
+  function renderPlungeCountDraft(valid: boolean): void {
+    // Keep the focused number editor in place until change commits it. Moving
+    // it on every keystroke commits early and resets the number input's caret.
+    currentResult = null;
+    get<HTMLButtonElement>('[data-action="export"]').disabled = true;
+    get("#calc-character-outputs").hidden = true;
+    const result = get("#calc-results").firstElementChild;
+    if (!result) return;
+    for (const child of result.children) if (child instanceof HTMLElement
+      && !child.matches("[data-calculator-inline-conditions], [data-plunge-count-draft]")) child.hidden = true;
+    let status = result.querySelector<HTMLElement>("[data-plunge-count-draft]");
+    if (!status) {
+      status = document.createElement("div");
+      status.dataset.plungeCountDraft = "";
+      status.className = "calculator-status";
+      status.setAttribute("role", "status");
+      result.prepend(status);
+    }
+    status.textContent = valid ? "正在编辑碰撞次数；完成输入后自动重算。" : "请填写0–64的整数；留空表示未知。";
+  }
+
+  root.addEventListener("click", event => {
+    const section = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-calculator-section]") : null;
+    if (section) {
+      const selectors: Record<string, string> = {
+        character: "[data-calculator-character-step]",
+        build: "[data-build-controls]:not([hidden]), [data-calculator-equipment-editor]",
+        equipment: "[data-calculator-equipment-editor]",
+        conditions: "[data-calculator-inline-conditions], [data-enemy-controls]:not([hidden]), [data-calculator-character-step]",
+        results: "#calc-results",
+      };
+      const selector = selectors[section.dataset.calculatorSection!];
+      // Selector priority is intentional: missing conditions already have their own in-place inputs.
+      const target = selector?.split(", ").map(part => root.querySelector<HTMLElement>(part)).find(Boolean);
+      if (target) {
+        if (target instanceof HTMLDetailsElement) target.open = true;
+        let parent = target.parentElement;
+        while (parent && parent !== root) { if (parent instanceof HTMLDetailsElement) parent.open = true; parent = parent.parentElement; }
+        target.scrollIntoView({ block: "start" });
+        const focus = target.querySelector<HTMLElement>('input:not(:disabled):not([readonly]), select:not(:disabled)')
+          ?? target.querySelector<HTMLElement>('button, h3, summary');
+        if (focus) { if (!focus.matches("input, select, button, summary")) focus.tabIndex = -1; focus.focus({preventScroll: true}); }
+      }
+      return;
+    }
+    const output = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-character-output-index]") : null;
+    if (output) {
+      const index = Number(output.dataset.characterOutputIndex);
+      const candidate = candidateDocuments[index];
+      if (!candidate) return;
+      selectedForm = candidate.gameContext?.variantId ?? "";
+      renderCandidateSelectors(actionKey(candidate));
+      loadCandidate(index);
+      return;
+    }
+    const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-calculator-requirement]") : null;
+    if (!button) return;
+    const control = root.querySelector<HTMLElement>(button.dataset.calculatorRequirement!);
+    if (!control) return;
+    for (let ancestor = control.parentElement; ancestor && ancestor !== root; ancestor = ancestor.parentElement) if (ancestor instanceof HTMLDetailsElement) ancestor.open = true;
+    control.classList.add("calculator-required-target");
+    control.scrollIntoView({ block: "center", behavior: "smooth" });
+    control.focus({ preventScroll: true });
+  });
 
   function syncWeaponProcTriggerControl(): void {
     const definition = weaponProcDefinitions.find(row => row.weaponId === get<HTMLSelectElement>("#calc-proc-weapon").value);
@@ -918,7 +1127,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     get("#calc-source-single-skill").hidden = true;
     get("#calc-artifact-utility").hidden = false;
   }
-  async function showSourceSingleSkill(): Promise<void> {
+  async function showSourceSingleSkill(preferredAction?: SourceCharacterActionKind): Promise<void> {
     clearCompositionEdit();
     const host = get("#calc-source-single-skill");
     host.hidden = false;
@@ -927,12 +1136,16 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     get("#calc-artifact-utility").hidden = true;
     get<HTMLButtonElement>('[data-action="export"]').disabled = true;
     get<HTMLButtonElement>("#calc-source-single-skill-close").onclick = showOrdinaryCalculator;
+    const selection = current?.gameContext?.characterId === "character:10000087"
+      ? { characterKey: "neuvillette", ...(preferredAction === undefined ? {} : { preferredAction }) } : undefined;
+    if (sourceSkillPanel && selection) sourceSkillPanel.select(selection);
     if (!sourceSkillPanel) {
       const body = get("#calc-source-single-skill-body");
       body.textContent = "正在载入单角色技能执行…";
       try {
         const { renderSourceSingleSkillPanel } = await import("./source-single-skill-panel");
         if (!sourceSkillPanel) sourceSkillPanel = renderSourceSingleSkillPanel(body, {
+          ...(selection ? { initialSelection: selection } : {}),
           onOpenCapture(capture) {
             loadSourceHostCapture(capture);
             get<HTMLButtonElement>("#calc-source-host-close").onclick = () => { void showSourceSingleSkill(); };
@@ -945,7 +1158,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     hideSourceSingleSkill();
     get("#calc-source-host-capture").hidden = true;
     get(".calculator-layout").hidden = false;
-    get<HTMLButtonElement>('[data-action="export"]').disabled = false;
+    get<HTMLButtonElement>('[data-action="export"]').disabled = !(current || capturedHit);
   }
   function clearCompositionEdit(): void {
     pendingCompositionSave = null;
@@ -975,6 +1188,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     message("每次实际接触都通过独立计算核心；完整性取决于事件归属、实际边界和逐段输入。");
   }
   function loadSourceHostCapture(capture: SourceHostHitCapture | SourceHostEditableCalculation | SourceHostActionCollection | SourceHostEventCollection | SourceHostPlayerIncomingCapture | SourceHostPlayerIncomingEditable | SourceHostEnergyCapture | SourceHostEnergyEditable | SourceHostCooldownCapture | SourceHostCooldownEditable | SourceHostHealingCapture | SourceHostHealingEditable | SourceHostCharacterShieldCapture | SourceHostCharacterShieldEditable | SourceHostDrainCapture | SourceHostDrainEditable): void {
+    activeExampleId = null; get("[data-calculator-example-mode]").hidden = true;
     hideSourceSingleSkill();
     clearCompositionEdit();
     const host = get("#calc-source-host-capture");
@@ -1069,8 +1283,9 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       rememberCurrent();
       const example = WORKED_EXAMPLES.find(e => e.id === id);
       const doc = loadWorkedExample(id);
+      activeExampleId = id;
       const synthetic = doc.dataIdentity.releaseStatus === "synthetic";
-      characterId = ""; candidateDocuments = []; importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+      characterId = ""; candidateDocuments = []; importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
       get("#calc-imported-binding").hidden = true;
       void refreshEquipment();
       ++selectionRequest;
@@ -1086,6 +1301,20 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     } catch (error) { message(error instanceof Error ? error.message : String(error), true); }
   }
 
+  function renderPlayerStart(): void {
+    current = null; currentResult = null; capturedHit = null; activeExampleId = null;
+    get<HTMLSelectElement>("#calc-character").value = "";
+    get<HTMLSelectElement>("#calc-skill").innerHTML = '<option value="">Choose a character first</option>';
+    get<HTMLSelectElement>("#calc-skill").disabled = true;
+    get<HTMLInputElement>("#calc-talent-level").disabled = true;
+    get("#calc-form-control").hidden = true;
+    get("#calc-character-status").textContent = "Choose a character to see supported actions. Default talent level: 9; imported levels are preserved.";
+    get("#calc-character-support-status").textContent = "";
+    renderControls();
+    get("#calc-results").innerHTML = '<section class="card calculator-start" data-calculator-start><h3>Your damage result</h3><p>Choose a character and action, then import a build or enter your stats.</p><p class="calculator-hint">Complete the scenario inputs for your selected action. Results update as you edit.</p></section>';
+    message("");
+  }
+
   function blockCharacter(reason: string): void {
     current = null; currentResult = null; capturedHit = null;
     get<HTMLSelectElement>("#calc-skill").disabled = true;
@@ -1099,7 +1328,16 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     return applyImportedCalculatorPanel(doc, importedCharacter, importedSource, importedTalentBinding ? "imported-effective" : "manual-effective");
   }
 
+  async function readManualTalentDocuments(id: string, levels: ManualEffectiveTalents): Promise<CalculatorDocument[]> {
+    const byLevel = await Promise.all([...new Set(Object.values(levels))].map(level => readCharacterDocuments(id, level)));
+    return byLevel.flat().filter(doc => {
+      const match = doc.gameContext?.abilityId.match(/:combat([123])$/);
+      return match && levels[(['auto','skill','burst'] as const)[Number(match[1])-1]!] === doc.gameContext!.effectiveTalentLevel;
+    }).map(doc => { doc.gameContext!.manualEffectiveTalents = clone(levels);return doc; });
+  }
+
   async function selectCharacter(id: string): Promise<void> {
+    activeExampleId = null;
     const request = ++selectionRequest;
     rememberCurrent();
     const previous = characterId === id ? characterDrafts.get(id) : undefined;
@@ -1111,7 +1349,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const character = workspace.index.characters.find(c => c.id === id);
     get<HTMLSelectElement>("#calc-skill").disabled = true;
     get<HTMLSelectElement>("#calc-skill").innerHTML = '<option value="">正在读取角色命中定义…</option>';
-    if (!character) { blockCharacter("请先选择正式目录角色，或单独载入教学例题。"); return; }
+    if (!id) { renderPlayerStart(); return; }
+    if (!character) { blockCharacter("未找到此角色，请重新选择或导入配装。"); return; }
     get("#calc-character-status").textContent = `正在检查 ${character.name} 的所选命中依赖…`;
     blockCharacter("正在读取角色命中定义…");
     try {
@@ -1119,11 +1358,12 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (!Number.isInteger(level) || level < 1 || level > 15) throw new Error("有效天赋等级须是 1–15 的整数；不会插值缺失等级。");
       let documents: CalculatorDocument[];
       if (importedCharacter && importedTalentBinding) {
-        const mapped = importedCharacter.resolvedSkills.filter(skill => skill.abilityId && Number.isInteger(skill.effectiveLevel) && skill.effectiveLevel >= 1 && skill.effectiveLevel <= 15);
-        if (!mapped.length) throw new Error("导入天赋尚未映射到具体技能及有效等级；保留最终面板，不使用默认天赋等级。");
+        const mapped = importedCharacter.resolvedSkills.filter(hasKnownImportedTalent);
+        if (!mapped.length) throw new Error("导入天赋的基础／额外／有效等级证据缺失或尚未映射；保留最终面板，请补齐后重新导入，不使用默认等级。");
         const byLevel = await Promise.all([...new Set(mapped.map(skill => skill.effectiveLevel))].map(value => readCharacterDocuments(id, value)));
         documents = byLevel.flat().filter(doc => doc.gameContext && mapped.some(skill => skill.abilityId === doc.gameContext!.abilityId && skill.effectiveLevel === doc.gameContext!.effectiveTalentLevel));
-      } else if (equipmentTalentBinding) {
+      } else if (importedManualTalents) documents = await readManualTalentDocuments(id, importedManualTalents);
+      else if (equipmentTalentBinding) {
         const binding = equipmentTalentBinding;
         const byLevel = await Promise.all([...new Set(binding.levels.values())].map(value => readCharacterDocuments(id, value)));
         documents = byLevel.flat().filter(doc => doc.gameContext && binding.levels.get(doc.gameContext.abilityId) === doc.gameContext.effectiveTalentLevel);
@@ -1135,25 +1375,27 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         const abilities = workspace.index.talentSets.filter(t => character.talentSetIds.includes(t.id)).flatMap(t => t.abilities);
         skill.innerHTML = abilities.map(a => `<option value="${esc(a.id)}">${esc(a.name)} · 缺少已分类命中定义</option>`).join("") || '<option value="">尚无可执行命中定义</option>';
         get("#calc-form-control").hidden = true;
-        get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || equipmentTalentBinding !== null;
+        get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || importedManualTalents !== null || equipmentTalentBinding !== null;
         get("#calc-character-status").textContent = "目录名称已匹配；所选等级的倍率含义、伤害命中分类或适用机制尚未核实。";
         blockCharacter(`${character.name} 缺少所选等级或导入技能匹配的已分类命中定义；不会套用其他角色、技能或教学例题的天赋。`);
         return;
       }
       skill.disabled = false;
       const index = renderCandidateSelectors(preferredKey);
-      get("#calc-character-status").textContent = `${candidateDocuments.length} 项已有明确伤害定义的动作可选。逐项检查实际依赖；未实现的其他角色机制不自动阻止所选命中。${importedTalentBinding ? "当前按各技能导入的有效等级匹配。" : equipmentTalentBinding ? "当前按配装中各动作的基础等级及明确命座增级匹配。" : "暂定来源始终标为暂定。"}`;
+      get("#calc-character-status").textContent = `已列出 ${candidateDocuments.length} 项招式，可分别查看对应伤害。`;
+      get("#calc-character-support-status").textContent = `${candidateDocuments.length} 项已有明确伤害定义的动作可选。逐项检查实际依赖；未实现的其他角色机制不自动阻止所选命中。${importedTalentBinding ? "当前按各技能导入的有效等级匹配。" : equipmentTalentBinding ? "当前按配装中各动作的基础等级及明确命座增级匹配。" : "暂定来源始终标为暂定。"}`;
       loadCandidate(index);
     } catch (error) { if (request === selectionRequest) blockCharacter(error instanceof Error ? error.message : String(error)); }
   }
 
   async function loadEquipmentBuild(input: EquipmentBuildInput, meta: CalculatorEquipmentBuildMeta): Promise<void> {
+    if (meta.sessionOnly) importSessionPolicy.markImportedWorkspace();
     const binding = equipmentTalentLevels(input.characterId, meta, releasedRuntimeWorkspace);
     const resolution = resolveEquipmentBuild(input, releasedRuntimeWorkspace);
     if (workspace.channel === "preview") await selectWorkspace("released");
     rememberCurrent();
     current = null; currentResult = null; characterId = "";
-    importedCharacter = null; importedTalentBinding = false;
+    importedCharacter = null; importedTalentBinding = false; importedManualTalents = null;
     equipmentTalentBinding = binding;
     characterDrafts.delete(input.characterId);
     equipmentDrafts.delete(input.characterId);
@@ -1168,11 +1410,13 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     message(`已载入${meta.label ?? "角色配装"}。武器与圣遗物可继续调整；切换动作会保留配装并使用该动作的有效天赋等级。无需创建队伍。`);
   }
 
-  async function loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source = "Enka 公开展示柜最终面板"): Promise<void> {
+  async function loadImportedCharacter(character: CatalogResolvedShowcaseCharacter, source = "Enka 公开展示柜最终面板", manualEffectiveTalents?: ManualEffectiveTalents): Promise<void> {
+    importSessionPolicy.markImportedWorkspace();
+    if (manualEffectiveTalents && Object.values(manualEffectiveTalents).some(level => !Number.isInteger(level) || level < 1 || level > 15)) throw new Error('手填有效天赋须为1–15的整数。');
     if (workspace.channel === "preview") await selectWorkspace("released");
     rememberCurrent();
     current = null; currentResult = null; characterId = "";
-    importedCharacter = character; importedSource = source; importedTalentBinding = true; equipmentTalentBinding = null;
+    importedCharacter = character; importedSource = source; importedTalentBinding = !manualEffectiveTalents; importedManualTalents = manualEffectiveTalents ? clone(manualEffectiveTalents) : null; equipmentTalentBinding = null;
     candidateDocuments = [];
     get<HTMLSelectElement>("#calc-skill").innerHTML = '<option value="">等待导入技能与等级匹配</option>';
     get<HTMLInputElement>("#calc-talent-level").disabled = true;
@@ -1181,13 +1425,13 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     get<HTMLSelectElement>("#calc-character").value = id;
     void refreshEquipment();
     if (!id) { blockCharacter(`导入 avatarId ${character.avatarId} 无对应正式目录身份，不能借用其他角色天赋。`); return; }
-    const skill = character.resolvedSkills.find(s => s.abilityId !== null);
-    if (!skill) { blockCharacter("导入的有效天赋等级尚未映射，不能假定为默认等级。最终面板已保留。"); return; }
+    const skill = character.resolvedSkills.find(hasKnownImportedTalent);
+    if (!skill && !manualEffectiveTalents) { blockCharacter("导入缺少有效的基础／额外天赋等级证据；请补齐后重新导入，不能假定额外等级为0。最终面板已保留。"); return; }
     characterDrafts.delete(id);
     const equipmentDraft = equipmentDrafts.get(id);
     if (equipmentDraft) equipmentDraft.finalized = false;
     for (const [key, doc] of actionDrafts) if (doc.gameContext?.characterId === id) actionDrafts.delete(key);
-    get<HTMLInputElement>("#calc-talent-level").value = String(skill.effectiveLevel);
+    get<HTMLInputElement>("#calc-talent-level").value = String(manualEffectiveTalents?.auto ?? skill!.effectiveLevel);
     await selectCharacter(id);
   }
 
@@ -1195,8 +1439,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const replay = replaySimulationHit(capture);
     rememberCurrent();
     capturedHit = replay.captured; current = null; currentResult = null;
+    clearCompositionEdit();
+    showOrdinaryCalculator();
     invalidFields.clear();
-    characterId = ""; importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null; ++selectionRequest;
+    characterId = ""; importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null; ++selectionRequest;
     get("#calc-imported-binding").hidden = true;
     get("#calc-form-control").hidden = true;
     void refreshEquipment();
@@ -1212,6 +1458,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   }
 
   function download(name: string, data: string, type = "application/json"): void {
+    importSessionPolicy.assertWorkspacePersistenceAllowed();
     const url = URL.createObjectURL(new Blob([data], { type }));
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = name; anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -1229,7 +1476,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       if (!response.ok || envelope.data === undefined) throw new Error(envelope.error ?? `HTTP ${response.status}`);
       const showcase = resolveShowcaseCatalog(parseEnkaShowcase(envelope.data, { uid, ...(envelope.fetchedAt ? { fetchedAt: envelope.fetchedAt } : {}) }));
       status.textContent = `已读取 ${showcase.characters.length} 名公开角色；${envelope.cache === "hit" ? "使用 TTL 缓存" : "刚刚刷新"}。${showcase.visibility === "closed-or-empty" ? "展示柜关闭或为空。" : ""}`;
-      get("#calc-showcase-characters").innerHTML = showcase.characters.map((c, index) => `<button class="calculator-showcase-select" type="button" data-showcase-index="${index}">${esc(c.catalog.name ?? `未匹配角色 ${c.avatarId}`)} · Lv.${c.level} · C${c.constellation} · 导入面板</button>`).join("");
+      get("#calc-showcase-characters").innerHTML = showcase.characters.map((c, index) => `<button class="calculator-showcase-select" type="button" data-showcase-index="${index}">${esc(c.catalog.name ?? `未匹配角色 ${c.avatarId}`)} · Lv.${c.level ?? "未知"} · C${c.constellation} · 导入面板</button>`).join("");
       get("#calc-showcase-characters").querySelectorAll<HTMLButtonElement>("[data-showcase-index]").forEach(button => button.addEventListener("click", () => {
         const selected = showcase.characters[Number(button.dataset.showcaseIndex)];
         if (selected) void loadImportedCharacter(selected, `Enka 公开展示柜 ${showcase.fetchedAt}，目录 ${showcase.catalogVersion}`);
@@ -1278,17 +1525,23 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     }
     if (!(input instanceof HTMLInputElement) || !input.dataset.field || !current) return;
     if (input.hasAttribute("data-source-cast-number-field")) {
-      if (!input.checkValidity()) { invalidFields.add(input.dataset.field); renderResults(); return; }
+      const contactCount = input.dataset.field === "gameContext.observedPlunge.collisionCount";
+      if (!input.checkValidity()) {
+        invalidFields.add(input.dataset.field);
+        if (contactCount) renderPlungeCountDraft(false); else renderResults();
+        return;
+      }
       invalidFields.delete(input.dataset.field);
       applySourceCastControl(current, input);
-      refreshPassiveSkillContext(); markEditedSourceExample(current); renderResults();
+      refreshPassiveSkillContext(); markEditedSourceExample(current);
+      if (contactCount) renderPlungeCountDraft(true); else renderResults();
       return;
     }
     const noelleField = input.dataset.field.startsWith("gameContext.noelleBurst.");
     const ittoField = input.dataset.field.startsWith("gameContext.ittoCharged.");
     const yanfeiField = input.dataset.field.startsWith("gameContext.yanfeiCharged.");
     const keqingField = input.hasAttribute("data-keqing-number-field");
-    const kukiField = input.hasAttribute("data-kuki-number-field");
+    const kukiField = input.hasAttribute("data-kuki-number-field") || input.hasAttribute("data-tighnari-number-field");
     const baizhuField = input.hasAttribute("data-baizhu-number-field");
     const charlotteField = input.hasAttribute("data-charlotte-number-field");
     const ttdsField = input.hasAttribute("data-ttds-number-field");
@@ -1327,7 +1580,10 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   });
 
   root.addEventListener("change", event => {
+    // Moving a focused condition control can synchronously commit a numeric
+    // edit already stored by the input handler. Do not re-enter DOM rendering.
     const input = event.target;
+    if (inlineRequirements.isRelocating()) return;
     if (input instanceof HTMLElement && input.closest("#calc-source-single-skill")) return;
     if (!(input instanceof HTMLInputElement || input instanceof HTMLSelectElement)) return;
     if (captureSourceDraftInput(input)) return;
@@ -1355,7 +1611,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     }
     if (current && input instanceof HTMLInputElement && input.dataset.field === "gameContext.observedPlunge.collisionCount") {
       // The input handler has stored the count; reveal one contact selector per observed opportunity.
-      renderControls(); renderResults(); return;
+      if (input.checkValidity()) { renderControls(); renderResults(); }
+      return;
     }
     if (current && input instanceof HTMLSelectElement && input.dataset.specialArtifactHit !== undefined) {
       const hit = current.hits[Number(input.dataset.specialArtifactHit)];
@@ -1407,7 +1664,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       renderControls(); renderResults();
       return;
     }
-    if (input.id === "calc-character") { importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null; get("#calc-imported-binding").hidden = true; void selectCharacter(input.value); return; }
+    if (input.id === "calc-character") { importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null; get("#calc-imported-binding").hidden = true; void selectCharacter(input.value); return; }
     if (input.id === "calc-talent-level" && characterId) {
       if (current?.gameContext?.skillId === "noelle-burst-cast" && current.gameContext.noelleBurst && input instanceof HTMLInputElement && input.checkValidity() && Number.isFinite(input.valueAsNumber)) {
         current.gameContext.noelleBurst.effectiveTalentLevel = input.valueAsNumber;
@@ -1444,7 +1701,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         else if (identity.schemaVersion === "source-host-character-shield-calculator-v1") loadSourceHostCapture(sourceHostCharacterShieldEditableSchema.parse(JSON.parse(text)));
         else if (identity.schemaVersion === "source-host-drain-v1") loadSourceHostCapture(sourceHostDrainCaptureSchema.parse(JSON.parse(text)));
         else if (identity.schemaVersion === "source-host-drain-calculator-v1") loadSourceHostCapture(sourceHostDrainEditableSchema.parse(JSON.parse(text)));
-        else if (identity.schemaVersion === "calculator-event-v1") loadSimulationCapture(parseSimulationHit(text));
+        else if (identity.schemaVersion === "calculator-event-v1" || identity.schemaVersion === "calculator-event-v2") loadSimulationCapture(parseSimulationHit(text));
         else { const doc = parseCalculatorDocument(text);
           if (doc.dataIdentity.releaseStatus === "preview") {
             if (availablePreviewDatasets.some(data => data.snapshotId === doc.dataIdentity.datasetId))
@@ -1468,6 +1725,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       const state = current.incomingThrillingTales.hitStates[input.dataset.ttdsActive]!;
       if (input.value === "unknown") delete state.active; else state.active = input.value === "1";
       refreshPassiveSkillContext(); markEditedSourceExample(current); renderResults();
+    } else if(input.dataset.tighnariField) {
+      const path=input.dataset.tighnariField.split(".");let target=current as unknown as Record<string,unknown>;
+      for(const key of path.slice(0,-1))target=target[key] as Record<string,unknown>;
+      if(input.value==="unknown")delete target[path.at(-1)!];else target[path.at(-1)!]=input.hasAttribute("data-tighnari-boolean")?input.value==="1":Number(input.value);
+      refreshPassiveSkillContext();markEditedSourceExample(current);renderResults();
     } else if (input.dataset.keqingStateField || input.dataset.kukiStateField || input.dataset.baizhuStateField || input.dataset.colleiStateField || input.dataset.charlotteStateField) {
       const path = (input.dataset.keqingStateField ?? input.dataset.kukiStateField ?? input.dataset.baizhuStateField ?? input.dataset.colleiStateField ?? input.dataset.charlotteStateField)!.split(".");
       let target = current as unknown as Record<string, unknown>;
@@ -1507,8 +1769,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       refreshNoelleContext(); markEditedSourceExample(current); renderControls(); renderResults();
     } else if (input.id === "calc-constellation" && current.gameContext) {
       equipmentTalentBinding = null;
-      get("#calc-imported-binding").hidden = !importedTalentBinding;
-      get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding;
+      get("#calc-imported-binding").hidden = !importedTalentBinding && !importedManualTalents;
+      get<HTMLInputElement>("#calc-talent-level").disabled = importedTalentBinding || importedManualTalents !== null;
       current.gameContext.constellation = Number(input.value);
       current = applyCharacterConstellationScope(current, workspace);
       refreshPassiveSkillContext();
@@ -1583,13 +1845,14 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
           }
           resetKeqingPanelAccounting(current, "fresh-equipment");
           resetKukiPanelAccounting(current, "fresh-equipment");
+          resetTighnariPanelAccounting(current, "fresh-equipment");
           resetBaizhuPanelAccounting(current, "fresh-equipment");
           resetCharlottePanelAccounting(current, "fresh-equipment");
           resetIncomingThrillingTalesPanelAccounting(current, "fresh-equipment");
           resetSourceCastPanelAccounting(current, "fresh-equipment");
           refreshPassiveSkillContext();
           original.finalized = false;
-          importedCharacter = null; importedTalentBinding = false; equipmentTalentBinding = null;
+          importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
           get("#calc-imported-binding").hidden = true;
           get<HTMLInputElement>("#calc-talent-level").disabled = false;
         }
@@ -1598,6 +1861,17 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         current = applyImportedPanel(current);
         const draft = equipmentDrafts.get(equipmentKey(current));
         if (draft) draft.finalized = false;
+      }
+      else if (input.value === "manual-final" && canCreateAlhaithamActualPanelDraft(current)) {
+        // Manual observation entry does not certify or convert unsupported gear.
+        rememberEquipment(current);
+        current = createAlhaithamActualPanelDraft(current);
+        const draft = equipmentDrafts.get(equipmentKey(current));
+        if (draft) draft.finalized = false;
+        capturedHit = null;
+        importedCharacter = null; importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+        get("#calc-imported-binding").hidden = true;
+        message("已打开未确认的实际面板。请填写本击属性和各段适用增伤，再确认C2面板；尚未生成转换结果。");
       }
       else if (current.build.mode !== "equipment-derived") current.build = { ...current.build, mode: "manual-final", source: "手动最终面板；不提供装备分解" };
       else {
@@ -1628,7 +1902,18 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
     const target = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-action]");
     if (!target) return;
     const action = target.dataset.action;
-    if (action === "source-single-skill") { void showSourceSingleSkill(); return; }
+    if (action === "source-single-skill") {
+      const preferred = target.dataset.sourceAction;
+      void showSourceSingleSkill(preferred === "charge" || preferred === "burst" ? preferred : undefined); return;
+    }
+    if (action === "faruzan-e-panel-excludes-own-effects" && current) {
+      const declared = applyFaruzanEPanelExcludesOwnEffectsDeclaration(current);
+      if (!declared) { message("此声明只适用于珐露珊C0本次E的已选命中，不修改历史快照。", true); return; }
+      current = declared;
+      refreshPassiveSkillContext(); markEditedSourceExample(current); renderControls(); renderResults();
+      message("已按你的声明将所选当前面板的三项已含份额设为0；其余属性和战斗条件保持不变。");
+      return;
+    }
     if (action === "observed-composition" || action === "composition-cancel-component") { loadObservedComposition(); return; }
     if (action === "composition-save-component") {
       if (invalidFields.size) { message("请先应用或修正尚未应用的输入，再保存本段。", true); return; }
@@ -1643,6 +1928,8 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
         .find(row => row.dataset.detailId === `hit-card:${target.dataset.castHitId}`);
       if (detail) {
         detail.open = true;
+        let parent = detail.parentElement;
+        while (parent && parent !== root) { if (parent instanceof HTMLDetailsElement) parent.open = true; parent = parent.parentElement; }
         detail.scrollIntoView({ block: "nearest" });
         detail.querySelector("summary")?.focus();
       }
@@ -1806,10 +2093,17 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
       }
     }
     else if (action === "manual-talents") {
-      importedTalentBinding = false; equipmentTalentBinding = null;
+      importedTalentBinding = false; importedManualTalents = null; equipmentTalentBinding = null;
+      if (current?.gameContext) delete current.gameContext.manualEffectiveTalents;
       get("#calc-imported-binding").hidden = true;
       get<HTMLInputElement>("#calc-talent-level").disabled = false;
       message("已允许手动选择有效天赋等级；当前配装与面板继续保留。只有显式修改等级才读取另一条来源倍率。");
+    }
+    else if (action === "import-build") { options.onNavigate?.("/builds#import-uid"); }
+    else if (action === "choose-character") {
+      if (activeExampleId !== null) void selectCharacter("");
+      const selector = get<HTMLSelectElement>("#calc-character");
+      selector.scrollIntoView({block:"center"}); selector.focus();
     }
     else if (action === "build-presets") { if (options.onNavigate) options.onNavigate("/builds"); else window.location.assign("/builds"); }
     else if (action === "load-weapon-proc") loadWeaponProc();
@@ -1838,12 +2132,11 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions 
   bindObservedEventRows(root);
   const requestedWorkspace = new URLSearchParams(window.location.search);
   const requestingPreview = requestedWorkspace.get("workspace") === "preview";
-  const initial = WORKED_EXAMPLES.find(e => e.category === "synthetic");
-  if (initial && !requestingPreview) loadExample(initial.id);
+  if (!requestingPreview) renderPlayerStart();
   renderWorkspaceIdentity();
   if (requestingPreview) {
     blockCharacter("正在加载所选预览快照，请稍候。");
     void selectWorkspace("preview", requestedWorkspace.get("snapshot") ?? undefined);
   }
-  return { stopSourceSkillRun: () => sourceSkillPanel?.stop(), loadDocument(document): void { rememberCurrent(); characterId = document.gameContext?.characterId ?? ""; loadDocument(document); restoreIdentityControls(document); }, loadObservedComposition, loadExample, loadSimulationCapture, loadSourceHostCapture, loadImportedCharacter, loadEquipmentBuild, renderExamples, getDocument: () => current ? clone(current) : null, getResult: () => currentResult ? clone(currentResult) : null };
+  return { stopSourceSkillRun: () => sourceSkillPanel?.stop(), loadDocument(document): void { activeExampleId = null; rememberCurrent(); characterId = document.gameContext?.characterId ?? ""; loadDocument(document); restoreIdentityControls(document); }, loadObservedComposition, loadExample, loadSimulationCapture, loadSourceHostCapture, loadImportedCharacter, loadEquipmentBuild, renderExamples, getDocument: () => current ? clone(current) : null, getResult: () => currentResult ? clone(currentResult) : null };
 }

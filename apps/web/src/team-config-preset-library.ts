@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import type { SimConfig } from "@genshin-dps-lab/schemas";
 
 const STORAGE_KEY = "gidps-team-config-presets-v1";
@@ -58,6 +59,7 @@ export function listTeamConfigPresets(): TeamConfigPreset[] {
 }
 
 function persist(presets: TeamConfigPreset[]): TeamConfigPreset[] {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
   const library: TeamConfigPresetLibrary = { schemaVersion: SCHEMA_VERSION, presets: clone(presets) };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(library));
   return clone(presets);

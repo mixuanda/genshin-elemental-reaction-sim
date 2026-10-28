@@ -1,0 +1,3 @@
+.source-host-model-limit { border-left: .25rem solid #96702a; padding: .6rem .9rem; margin: .8rem 0; background: var(--surface, #fff); }
+.source-host-model-limit p { margin-block: .4rem; }
+.source-host-model-limit summary { cursor: pointer; }

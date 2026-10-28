@@ -1,0 +1,116 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ × apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Kuki's Q cast HP, keeps the 50% boundary exact, and never guesses a duration 48ms
+   → expected [] to include 'gameContext.kukiDamage.burstHpRatioAt…'
+ × apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > does not ask an independent early Q hit for later duration or stable multi-hit conditions 15ms
+   → expected [] to include 'gameContext.kukiDamage.burstHpRatioAt…'
+ × apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Kuki's complete ring and C6 EM accounting without inventing HP-triggered history 8ms
+   → expected [] to deeply equal ArrayContaining{…}
+ × apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Charlotte's actual team count, accepts a real zero and keeps mark conditions scoped to a full cast 3ms
+   → expected [] to deeply equal ArrayContaining{…}
+ × apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links only the selected Charlotte C2 snapshot and requires white ATK only for an actual difference 2ms
+   → expected [] to deeply equal ArrayContaining{…}
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Kuki's Q cast HP, keeps the 50% boundary exact, and never guesses a duration
+AssertionError: expected [] to include 'gameContext.kukiDamage.burstHpRatioAt…'
+ ❯ apps/web/src/calculator-conditional-cast-requirements.test.ts:23:29
+     21|     let document = fixture("kukishinobu", "kuki-burst-low-hp-complete-…
+     22|     expect(calculateDocument(document).status).toBe("blocked");
+     23|     expect(paths(document)).toContain("gameContext.kukiDamage.burstHpR…
+       |                             ^
+     24|     const field = collectCalculatorRequirements(document).fields.find(…
+     25|     expect(renderKukiDamageControls(document)).toContain(`data-field="…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > does not ask an independent early Q hit for later duration or stable multi-hit conditions
+AssertionError: expected [] to include 'gameContext.kukiDamage.burstHpRatioAt…'
+ ❯ apps/web/src/calculator-conditional-cast-requirements.test.ts:43:29
+     41|     expect(calculateDocument(document).totals!.nonCritical).toBeCloseT…
+     42|     document.selectedHitIds = [document.hits[7]!.id]; document = apply…
+     43|     expect(paths(document)).toContain("gameContext.kukiDamage.burstHpR…
+       |                             ^
+     44|     expect(calculateDocument(document).status).toBe("blocked");
+     45|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Kuki's complete ring and C6 EM accounting without inventing HP-triggered history
+AssertionError: expected [] to deeply equal ArrayContaining{…}
+
+- Expected
++ Received
+
+- ArrayContaining [
+-   "gameContext.kukiDamage.statsStableAcrossHits",
+-   "gameContext.kukiDamage.ringUninterrupted",
+-   "gameContext.kukiDamage.c6FinalEmRestored",
+-   "gameContext.kukiDamage.c6Active",
+-   "gameContext.kukiDamage.c6IncludedInPanel",
+- ]
++ []
+
+ ❯ apps/web/src/calculator-conditional-cast-requirements.test.ts:50:29
+     48|     let document = fixture("kukishinobu", "kuki-skill-c2-complete-cast…
+     49|     document.gameContext!.constellation = 6; document = applyKukiDamag…
+     50|     expect(paths(document)).toEqual(expect.arrayContaining([
+       |                             ^
+     51|       "gameContext.kukiDamage.statsStableAcrossHits", "gameContext.kuk…
+     52|       "gameContext.kukiDamage.c6FinalEmRestored", "gameContext.kukiDam…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Charlotte's actual team count, accepts a real zero and keeps mark conditions scoped to a full cast
+AssertionError: expected [] to deeply equal ArrayContaining{…}
+
+- Expected
++ Received
+
+- ArrayContaining [
+-   "gameContext.charlotteSkill.nonFontaineTeammates",
+-   "gameContext.charlotteSkill.markUninterrupted",
+-   "gameContext.charlotteSkill.statsStableAcrossHits",
+- ]
++ []
+
+ ❯ apps/web/src/calculator-conditional-cast-requirements.test.ts:66:29
+     64|     let document = fixture("charlotte", "charlotte-skill-press-complet…
+     65|     const before = JSON.stringify(document);
+     66|     expect(paths(document)).toEqual(expect.arrayContaining([
+       |                             ^
+     67|       "gameContext.charlotteSkill.nonFontaineTeammates", "gameContext.…
+     68|       "gameContext.charlotteSkill.statsStableAcrossHits",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links only the selected Charlotte C2 snapshot and requires white ATK only for an actual difference
+AssertionError: expected [] to deeply equal ArrayContaining{…}
+
+- Expected
++ Received
+
+- ArrayContaining [
+-   "gameContext.charlotteSkill.c2IncludedStacks",
+-   "gameContext.charlotteSkill.c2HitStacks.charlotte-skill-hold-complete-initial",
+- ]
++ []
+
+ ❯ apps/web/src/calculator-conditional-cast-requirements.test.ts:86:29
+     84|     document = applyCharlotteSkillContext(document, { a4IncludedInPane…
+     85|     const hitId = document.selectedHitIds[0]!;
+     86|     expect(paths(document)).toEqual(expect.arrayContaining(["gameConte…
+       |                             ^
+     87|     expect(paths(document)).not.toContain("gameContext.charlotteSkill.…
+     88|     document = applyCharlotteSkillContext(document, { ...document.game…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  19:51:48
+   Duration  9.01s (transform 6.66s, setup 0ms, import 8.78s, tests 78ms, environment 0ms)
+

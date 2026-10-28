@@ -1,0 +1,27 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > retains exact energy/healing values and complete explanations for action-opportunities-classic-xingqiu-20260929.capture.json 412ms
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > retains exact energy/healing values and complete explanations for action-opportunities-stellar-xingqiu-20260929.capture.json 324ms
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > retains exact energy/healing values and complete explanations for source-character-overrides-classic-healing-20260928.result.json 602ms
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > retains exact energy/healing values and complete explanations for source-character-overrides-stellar-healing-20260928.result.json 533ms
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > retains exact energy/healing values and complete explanations for source-healing-sources-stellar-scene2-20260928.result.json 1641ms
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > rejects a missing dependency and mismatched particle ownership, order and amount 26ms
+ ✓ packages/sim-core/src/source-host-application-validation.test.ts > isolates nested passthrough metadata and does not freeze or memoize a mutable caller record 8ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > compares every JSON field while ignoring object key order, never array order or values 2ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > accepts a fresh complete receipt with reordered object properties without altering its frame arrays 360ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > rejects native frame tampering even when numeric inputs and outputs match 40ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > rejects native actorIndex tampering even when numeric inputs and outputs match 30ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > rejects native actorKey tampering even when numeric inputs and outputs match 35ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > rejects native ability tampering even when numeric inputs and outputs match 29ms
+ ✓ packages/sim-core/src/source-host-request-identity.test.ts > rejects changed opaque request metadata rather than trusting only the scalar formula input 35ms
+ ✓ packages/sim-core/src/source-host-validation-memo.test.ts > validation snapshot preserves every value and full explanation; only owned requests are memoized 1267ms
+ ✓ packages/sim-core/src/source-host-validation-memo.test.ts > input mutations and fresh validation contexts cannot inherit prior trusted identity 95ms
+ ✓ packages/sim-core/src/source-host-validation-memo.test.ts > snapshot exposes no mutable backing map or nested record and rejects mismatched keys 80ms
+ ✓ packages/sim-core/src/source-host-validation-memo.test.ts > warm validation cache still rejects changed energy frame, value, source and owner 91ms
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  18:59:44
+   Duration  8.52s (transform 1.20s, setup 0ms, import 2.53s, tests 5.61s, environment 0ms)
+

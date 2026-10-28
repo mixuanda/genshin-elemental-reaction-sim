@@ -1,4 +1,6 @@
 import {
+  assertTrustedSimulationResult,
+  simulationResultSchema,
   dendroCoreContactLogSchema,
   dendroCoreLogSchema,
   dendroCoreResultReferencesSchema,
@@ -820,6 +822,116 @@ describe("aura-v5 Dendro-core integration", () => {
       )
     ).toHaveLength(1);
     validateCoreResult(result);
+  });
+
+  describe("direct core-contact fanout provenance", () => {
+    function fanout(radius = 2, afterFrame = false) {
+      const config = makeCoreScenario({
+        coreCount: 1,
+        durationFrames: 120,
+        contact: "pyro",
+        contactGeometry: {
+          kind: "circle", coordinateSpace: "world",
+          origin: { x: 0, y: 0 }, radius
+        },
+        targets: [
+          { id: "enemy-0", name: "Core source", position: { x: 0, y: 0 }, hitboxRadius: 0 },
+          { id: "enemy-1", name: "Second enemy", position: { x: 1.5, y: 0 }, hitboxRadius: 0 }
+        ]
+      });
+      if (afterFrame) config.timeline!.abilities.find(ability => ability.id === "pyro-core-contact")!.actionPhase = "after-frame-tasks-v1";
+      return simulate(config, { critMode: "noCrit" });
+    }
+
+    function members(result: ReturnType<typeof fanout>) {
+      const contact = result.dendroCoreContactLog[0]!;
+      const first = result.hitResolutionLog[contact.hitResolutionLogIds[0]!]!;
+      const last = result.hitResolutionLog[contact.hitResolutionLogIds[1]!]!;
+      const firstDamage = result.damageEvents[first.damageEventId!]!;
+      function requireQueue(hit: typeof first) {
+        if (hit.eventPriority === undefined || hit.eventSequence === undefined) {
+          throw new Error("Current fanout fixture must expose each target's queue tuple.");
+        }
+        return hit as typeof first & { eventPriority: number; eventSequence: number };
+      }
+      return { contact, first: requireQueue(first), last: requireQueue(last), firstDamage };
+    }
+
+    it.each([2, 0.5])("retains every target queue and final completion with radius %s", (radius) => {
+      const result = fanout(radius);
+      const { contact, first, last } = members(result);
+      expect(first.eventSequence).toBeLessThan(last.eventSequence);
+      expect(contact.eventSequence).toBe(last.eventSequence);
+      expect([first.targetIndex, last.targetIndex]).toEqual([0, 1]);
+      expect([first.targetCount, last.targetCount]).toEqual([2, 2]);
+      expect(contact.triggerDamageEventIds).toEqual(
+        [first, last].flatMap(hit => hit.damageEventId === null ? [] : [hit.damageEventId])
+      );
+      expect(last.damageEventId === null).toBe(radius === 0.5);
+      expect(result.dendroCoreContactLog).toHaveLength(1);
+      expect(result.dendroCoreLog.filter(row => row.operation === "consume")).toHaveLength(1);
+      const wire = JSON.parse(JSON.stringify(result));
+      expect(dendroCoreResultReferencesSchema.safeParse(wire).success).toBe(true);
+      expect(simulationResultSchema.safeParse(wire).success).toBe(true);
+      expect(() => assertTrustedSimulationResult(wire)).not.toThrow();
+    });
+
+    it("preserves authenticated after-frame contact phases", () => {
+      const result = fanout(2, true);
+      const { contact, first, last } = members(result);
+      expect([first.eventPriority, last.eventPriority, contact.eventPriority]).toEqual([13, 13, 13]);
+      expect(contact.eventSequence).toBe(last.eventSequence);
+      expect(simulationResultSchema.safeParse(result).success).toBe(true);
+      expect(assertTrustedSimulationResult(result)).toBe(result);
+    });
+
+    it("rejects removing the whole contact while core consumption still references it", () => {
+      const result = fanout();
+      result.dendroCoreContactLog = [];
+      expect(dendroCoreResultReferencesSchema.safeParse(result).success).toBe(false);
+      expect(simulationResultSchema.safeParse(result).success).toBe(false);
+      expect(() => assertTrustedSimulationResult(result)).toThrow();
+    });
+
+    const forgeries: [string, (result: ReturnType<typeof fanout>) => void][] = [
+      ["omitted first member", r => { const { contact } = members(r); contact.hitResolutionLogIds.shift(); contact.triggerDamageEventIds.shift(); }],
+      ["omitted last member", r => { const { contact } = members(r); contact.hitResolutionLogIds.pop(); contact.triggerDamageEventIds.pop(); }],
+      ["empty members", r => { const { contact } = members(r); contact.hitResolutionLogIds = []; contact.triggerDamageEventIds = []; }],
+      ["duplicate member", r => { const { contact, first } = members(r); contact.hitResolutionLogIds[1] = first.id; }],
+      ["reordered members and damage", r => { const { contact } = members(r); contact.hitResolutionLogIds.reverse(); contact.triggerDamageEventIds.reverse(); }],
+      ["foreign group member", r => { members(r).contact.hitResolutionLogIds[0] = 0; }],
+      ["unknown member", r => { members(r).contact.hitResolutionLogIds[0] = 999999; }],
+      ["forged target index", r => { members(r).first.targetIndex = 1; }],
+      ["forged target count", r => { members(r).first.targetCount = 3; }],
+      ["missing multi-target metadata", r => { const { first, last } = members(r); for (const hit of [first, last]) { Reflect.deleteProperty(hit, "targetIndex"); Reflect.deleteProperty(hit, "targetCount"); } }],
+      ["duplicate target", r => { const { first, last } = members(r); first.targetId = last.targetId; }],
+      ["changed member queue", r => { members(r).first.eventSequence -= 1; }],
+      ["reversed member queue order", r => { const { first, last } = members(r); first.eventSequence = last.eventSequence + 1; }],
+      ["changed member priority", r => { members(r).first.eventPriority += 1; }],
+      ["first member used as completion", r => { const { contact, first } = members(r); contact.eventSequence = first.eventSequence; }],
+      ["nonexistent completion", r => { members(r).contact.eventSequence += 1; }],
+      ["changed completion priority", r => { members(r).contact.eventPriority += 1; }],
+      ["wrong damage queue", r => { members(r).firstDamage.eventSequence -= 1; }],
+      ["wrong damage backlink", r => { const { firstDamage, last } = members(r); firstDamage.targetResolutionId = last.id; }],
+      ["wrong damage target", r => { const { firstDamage, last } = members(r); firstDamage.targetId = last.targetId; }],
+      ["wrong damage action", r => { members(r).firstDamage.actionId = "forged"; }],
+      ["wrong damage hit", r => { members(r).firstDamage.hitId = "forged"; }],
+      ["wrong damage element", r => { members(r).firstDamage.element = "hydro"; }],
+      ["wrong damage target index", r => { members(r).firstDamage.targetIndex = 1; }],
+      ["omitted damage with coordinated null backlink", r => { const { contact, first } = members(r); first.damageEventId = null; contact.triggerDamageEventIds.shift(); }],
+      ["extra damage reference", r => { members(r).contact.triggerDamageEventIds.push(0); }],
+      ["reordered damage references", r => { members(r).contact.triggerDamageEventIds.reverse(); }]
+    ];
+    it.each(forgeries)("rejects %s at reference, public and trusted boundaries", (_name, forge) => {
+      const result = fanout();
+      forge(result);
+      const wire = JSON.parse(JSON.stringify(result));
+      const parsed = dendroCoreResultReferencesSchema.safeParse(wire);
+      expect(parsed.success).toBe(false);
+      if (!parsed.success) expect(parsed.error.issues.some(issue => issue.path[0] === "dendroCoreContactLog")).toBe(true);
+      expect(simulationResultSchema.safeParse(wire).success).toBe(false);
+      expect(() => assertTrustedSimulationResult(wire)).toThrow();
+    });
   });
 
   it("contacts a core from explicit geometry even when the attack misses every enemy", () => {

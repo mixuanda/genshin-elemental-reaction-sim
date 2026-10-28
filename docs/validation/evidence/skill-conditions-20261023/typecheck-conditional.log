@@ -1,0 +1,18 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> npm run check:workspace && tsc --noEmit
+
+
+> genshin-dps-lab@1.0.0 check:workspace
+> node scripts/check-workspace-resolution.mjs
+
+Workspace package entries resolve to this checkout.
+apps/web/src/calculator-projectile-requirements.test.ts(12,43): error TS2379: Argument of type '{ adapters: CalculatorRequirementAdapter[]; isControlAvailable: ((selector: string) => boolean) | undefined; }' is not assignable to parameter of type 'CalculatorRequirementOptions' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'isControlAvailable' are incompatible.
+    Type '((selector: string) => boolean) | undefined' is not assignable to type '(selector: string) => boolean'.
+      Type 'undefined' is not assignable to type '(selector: string) => boolean'.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

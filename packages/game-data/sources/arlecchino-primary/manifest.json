@@ -1,0 +1,573 @@
+{
+  "format": "gidps-arlecchino-primary-source-v1",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "fixed-source-reviewed-c0-c6-selected-normal-hit",
+  "numericEvidenceStatus": "single-source-extracted",
+  "upstreamLicense": {
+    "spdx": "MIT",
+    "copyright": "Copyright (c) 2021 genshinsim",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "path": "LICENSE",
+    "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "gitBlob": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+  },
+  "files": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/attack.go",
+      "sha256": "08d8ca8aa4e81ad6e80ff1f00b2761a42c04c72de0a1081d231b6b49129bea21",
+      "gitBlob": "45d745197bd756086dbb59fe2cb470f6946e2c30"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/arlecchino.go",
+      "sha256": "0736b4a3f5cb66f289b243d9ee01bf0151068476dcc32dd3e7d2777be6ccebc3",
+      "gitBlob": "47790235ebc870f60777b9f1eb150b8d099b8a4a"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/asc.go",
+      "sha256": "f524a93ca178d964a8edf2f99dde2c503588237a1a86d1c1d8b62eb72e9cb7f5",
+      "gitBlob": "1e7c0277e588bea91c33cb5bca3c95bcbd58562e"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/cons.go",
+      "sha256": "dd2b35228ec953833d0b765255e98847032b2137a2ca07d36a9b0adf3a03c83e",
+      "gitBlob": "81e9f36b86437f70031300d69b134eeaf130858d"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/skill.go",
+      "sha256": "9feb692a6e20d49d5430b5cccb0ae6b29d9699640c06bec31f72b32591a4e61e",
+      "gitBlob": "f46739d2e55882aba2ab5db5ac032f8f119b710b"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/burst.go",
+      "sha256": "6bf3e4030fbd50aaa7ad76d31161789ed458d67c0aa2759d14a50bc3668dafa6",
+      "gitBlob": "ab6d824dcce8e93d8bb35e2b5915aa1e9e278290"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
+      "sha256": "2378d34d08c259bedcda3fc95e8a64eb9de122e0f3934142ce40994922901c99",
+      "gitBlob": "50a789c65eb189974d28b99cdaa998ab35e4c17a"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/template/character/hp.go",
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "gitBlob": "287f1dfe98e3af969e0113877ed329e52e799f38"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+    }
+  ],
+  "coefficients": [
+    {
+      "sourceTable": "attack",
+      "normalStep": 1,
+      "subHit": 1,
+      "abilityKey": "combat1",
+      "parameterKey": "param1",
+      "hitFrame": 11,
+      "values": [
+        0.475004,
+        0.513667,
+        0.55233,
+        0.607563,
+        0.646226,
+        0.690412,
+        0.751169,
+        0.811925,
+        0.872681,
+        0.938961,
+        1.005241,
+        1.07152,
+        1.1378,
+        1.204079,
+        1.270359
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "normalStep": 2,
+      "subHit": 1,
+      "abilityKey": "combat1",
+      "parameterKey": "param2",
+      "hitFrame": 16,
+      "values": [
+        0.521057,
+        0.563468,
+        0.60588,
+        0.666468,
+        0.70888,
+        0.75735,
+        0.823997,
+        0.890644,
+        0.95729,
+        1.029996,
+        1.102702,
+        1.175407,
+        1.248113,
+        1.320818,
+        1.393524
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "normalStep": 3,
+      "subHit": 1,
+      "abilityKey": "combat1",
+      "parameterKey": "param3",
+      "hitFrame": 17,
+      "values": [
+        0.653858,
+        0.707079,
+        0.7603,
+        0.83633,
+        0.889551,
+        0.950375,
+        1.034008,
+        1.117641,
+        1.201274,
+        1.29251,
+        1.383746,
+        1.474982,
+        1.566218,
+        1.657454,
+        1.74869
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "normalStep": 4,
+      "subHit": 1,
+      "abilityKey": "combat1",
+      "parameterKey": "param4",
+      "hitFrame": 24,
+      "values": [
+        0.371451,
+        0.401686,
+        0.43192,
+        0.475112,
+        0.505346,
+        0.5399,
+        0.587411,
+        0.634922,
+        0.682434,
+        0.734264,
+        0.786094,
+        0.837925,
+        0.889755,
+        0.941586,
+        0.993416
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "normalStep": 4,
+      "subHit": 2,
+      "abilityKey": "combat1",
+      "parameterKey": "param4",
+      "hitFrame": 35,
+      "values": [
+        0.371451,
+        0.401686,
+        0.43192,
+        0.475112,
+        0.505346,
+        0.5399,
+        0.587411,
+        0.634922,
+        0.682434,
+        0.734264,
+        0.786094,
+        0.837925,
+        0.889755,
+        0.941586,
+        0.993416
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "normalStep": 5,
+      "subHit": 1,
+      "abilityKey": "combat1",
+      "parameterKey": "param5",
+      "hitFrame": 21,
+      "values": [
+        0.699816,
+        0.756778,
+        0.81374,
+        0.895114,
+        0.952076,
+        1.017175,
+        1.106686,
+        1.196198,
+        1.285709,
+        1.383358,
+        1.481007,
+        1.578656,
+        1.676304,
+        1.773953,
+        1.871602
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "normalStep": 6,
+      "subHit": 1,
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "hitFrame": 44,
+      "values": [
+        0.853782,
+        0.923276,
+        0.99277,
+        1.092047,
+        1.161541,
+        1.240962,
+        1.350167,
+        1.459372,
+        1.568577,
+        1.687709,
+        1.806841,
+        1.925974,
+        2.045106,
+        2.164239,
+        2.283371
+      ]
+    },
+    {
+      "sourceTable": "masque",
+      "abilityKey": "combat1",
+      "parameterKey": "param12",
+      "values": [
+        1.204,
+        1.302,
+        1.4,
+        1.54,
+        1.638,
+        1.75,
+        1.904,
+        2.058,
+        2.212,
+        2.38,
+        2.548,
+        2.716,
+        2.884,
+        3.052,
+        3.22
+      ]
+    }
+  ],
+  "contract": {
+    "supportedConstellations": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "normalHitFrames": [
+      [
+        11
+      ],
+      [
+        16
+      ],
+      [
+        17
+      ],
+      [
+        24,
+        35
+      ],
+      [
+        21
+      ],
+      [
+        44
+      ]
+    ],
+    "redDeathMinimumBondRatio": 0.3,
+    "maximumBondRatio": 2,
+    "bondBaseFormula": "(masque[effective normal talent] + (constellation >= 1 ? 1.0 : 0)) * (current HP debt / current MaxHP) * current TotalAtk",
+    "c1BondCoefficient": 1.0,
+    "effectiveTalentPolicy": "C3 adds 3 to normal talent in the native wrapper. The calculator consumes the already-effective normal talent exactly once and does not add it again.",
+    "constellationScope": {
+      "c1": "Adds 1.0 to the masque coefficient, not a multiplier of two on the entire bond bonus or ordinary normal ATK term.",
+      "c2": "Blood Debt Due absorption-triggered 900% ATK attack is a separate event, excluded from this selected normal hit.",
+      "c3": "Native NormalCon=3; effective normal talent changes both ordinary and masque table indices once.",
+      "c4": "Absorption grants energy and reduces Q cooldown; neither is part of this normal hit.",
+      "c5": "Native BurstCon=5; Q talent bonus is unrelated to the selected normal talent.",
+      "c6": "Selected normal only: actual active C6 attack modifier adds 0.1 CR and 0.7 CD, minus separately declared included shares. Missing actual state blocks; C6 burst FlatDmg is excluded."
+    },
+    "c6Critical": {
+      "critRateBonus": 0.1,
+      "critDamageBonus": 0.7,
+      "triggerSkillTaskFrame": 38,
+      "triggerIcdFrames": 900,
+      "baseDurationFrames": 1200,
+      "affectedByHitlag": true,
+      "qualification": "Constellation 6 plus the actual post-E attack modifier active at this hit's damage evaluation. Constellation alone or elapsed wall time is not evidence of activation.",
+      "expiry": "AddAttackMod sets expiry to activation frame plus 1200; hitlag extends it. ApplyAttackMods rejects expiry <= current frame before adding stats to the target hit snapshot.",
+      "sampling": "Each selected NA queues snapshot and damage with zero delay at its hit task; per-target attack modifiers apply before damage and before the later bond-consumption callback.",
+      "accounting": "(actual active ? 10 or 70 : 0) minus explicitly included percentage points, multiplied by 0.01. CR probability is clamped by the shared formula after all applicable stats.",
+      "excludedBurst": "Q has a separate 7.0 * TotalAtk * current bond ratio FlatDmg, sampled at its 110f damage task; not implemented by this normal-hit entry."
+    },
+    "bondBaseSampling": "Each selected normal sub-hit reads its actual pre-consumption ratio and TotalAtk at its hit/snapshot frame.",
+    "infusion": "At bond ratio >=0.3, native Red Death state makes the ordinary normal Pyro with IgnoreInfusion=true.",
+    "passivePyroBonus": 0.4,
+    "passiveAscensionGate": false,
+    "consumption": "7.5% of current debt is consumed only by the later on-hit callback (2f ICD); not simulated by this selected-hit module.",
+    "exclusions": [
+      "No debt collection/lifecycle, normal-chain consumption or rotation simulation.",
+      "No C2 absorption-triggered attack, C4 energy/Q cooldown, Q damage/healing or C6 activation/refresh/expiry timeline, enemy collisions or reaction application simulation."
+    ]
+  },
+  "crossVariant": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "allReviewedFilesIdentical": true,
+    "files": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/attack.go",
+        "sha256": "08d8ca8aa4e81ad6e80ff1f00b2761a42c04c72de0a1081d231b6b49129bea21",
+        "gitBlob": "45d745197bd756086dbb59fe2cb470f6946e2c30"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/arlecchino.go",
+        "sha256": "0736b4a3f5cb66f289b243d9ee01bf0151068476dcc32dd3e7d2777be6ccebc3",
+        "gitBlob": "47790235ebc870f60777b9f1eb150b8d099b8a4a"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/asc.go",
+        "sha256": "f524a93ca178d964a8edf2f99dde2c503588237a1a86d1c1d8b62eb72e9cb7f5",
+        "gitBlob": "1e7c0277e588bea91c33cb5bca3c95bcbd58562e"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/cons.go",
+        "sha256": "dd2b35228ec953833d0b765255e98847032b2137a2ca07d36a9b0adf3a03c83e",
+        "gitBlob": "81e9f36b86437f70031300d69b134eeaf130858d"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/skill.go",
+        "sha256": "9feb692a6e20d49d5430b5cccb0ae6b29d9699640c06bec31f72b32591a4e61e",
+        "gitBlob": "f46739d2e55882aba2ab5db5ac032f8f119b710b"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/burst.go",
+        "sha256": "6bf3e4030fbd50aaa7ad76d31161789ed458d67c0aa2759d14a50bc3668dafa6",
+        "gitBlob": "ab6d824dcce8e93d8bb35e2b5915aa1e9e278290"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
+        "sha256": "2378d34d08c259bedcda3fc95e8a64eb9de122e0f3934142ce40994922901c99",
+        "gitBlob": "50a789c65eb189974d28b99cdaa998ab35e4c17a"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/template/character/hp.go",
+        "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+        "gitBlob": "287f1dfe98e3af969e0113877ed329e52e799f38"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/character.go",
+        "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+        "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+      }
+    ],
+    "meaning": "Same gcsim implementation chain; agreement is not independent mechanism evidence."
+  },
+  "c6LifecycleSources": {
+    "files": [
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/modifier/modifier.go",
+        "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+        "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/player/character/mods.go",
+        "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+        "gitBlob": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/player/character/hitlag.go",
+        "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+        "gitBlob": "3a31809c95a9599270b2c165a6a2309c193feda4"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/attack.go",
+        "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+        "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/enemy/attack.go",
+        "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+        "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd"
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/template/character/character.go",
+        "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+        "gitBlob": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+      }
+    ],
+    "crossVariantFiles": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/modifier/modifier.go",
+        "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+        "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/mods.go",
+        "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+        "gitBlob": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/hitlag.go",
+        "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+        "gitBlob": "3a31809c95a9599270b2c165a6a2309c193feda4"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/attack.go",
+        "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+        "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/enemy/attack.go",
+        "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+        "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/template/character/character.go",
+        "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+        "gitBlob": "f25b799d41269c2088e35e5668e20737d905f27e"
+      }
+    ],
+    "allFilesByteIdentical": false,
+    "meaning": "Original lifecycle files are separately pinned. Wrapper mods and template initialization differ between variants; reviewed expiry, hitlag extension, NA snapshot and pre-damage application paths agree. This is not independent game certification."
+  },
+  "nativeOverlayAudit": {
+    "meaning": "Native build trees are SourceHost-instrumented; their hashes are not presented as unmodified upstream.",
+    "files": [
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/attack.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/arlecchino.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/asc.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/cons.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/skill.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/burst.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
+        "matchesOriginal": true
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "internal/template/character/hp.go",
+        "matchesOriginal": true
+      },
+      {
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "path": "pkg/core/player/character/character.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/attack.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/arlecchino.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/asc.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/cons.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/skill.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/burst.go",
+        "matchesOriginal": false
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
+        "matchesOriginal": true
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/template/character/hp.go",
+        "matchesOriginal": true
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/character.go",
+        "matchesOriginal": false
+      }
+    ]
+  }
+}

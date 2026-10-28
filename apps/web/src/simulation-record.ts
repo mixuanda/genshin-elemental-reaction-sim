@@ -1,3 +1,5 @@
+import {parseEventStepResult,type EventStepResult} from '../../../packages/sim-core/src/event-step-result';
+import {simulationResultSchema} from '@genshin-dps-lab/schemas';
 import { migrateConfig, currentResolvedSimulationRuntimeOptionsSchema, type ResolvedSimulationRuntimeOptions, type SimConfig, type SimulationResult } from "@genshin-dps-lab/schemas";
 import { parseExecutionProfile, type ExecutionProfile, type ExecutionDelayEntry } from "../../../packages/sim-core/src/execution-profiles";
 import type { SimulationBatchSummary } from "./worker-client";
@@ -20,13 +22,13 @@ export interface SimulationRecord {
   benchmark: { id: string; version: string; assumptions: string[] } | null;
   result: SimulationResult;
   batchSummary: SimulationBatchSummary;
-  /** Derived audit; imports recompute this from the saved inputs. */
+  /** Derived audit; never used as an execution input on import. */
   rotationSummary?: RotationExecutionSummary;
 }
 
 export type RestoredSimulationInputs = Pick<SimulationRecord, "sourceConfig" | "options" | "iterations" | "executionProfile" | "benchmark">;
 
-/** Imports rerun the saved inputs; they never treat file-supplied totals as verified. */
+/** Extract explicit saved inputs; opening a file does not run a simulation. */
 export function restoreSimulationInputs(raw: unknown): RestoredSimulationInputs {
   if (!raw || typeof raw !== "object" || !("format" in raw) || raw.format !== "simulation-record-v1") throw new Error("不是支持的模拟记录格式。");
   const record = raw as Record<string, unknown>;
@@ -46,4 +48,25 @@ export function restoreSimulationInputs(raw: unknown): RestoredSimulationInputs 
     benchmark = { id: source.id, version: source.version, assumptions: source.assumptions };
   }
   return { sourceConfig, options, iterations: record.iterations as number, executionProfile, benchmark };
+}
+
+export interface SimulationRecordV2 extends Omit<SimulationRecord,'format'|'result'> {
+ format:'gidps-simulation-record-v2';
+ result:SimulationResult|EventStepResult;
+ validation:'event-steps-v1'|'historical-reference-only';
+}
+export function exportSimulationRecord(record:SimulationRecord,eventStepResult:EventStepResult|null):SimulationRecordV2 {
+ return {...record,format:'gidps-simulation-record-v2',result:eventStepResult??record.result,validation:eventStepResult?'event-steps-v1':'historical-reference-only'};
+}
+export function readSimulationRecordV2(raw:unknown):{inputs:RestoredSimulationInputs;result:SimulationResult;eventStepResult:EventStepResult|null} {
+ if(!raw||typeof raw!=='object'||!('format' in raw)||raw.format!=='gidps-simulation-record-v2')throw Error('不是新格式模拟记录');
+ const record=raw as unknown as SimulationRecordV2;
+ const allowed=['format','sourceConfig','options','iterations','executionProfile','executionBaseline','benchmark','result','batchSummary','rotationSummary','validation'];
+ if(Object.keys(record).some(k=>!allowed.includes(k)))throw Error('新记录包含未知字段');
+ const inputs=restoreSimulationInputs({...record,format:'simulation-record-v1'});
+ if(record.validation==='event-steps-v1'){
+  const parsed=parseEventStepResult(record.result);return {inputs,result:parsed.result,eventStepResult:parsed.wire};
+ }
+ if(record.validation!=='historical-reference-only')throw Error('未知验证协议');
+ return {inputs,result:simulationResultSchema.parse(record.result) as unknown as SimulationResult,eventStepResult:null};
 }

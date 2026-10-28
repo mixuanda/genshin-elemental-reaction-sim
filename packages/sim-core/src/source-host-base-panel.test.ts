@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { executeSourceHostBasePanel, type SourceHostBasePanel } from "./source-host-base-panel";
 import { executeSourceHostNestedStatRead, type SourceHostStatReadReceipt } from "./source-host-stat-provenance";
+import { TraceBuilder } from "./calculation-trace";
 
 const source = "https://example.invalid/pinned-source/";
 const vector = (values: Record<number, number> = {}) => Array.from({ length: 26 }, (_, i) => values[i] ?? 0);
@@ -24,6 +25,44 @@ function fixture(): SourceHostBasePanel {
 }
 
 describe("source base-panel recipe", () => {
+  it("retains complete uncached explanations across prefixes and caller source references", () => {
+    for (const prefix of ["test.base.0", "other.base.5"]) {
+      const cachedBuilder = new TraceBuilder(["caller/source"]), freshBuilder = new TraceBuilder(["caller/source"]);
+      const cached = executeSourceHostBasePanel(fixture(), prefix, source, cachedBuilder);
+      const uncached = executeSourceHostBasePanel(fixture(), prefix, source, freshBuilder, { memoize: false });
+      expect(cached).toEqual(uncached);
+      expect(cachedBuilder.nodes).toEqual(freshBuilder.nodes);
+      expect(cached.trace.every(node => node.sourceRefs[0] === "caller/source")).toBe(true);
+    }
+  });
+
+  it("revalidates changed levels, recipe values, input structure and source versions after warming", () => {
+    executeSourceHostBasePanel(fixture(), "warm", source);
+    const forged = fixture(); forged.result[24]!++;
+    expect(() => executeSourceHostBasePanel(forged, "bad", source)).toThrow();
+    const level = fixture(); level.characterLevel++;
+    expect(() => executeSourceHostBasePanel(level, "bad", source)).toThrow(/curve index/);
+    expect(() => executeSourceHostBasePanel({ ...fixture(), forged: true }, "bad", source)).toThrow();
+    const other = executeSourceHostBasePanel(fixture(), "same", "https://other.invalid/source/");
+    expect(other.trace[0]!.sourceRefs[0]).toContain("other.invalid");
+    const changed = fixture(); changed.configuredStats[5] = 201; changed.result[5] = 201;
+    const result = executeSourceHostBasePanel(changed, "changed", source);
+    expect(result).toEqual(executeSourceHostBasePanel(changed, "changed", source, undefined, { memoize: false }));
+    expect(result.finalStats[5]).toBe(201);
+    result.finalStats[5] = 0; result.panel.configuredStats[5] = 0;
+    expect(executeSourceHostBasePanel(fixture(), "fresh", source).finalStats[5]).toBe(200);
+  });
+
+  it("does not merge positive and negative zero in a cached explanation", () => {
+    const signedSource = source + "signed-zero/";
+    executeSourceHostBasePanel(fixture(), "signed", signedSource);
+    const negative = fixture(); negative.configuredStats[0] = -0;
+    const cached = executeSourceHostBasePanel(negative, "signed", signedSource);
+    const uncached = executeSourceHostBasePanel(negative, "signed", signedSource, undefined, { memoize: false });
+    expect(cached).toEqual(uncached);
+    expect(Object.is(cached.trace.find(node => node.id === "signed.configured.0")!.inputs[0]!.value, -0)).toBe(true);
+  });
+
   it("executes growth and promotion in source order, preserving weapon replacement and explaining the final sum", () => {
     const panel = fixture();
     const result = executeSourceHostBasePanel(panel, "example.basePanel", source);

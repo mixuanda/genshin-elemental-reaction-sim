@@ -814,7 +814,9 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
       expect(playerDamageResultReferencesSchema.parse(first)).toEqual(first);
       expectCurrentNoIcdApplicationContract(first, run.expectedApplications);
       expectDamageConservation(first);
-      scenarios[run.id] = projectScenarioToFrozenV142(first);
+      // Keep every current producer/reference/conservation assertion above live.
+      // Only the frozen 142 comparison consumes authentic historical input.
+      scenarios[run.id] = projectScenarioToFrozenV142(historicalCadence(run.config.randomSeed));
     }
 
     expect(Object.keys(scenarios).sort()).toEqual([...SCENARIO_IDS].sort());
@@ -1028,4 +1030,70 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
       /post-Wane cadence status/,
     );
   });
+});
+
+const HISTORICAL_CADENCE_URL=new URL('../../../test-vectors/src/fixtures/historical-electro-charged-global-cadence-v153-84ff5cd.json',import.meta.url);
+const historicalCadenceArchive=JSON.parse(readFileSync(HISTORICAL_CADENCE_URL,'utf8')) as {source:{commit:string};cases:{caseId:string;sourceWireSha256:string;sourceWireText:string}[]};
+function wireByteHash(bytes:Uint8Array|string){return createHash('sha256').update(bytes).digest('hex');}
+function historicalCadence(id:string):SimulationResult{
+ const row=historicalCadenceArchive.cases.find(r=>r.caseId===id);if(!row)throw Error(`Missing historical cadence case ${id}`);
+ expect(wireByteHash(row.sourceWireText)).toBe(row.sourceWireSha256);return JSON.parse(row.sourceWireText) as SimulationResult;
+}
+const LIVE_CADENCE_CASES = [
+ {id:'longHitlagNoRestoreStop',config:()=>makeLongHitlagConfig(),key:'gdl-v2-fnv1a32-88f02cfe',points:[1,2],frames:[0,0,10],factors:[0,'aggravate','ec'],operations:[['start',0],['tick',10],['tick-skipped',70],['stop',121]],outcome:'stop',status:'stopped',next:null},
+ {id:'longHitlagRestoreF70Scheduled',config:()=>makeLongHitlagConfig({restoreFrame:70}),key:'gdl-v2-fnv1a32-3e95d19d',points:[1,2,6],frames:[0,0,10,70,70,130],factors:[0,'aggravate','ec',0,'ec','ec'],operations:[['start',0],['tick',10],['refresh',70],['tick',70],['tick',130]],outcome:'retain',status:'scheduled',next:130},
+ {id:'longHitlagRestoreF71Dormant',config:()=>makeLongHitlagConfig({restoreFrame:71}),key:'gdl-v2-fnv1a32-ac5e9b9a',points:[1,2,7],frames:[0,0,10,71],factors:[0,'aggravate','ec',0],operations:[['start',0],['tick',10],['tick-skipped',70],['refresh',71]],outcome:'retain',status:'dormant',next:null},
+ {id:'longHitlagRestoreF5EndedBeforeDeadline',config:()=>makeLongHitlagConfig({restoreFrame:5,restoreGaugeUnits:.5}),key:'gdl-v2-fnv1a32-9faad753',points:[1,2,4],frames:[0,0,5,10],factors:[0,'aggravate',0,'ec'],operations:[['start',0],['refresh',5],['tick',10],['wane',16]],outcome:'ended-before-deadline',status:'stopped',next:null},
+ {id:'pureEcHitlag120GlobalCadence',config:()=>makePureEcHitlag120Config(),key:'gdl-v2-fnv1a32-7f982fc7',points:[1],frames:[0,10,70,130],factors:[0,'ec','ec','ec'],operations:[['start',0],['tick',10],['wane',16],['tick',70],['wane',76],['tick',130],['wane',136]],outcome:null,status:null,next:null},
+] as const;
+type LiveCadenceCase=(typeof LIVE_CADENCE_CASES)[number];
+function expectedCurrentCadence(c:LiveCadenceCase):SimulationResult{
+ const r=historicalCadence(c.config().randomSeed);
+ expect(r.resolvedRuntimeOptions).not.toHaveProperty('flatStatBuffSemantics');expect(r.runManifest.resolvedRuntimeOptions).not.toHaveProperty('flatStatBuffSemantics');
+ Object.assign(r.resolvedRuntimeOptions,{flatStatBuffSemantics:'canonical-v1'});Object.assign(r.runManifest.resolvedRuntimeOptions,{flatStatBuffSemantics:'canonical-v1'});
+ r.reproducibilityKey=c.key;r.runManifest.reproducibilityKey=c.key;
+ // All five scenarios use target-local Hitlag: no future-queue retention map.
+ // Full raw comparison has only these37 explicit metadata/substep changes.
+ // Direct resolution owns I0, Aura application I1, then Hitlag I2.
+ for(const i of c.points){const point=r.targetStateTimeline.points[i]!;expect(point.cause).toBe('direct-hit-application');expect(point.intraEventSequence).toBe(0);point.intraEventSequence=1;}
+ expect(r.targetHitlagLog).toHaveLength(1);expect(r.targetHitlagLog[0]!.intraEventSequence).toBe(1);r.targetHitlagLog[0]!.intraEventSequence=2;
+ return r;
+}
+describe('current global cadence full-wire and independent chronological contract',()=>{
+ it('pins authentic five-case inputs and immutable frozen142 bytes',()=>{
+  expect(wireByteHash(readFileSync(HISTORICAL_CADENCE_URL))).toBe('75c8908ede5c577198cb472942e53b08a8ddcde8e7bb83bf472139e9307d3c21');expect(historicalCadenceArchive.source.commit).toBe('84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5');expect(historicalCadenceArchive.cases).toHaveLength(5);
+  expect(wireByteHash(readFileSync(FIXTURE_URL))).toBe('ed7a41b1bc67adb1908367172db2bcecd0e668dbdd9f214f14829adbb3375611');
+ });
+ for(const c of LIVE_CADENCE_CASES)it(`preserves live ${c.id} without projecting away current semantics`,()=>{
+  const r=simulate(c.config(),{critMode:'noCrit'});expect(simulationResultSchema.parse(r)).toEqual(r);expect(assertTrustedSimulationResult(r)).toBe(r);expect(r).toStrictEqual(expectedCurrentCadence(c));
+  // This legacy comparison helper is not a rejecting schema projector. Keep
+  // its real capability boundary: current canonical output cannot equal the
+  // frozen142 wire/hash, and projection must not mutate the live input.
+  const before=structuredClone(r),projected=projectScenarioToFrozenV142(r);
+  const frozen=electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(JSON.parse(readFileSync(FIXTURE_URL,'utf8')));
+  expect(projected.identity.resolvedRuntimeOptions).toMatchObject({flatStatBuffSemantics:'canonical-v1'});
+  expect(projected).not.toEqual(frozen.scenarios[c.id]);expect(semanticHash(projected)).not.toBe(frozen.hashes[c.id]);expect(r).toStrictEqual(before);
+
+  // Pinned profile level90=1446.8535, Aggravate1.15/EC2, actualEM0;
+  // additive damage retains equal-level DEF.5, both use resistance.9.
+  const values=c.factors.map(f=>f===0?0:f==='aggravate'?1446.8535*1.15*.5*.9:1446.8535*2*.9);
+  expect(r.damageEvents.map(d=>d.frame)).toEqual(c.frames);r.damageEvents.forEach((d,i)=>expect(d.finalDamage).toBeCloseTo(values[i]!,9));expect(r.totalDamage).toBeCloseTo(values.reduce((a,b)=>a+b,0),9);
+  expect(r.periodicReactionLog.map(v=>[v.operation,v.frame])).toEqual(c.operations);
+  expect(r.targetHitlagLog[0]).toMatchObject({globalFrame:0,targetFrame:0,haltFrames:120,nextTargetAdvanceGlobalFrame:121,intraEventSequence:2});
+  if(c.outcome!==null){
+   const cleanup=r.reactionTaskLog[0]!.electroChargedCleanup!;
+   expect(cleanup).toMatchObject({deadlineTargetFrame:1,resolvedGlobalFrame:121,resolvedTargetFrame:1,outcome:c.outcome,cadence:{status:c.status,nextTickFrame:c.next,waneListenerActive:false}});
+   if(c.id==='longHitlagRestoreF70Scheduled'){
+    const refresh=r.periodicReactionLog.find(v=>v.frame===70&&v.operation==='refresh')!,tick=r.periodicReactionLog.find(v=>v.frame===70&&v.operation==='tick')!;expect(refresh.id).toBeLessThan(tick.id);
+   }
+   if(c.id==='longHitlagRestoreF71Dormant'){
+    expect(r.periodicReactionLog.find(v=>v.frame===70)).toMatchObject({operation:'tick-skipped',cadenceStatus:'dormant',nextTickFrame:null,waneListenerActive:false});expect(r.periodicReactionLog.filter(v=>v.operation==='tick').map(v=>v.frame)).toEqual([10]);
+   }
+   if(c.id==='longHitlagRestoreF5EndedBeforeDeadline'){
+    const terminal=r.periodicReactionLog.find(v=>v.frame===16&&v.operation==='wane')!;expect(terminal).toMatchObject({cadenceStatus:'stopped',nextTickFrame:null,waneListenerActive:false,reason:'AURA_DEPLETED_BY_WANE'});expect(cleanup.periodicReactionLogId).toBe(terminal.id);expect(cleanup.resolutionReason).toBe('ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP');
+   }
+  }else{expect(r.reactionTaskLog).toEqual([]);expect(r.periodicReactionLog.filter(v=>v.operation==='wane').map(v=>v.frame)).toEqual([16,76,136]);}
+  // Keep actual per-source0.4U budget, rather than checking aggregate totals.
+  for(const wane of r.periodicReactionLog.filter(v=>v.operation==='wane'))for(const consumed of wane.auraConsumed)for(const mutation of consumed.sourceMutations??[]){expect(mutation.consumedGaugeUnits).toBeCloseTo(Math.min(.4,mutation.gaugeUnitsBefore),12);expect(mutation.gaugeUnitsAfter).toBeCloseTo(mutation.gaugeUnitsBefore-mutation.consumedGaugeUnits,12);}
+ });
 });

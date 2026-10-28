@@ -16,7 +16,10 @@ func SourceHostPhaseAttackInfo(a AttackInfo) AttackInfo {
 // Snapshot age is gameplay state: Amos and Slingshot read the native frame.
 // Logs and source-host provenance describe prior reads, not future combat.
 func SourceHostPhaseSnapshot(s Snapshot, frame int) map[string]any {
-	return map[string]any{"stats": s.Stats, "characterLevel": s.CharLvl, "sourceAgeFrames": frame - s.SourceFrame}
+	state := map[string]any{"stats": s.Stats, "characterLevel": s.CharLvl, "sourceAgeFrames": frame - s.SourceFrame}
+	// Hit-time effects read these gameplay contributions, unlike past logs.
+	if len(s.StatModValues) > 0 { state["statModValues"] = s.StatModValues }
+	return state
 }
 
 func (a *AttackEvent) SourceHostPhaseState(frame int) (map[string]any, []string) {

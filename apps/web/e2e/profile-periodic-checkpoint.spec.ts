@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -9,7 +10,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -24,24 +25,24 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Execution profiles use the actual energy baseline and retain imported 1.0.0 structural semantics", async ({ page }) => {
   const seed = "kuki-profile-energy-reference";
   await page.goto("/rotation");
-  await page.locator("#rotation-source-kuki-skill-burst > summary").click();
-  await page.locator("#rotation-load-source-kuki-skill-burst").click();
-  await page.locator('.product-nav a[href="/team"]').click();
-  await page.locator('[data-actor="0"][data-key="initialEnergy"]').fill("0");
-  await page.locator("#team-apply").click();
-  await expect(page.locator("#team-status")).toContainText("已通过输入验证并保存");
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill(seed);
-  await page.locator("#critModeInput").selectOption("noCrit");
-  await page.locator("#energyModeInput").selectOption("configured");
-  await page.locator("#iterationInput").fill("1");
-  await page.locator('.product-nav a[href="/rotation"]').click();
-  await page.locator("#rotation-swap-actor").selectOption("amber");
-  await page.locator("#rotation-add-swap").click();
-  await page.locator('[data-request="4"]').fill("565");
-  await page.locator('[data-request="4"]').press("Tab");
-  await page.locator("#execution-profile").selectOption("practical-assumed-input");
-  await page.locator("#execution-preview").click();
+  await (await revealControl(page.locator("#rotation-source-kuki-skill-burst > summary"))).click();
+  await (await revealControl(page.locator("#rotation-load-source-kuki-skill-burst"))).click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
+  await (await revealControl(page.locator('[data-actor="0"][data-key="initialEnergy"]'))).fill("0");
+  await (await revealControl(page.locator("#team-apply"))).click();
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill(seed);
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("noCrit");
+  await (await revealControl(page.locator("#energyModeInput"))).selectOption("configured");
+  await (await revealControl(page.locator("#iterationInput"))).fill("1");
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
+  await (await revealControl(page.locator("#rotation-swap-actor"))).selectOption("amber");
+  await (await revealControl(page.locator("#rotation-add-swap"))).click();
+  await (await revealControl(page.locator('[data-request="4"]'))).fill("565");
+  await (await revealControl(page.locator('[data-request="4"]'))).press("Tab");
+  await (await revealControl(page.locator("#execution-profile"))).selectOption("practical-assumed-input");
+  await (await revealControl(page.locator("#execution-preview"))).click();
   await expect(page.locator("[data-execution-baseline]")).toContainText(seed);
   await expect(page.locator("[data-execution-baseline]")).toContainText("configured");
   await expect(page.locator("[data-execution-baseline]")).toContainText("noCrit");
@@ -49,14 +50,14 @@ test("Execution profiles use the actual energy baseline and retain imported 1.0.
   expect(await page.locator("[data-execution-command] td:nth-child(4)").allTextContents()).toEqual(["3", "63", "318", "584", "591"]);
   await expect(page.locator('[data-execution-command="3"] td').nth(2)).toHaveText("未施放：INSUFFICIENT_ENERGY");
   await expect(page.locator('[data-execution-command="4"] td').nth(4)).toHaveText("6");
-  await page.locator("#rotation-compile").click();
+  await (await revealControl(page.locator("#rotation-compile"))).click();
   await expect(page.locator('[data-rotation-command="3"]')).toContainText("未施放：能量");
   await expect(page.locator('[data-rotation-command="3"] td').nth(2)).toHaveText("584");
   await expect(page.locator('[data-rotation-command="4"] td').nth(2)).toHaveText("591");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.executionProfile).toMatchObject({ id: "practical-assumed-input", version: "1.1.0", baselineMode: "runtime-energy-v1" });
   expect(record.sourceConfig.timeline!.commands.map(command => command.type === "wait" ? null : command.atFrame)).toEqual([1, 51, 300, 564, 565]);
   expect(record.result.config.timeline!.commands.map(command => command.type === "wait" ? null : command.atFrame)).toEqual([3, 63, 318, 584, 591]);
@@ -79,25 +80,28 @@ test("Execution profiles use the actual energy baseline and retain imported 1.0.
     inputDelayFrames: 2, swapDelayFrames: 6, cancellationDelayFrames: 4, evidence: "explicit-assumption",
     assumptions: ["旧版结构基线：相邻能力后的切人额外计4帧，不重解释为实际动画判断。"],
   };
-  const legacyRecord = structuredClone(record);
+  // Edited inputs are not a replay of the old saved result/witness.
+  const legacyRecord = { format: "simulation-record-v1", sourceConfig: structuredClone(record.sourceConfig),
+    options: structuredClone(record.options), iterations: record.iterations,
+    executionProfile: legacyProfile, benchmark: record.benchmark };
   legacyRecord.executionProfile = legacyProfile;
-  delete legacyRecord.executionBaseline;
   legacyRecord.sourceConfig.timeline!.commands = [legacyRecord.sourceConfig.timeline!.commands[0]!, { type: "swap", characterId: "amber", atFrame: 100 }];
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "legacy-1.0.0-profile-compatibility-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyRecord)) });
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "legacy-1.0.0-profile-compatibility-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyRecord)) });
+  await runImportedScenario(page);
   await expect(page.locator("#randomSeedInput")).toHaveValue(seed);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/rotation"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
   await expect(page.locator("#execution-profile")).toHaveValue("stored-profile");
   await expect(page.locator('#execution-profile option:checked')).toContainText("1.0.0");
-  await page.locator("#execution-preview").click();
+  await (await revealControl(page.locator("#execution-preview"))).click();
   await expect(page.locator("[data-execution-baseline]")).toContainText("旧版结构基线");
   await expect(page.locator('[data-execution-command="1"] td').nth(3)).toHaveText("112");
   await expect(page.locator('[data-execution-command="1"] td').nth(4)).toHaveText("10");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
-  const restoredLegacy = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const restoredLegacy = await downloadSimulationRecord(page);
   expect(restoredLegacy.executionProfile).toEqual(legacyProfile);
   expect(restoredLegacy.executionProfile).not.toHaveProperty("baselineMode");
   expect(restoredLegacy).not.toHaveProperty("executionBaseline");
@@ -137,12 +141,15 @@ function periodicCheckpointFixture(): SimConfig {
 test("Deterministic periodic entities and accepted action conditions survive real startup Worker checkpoints and export", async ({ page }) => {
   const config = periodicCheckpointFixture();
   await page.goto("/results");
-  await page.locator("#importInput").setInputFiles({ name: "periodic-condition-checkpoint.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "periodic-condition-checkpoint.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator("#analysis-warmup-cycles").fill("9");
-  await page.locator("#analysis-warmup-energy").selectOption("configured");
-  await page.locator("#analysis-steady-run").click();
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
+  await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("9");
+  await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("configured");
+  await (await revealControl(page.locator("#analysis-steady-run"))).click();
   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
   await expect(page.locator("#analysis-startup-output")).toContainText("已从完整模拟检查点建立稳态");
   const report = await downloadJson<{ startup: SimulationStartupResult }>(page, "#analysis-export");
@@ -180,7 +187,7 @@ test("Deterministic periodic entities and accepted action conditions survive rea
   await expect(ledger.locator('[data-periodic-operation="replace"]').first()).toBeVisible();
   const cancelled = ledger.locator('[data-periodic-operation="cancelled-tick"]').first();
   await expect(cancelled).toBeVisible();
-  await cancelled.locator("details > summary").click();
+  await (await revealControl(cancelled.locator("details > summary"))).click();
   const displayed = JSON.parse((await cancelled.locator("pre").textContent())!);
   expect(displayed.entity).toEqual(result.periodicEntityLog!.find(event => event.id === displayed.entity.id));
   expect(displayed.entity.operation).toBe("cancelled-tick");

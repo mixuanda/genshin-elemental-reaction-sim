@@ -1,0 +1,33 @@
+{
+  "scope": "Independent Decimal arithmetic; inputATK2000,CR0.5,CD1,enemyLv90,RES0.1,no reactions or other bonuses. These panels are numerical fixtures, not the specified actual player artifact build.",
+  "cases": [
+    {
+      "name": "WandererN1",
+      "notes": "Lv100,NA10,E13,no Pyro/Cryo shares",
+      "nonCritical": "2023.9401392307692307692307692307692",
+      "expected": "3035.9102088461538461538461538461538",
+      "critical": "4047.8802784615384615384615384615384"
+    },
+    {
+      "name": "WandererC6N1",
+      "notes": "Independent extra with same explicit panel for this comparison, not a copied parent snapshot",
+      "nonCritical": "809.57605569230769230769230769230768",
+      "expected": "1214.3640835384615384615384615384615",
+      "critical": "1619.1521113846153846153846153846154"
+    },
+    {
+      "name": "WandererQ13FiveC2cap",
+      "notes": "Lv100,Q13,WindfavoredQ,at least50 spentpoints,all5contacts,common55f snapshot",
+      "nonCritical": "43310.769230769230769230769230769230",
+      "expected": "64966.153846153846153846153846153845",
+      "critical": "86621.538461538461538461538461538460"
+    },
+    {
+      "name": "DurinWhiteQ10tick1C2active",
+      "notes": "Lv90,Q10,first10ticks,A4=1.6 from currentATK,C2active and not included",
+      "nonCritical": "3679.603200000",
+      "expected": "5519.4048000000",
+      "critical": "7359.206400000"
+    }
+  ]
+}

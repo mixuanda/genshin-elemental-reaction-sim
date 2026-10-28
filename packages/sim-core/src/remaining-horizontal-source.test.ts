@@ -1,3 +1,4 @@
+import { createObservedHydroHoldContext } from "./__tests__/hydro-observed-context-fixture";
 import { simulationResultSchema, type SimConfig } from "@genshin-dps-lab/schemas";
 import { makeConfig, neutralStats } from "./__tests__/fixtures";
 import { compileSourceRuntimeAbility } from "./source-runtime-abilities";
@@ -67,25 +68,7 @@ it("calculates resolved Hydro/Swift, observed special components and the finite 
   const hydro = documentFor("traveler-hydro-resolved-aether-hold-c0", 6);
   hydro.enemy.resistance = .1;
   hydro.build = { mode: "manual-final", stats: { ...neutral, atk: 9999 }, ascension: 6, source: "Current panel must not replace either historical offensive sample" };
-  hydro.gameContext!.travelerHydroResolvedCast = {
-    casterId: "traveler", targetId: "enemy", trueMoonStoryBuffInactive: true,
-    freshCastConfirmed: true, noHitlag: true, noInterruption: true, noReplacement: true,
-    fullObservedLifetime: true, allHpChangesRecorded: true, allDamageEventsRecorded: true,
-    observedThroughFrame: 60, statsStableAcrossHits: false,
-    initialCurrentHp: 12000, initialMaxHp: 20000, releaseFrame: 54, releaseOrder: 2,
-    dewCount: 1, spiritbreathTriggered: false,
-    hpEvents: [{ id: "cost-1", frame: 54, order: 0, kind: "suffusion" }],
-    events: [
-      { candidateId: "dew-1", templateRole: "dew", launchFrame: 54, frame: 60, snapshotFrame: 60, snapshotId: "snapshot-60", targetId: "enemy", hpReadFrame: 54, hpReadOrder: 1 },
-      { candidateId: "torrent", templateRole: "torrent", launchFrame: 54, frame: 57, snapshotFrame: 57, snapshotId: "snapshot-57", targetId: "enemy" },
-    ],
-    targetContacts: { "dew-1": true, torrent: true },
-    snapshots: {
-      "snapshot-60": snapshot({ ...neutral, atk: 1000, critRate: .5, critDamage: 1 }, 6),
-      "snapshot-57": snapshot({ ...neutral, atk: 2000, critRate: .5, critDamage: 1 }, 6),
-    },
-    sharedState: { includedSourceFlatDamage: 0 },
-  };
+  hydro.gameContext!.travelerHydroResolvedCast = createObservedHydroHoldContext();
   const hydroSchedule = compileTravelerHydroResolvedSchedule("traveler-hydro-resolved-aether-hold-c0", hydro.gameContext!.travelerHydroResolvedCast);
   expect(hydroSchedule.issues).toEqual([]);
   expect(hydroSchedule.hpLedger[0]).toMatchObject({ frame: 54, order: 0, hpBefore: 12000, hpAfter: 11200, consumedHp: 800 });

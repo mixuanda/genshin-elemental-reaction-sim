@@ -1,0 +1,80 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ × apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > recognizes the specified Wanderer party's sourced zero grants without treating Hexerei as Moonsign 9ms
+   → expected { origin: 'party', …(3) } to match object { origin: 'party', level: +0, …(1) }
+(1 matching property omitted from actual)
+ × apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > does not turn one known contributor and three sourced zero grants into an unknown or two-level party 1ms
+   → expected { origin: 'party', …(3) } to match object { level: 1, unknownActorIds: [] }
+(2 matching properties omitted from actual)
+ ↓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > derives 0/1/2 from bounded positive and negative facts without any user eligibility choice
+ ↓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > keeps unknown identity evidence unknown and never substitutes a regional label
+ ↓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > never turns Moonsign membership or reaction eligibility into an actual per-hit trigger
+ ↓ apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > preserves historical levels and captures while deriving a later new-run input
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > recognizes the specified Wanderer party's sourced zero grants without treating Hexerei as Moonsign
+AssertionError: expected { origin: 'party', …(3) } to match object { origin: 'party', level: +0, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "level": 0,
++   "level": undefined,
+    "origin": "party",
+-   "unknownActorIds": [],
++   "unknownActorIds": [
++     "wanderer",
++     "faruzan",
++     "nicole",
++     "durin",
++   ],
+  }
+
+ ❯ apps/web/src/lunar-panel-moonsign.test.ts:9:22
+      7|     const party = ["wanderer", "faruzan", "nicole", "durin"].map(chara…
+      8|     const resolved = deriveLunarPanelMoonsign(party);
+      9|     expect(resolved).toMatchObject({ origin: "party", level: 0, unknow…
+       |                      ^
+     10|     for (const key of ["wanderer", "faruzan", "nicole", "durin"])
+     11|       expect(resolved.sourceRefs).toContain(`https://github.com/genshi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/web/src/lunar-panel-moonsign.test.ts > new-run Moonsign derived from actual party identity > does not turn one known contributor and three sourced zero grants into an unknown or two-level party
+AssertionError: expected { origin: 'party', …(3) } to match object { level: 1, unknownActorIds: [] }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "level": 1,
+-   "unknownActorIds": [],
++   "level": undefined,
++   "unknownActorIds": [
++     "w",
++     "n",
++     "d",
++   ],
+  }
+
+ ❯ apps/web/src/lunar-panel-moonsign.test.ts:20:22
+     18|       { actorId: "n", characterKey: "nicole" }, { actorId: "d", charac…
+     19|     ]);
+     20|     expect(resolved).toMatchObject({ level: 1, unknownActorIds: [] });
+       |                      ^
+     21|   });
+     22|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 skipped (6)
+   Start at  19:18:49
+   Duration  343ms (transform 131ms, setup 0ms, import 213ms, tests 11ms, environment 0ms)
+

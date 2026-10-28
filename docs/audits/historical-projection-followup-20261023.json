@@ -1,0 +1,309 @@
+{
+  "schema": "historical-projection-followup-v1",
+  "repository": "mixuanda/genshin-elemental-reaction-sim",
+  "reviewedBaseline": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+  "selectedFile": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+  "classification": "obsolete forced-current-to-frozen success expectation; no production historical-reader or projector defect demonstrated in this bounded group",
+  "firstReproduction": {
+    "numPassedTests": 0,
+    "numFailedTests": 1,
+    "numPendingTests": 11,
+    "numTotalTests": 12
+  },
+  "oldOriginalSourceRun": {
+    "numPassedTests": 12,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTotalTests": 12
+  },
+  "separateNewOldSourceFlatCounterexampleRun": {
+    "numPassedTests": 1,
+    "numFailedTests": 0,
+    "numPendingTests": 12,
+    "numTotalTests": 13
+  },
+  "finalFocused": {
+    "numPassedTests": 20,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTotalTests": 20
+  },
+  "focusedTypecheck": {
+    "exitCode": 0,
+    "command": "./node_modules/.bin/tsc --noEmit -p /tmp/GIDPS-historical-projection-evidence-20261023/tsconfig.json"
+  },
+  "lastFullRunGroup": {
+    "source": {
+      "path": "/workspace/GIDPS-cloud/uid-team-20261022/full-final.json",
+      "bytes": 1358200,
+      "sha256": "d43054c22d6c9b339b7e9c19a1d3c32541af258b2701bdb59cdd7d6fbef81a3a"
+    },
+    "passed": 6,
+    "failed": 6,
+    "total": 12,
+    "oldFailures": [
+      "V1.53 to frozen V1.52 result projection projects inactive callback-bus V1 with Freeze Broken V1 and rebuilds exact V1.52 identity",
+      "V1.53 to frozen V1.52 result projection projects inactive callback-bus V1 with Freeze Broken V2 and rebuilds exact V1.52 identity",
+      "V1.53 to frozen V1.52 result projection preserves a V2 audit-only Freeze Broken row under callback-bus V1",
+      "V1.53 to frozen V1.52 result projection strips a damage-modifier capability while preserving its frozen plugin entry",
+      "V1.53 to frozen V1.52 result projection does not mutate the validated V1.53 source",
+      "V1.53 to frozen V1.52 result projection preserves authored key order in unchanged historical nested wires"
+    ]
+  },
+  "preciseFocusedDifference": {
+    "retainedOriginalTestNames": 12,
+    "allOriginalCasesNowPassed": true,
+    "newCases": [
+      "historical projection bytes versus current canonical flat-stat semantics keeps frozen V152 strict against a canonical marker at manifest",
+      "historical projection bytes versus current canonical flat-stat semantics keeps frozen V152 strict against a canonical marker at root",
+      "historical projection bytes versus current canonical flat-stat semantics keeps the fixed original source, both wire hashes, numbers and identities unchanged",
+      "historical projection bytes versus current canonical flat-stat semantics preserves the historical450 while the same flat-ATK input now honestly computes495",
+      "historical projection bytes versus current canonical flat-stat semantics rejects rather than relabels current canonical results: damage-plugin",
+      "historical projection bytes versus current canonical flat-stat semantics rejects rather than relabels current canonical results: inactive-v1",
+      "historical projection bytes versus current canonical flat-stat semantics rejects rather than relabels current canonical results: inactive-v2",
+      "historical projection bytes versus current canonical flat-stat semantics rejects rather than relabels current canonical results: natural-expiry"
+    ],
+    "removedOriginalTestNames": []
+  },
+  "assertionPreservation": {
+    "baseline": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+    "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+    "method": "Balanced lexical capture of complete expect-expression statements; whitespace/comments normalized outside literals. This is a source preservation check, not an AST or runtime coverage claim.",
+    "originalExpectExpressionStatements": 51,
+    "currentExpectExpressionStatements": 94,
+    "missingOriginalAssertions": [],
+    "projectorLogicChanged": false,
+    "schemaChanged": false,
+    "goldenChanged": false,
+    "baselineTestSha256": "9fbc48d96c03362914f7d56099e87c1681eadd4f14635135afebb3f879a4bf48",
+    "currentTestSha256": "450b2f8ed07d9d96e9c71a61f204b0a39809a51e6c10a5eba9a0d63060e69860"
+  },
+  "historicalFixture": {
+    "path": "packages/test-vectors/src/fixtures/historical-projection-v153-v152-84ff5cd.json",
+    "bytes": 211588,
+    "sha256": "7866e0fca5f6d4904473b44792c2b598fdf8a0e9d1e0f729608a467f4494cfb6"
+  },
+  "historicalSource": {
+    "repository": "mixuanda/genshin-elemental-reaction-sim",
+    "commit": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+    "method": "Original immutable12-case projection test, observations inserted in memory after four existing successful projection sites without altering assertions; fifth case is a separate new4-second flat-ATK counterexample executed by the same fixed original simulator. Exact JavaScript JSON.stringify wire bytes retained. Not game captures and not current results relabelled as historical.",
+    "verifiedPackageFileCount": 305,
+    "files": [
+      {
+        "path": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+        "gitBlobSha1": "364abf8a266f8af5264c905232ff8ef4c71010df",
+        "sha256": "9fbc48d96c03362914f7d56099e87c1681eadd4f14635135afebb3f879a4bf48",
+        "bytes": 14552
+      },
+      {
+        "path": "packages/test-vectors/src/project-v153-to-v152.ts",
+        "gitBlobSha1": "912eef9773726f4ea5f9dd2ae5508242fbde33c6",
+        "sha256": "e266a7152ebc6e4fabf3f788a7f95bc6077614f4ae9a0c1198d87958afbe3f28",
+        "bytes": 5705
+      },
+      {
+        "path": "packages/sim-core/src/__tests__/fixtures.ts",
+        "gitBlobSha1": "b5818d530930545c670653fb0abac41665f8aca8",
+        "sha256": "c430c846e91f8ba91e259fa335e60d788db1f9379f0c13f117c66fbc222868a7",
+        "bytes": 4197
+      },
+      {
+        "path": "packages/sim-core/src/simulator.ts",
+        "gitBlobSha1": "f59d6950e8a195ea4ec9c1e19ae4c16b82e1d5ba",
+        "sha256": "fd7a10fc4cf320c277ceb5a5b081f34c3fba17278b7a21371d1d9c3b4514a5d0",
+        "bytes": 579777
+      },
+      {
+        "path": "packages/schemas/src/schema.ts",
+        "gitBlobSha1": "083303354a5b7f44f0c247e2da7b128a82607ae5",
+        "sha256": "1b643e9af365e7818fb276147901d9bd1e0ab2496654d9877c1d725df4abf84d",
+        "bytes": 1120171
+      },
+      {
+        "path": "packages/schemas/src/result-schema.ts",
+        "gitBlobSha1": "2cab1e00e15865059b2a13f3850ed9e96ed659cd",
+        "sha256": "ed34d53128b3244c951aee34c874cfca669bb1ff00ec58439b3c799442bcd5b9",
+        "bytes": 209519
+      },
+      {
+        "path": "packages/schemas/src/result-integrity.ts",
+        "gitBlobSha1": "be534677e9deae5d1d476c536c067c9d4a305ae0",
+        "sha256": "03e5a7866ba6cd1cb38453e3a17c9d281f76699e05894176a583cf4e11849ff6",
+        "bytes": 648708
+      }
+    ]
+  },
+  "historicalCases": [
+    {
+      "caseId": "inactive-v1",
+      "originalProjectionTestCase": true,
+      "sourceWireSha256": "e3b3cda256e721ab5db2fa459fc5fd119b452d63b8e853aed8c2b4ec19944143",
+      "projectedWireSha256": "a855ca4a0fedd533784f0aaf74a72169f09f39a5cd0333cc686d8592859645be",
+      "duration": 10,
+      "damage": 0
+    },
+    {
+      "caseId": "inactive-v2",
+      "originalProjectionTestCase": true,
+      "sourceWireSha256": "e584a2b607902ac2335b5088c4087ee3687681558695b22e5101f06910513523",
+      "projectedWireSha256": "94705f44616f02dad36722acf651ba45fe2a357c0ce7ef48b6d45c1826798da9",
+      "duration": 10,
+      "damage": 0
+    },
+    {
+      "caseId": "natural-expiry",
+      "originalProjectionTestCase": true,
+      "sourceWireSha256": "20b6b58d2ec54e5b5c80d7d888eb985f3330d505b7ac90c94f641cbb7e953d00",
+      "projectedWireSha256": "9667dedb020a231186d9b931ea9fd82ee3eb7efb6443b04a5ef7e804c195cdf5",
+      "duration": 4,
+      "damage": 450
+    },
+    {
+      "caseId": "damage-plugin",
+      "originalProjectionTestCase": true,
+      "sourceWireSha256": "b7f5b5760a3f0fdaccd9fe2038faf5adeac548d547cc2800f2eac8a24917a61c",
+      "projectedWireSha256": "093b9983af1b4536bc401412de0b2eec4d39a85ef01f2a406caf8f87315ef090",
+      "duration": 10,
+      "damage": 0
+    },
+    {
+      "caseId": "flat-atk-counterexample",
+      "originalProjectionTestCase": false,
+      "sourceWireSha256": "8b2fe4b3e0d15cd500fb2bec7c3eae2d7b76921a4ccb135e83655af271e6ac8a",
+      "projectedWireSha256": "b81c5f415d89778641d5dc7f1e1c0034e4ebc5521f1ad389008c3b436ef66687",
+      "duration": 4,
+      "damage": 450
+    }
+  ],
+  "semanticCounterexample": {
+    "kind": "synthetic fixed-source comparison, not a game capture",
+    "inputConfigEqual": true,
+    "durationSeconds": 4,
+    "baseAtk": 1000,
+    "atkFlatBuff": 100,
+    "defenseMultiplier": 0.5,
+    "resistanceMultiplier": 0.9,
+    "critMultiplier": 1,
+    "historicalScalingValue": 1000,
+    "historicalDamage": 450,
+    "currentCanonicalScalingValue": 1100,
+    "currentCanonicalDamage": 495,
+    "evidence": "Explicit current assertions in the final20/20 targeted run; historical exact source/projected wire strings in the immutable fixture. No current output relabelled as history."
+  },
+  "currentSourceRecords": [
+    {
+      "path": "packages/test-vectors/src/project-v153-to-v152.ts",
+      "commit": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+      "gitBlobSha1": "1d0adc6365c621bc73b897f6afbc08317ca54d94",
+      "bytes": 5755,
+      "sha256": "39cee31ebf9db196f163e605fba63cacf38e0bfe0db0eed8d260532ce78bf317"
+    },
+    {
+      "path": "packages/sim-core/src/simulator.ts",
+      "commit": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+      "gitBlobSha1": "f22119b39db76a6a4ef74b056bd270d157838c77",
+      "bytes": 758058,
+      "sha256": "bd39c06789eaa7e9b3649c54c506f1d614651c71d6ead34de31f9fac2d63c9d3"
+    },
+    {
+      "path": "packages/schemas/src/schema.ts",
+      "commit": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+      "gitBlobSha1": "3b8989ece2f224b4afd3d9794261b2e0b7f725a0",
+      "bytes": 1241022,
+      "sha256": "033791a4f0478b6aa7c536a1dfeb400b749d6dfaebe00b93e20e4d934eb12392"
+    },
+    {
+      "path": "packages/schemas/src/result-schema.ts",
+      "commit": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+      "gitBlobSha1": "f23bd9f2815583c5e57d9c199623c838680e3742",
+      "bytes": 230127,
+      "sha256": "915938f539df4f22faa96e16fc81e0813aaf239fc6a38bacb63532c01f3a25d0"
+    }
+  ],
+  "evidenceFiles": [
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/before.json",
+      "bytes": 6054,
+      "sha256": "ddfdca47a59d5f089e1843399d6ff1c4f92ec8974d7c604d6703c1ce2dae5b53"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/before.log",
+      "bytes": 86,
+      "sha256": "32d595184ef4c43eddb6bc56a544921b06a9935e6137c58c01c9290dca67db71"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/historical-original.json",
+      "bytes": 4941,
+      "sha256": "30ef207d8d6278e380ee01677a93319453d19491a02baf2dc251dff39a1992e1"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/historical-original.log",
+      "bytes": 99,
+      "sha256": "d4462618e07fbe595a31feed9278ff41210134717c7b96e3d4cf3740d8f2595c"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/historical-flat.json",
+      "bytes": 4822,
+      "sha256": "bf7b9c6424e8ac9590920d3d0e46cd815f3ad953bae0917cd0680405a61c78f0"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/historical-flat.log",
+      "bytes": 95,
+      "sha256": "9e1ba54e0b54df64cb65c68de3defc2b4d0d8128d690e82d3beb649a59e4584b"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/after.json",
+      "bytes": 8294,
+      "sha256": "ebf11bf12923be7569f777aeb52c47f2832003e36bedb6e4ea5c48d244d1e493"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/after.log",
+      "bytes": 85,
+      "sha256": "b924eeaed8406e88768f58033276a1bc111a3baa0d5014b240bb2729f30078f0"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/tsconfig.json",
+      "bytes": 346,
+      "sha256": "a48a4f2d5652b2798b5185568a5d6c8d8ffbe52fee1efdec1226fe52b7d4f2a6"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/capture.config.mjs",
+      "bytes": 1322,
+      "sha256": "a53e9b99d9262ebe251d990d1e0a9f4680b4bb339e434932b0e6f09873d58300"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/capture-flat.config.mjs",
+      "bytes": 983,
+      "sha256": "94f0d31112ede7146fa30dea95c641961e72b66f69f71c4dc9c05fc5b010d810"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/archive-source-identity.json",
+      "bytes": 79377,
+      "sha256": "196de2a868ec84f92cc90f352035adf666ac3b704576a889ce12c511ad0e1c2d"
+    },
+    {
+      "path": "/tmp/GIDPS-historical-projection-evidence-20261023/assertion-preservation.json",
+      "bytes": 4967,
+      "sha256": "8d79b40a4626fc35fcef08002bbaef32c4593ca1572848f65757160ea7d60b76"
+    }
+  ],
+  "productionFilesChanged": [],
+  "schemaIdentityChanged": false,
+  "projectorChanged": false,
+  "goldenFilesChanged": [],
+  "historicalResultsChanged": [],
+  "fullSuiteRun": false,
+  "nativeSimulationRun": false,
+  "maximumAuthoredScenarioDurationSeconds": 10,
+  "limits": [
+    "Only project-v153-to-v152.test.ts; no claim about other historical-wire groups or all user files.",
+    "Historical fixture is synthetic output of the fixed original repository implementation, not game telemetry.",
+    "Existing3196/79/1 full-run counts remain unchanged.",
+    "Preserve source bytes and reject canonical semantics; no lossy field stripping, rekeyed current-to-old result, Golden rewrite or new migration route."
+  ]
+}

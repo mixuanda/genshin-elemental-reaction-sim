@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "status": "fixed-community-source-correction; not-game-verified",
+  "scope": "Stellar Iansan C2 live ATKP Amount eligibility only; no prior snapshots rewritten",
+  "patch": {
+    "path": "packages/source-host/stellar-overlay/patches/140-iansan-c2-active-recipient.patch",
+    "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f"
+  },
+  "archive": {
+    "path": "packages/game-data/sources/iansan-swift-resolved-casts/source.json.gz",
+    "sha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec",
+    "preservedUnchanged": true
+  },
+  "nativeSource": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "path": "internal/characters/iansan/cons.go",
+    "sha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+    "gitBlobSha1": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a",
+    "matchesPinnedSourceTree": true,
+    "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/cons.go",
+    "originalBehavior": "c2Init excludes Iansan, then Amount checks only Iansan A1 activity; no active recipient predicate"
+  },
+  "optimizerRevision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archiveEntries": [
+    {
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "sha256": "aa1a04be529dc04322a02e11a667fb92313f8c647aab71b54d982548d6e03738",
+      "bytes": 10009,
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Iansan/index.tsx"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json",
+      "sha256": "c571a86a8924789e8b05dbf1809c254434fda367681fdd4d4aae158ff73cfb6e",
+      "bytes": 9247,
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/en/char_Iansan_gen.json",
+      "sha256": "2601430192a3ee04042987117fe3a41f234cbe238a9550decf6a11978f5ef883",
+      "bytes": 11666,
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Iansan_gen.json"
+    }
+  ],
+  "text": {
+    "chsC2": "施放元素爆发<strong>力的三原理</strong>时，伊安珊也会获得突破天赋「强化抗阻练习」中的「标准动作」效果，持续15秒；此外，「标准动作」效果持续期间，若伊安珊处于队伍后台，还会使队伍中自己的当前场上角色的攻击力提升30%。该效果需要解锁突破天赋「强化抗阻练习」。",
+    "enC2": "When using the Elemental Burst <strong>The Three Principles of Power</strong>, Iansan will also gain the Precise Movement effect from her Ascension Talent \"Enhanced Resistance Training\" for 15s. Additionally, if Iansan is off-field while Precise Movement is active, she will also increase your current active character's ATK by 30%. You must first unlock the Ascension Talent \"Enhanced Resistance Training\" to access the above effect.",
+    "optimizerActiveRecipient": "const c2OffFieldPrecise_atk_ = equal(\n  input.activeCharKey,\n  target.charKey,\n  c2OffFieldPrecise_atk_disp\n)",
+    "optimizerTeamConsumer": "data.teamBuff.premod.atk_: c2OffFieldPrecise_atk_"
+  },
+  "correction": {
+    "existingOwnerExclusionPreserved": true,
+    "newGate": "c.Core.Player.Active() != char.Index() -> nil",
+    "existingA1GatePreserved": true,
+    "beforeSourceHostModifierSnapshot": true,
+    "vectorRuleUnchanged": "char-vector-iansan-c2-atkp",
+    "amountUnchanged": 0.3,
+    "snapshotLifetimeUnchanged": true
+  },
+  "independentArithmetic": {
+    "baseATK": 400,
+    "baseATKP": 0.25,
+    "flatATK": 100,
+    "withoutC2": 600,
+    "withC2": 720,
+    "ownerWithA1Only": 680,
+    "extraATK": 120
+  },
+  "goFixture": {
+    "path": "packages/source-host/tests/fixtures/iansan-c2-active-recipient_test.go",
+    "sha256": "fb4292ffaf6348e763016de586fc9b8ca19f7e88fbbf5962abdb8b35dcfb6f57",
+    "actualCore": true,
+    "actualCharacters": [
+      "iansan",
+      "kaeya"
+    ],
+    "sourceHostBridgeEnabled": false,
+    "limit": "Actual native Amount/stat/snapshot behavior tested; full SourceHost bridge capture remains root-owned."
+  },
+  "scratch": {
+    "originalSource": "/tmp/GIDPS-c2-crossmode-20261023/build-cache/stellar-build-rhVhkZ/source",
+    "note": "Existing full Stellar post-talent-instrumentation source copied independently. Applied139 to both scratch trees.138 is a separate charge.go pre-instrumentation patch and is intentionally not reapplied to already-instrumented Swift; this fixture does not execute Swift.140 is the only before/after source difference.",
+    "beforeConsSha256": "49f610d4f14964aee0c77effeff65a1f8ace5544f1dbbe5a29a6f9e566cac8c7",
+    "afterConsSha256": "deb5dce7176f65f6916d21e91170bdeab85b0ac60b46df9e3e03040a27241311"
+  },
+  "limits": [
+    "No native simulation, WASM build, root source mutation or Golden changes by this agent.",
+    "Existing modifier manager equality-at-expiry convention is not redefined. Fixture checks899f valid and901f expired plus actual nightsoul exit.",
+    "No claim of current-game certification or exhaustive Iansan team correctness."
+  ]
+}

@@ -1,4 +1,7 @@
+import { importSessionPolicy } from './import-session-policy';
+import { resolveSourceNoelleBurstParameters } from "../../../packages/sim-core/src/source-noelle-burst-policy";
 import "./source-team-builder.css";
+import { TimelinePlayback, PLAYBACK_SPEEDS } from "./timeline-playback";
 import { gameDataCatalog } from "../../../packages/game-data/src/catalog";
 import { artifactSetCatalog } from "../../../packages/game-data/src/supplemental";
 import { resolveArtifactBuild } from "../../../packages/game-data/src/artifact-build";
@@ -18,6 +21,7 @@ import { renderSourceTargetGeometryControls, readSourceTargetGeometryControls, u
 import { sourceTargetPhasesRequest } from "./source-target-scene";
 import { sourceTargetPhaseControlAction } from "./source-target-phase-controls";
 import type { SourceHostTargetPhaseRequest } from "../../../packages/sim-core/src/source-host-target-phase";
+import { SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT } from "../../../packages/sim-core/src/source-host-wire";
 
 export type SourceHostVariant = "classic" | "stellar";
 export type SourceItemKind = "character" | "weapon" | "artifact";
@@ -38,6 +42,15 @@ export interface SourceTeamInventory {
   characters: SourceInventoryItem[];
   weapons: SourceInventoryItem[];
   artifacts: SourceInventoryItem[];
+}
+/** Promotion tables stop at 90; the two pinned runtimes have actual 1–100 growth curves.
+ * This is an executor limit, not a claim that a player has unlocked Lv.95/100.
+ * Unknown revisions retain their declared catalog limit until independently checked.
+ */
+export function sourceCharacterLevelLimit(inventory: SourceTeamInventory, character: SourceInventoryItem): number {
+  const knownRepository = inventory.repository === "https://github.com/genshinsim/gcsim" || inventory.repository === "genshinsim/gcsim";
+  const pinned = inventory.hostVariant === "classic" ? SOURCE_HOST_COMMIT : SOURCE_HOST_STELLAR_COMMIT;
+  return knownRepository && inventory.revision === pinned ? 100 : character.maximumLevel ?? 90;
 }
 export interface SourceTeamMember {
   id: string;
@@ -155,7 +168,7 @@ export function equipmentBuildToSourceTeamMember(
   }
   return {
     id: sourceChar.key, characterKey: sourceChar.key,
-    level: input.level, levelCap: equipmentLevelRange(character, input.ascension).max,
+    level: input.level, levelCap: equipmentLevelRange(character, input.ascension, input.characterLevelCap).max,
     constellation: meta.constellation, talents: { ...meta.talents },
     weapon: { key: sourceWeapon.key, level: input.weaponLevel, levelCap: equipmentLevelRange(weapon, input.weaponAscension).max, refinement: input.refinement },
     artifactSets, artifactStats
@@ -188,7 +201,8 @@ export function compileSourceTeamDraft(draft: SourceTeamDraft, inventory: Source
     if (identity !== undefined && gameIdentities.has(identity)) throw new Error(`${character.name} 已在队伍中；不同元素的旅行者也不能同时入队。`);
     if (identity !== undefined) gameIdentities.add(identity);
     if (character.weaponClass && weapon.weaponClass && character.weaponClass !== weapon.weaponClass) throw new Error(`${character.name} 与 ${weapon.name} 武器类型不匹配。`);
-    integer(member.levelCap, "角色上限", 1, character.maximumLevel ?? 90); integer(member.level, "角色等级", 1, member.levelCap);
+    integer(member.levelCap, "角色上限", 1, sourceCharacterLevelLimit(inventory, character)); integer(member.level, "角色等级", 1, member.levelCap);
+    if (member.levelCap > 90 && ![95, 100].includes(member.levelCap)) throw new Error("90 级以上的角色解锁上限须为 95 或 100；实际等级可在已解锁范围内填写。");
     integer(member.constellation, "命之座", 0, 6);
     for (const [name, value] of Object.entries(member.talents)) integer(value, `${name} 天赋`, 1, 15);
     integer(member.weapon.levelCap, "武器上限", 1, weapon.maximumLevel ?? 90); integer(member.weapon.level, "武器等级", 1, member.weapon.levelCap);
@@ -239,7 +253,8 @@ export function compileSourceTeamDraft(draft: SourceTeamDraft, inventory: Source
     const sourceCharacter = inventory.characters.find(character => character.key === actor.characterKey)!;
     const capability = sourceActionCapability(sourceCharacter.actionCapabilities, action.kind);
     if (capability?.status !== "implemented") throw new Error(`${sourceCharacter.name} 的${sourceActionLabels[action.kind]}在所选来源中${capability?.status === "unsupported" ? "尚未实现" : "尚无明确的动作方法依据"}；请更换动作或来源版本。`);
-    const params = Object.entries(action.params ?? {}).map(([key, value]) => {
+    const sourceParameters = resolveSourceNoelleBurstParameters({ sourceRevision: inventory.revision, characterKey: actor.characterKey, constellation: actor.constellation, actionKind: action.kind, ...(action.params === undefined ? {} : { parameters: action.params }) }).parameters;
+    const params = Object.entries(sourceParameters).map(([key, value]) => {
       if (!ID.test(key)) throw new Error(`动作参数键 ${key} 不合法。`);
       return `${key}=${integer(value, `动作参数 ${key}`, -1000000, 1000000)}`;
     });
@@ -263,6 +278,7 @@ export interface SourceTeamBuilderOptions {
   onRunScript?: (script: string, primaryTargetIndex: number, targetPhases: SourceHostTargetPhaseRequest | undefined) => void;
   onDraftChange?: (draft: SourceTeamDraft) => void;
   initialDraft?: SourceTeamDraft;
+  initialTemplateId?: string;
 }
 export interface SourceTeamBuilderHandle {
   setDraft(draft: SourceTeamDraft): void;
@@ -270,6 +286,15 @@ export interface SourceTeamBuilderHandle {
   getCharacterName(characterKey: string): string | undefined;
   renderExecutionLogs(logs: unknown, statusInstances?: unknown, endFrame?: number): void;
   dispose(): void;
+}
+
+/** Actual export action used by the draft button; guard precedes serialization. */
+export function exportSourceTeamDraft(draft: SourceTeamDraft): void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
+  const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
+  anchor.href = url; anchor.download = "source-team-draft.json"; anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBuilderOptions): SourceTeamBuilderHandle {
@@ -294,6 +319,20 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
   let runtimeCharacterKeys = new Map<number, string>();
   let simulationEndFrame = 0;
   let simulationCursor = 0;
+  let playback = new TimelinePlayback(0);
+  let playbackRequest: number | undefined;
+  const stopPlayback = () => {
+    playback.pause(performance.now());
+    if (playbackRequest !== undefined) cancelAnimationFrame(playbackRequest);
+    playbackRequest = undefined;
+  };
+  const playbackTick = (now: number) => {
+    playbackRequest = undefined;
+    if (disposed) return;
+    simulationCursor = playback.advance(now);
+    updateRuntimeViews();
+    if (playback.playing) playbackRequest = requestAnimationFrame(playbackTick);
+  };
   let rawLogOffset = 0;
   let teamPresets: SourceTeamPreset[] = [];
   let selectedPresetId = "";
@@ -400,10 +439,10 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     const compatibleWeapons = inventory.weapons.filter(item => !char?.weaponClass || item.weaponClass === char.weaponClass);
     const setRows = member.artifactSets.map((set, index) => `<div class="source-team-builder__set"><select data-set-key="${index}">${inventory!.artifacts.map(item => option(item.key, `${item.name} · ${item.key}`, set.key)).join("")}</select>${numberInput("set", String(index), set.count, "件数", 1, 5)}<button type="button" data-remove-set="${index}">删除套装</button></div>`).join("");
     const statRows = Object.entries(member.artifactStats).map(([key, value]) => `<div class="source-team-builder__stat"><select data-stat-key="${escapeHtml(key)}">${statOptions.map(item => option(item, item, key)).join("")}</select>${numberInput("stat", key, value, "纯圣遗物增量", -100000, 100000, "any")}<button type="button" data-remove-stat="${escapeHtml(key)}">删除</button></div>`).join("");
-    const memberPreset = getCharacterBuildPreset(member.characterId, chosenTier);
+    const memberPreset = getCharacterBuildPreset(char ? characterFor(char)?.id ?? "" : "", chosenTier);
     const presetCoverageLabel = memberPreset?.coverage === "role-specific" ? "已维护角色模板" : memberPreset?.coverage === "partial" ? "部分输入，非角色专属推荐" : "通用占位，非角色专属推荐";
     return `<div class="source-team-builder__member-editor"><p class="source-team-builder__note">${escapeHtml(char?.name ?? member.characterKey)} · ${escapeHtml(presetCoverageLabel)} · 来源键 <code>${escapeHtml(member.characterKey)}</code>。更换预设会重置此角色的装备与属性编辑。</p><div><button type="button" data-apply-member-tier>将当前角色改为${chosenTier === "starter" ? "基础投入" : "进阶投入"}参考档</button></div>
-      <div class="source-team-builder__fields">${numberInput("member", "level", member.level, "角色等级", 1, 90)}${numberInput("member", "levelCap", member.levelCap, "突破上限", 1, 90)}${numberInput("member", "constellation", member.constellation, "命之座", 0, 6)}${numberInput("member", "auto", member.talents.auto, "普攻天赋", 1, 15)}${numberInput("member", "skill", member.talents.skill, "技能天赋", 1, 15)}${numberInput("member", "burst", member.talents.burst, "爆发天赋", 1, 15)}</div>
+      <div class="source-team-builder__fields">${numberInput("member", "level", member.level, "角色等级", 1, Math.min(member.levelCap, char ? sourceCharacterLevelLimit(inventory, char) : 90))}${numberInput("member", "levelCap", member.levelCap, "角色解锁上限", 1, char ? sourceCharacterLevelLimit(inventory, char) : 90)}${numberInput("member", "constellation", member.constellation, "命之座", 0, 6)}${numberInput("member", "auto", member.talents.auto, "普攻天赋", 1, 15)}${numberInput("member", "skill", member.talents.skill, "技能天赋", 1, 15)}${numberInput("member", "burst", member.talents.burst, "爆发天赋", 1, 15)}</div>
       ${draft.startup === "custom" ? `<label>本角色初始能量<input type="number" data-member-field="initialEnergy" min="0" max="1000" step="1" value="${member.initialEnergy ?? ""}" placeholder="请明确填写"></label>` : ""}
       <div class="source-team-builder__fields"><label>武器<select data-member-weapon>${compatibleWeapons.map(item => option(item.key, `${item.name} · ${item.key}`, member.weapon.key)).join("")}</select></label>${numberInput("weapon", "level", member.weapon.level, "武器等级", 1, 90)}${numberInput("weapon", "levelCap", member.weapon.levelCap, "武器上限", 1, 90)}${numberInput("weapon", "refinement", member.weapon.refinement, "精炼", 1, 5)}</div>
       <h4>圣遗物套装</h4><div class="source-team-builder__sets">${setRows}</div><button type="button" data-add-set ${member.artifactSets.reduce((sum, row) => sum + row.count, 0) >= 5 ? "disabled" : ""}>添加套装</button>
@@ -508,8 +547,10 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     const choices = actionButtons.filter(([kind]) => kind === action.kind || actionAvailable(member, kind));
     const knownKeys = capability?.parameters.map(parameter => parameter.key) ?? [];
     const configuredParams = Object.keys(action.params ?? {}).length;
-    const paramsEditor = `<details class="source-team-builder__parameters" data-action-params-details><summary>高级：特殊动作参数 · ${configuredParams ? `已设置 ${configuredParams} 项` : "默认输入"}</summary><p>普通 E/Q/A 输入通常不需要填写。只接受当前角色来源明确识别的参数键；不清楚含义时留空。</p><label>来源参数键=整数<input data-action-params="${index}" value="${escapeHtml(Object.entries(action.params ?? {}).map(([key, value]) => `${key}=${value}`).join(","))}" placeholder="留空使用来源默认输入" aria-describedby="source-action-hint-${index}" ${knownKeys.length ? "" : "disabled"}></label><small id="source-action-hint-${index}" class="source-team-builder__action-hint">${knownKeys.length ? `当前动作可用键：${knownKeys.map(escapeHtml).join("、")}；详见角色动作说明中的来源链接。` : "当前动作没有来源登记的参数键；请保持默认输入。"}</small></details>`;
-    return `<li class="source-team-builder__action"><span class="source-team-builder__order">${index + 1}</span><label>角色<select data-action-actor="${index}" ${action.kind === "wait" ? "disabled" : ""}>${draft.members.map(member => option(member.id, inventory?.characters.find(item => item.key === member.characterKey)?.name ?? member.characterKey, action.actorId)).join("")}</select></label><label>动作<select data-action-kind="${index}">${choices.map(([kind, label]) => `<option value="${kind}" ${kind === action.kind ? "selected" : ""} ${actionAvailable(member, kind) ? "" : "disabled"}>${label}${actionAvailable(member, kind) ? "" : " · 不可排入"}</option>`).join("")}</select></label>${numberInput("action-repeat", String(index), action.repeat ?? 1, "输入次数", 1, 100)}${action.kind === "wait" ? numberInput("action-frames", String(index), action.frames ?? 60, "等待帧", 0, 216000) : `${runtimeActionSummary(member, action.kind)}${paramsEditor}`}<div class="source-team-builder__row-buttons"><button type="button" data-action-up="${index}" ${index === 0 ? "disabled" : ""} aria-label="上移第 ${index + 1} 步">↑</button><button type="button" data-action-down="${index}" ${index === draft.actions.length - 1 ? "disabled" : ""} aria-label="下移第 ${index + 1} 步">↓</button><button type="button" data-action-copy="${index}">复制</button><button type="button" data-action-delete="${index}">删除</button></div></li>`;
+    const noelleC6Burst = member?.characterKey === "noelle" && member.constellation === 6 && action.kind === "burst";
+    const noelleExtension = noelleC6Burst ? `<label>本次Q额外延长（秒）<input type="number" data-action-noelle-extension="${index}" min="0" max="10" step="1" value="${escapeHtml(action.params?.extend ?? 0)}"></label><small>未自动计入击杀或后台延长；默认0，非零为本步明确假设。</small>` : "";
+    const paramsEditor = `<details class="source-team-builder__parameters" data-action-params-details><summary>高级：本步参数与状态 · ${configuredParams ? `已设置 ${configuredParams} 项` : "默认输入"}</summary>${runtimeActionSummary(member, action.kind)}<p>${noelleC6Burst ? "额外延长使用本步填写值；其余参数可留空。" : "普通 E/Q/A 输入通常不需要填写。只接受当前角色来源明确识别的参数键；不清楚含义时留空。"}</p><label>来源参数键=整数<input data-action-params="${index}" value="${escapeHtml(Object.entries(action.params ?? {}).map(([key, value]) => `${key}=${value}`).join(","))}" placeholder="${noelleC6Burst ? "额外延长默认0；其余参数可留空" : "留空使用来源默认输入"}" aria-describedby="source-action-hint-${index}" ${knownKeys.length ? "" : "disabled"}></label><small id="source-action-hint-${index}" class="source-team-builder__action-hint">${knownKeys.length ? `当前动作可用键：${knownKeys.map(escapeHtml).join("、")}；详见角色动作说明中的来源链接。` : "当前动作没有来源登记的参数键；请保持默认输入。"}</small></details>`;
+    return `<li class="source-team-builder__action"><span class="source-team-builder__order">${index + 1}</span><label>角色<select data-action-actor="${index}" ${action.kind === "wait" ? "disabled" : ""}>${draft.members.map(member => option(member.id, inventory?.characters.find(item => item.key === member.characterKey)?.name ?? member.characterKey, action.actorId)).join("")}</select></label><label>动作<select data-action-kind="${index}">${choices.map(([kind, label]) => `<option value="${kind}" ${kind === action.kind ? "selected" : ""} ${actionAvailable(member, kind) ? "" : "disabled"}>${label}${actionAvailable(member, kind) ? "" : " · 不可排入"}</option>`).join("")}</select></label>${numberInput("action-repeat", String(index), action.repeat ?? 1, "输入次数", 1, 100)}${action.kind === "wait" ? numberInput("action-frames", String(index), action.frames ?? 60, "等待帧", 0, 216000) : noelleExtension + paramsEditor}<div class="source-team-builder__row-buttons"><button type="button" data-action-up="${index}" ${index === 0 ? "disabled" : ""} aria-label="上移第 ${index + 1} 步">↑</button><button type="button" data-action-down="${index}" ${index === draft.actions.length - 1 ? "disabled" : ""} aria-label="下移第 ${index + 1} 步">↓</button><button type="button" data-action-copy="${index}">复制</button><button type="button" data-action-delete="${index}">删除</button></div></li>`;
   };
   const setRuntimeState = (logs: unknown, statusInstances: unknown, endFrame?: number): void => {
     const rows = Array.isArray(logs) ? logs.filter((row): row is Record<string, unknown> => !!row && typeof row === "object" && !Array.isArray(row)) : [];
@@ -557,6 +598,9 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     simulationEndFrame = typeof endFrame === "number" && Number.isFinite(endFrame) && endFrame >= 0
       ? Math.floor(endFrame)
       : Math.max(0, ...rows.flatMap(row => typeof row.frame === "number" && Number.isFinite(row.frame) ? [Math.floor(row.frame)] : []));
+    stopPlayback();
+    playback = new TimelinePlayback(simulationEndFrame);
+    playback.seek(simulationEndFrame, performance.now());
     simulationCursor = simulationEndFrame;
   };
   const runtimeEffectRows = (): string => {
@@ -571,8 +615,28 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     return `<ul>${rows}</ul>${runtimeStatuses.length > 80 ? `<p>显示前 80 / ${runtimeStatuses.length} 条已记录状态。</p>` : ""}`;
   };
   const updateRuntimeViews = (): void => {
+    const slider = root.querySelector<HTMLInputElement>("[data-sim-time-cursor]");
+    if (slider) slider.value = String(simulationCursor);
+    const playButton = root.querySelector<HTMLButtonElement>("[data-playback-toggle]");
+    if (playButton) playButton.textContent = playback.playing ? "暂停" : "播放回放";
     const readout = root.querySelector<HTMLElement>("[data-sim-time-readout]");
     if (readout) readout.textContent = `第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧`;
+    const timeline = root.querySelector<HTMLElement>('[data-source-timeline]');
+    if (timeline) {
+      timeline.dataset.playbackFrame = String(simulationCursor);
+      timeline.style.setProperty('--playback-position', `${simulationEndFrame ? Math.min(100, 100 * simulationCursor / simulationEndFrame) : 0}%`);
+      let active: HTMLElement | undefined, previous: HTMLElement | undefined;
+      for (const row of timeline.querySelectorAll<HTMLElement>('[data-timeline-start]')) {
+        const start = Number(row.dataset.timelineStart), end = Number(row.dataset.timelineEnd);
+        const current = simulationCursor === start || (Number.isInteger(end) && start <= simulationCursor && simulationCursor < end);
+        row.dataset.playbackState = current ? 'active' : simulationCursor < start ? 'future' : 'past';
+        if (current) active ??= row;
+        if (start <= simulationCursor) previous = row;
+      }
+      const current = active ?? previous;
+      if (current && (current.offsetTop < timeline.scrollTop || current.offsetTop + current.offsetHeight > timeline.scrollTop + timeline.clientHeight))
+        timeline.scrollTop = Math.max(0, current.offsetTop - timeline.clientHeight / 2);
+    }
     const effects = root.querySelector<HTMLElement>("[data-runtime-effects]");
     if (effects) effects.innerHTML = runtimeEffectRows();
     root.querySelectorAll<HTMLButtonElement>("[data-quick-action]").forEach(button => {
@@ -588,7 +652,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       if (summary && action && action.kind !== "wait") summary.outerHTML = runtimeActionSummary(member, action.kind);
     });
   };
-  const renderRuntimePanel = (): string => `<section class="source-team-builder__runtime-panel" aria-label="技能冷却与状态剩余"><h4>技能冷却与关联状态剩余</h4><label>模拟时间（拖动到要查看的时刻）<input type="range" data-sim-time-cursor min="0" max="${simulationEndFrame}" step="1" value="${simulationCursor}"></label><output data-sim-time-readout>第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧</output><p class="source-team-builder__note">1 秒按 60 帧换算。E/Q 冷却只在来源日志记录就绪帧后显示倒计时；状态时间只对应本次来源记录并关联到动作的状态实例，不代表所有队伍增益。缺少就绪帧、固定期限或状态变更帧时显示“未知”。</p><div data-runtime-effects>${runtimeEffectRows()}</div></section>`;
+  const renderRuntimePanel = (): string => `<section class="source-team-builder__runtime-panel" aria-label="动作回放"><h4>动作回放</h4><div class="source-team-builder__fields"><button type="button" data-playback-toggle ${simulationEndFrame === 0 ? "disabled" : ""}>${playback.playing ? "暂停" : "播放回放"}</button><label>回放倍率<select data-playback-speed>${PLAYBACK_SPEEDS.map(speed => `<option value="${speed}" ${playback.speed === speed ? "selected" : ""}>${speed}x</option>`).join("")}</select></label><button type="button" data-playback-end>直接查看结果</button></div><p>拖动或播放，查看所选帧的实际动作。</p><label>模拟时间<input type="range" data-sim-time-cursor min="0" max="${simulationEndFrame}" step="1" value="${simulationCursor}"></label><output data-sim-time-readout>第 ${simulationCursor} 帧 · ${(simulationCursor / 60).toFixed(2)} 秒 / 共 ${simulationEndFrame} 帧</output><details data-runtime-details><summary>高级：冷却与状态记录</summary><p>计算完成后即可查看结果；回放只改变查看时刻，不改变伤害、随机种子或模拟时间轴。</p><p class="source-team-builder__note">1 秒按 60 帧换算。E/Q 冷却只在来源日志记录就绪帧后显示倒计时；状态时间只对应本次来源记录并关联到动作的状态实例，不代表所有队伍增益。缺少就绪帧、固定期限或状态变更帧时显示“未知”。</p><div data-runtime-effects>${runtimeEffectRows()}</div></details></section>`;
   const renderLogs = () => {
     const host = root.querySelector<HTMLElement>("[data-source-team-logs]");
     if (!host) return;
@@ -603,12 +667,16 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       const base = fields(row).char_base;
       if (base && typeof base === "object" && typeof (base as Record<string, unknown>).key === "string") characterNames.set(row.char_index, (base as Record<string, string>).key!);
     }
-    const actor = (row: LogRow): string => typeof row.char_index === "number" && row.char_index >= 0 ? characterNames.get(row.char_index) ?? `队伍第 ${row.char_index + 1} 位` : "队伍";
+    const actor = (row: LogRow): string => {
+      if (typeof row.char_index !== "number" || row.char_index < 0) return "队伍";
+      const key = characterNames.get(row.char_index);
+      return key ? inventory?.characters.find(character => character.key === key)?.name ?? key : `队伍第 ${row.char_index + 1} 位`;
+    };
     const labels: Record<string, string> = { skill: "E 技能", burst: "Q 爆发", attack: "A 普攻", charge: "重击", aim: "瞄准", dash: "冲刺", jump: "跳跃", low_plunge: "低空下落", high_plunge: "高空下落", swap: "切人" };
     const displayAction = (value: unknown): string => labels[String(value)] ?? String(value ?? "动作");
     const events = rows.flatMap(row => {
       const data = fields(row), frame = row.frame, message = String(row.msg ?? "");
-      if (typeof frame !== "number" || !Number.isFinite(frame)) return [];
+      if (typeof frame !== "number" || !Number.isInteger(frame)) return [];
       let title = "", detail = "", kind = "", end: number | undefined;
       if (row.event === "action" && message === "source-host action rejected") {
         const reasons: Record<string, string> = { insufficient_energy: "能量不足", cooldown: "冷却尚未就绪", skill_cd: "E 冷却尚未就绪", burst_cd: "Q 冷却尚未就绪", insufficient_stamina: "体力不足" };
@@ -624,7 +692,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
         kind = "wait"; title = `等待 ${data.f} 帧`; end = frame + data.f;
       } else if (row.event === "hitlag" && message.endsWith(" started")) {
         kind = "animation"; title = `动画 ${displayAction(message.slice(0, -8))}`;
-        if (typeof row.ended === "number" && row.ended > frame) { end = row.ended; detail = `实际结束或中断于第 ${row.ended} 帧（${row.ended - frame} 帧）`; }
+        if (typeof row.ended === "number" && Number.isInteger(row.ended) && row.ended > frame) { end = row.ended; detail = `实际结束或中断于第 ${row.ended} 帧（${row.ended - frame} 帧）`; }
         else detail = "本次日志没有结束帧";
         if (typeof data.AnimationLength === "number") detail += `；来源动画长度 ${data.AnimationLength} 帧`;
         if (typeof data.CanQueueAfter === "number") detail += `；动画内部排队门槛 ${data.CanQueueAfter} 帧`;
@@ -642,22 +710,23 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       } else return [];
       return [{ frame, end, actor: actor(row), title, detail, kind }];
     });
+    let eventDetails = '';
     if (!events.length) { host.innerHTML = `<p>本次来源日志没有可识别的动作、冷却或能量事件。可在下方查看原始记录。</p>`; }
     else {
       const selected = events.slice(0, 200);
-      const timeline = selected.filter(event => event.kind === "action" || event.kind === "wait" || event.kind === "animation");
-      const maxFrame = Math.max(1, ...timeline.map(event => event.end ?? event.frame));
-      const bars = timeline.slice(0, 80).map(event => {
+      const timeline = events.filter(event => event.kind === "action" || event.kind === "wait" || event.kind === "animation").sort((a,b) => a.frame-b.frame);
+      const maxFrame = Math.max(1, simulationEndFrame);
+      const bars = timeline.map(event => {
         const left = Math.min(100, Math.max(0, 100 * event.frame / maxFrame));
         const width = event.end !== undefined ? Math.max(.6, 100 * (event.end - event.frame) / maxFrame) : .6;
-        return `<div class="source-team-builder__timeline-row"><span>${escapeHtml(event.actor)} · ${escapeHtml(event.title)} · ${event.frame}${event.end !== undefined ? `–${event.end}` : ""} 帧</span><div class="source-team-builder__track"><i class="source-team-builder__bar source-team-builder__bar--${event.kind}" style="left:${left}%;width:${Math.min(100 - left, width)}%"></i></div></div>`;
+        return `<div class="source-team-builder__timeline-row" data-timeline-start="${event.frame}"${event.end === undefined ? '' : ` data-timeline-end="${event.end}"`} data-timeline-kind="${event.kind}"><span title="${escapeHtml(event.actor)} · ${escapeHtml(event.title)} · ${event.frame}${event.end !== undefined ? `–${event.end}` : ''} 帧">${escapeHtml(event.actor)} · ${escapeHtml(event.title)} · ${event.frame}${event.end !== undefined ? `–${event.end}` : ""} 帧</span><div class="source-team-builder__track"><i class="source-team-builder__bar source-team-builder__bar--${event.kind}" style="left:${left}%;width:${Math.min(100 - left, width)}%"></i></div></div>`;
       }).join("");
       const table = selected.map(event => `<tr><td>${event.frame}</td><td>${escapeHtml(event.actor)}</td><td>${escapeHtml(event.title)}</td><td>${escapeHtml(event.detail || "—")}</td></tr>`).join("");
-      host.innerHTML = `<p>${events.length} 条实际来源事件：动作、等待、动画、冷却和能量。下表只展示日志已有的数值；冷却「剩余帧」是当时记录值，实际就绪以就绪事件为准。</p><div class="source-team-builder__timeline" aria-label="实际动作时间线"><div class="source-team-builder__timeline-axis">0 帧 <span>${maxFrame} 帧</span></div>${bars}</div>${timeline.length > 80 ? `<p>时间线显示前 80 条动作与动画；表格显示前 200 条相关事件。</p>` : ""}<div class="source-team-builder__table-wrap"><table><thead><tr><th>来源帧</th><th>角色</th><th>实际事件</th><th>来源数值</th></tr></thead><tbody>${table}</tbody></table></div>${events.length > 200 ? `<p>表格显示前 200 / ${events.length} 条相关事件；完整原始日志可分页查看。</p>` : ""}`;
+      host.innerHTML = `<h4>实际动作与动画</h4><div class="source-team-builder__timeline" data-source-timeline aria-label="实际动作时间线"><div class="source-team-builder__timeline-axis">0 帧 <span>${maxFrame} 帧</span></div>${bars}</div><p class="source-team-builder__note">绿色线为查看时刻，高亮为该帧正在进行的已记录动画。</p>`;
+      eventDetails = `<p>${events.length} 条实际来源事件：动作、等待、动画、冷却和能量。下表只展示日志已有的数值；冷却「剩余帧」是当时记录值，实际就绪以就绪事件为准。</p><p>时间线保留 ${timeline.length} 条动作与动画，动画高亮仅使用已记录的起止帧。</p><div class="source-team-builder__table-wrap"><table><thead><tr><th>来源帧</th><th>角色</th><th>实际事件</th><th>来源数值</th></tr></thead><tbody>${table}</tbody></table></div>${events.length > 200 ? `<p>表格显示前 200 / ${events.length} 条相关事件；完整原始日志可分页查看。</p>` : ""}`;
     }
     host.insertAdjacentHTML("afterbegin", renderRuntimePanel());
-    host.insertAdjacentHTML("afterbegin", renderSourceActionReceipts(executionLogs, key => inventory?.characters.find(character => character.key === key)?.name ?? key, displayAction));
-    host.insertAdjacentHTML("beforeend", `<p class="source-team-builder__note">动画长度、排队门槛和转入下一动作的门槛使用来源动画内部计时，可能受卡肉暂停或归一化时钟影响；不能直接加上起始帧来预测实际结束或可施放帧。实际输入窗口以上方回执为准。</p><details class="source-team-builder__raw"><summary>原始来源日志（${entries.length} 条，按 50 条分页）</summary><label>起始行<input type="number" data-source-team-raw-offset min="0" max="${Math.max(0, entries.length - 1)}" step="50" value="${Math.min(rawLogOffset, Math.max(0, entries.length - 1))}"></label><pre data-source-team-raw></pre></details>`);
+    host.insertAdjacentHTML("beforeend", `<details data-source-record-details><summary>高级：逐步动作与完整来源记录</summary>${renderSourceActionReceipts(executionLogs, key => inventory?.characters.find(character => character.key === key)?.name ?? key, displayAction)}${eventDetails}<p class="source-team-builder__note">动画长度、排队门槛和转入下一动作的门槛使用来源动画内部计时，可能受卡肉暂停或归一化时钟影响；不能直接加上起始帧来预测实际结束或可施放帧。实际输入窗口以上方回执为准。</p><details class="source-team-builder__raw"><summary>原始来源日志（${entries.length} 条，按 50 条分页）</summary><label>起始行<input type="number" data-source-team-raw-offset min="0" max="${Math.max(0, entries.length - 1)}" step="50" value="${Math.min(rawLogOffset, Math.max(0, entries.length - 1))}"></label><pre data-source-team-raw></pre></details></details>`);
     const raw = host.querySelector<HTMLElement>("[data-source-team-raw]");
     if (raw) raw.textContent = JSON.stringify(entries.slice(rawLogOffset, rawLogOffset + 50), null, 2);
   };
@@ -678,14 +747,15 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
         : !draft.actions.length ? "点 E、Q 或 A 普攻，把动作加入顺序后即可运行。"
           : "将按动作卡顺序运行；完成后先看总伤、实际时间和伤害率。";
     const presetSummary = selectedPreset ? `来源 ${selectedPreset.source.hostVariant} · ${selectedPreset.source.revision.slice(0, 7)}；${selectedPreset.draft.members.length} 位成员：${selectedPreset.draft.members.map(member => inventory!.characters.find(item => item.key === member.characterKey)?.name ?? member.characterKey).join("、") || "无"}；${selectedPreset.draft.actions.length} 条动作：${selectedPreset.draft.actions.slice(0, 3).map(action => `${inventory!.characters.find(item => item.key === selectedPreset.draft.members.find(member => member.id === action.actorId)?.characterKey)?.name ?? action.actorId} ${sourceActionLabels[action.kind] ?? action.kind}`).join("、") || "无"}${selectedPreset.draft.actions.length > 3 ? "…" : ""}；${selectedPreset.draft.durationSeconds} 秒，${{ once: "执行一次", count: "指定次数", continuous: "循环至观察窗结束" }[selectedPreset.draft.rotationLoop?.mode ?? "once"]}，${{ full: "满能", zero: "零能", custom: "自定义" }[selectedPreset.draft.startup ?? "full"]}起步。` : "选择预设只改变所选记录，不会载入或修改当前队伍。";
+    const openSections = new Set([...root.querySelectorAll<HTMLDetailsElement>("details[data-team-section][open]")].map(section => section.dataset.teamSection));
     root.innerHTML = `<section class="card source-team-builder" aria-label="来源队伍构筑"><h2>来源队伍构筑</h2><p>从入门队伍或 1–4 位角色开始，按顺序点 E、Q、A 普攻添加动作；灰色动作不属于当前来源的可运行方法。实际冷却、关联状态和伤害以运行回执为准。</p>
       <div class="source-team-builder__fields"><label>队伍名称<input data-draft-name value="${escapeHtml(draft.name)}"></label><label>参考构筑<select data-tier>${option("starter", "基础投入档", chosenTier)}${option("developed", "进阶投入档", chosenTier)}</select></label><button type="button" data-apply-team-tier ${draft.members.length ? "" : "disabled"}>应用到全队</button><label>队伍模板<select data-template><option value="">选择入门队伍…</option>${teamTemplates.map(item => option(item.id, item.name, previewTemplateId)).join("")}</select></label></div>
-      <details><summary>高级：本机队伍预设</summary><section class="source-team-builder__presets" aria-label="本机来源队伍预设"><h3>本机多预设库（${hostVariant}）</h3><div class="source-team-builder__fields"><label>已保存预设<select data-team-preset><option value="">选择预设（不会自动载入）</option>${teamPresets.map(preset => option(preset.id, `${preset.name} · ${preset.source.revision.slice(0, 7)}`, selectedPresetId)).join("")}</select></label><label>预设名称<input data-preset-name value="${escapeHtml(presetName || draft.name)}"></label><button type="button" data-preset-load ${selectedPreset ? "" : "disabled"}>载入所选</button><button type="button" data-preset-save-new>另存为新预设</button><button type="button" data-preset-update ${selectedPreset ? "" : "disabled"}>更新所选</button><button type="button" data-preset-delete ${selectedPreset ? "" : "disabled"}>删除所选</button></div><p class="source-team-builder__note">${escapeHtml(presetSummary)} 载入后编辑不会自动改写预设；只有点击“更新所选”才会覆盖该记录，同名另存会新建独立记录。</p></section></details>
-      ${draft.templateId && teamTemplates.some(item => item.id === draft.templateId) ? templateCard(teamTemplates.find(item => item.id === draft.templateId)!, "origin") : ""}
+      <details data-team-section="presets"><summary>高级：本机队伍预设</summary><section class="source-team-builder__presets" aria-label="本机来源队伍预设"><h3>本机多预设库（${hostVariant}）</h3><div class="source-team-builder__fields"><label>已保存预设<select data-team-preset><option value="">选择预设（不会自动载入）</option>${teamPresets.map(preset => option(preset.id, `${preset.name} · ${preset.source.revision.slice(0, 7)}`, selectedPresetId)).join("")}</select></label><label>预设名称<input data-preset-name value="${escapeHtml(presetName || draft.name)}"></label><button type="button" data-preset-load ${selectedPreset ? "" : "disabled"}>载入所选</button><button type="button" data-preset-save-new>另存为新预设</button><button type="button" data-preset-update ${selectedPreset ? "" : "disabled"}>更新所选</button><button type="button" data-preset-delete ${selectedPreset ? "" : "disabled"}>删除所选</button></div><p class="source-team-builder__note">${escapeHtml(presetSummary)} 载入后编辑不会自动改写预设；只有点击“更新所选”才会覆盖该记录，同名另存会新建独立记录。</p></section></details>
+      ${draft.templateId && teamTemplates.some(item => item.id === draft.templateId) ? `<details data-team-section="template"><summary>入门队伍说明</summary>${templateCard(teamTemplates.find(item => item.id === draft.templateId)!, "origin")}</details>` : ""}
       ${previewTemplateId && previewTemplateId !== draft.templateId ? templateCard(teamTemplates.find(item => item.id === previewTemplateId)!, "preview") : ""}
-      ${currentActionCheck()}
+      <details data-team-section="action-check"><summary>高级：动作支持与来源限制</summary>${currentActionCheck()}</details>
       <div class="source-team-builder__fields"><label>自由加入角色<select data-add-character><option value="">选择角色…</option>${availableCharacters().map(item => option(item.key, `${item.name} · ${item.key}`, "")).join("")}</select></label></div>
-      <details><summary>高级：目标、观察时间与执行设置</summary>
+      <details data-team-section="settings"><summary>高级：目标、观察时间与执行设置</summary>
       <div class="source-team-builder__fields">${numberInput("draft", "durationSeconds", draft.durationSeconds, "观察秒数", 1 / 60, 3600, "any")}${numberInput("target", "level", draft.target.level, "目标等级", 1, 200)}<label>通用抗性（小数）<input type="number" step="any" data-target-field="resistance" value="${escapeHtml(draft.target.resistance)}"></label></div>
       <section data-team-first-target><h3>目标 1</h3>${renderSourceTargetGeometryControls(draft.target.geometry)}
       ${renderSourceTargetProfileControls(draft.target)}</section>
@@ -697,10 +767,11 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       <div class="source-team-builder__tabs">${draft.members.map((member, index) => `<button type="button" data-member-tab="${index}" ${activeMember === index ? 'aria-current="true"' : ""}>${index + 1}. ${escapeHtml(inventory!.characters.find(item => item.key === member.characterKey)?.name ?? member.characterKey)}</button>`).join("")}</div>
       <h3>有序动作卡</h3><p class="source-team-builder__note">点一次 E/Q/A 会把当前角色的一次动作输入加到队尾；A 是一次普攻输入，不等于命中次数。先选角色，再按想要的顺序点击。</p><div class="editor-actions"><button type="button" data-clear-actions ${draft.actions.length ? "" : "disabled"}>清空动作顺序</button></div>${primaryActionControls()}${additionalActionControls()}${comboControls()}${actionGuide()}<ol class="source-team-builder__actions">${draft.actions.map(actionRow).join("")}</ol>
       <div class="editor-actions"><button type="button" data-run-direct class="primary" aria-describedby="source-team-run-hint" ${runBlocked ? "disabled" : ""}>运行动作轴</button></div><p id="source-team-run-hint" role="status" class="source-team-builder__note">${escapeHtml(runHint)}</p>
-      <details><summary>高级：装备、天赋与角色属性</summary>${current() ? memberEditor(current()!) : "<p>先选择一个模板，或从角色列表自由加入。</p>"}</details>
-      <details><summary>高级：循环与动作输入选项</summary><div class="source-team-builder__fields"><label>整套动作的执行方式<select data-rotation-loop>${option("once", "执行一次", draft.rotationLoop?.mode ?? "once")}${option("count", "重复指定次数", draft.rotationLoop?.mode ?? "once")}${option("continuous", "循环至观察窗结束", draft.rotationLoop?.mode ?? "once")}</select></label>${draft.rotationLoop?.mode === "count" ? numberInput("rotation", "count", draft.rotationLoop.count ?? 1, "整套动作重复次数", 1, 1000) : ""}</div><p class="source-team-builder__note">按钮将动作添加到末尾。动作行的重复只影响该行动；整套循环沿用前轮的实际能量、冷却和场上状态，不在轮间补能。观察窗可能截断末轮；重复运行不等于已证明稳态。</p></details>
-      <details><summary>高级：脚本与草稿文件</summary><div class="source-team-builder__footer"><button type="button" data-apply-script>生成并填入 GCSL</button><button type="button" data-save-draft>保存草稿到本机</button><button type="button" data-load-draft>读取本机草稿</button><button type="button" data-export-draft>导出 JSON</button><label class="file-button">导入 JSON<input type="file" data-import-draft accept="application/json"></label></div></details>
+      <details data-team-section="equipment"><summary>高级：装备、天赋与角色属性</summary>${current() ? memberEditor(current()!) : "<p>先选择一个模板，或从角色列表自由加入。</p>"}</details>
+      <details data-team-section="rotation"><summary>高级：循环与动作输入选项</summary><div class="source-team-builder__fields"><label>整套动作的执行方式<select data-rotation-loop>${option("once", "执行一次", draft.rotationLoop?.mode ?? "once")}${option("count", "重复指定次数", draft.rotationLoop?.mode ?? "once")}${option("continuous", "循环至观察窗结束", draft.rotationLoop?.mode ?? "once")}</select></label>${draft.rotationLoop?.mode === "count" ? numberInput("rotation", "count", draft.rotationLoop.count ?? 1, "整套动作重复次数", 1, 1000) : ""}</div><p class="source-team-builder__note">按钮将动作添加到末尾。动作行的重复只影响该行动；整套循环沿用前轮的实际能量、冷却和场上状态，不在轮间补能。观察窗可能截断末轮；重复运行不等于已证明稳态。</p></details>
+      <details data-team-section="files"><summary>高级：脚本与草稿文件</summary><div class="source-team-builder__footer"><button type="button" data-apply-script>生成并填入 GCSL</button><button type="button" data-save-draft>保存草稿到本机</button><button type="button" data-load-draft>读取本机草稿</button><button type="button" data-export-draft>导出 JSON</button><label class="file-button">导入 JSON<input type="file" data-import-draft accept="application/json"></label></div></details>
       <p role="status" aria-live="polite" class="source-team-builder__status">${escapeHtml(error || status)}</p><details open><summary>本次来源实际动作时间线</summary><div data-source-team-logs></div></details></section>`;
+    for (const section of root.querySelectorAll<HTMLDetailsElement>("details[data-team-section]")) section.open = openSections.has(section.dataset.teamSection);
     renderLogs();
     updateRuntimeViews();
   };
@@ -738,6 +809,15 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
   root.onclick = event => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
     if (!button || !root.contains(button)) return;
+    if (button.dataset.playbackToggle !== undefined) {
+      if (playback.playing) stopPlayback();
+      else { playback.play(performance.now()); playbackRequest = requestAnimationFrame(playbackTick); }
+      updateRuntimeViews(); return;
+    }
+    if (button.dataset.playbackEnd !== undefined) {
+      stopPlayback(); playback.seek(simulationEndFrame, performance.now());
+      simulationCursor = simulationEndFrame; updateRuntimeViews(); return;
+    }
     const selectedPreset = findSourceTeamPreset(teamPresets, selectedPresetId);
     try {
       if (button.dataset.targetSceneAction !== undefined) {
@@ -844,9 +924,9 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
         teamPresets = deleteSourceTeamPreset(hostVariant, teamPresets, selectedPresetId); selectedPresetId = ""; presetName = draft.name;
         error = ""; status = `已删除“${removedName}”；当前草稿未改变。`; render(); return;
       }
-      if (button.dataset.saveDraft !== undefined) { localStorage.setItem(storageKey, JSON.stringify(draft)); error = ""; status = "草稿已保存到此浏览器。"; render(); return; }
+      if (button.dataset.saveDraft !== undefined) { importSessionPolicy.assertWorkspacePersistenceAllowed(); localStorage.setItem(storageKey, JSON.stringify(draft)); error = ""; status = "草稿已保存到此浏览器。"; render(); return; }
       if (button.dataset.loadDraft !== undefined) { const saved = localStorage.getItem(storageKey) ?? (hostVariant === "classic" ? localStorage.getItem(STORAGE_KEY) : null); if (!saved) throw new Error("此浏览器尚无保存的草稿。"); setDraft(JSON.parse(saved)); status = "已读取本机草稿。"; render(); return; }
-      if (button.dataset.exportDraft !== undefined) { const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "source-team-draft.json"; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); return; }
+      if (button.dataset.exportDraft !== undefined) { exportSourceTeamDraft(draft); return; }
     } catch (cause) { fail(cause); }
   };
   root.oninput = event => {
@@ -854,12 +934,17 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     if (target.dataset.simTimeCursor === undefined) return;
     const frame = Number(target.value);
     if (!Number.isInteger(frame)) return;
-    simulationCursor = Math.max(0, Math.min(simulationEndFrame, frame));
+    playback.seek(frame, performance.now());
+    simulationCursor = playback.frame;
     updateRuntimeViews();
   };
   root.onchange = event => {
     const target = event.target as HTMLInputElement | HTMLSelectElement;
     if (!root.contains(target)) return;
+    if (target.dataset.playbackSpeed !== undefined) {
+      playback.setSpeed(Number(target.value), performance.now());
+      simulationCursor = playback.frame; updateRuntimeViews(); return;
+    }
     try {
       if (target.dataset.tier !== undefined) { chosenTier = target.value as CharacterBuildPresetTier; status = "已切换预设等级；现有成员保持当前编辑。重新选择模板或角色可应用新等级。"; render(); return; }
       if (target.dataset.template !== undefined) { previewTemplateId = target.value; error = ""; render(); return; }
@@ -940,6 +1025,11 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
       else if (target.dataset.actionKind !== undefined) { const action = draft.actions[Number(target.dataset.actionKind)]!; action.kind = target.value as SourceActionKind; if (action.kind === "wait") action.frames ??= 60; else delete action.frames; }
       else if (target.dataset.actionRepeatField !== undefined) draft.actions[Number(target.dataset.actionRepeatField)]!.repeat = Number(target.value);
       else if (target.dataset.actionFramesField !== undefined) draft.actions[Number(target.dataset.actionFramesField)]!.frames = Number(target.value);
+      else if (target.dataset.actionNoelleExtension !== undefined) {
+        const action = draft.actions[Number(target.dataset.actionNoelleExtension)]!;
+        const seconds = integer(target.value.trim() ? Number(target.value) : NaN, "本次Q额外延长", 0, 10);
+        action.params = { ...action.params, extend: seconds };
+      }
       else if (target.dataset.actionParams !== undefined) draft.actions[Number(target.dataset.actionParams)]!.params = parseParams(target.value);
       else return;
       changeFromForm();
@@ -962,6 +1052,7 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
   void loadSourceTeamInventory(hostVariant).then(value => {
     if (disposed) return;
     inventory = value;
+    if (options.initialTemplateId) { applyTemplate(options.initialTemplateId); return; }
     if (draft.members.length) compileSourceTeamDraft(draft, value);
     draft.source ??= { hostVariant, revision: value.revision };
     notify(); render();
@@ -971,6 +1062,6 @@ export function renderSourceTeamBuilder(root: HTMLElement, options: SourceTeamBu
     getDraft: () => structuredClone(draft),
     getCharacterName: characterKey => inventory?.characters.find(character => character.key === characterKey)?.name,
     renderExecutionLogs(logs, statusInstances, endFrame) { executionLogs = logs; setRuntimeState(logs, statusInstances, endFrame); rawLogOffset = 0; renderLogs(); updateRuntimeViews(); },
-    dispose() { disposed = true; root.onclick = null; root.onchange = null; root.oninput = null; root.replaceChildren(); }
+    dispose() { stopPlayback(); disposed = true; root.onclick = null; root.onchange = null; root.oninput = null; root.replaceChildren(); }
   };
 }

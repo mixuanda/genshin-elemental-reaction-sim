@@ -1,0 +1,75 @@
+{
+  "before": {
+    "command": [
+      "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go/bin/go",
+      "test",
+      "-mod=readonly",
+      "-overlay=/tmp/GIDPS-iansan-c4-evidence-20261023/go-overlay.json",
+      "./internal/characters/iansan",
+      "-run",
+      "^TestIansanC4Source",
+      "-count=1",
+      "-v"
+    ],
+    "cwd": "/tmp/GIDPS-iansan-team-20261023/build-cache/stellar-build-X7lPE2/source",
+    "environment": {
+      "GOROOT": "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GO111MODULE": "on",
+      "GOPATH": "/tmp/GIDPS-iansan-c4-evidence-20261023/gopath",
+      "GOMODCACHE": "/workspace/GIDPS-cloud/source-build-cache/modules",
+      "GOCACHE": "/workspace/GIDPS-cloud/source-build-cache/go-build",
+      "GOMAXPROCS": "2",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOOS": "linux",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0"
+    },
+    "exitCode": 0,
+    "wallSeconds": 3.9015768569952343,
+    "logSha256": "87bd96d746ffe6db7bc8eefb8249b13c8a270dd4dae93d122527ea2e5c688e3a"
+  },
+  "c6Before": {
+    "command": [
+      "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go/bin/go",
+      "test",
+      "-mod=readonly",
+      "-overlay=/tmp/GIDPS-iansan-c4-evidence-20261023/go-overlay.json",
+      "./internal/characters/iansan",
+      "-run",
+      "^TestIansan(C4Source|C6Source)",
+      "-count=1",
+      "-v"
+    ],
+    "cwd": "/tmp/GIDPS-iansan-team-20261023/build-cache/stellar-build-X7lPE2/source",
+    "environment": {
+      "GOROOT": "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GO111MODULE": "on",
+      "GOPATH": "/tmp/GIDPS-iansan-c4-evidence-20261023/gopath",
+      "GOMODCACHE": "/workspace/GIDPS-cloud/source-build-cache/modules",
+      "GOCACHE": "/workspace/GIDPS-cloud/source-build-cache/go-build",
+      "GOMAXPROCS": "2",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOOS": "linux",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0"
+    },
+    "exitCode": 1,
+    "wallSeconds": 0.7297458370012464,
+    "logSha256": "96f558b0cedc1821ca0aa219abe033e68ff4be2efbba2c146aad2c61102e65b4"
+  },
+  "overlay": {
+    "Replace": {
+      "/tmp/GIDPS-iansan-team-20261023/build-cache/stellar-build-X7lPE2/source/internal/characters/iansan/iansan_c4_source_acceptance_test.go": "/tmp/GIDPS-iansan-c4-cyno-20261023/packages/source-host/tests/fixtures/iansan-c4-source-acceptance_test.go"
+    }
+  },
+  "fixtureSha256": "bdc5cb5ccda322a84c7271d03c2b8caf150b195c2487d16998dfdb6802266174",
+  "note": "Exit1 is the preserved real C6 defect, not an infrastructure failure. After acceptance delegated to root; all C4 assertions pass unchanged."
+}

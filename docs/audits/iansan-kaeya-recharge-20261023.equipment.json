@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "iansan-kaeya-favonius-recharge-20261023",
+  "scope": "Hypothetical legal battery test build, not player inventory, not a graduation/optimal build or energy-sufficiency proof. Native source executes character/Favonius effects; equipment resolution here verifies sourced static panel only.",
+  "baselineRequestSha256": "db8382760f42c0570ecea28e9f4eae9f34f2d13aa3192638982da8cc8683346c",
+  "builds": [
+    {
+      "actor": "iansan",
+      "constellation": 6,
+      "baseTalents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "input": {
+        "characterId": "character:10000110",
+        "weaponId": "weapon:13407",
+        "level": 90,
+        "ascension": 6,
+        "weaponLevel": 90,
+        "weaponAscension": 6,
+        "refinement": 5,
+        "effectsDisabled": true,
+        "weaponEffectsEnabled": false,
+        "setEffectsEnabled": false,
+        "artifacts": [
+          {
+            "slot": "flower",
+            "setId": "artifact-set:14001",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "hp",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  2,
+                  2,
+                  2,
+                  2,
+                  2
+                ]
+              },
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "plume",
+            "setId": "artifact-set:14002",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "atk",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "sands",
+            "setId": "artifact-set:14003",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "enerRech_",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "hp",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "goblet",
+            "setId": "artifact-set:14004",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "atk_",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "circlet",
+            "setId": "artifact-set:15001",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "critRate_",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "actor": "kaeya",
+      "constellation": 0,
+      "baseTalents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "input": {
+        "characterId": "character:10000015",
+        "weaponId": "weapon:11401",
+        "level": 90,
+        "ascension": 6,
+        "weaponLevel": 90,
+        "weaponAscension": 6,
+        "refinement": 5,
+        "effectsDisabled": true,
+        "weaponEffectsEnabled": false,
+        "setEffectsEnabled": false,
+        "artifacts": [
+          {
+            "slot": "flower",
+            "setId": "artifact-set:14001",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "hp",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  2,
+                  2,
+                  2,
+                  2,
+                  2
+                ]
+              },
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "plume",
+            "setId": "artifact-set:14002",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "atk",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "sands",
+            "setId": "artifact-set:14003",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "enerRech_",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "hp",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "goblet",
+            "setId": "artifact-set:14004",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "cryo_dmg_",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "critRate_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  2
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "circlet",
+            "setId": "artifact-set:15001",
+            "rarity": 5,
+            "level": 20,
+            "mainStat": "critRate_",
+            "initialSubstats": 4,
+            "substats": [
+              {
+                "stat": "enerRech_",
+                "rolls": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "stat": "atk_",
+                "rolls": [
+                  3,
+                  3,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "stat": "atk",
+                "rolls": [
+                  3
+                ]
+              },
+              {
+                "stat": "def",
+                "rolls": [
+                  3
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "scope": "fixed C0 reference build, two independent single actions, seed11; not a mean or a rotation",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "rows": [
+    {
+      "action": "charge",
+      "startingEnergy": "zero",
+      "acceptedFrame": 6,
+      "maxHp": 35587.60469788896,
+      "hitCount": 8,
+      "independentTotal": 96821.06142725007,
+      "actualTotal": 96821.06142725007,
+      "maximumAbsoluteError": 1.8189894035458565e-12,
+      "details": [
+        {
+          "frame": 238,
+          "offset": 232,
+          "coefficient": 0.14467,
+          "hpRatio": 1,
+          "a4": 0.3,
+          "damageBonus": 0.916,
+          "isCrit": true,
+          "independentDamage": 12295.145393333187,
+          "actualDamage": 12295.145393333187,
+          "absoluteError": 0
+        },
+        {
+          "frame": 260,
+          "offset": 254,
+          "coefficient": 0.14467,
+          "hpRatio": 1,
+          "a4": 0.3,
+          "damageBonus": 0.916,
+          "isCrit": true,
+          "independentDamage": 12295.145393333187,
+          "actualDamage": 12295.145393333187,
+          "absoluteError": 0
+        },
+        {
+          "frame": 285,
+          "offset": 279,
+          "coefficient": 0.14467,
+          "hpRatio": 0.92,
+          "a4": 0.3,
+          "damageBonus": 0.916,
+          "isCrit": true,
+          "independentDamage": 12295.145393333187,
+          "actualDamage": 12295.145393333187,
+          "absoluteError": 0
+        },
+        {
+          "frame": 310,
+          "offset": 304,
+          "coefficient": 0.14467,
+          "hpRatio": 0.84,
+          "a4": 0.3,
+          "damageBonus": 0.916,
+          "isCrit": true,
+          "independentDamage": 12295.145393333187,
+          "actualDamage": 12295.145393333187,
+          "absoluteError": 0
+        },
+        {
+          "frame": 335,
+          "offset": 329,
+          "coefficient": 0.14467,
+          "hpRatio": 0.76,
+          "a4": 0.276,
+          "damageBonus": 0.892,
+          "isCrit": true,
+          "independentDamage": 12141.135221391643,
+          "actualDamage": 12141.135221391645,
+          "absoluteError": 1.8189894035458565e-12
+        },
+        {
+          "frame": 360,
+          "offset": 354,
+          "coefficient": 0.14467,
+          "hpRatio": 0.76,
+          "a4": 0.276,
+          "damageBonus": 0.892,
+          "isCrit": true,
+          "independentDamage": 12141.135221391643,
+          "actualDamage": 12141.135221391645,
+          "absoluteError": 1.8189894035458565e-12
+        },
+        {
+          "frame": 385,
+          "offset": 379,
+          "coefficient": 0.14467,
+          "hpRatio": 0.6799999999999999,
+          "a4": 0.22799999999999995,
+          "damageBonus": 0.844,
+          "isCrit": true,
+          "independentDamage": 11833.114877508558,
+          "actualDamage": 11833.114877508558,
+          "absoluteError": 0
+        },
+        {
+          "frame": 405,
+          "offset": 399,
+          "coefficient": 0.14467,
+          "hpRatio": 0.6,
+          "a4": 0.18,
+          "damageBonus": 0.796,
+          "isCrit": true,
+          "independentDamage": 11525.094533625474,
+          "actualDamage": 11525.094533625474,
+          "absoluteError": 0
+        }
+      ],
+      "wasm": {
+        "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+        "wasmBytes": 47084886
+      }
+    },
+    {
+      "action": "burst",
+      "startingEnergy": "full",
+      "acceptedFrame": 6,
+      "maxHp": 35587.60469788896,
+      "hitCount": 3,
+      "independentTotal": 44381.23236005475,
+      "actualTotal": 44381.23236005475,
+      "maximumAbsoluteError": 0,
+      "details": [
+        {
+          "frame": 101,
+          "offset": 95,
+          "coefficient": 0.31161,
+          "hpRatio": 1,
+          "a4": 0.3,
+          "damageBonus": 0.766,
+          "isCrit": true,
+          "independentDamage": 24409.6621312273,
+          "actualDamage": 24409.6621312273,
+          "absoluteError": 0
+        },
+        {
+          "frame": 141,
+          "offset": 135,
+          "coefficient": 0.127477,
+          "hpRatio": 1,
+          "a4": 0.3,
+          "damageBonus": 0.766,
+          "isCrit": true,
+          "independentDamage": 9985.785114413728,
+          "actualDamage": 9985.785114413728,
+          "absoluteError": 0
+        },
+        {
+          "frame": 160,
+          "offset": 154,
+          "coefficient": 0.127477,
+          "hpRatio": 1,
+          "a4": 0.3,
+          "damageBonus": 0.766,
+          "isCrit": true,
+          "independentDamage": 9985.785114413728,
+          "actualDamage": 9985.785114413728,
+          "absoluteError": 0
+        }
+      ],
+      "wasm": {
+        "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+        "wasmBytes": 47084886
+      }
+    }
+  ]
+}

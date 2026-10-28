@@ -4,7 +4,7 @@
 
 - Project: [genshinsim/gcsim](https://github.com/genshinsim/gcsim)
 - Documentation: [docs.gcsim.app](https://docs.gcsim.app/)
-- License: MIT
+- License: MIT for the pinned Classic b4ae769 source described below; the separate Stellar a7 host is AGPL-3.0-or-later.
 - Copyright: Copyright (c) 2021 genshinsim
 - Included license: [`third_party/licenses/gcsim-MIT.txt`](./third_party/licenses/gcsim-MIT.txt)
 
@@ -40,11 +40,24 @@ This project uses gcsim as a product and testing reference:
 The level 1–100 transformative-reaction base-damage numeric table in
 `packages/sim-core/src/formulas.ts` is reproduced from that fixed commit's
 `pkg/core/combat/reaction.dm.go` and is covered by the included MIT license.
-No Go source or character implementation was copied. The TypeScript Aura,
+The earlier TypeScript-only scope did not include a Go host. The current repository also contains patched Go/WASM source hosts; that earlier no-copy statement does not describe the current tree. The TypeScript Aura,
 ICD, reaction scheduling, particle, Ability Blueprint, and Durin audit
 implementations were written independently against the pinned behavior
 oracles. Any later reused code or substantial data portions must retain the
 applicable copyright and MIT license text.
+
+`packages/game-data/sources/kazuha-burst/source/` also retains ten unmodified
+Kazuha reference Go files from the pinned b4 and a7 revisions. Their
+[path-level notice and license texts](packages/game-data/sources/kazuha-burst/source/README.md)
+preserve b4's MIT terms and a7's AGPL-3.0-or-later / prior-MIT notices. They are
+source evidence for the direct-Q calculation, not an additional shipped WASM
+host. The manifest records exact file identities.
+
+## Separate Stellar Go/WASM host
+
+The `packages/source-host/stellar-overlay/` and `apps/web/public/source-host-stellar/` host uses pinned gcsim revision `a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd`. Its source is AGPL-3.0-or-later, with a separate notice for prior MIT contributions. Preserve the [AGPL text](apps/web/public/source-host-stellar/licenses/gcsim-AGPL-3.0-or-later.txt), prior-contribution notices, Go notices and linked dependency notices alongside this artifact. This is separate from the Classic b4 host's MIT attribution.
+
+The [Stellar build documentation](packages/source-host/stellar-overlay/README.md) identifies archived source verification and the isolated overlay. A release still needs an audit of corresponding modified source, build materials and the actual distribution/serving boundary. This notice does not select a new license for original project code or certify the entire repository for redistribution. See the [license-boundary draft](docs/oss-preparation/LICENSE-BOUNDARIES.zh-CN.md).
 
 ## Enka.Network
 

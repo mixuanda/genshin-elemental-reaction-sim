@@ -18,14 +18,15 @@ function importedCharacter(avatarId: number, constellation: number, ascensionPro
     avatarInfoList: [{
       avatarId,
       propMap: {
-        "4001": { type: 4001, ival: "90" },
+        "4001": { type: 4001, val: "90", ival: "90" },
         "1002": { type: 1002, [ascensionProperty]: "6" }
       },
       talentIdList: Array.from({ length: constellation }, (_, index) => 1000 + index),
       skillLevelMap: Object.fromEntries(mapping.skillOrder.map((id, index) => [String(id), talentLevels[index]!])),
+      proudSkillExtraLevelMap: {},
       fightPropMap: {
         "20": 0.7, "22": 1.2, "23": 1.5, "28": 100,
-        "41": 0.466, "46": 0.466,
+        "30": 0, "41": 0.466, "46": 0.466,
         "2000": 20000, "2001": 2000, "2002": 800
       },
       equipList: [{
@@ -76,6 +77,10 @@ describe("showcase calculator import uses per-hit constellation and ascension de
     const normal = getCharacterDocuments(character.catalog.characterId!, 5)
       .find(candidate => candidate.gameContext?.skillId === "kaeya-normal-1");
     if (!normal) throw new Error("Missing reviewed Kaeya N1 document");
+    const missingPhysical = structuredClone(character);
+    missingPhysical.stats.damageBonuses.physical = null;
+    expect(() => applyImportedCalculatorPanel(normal, missingPhysical, "synthetic missing physical bonus"))
+      .toThrow("physical 伤害加成");
     const importedNormal = applyImportedCalculatorPanel(normal, character, "same synthetic C1 showcase");
     expect(importedNormal.gameContext).toMatchObject({ constellation: 1, effectiveTalentLevel: 5 });
     const blockedNormal = calculateDocument(importedNormal);

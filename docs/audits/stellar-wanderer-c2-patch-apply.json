@@ -1,0 +1,21 @@
+[
+  {
+    "args": [
+      "git",
+      "apply",
+      "--check",
+      "/tmp/GIDPS-role-kazuha-20261023/packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch"
+    ],
+    "exitCode": 0,
+    "stdout": ""
+  },
+  {
+    "args": [
+      "git",
+      "apply",
+      "/tmp/GIDPS-role-kazuha-20261023/packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch"
+    ],
+    "exitCode": 0,
+    "stdout": ""
+  }
+]

@@ -1,3 +1,4 @@
+import { importSessionPolicy } from './import-session-policy';
 import { parseEnkaBuilds, parseGoodBuilds, type BuildImportBatch, type ImportedEditableBuild } from "../../../packages/game-data/src/build-import";
 import { gameDataCatalog } from "../../../packages/game-data/src/catalog";
 import { equipmentBuildToSourceTeamMember, compileSourceTeamDraft, type SourceTeamDraft, type SourceTeamInventory, type SourceTeamMember } from "./source-team-builder";
@@ -55,6 +56,7 @@ function fromDraft(raw: Record<string, unknown>, inventory: SourceTeamInventory)
 }
 
 function importedBuilds(raw: unknown): BuildImportBatch {
+  importSessionPolicy.markImportedWorkspace();
   const record = object(raw);
   if (record?.format === "GOOD") return parseGoodBuilds(raw);
   if (record && object(record.playerInfo) && Array.isArray(record.avatarInfoList)) {

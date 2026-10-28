@@ -1,0 +1,43 @@
+options iteration=1 duration=120;
+iansan char lvl=90/90 cons=6 talent=10,10,10;
+iansan add weapon="favoniuslance" refine=5 lvl=90/90;
+iansan add set="blizzardstrayer" count=1;
+iansan add set="thundersoother" count=1;
+iansan add set="lavawalker" count=1;
+iansan add set="maidenbeloved" count=1;
+iansan add set="gladiatorsfinale" count=1;
+iansan add stats hp=5078.75 cr=0.9528000000000001 er=1.2308 atk%=0.9907000000000001 def=115.75 atk=349.9;
+kaeya char lvl=90/90 cons=0 talent=10,10,10;
+kaeya add weapon="favoniussword" refine=5 lvl=90/90;
+kaeya add set="blizzardstrayer" count=1;
+kaeya add set="thundersoother" count=1;
+kaeya add set="lavawalker" count=1;
+kaeya add set="maidenbeloved" count=1;
+kaeya add set="gladiatorsfinale" count=1;
+kaeya add stats hp=5078.75 cr=0.9528000000000001 er=0.9261 atk%=0.8162000000000001 def=115.75 atk=330.45 cryo%=0.466;
+target lvl=90 resist=0.1 radius=2 pos=0,2.4 hp=1000000000;
+active iansan;
+
+// Six intended 20-second phases; full energy is granted once by the request.
+// No movement distance, stat override, energy injection or duration extension.
+for let cycle = 0; cycle < 6; cycle = cycle + 1 {
+  wait(1 + cycle * 1200 - f());
+  phase("iansan-20s");
+  print("audit-phase|index=", cycle, "|frame=", f());
+  let iansanQReady = .iansan.burst.ready;
+  print("audit-q|iansan|energy=", .iansan.energy, "|max=", .iansan.energymax,
+    "|cd=", .iansan.burst.cd, "|ready=", iansanQReady);
+  if iansanQReady { iansan burst; }
+  iansan skill;
+  iansan charge;
+  let kaeyaQReady = .kaeya.burst.ready;
+  print("audit-q|kaeya|energy=", .kaeya.energy, "|max=", .kaeya.energymax,
+    "|cd=", .kaeya.burst.cd, "|ready=", kaeyaQReady);
+  if kaeyaQReady { kaeya burst; }
+  kaeya skill;
+  while f() < (cycle + 1) * 1200 {
+    if .kaeya.skill.ready { kaeya skill; }
+    kaeya attack;
+  }
+}
+wait(7200);

@@ -19,4 +19,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run check:release
+      # Same stages, 58 tests, workers and timeouts; add progress-only reporters.
+      - run: npm run data:check && npm run test:unit && npm run build && GIDPS_PREBUILT=1 npm run test:e2e:calculator -- --reporter=line,./scripts/calculator-progress-reporter.mjs
+      - name: Preserve sanitized calculator progress
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-progress-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/calculator-progress/events.ndjson
+          if-no-files-found: warn
+          retention-days: 7

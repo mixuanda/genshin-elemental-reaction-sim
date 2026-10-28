@@ -16,6 +16,8 @@ import {
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   assertTrustedSimulationResult,
   assertTrustedSimulationResultV146,
   simulationResultSchema,
@@ -30,6 +32,7 @@ import { z } from "zod";
 
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
+import { parseSimulationHit, replaySimulationHit } from "../calculator-bridge";
 import { simulate } from "../simulator";
 import { makeConfig } from "./fixtures";
 
@@ -226,10 +229,11 @@ function canonicalSha256(value: unknown): string {
   return byteSha256(JSON.stringify(canonicalize(value)));
 }
 
-/** Remove only fields introduced after the frozen 1.46 result wire. */
-function projectResultToFrozenV146Wire(value: unknown): unknown {
+/** Historical-only projection: remove fields introduced after the frozen 1.46 wire.
+ * Current results are tested in full and must not enter this conversion. */
+function projectHistoricalResultToFrozenV146Wire(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map(projectResultToFrozenV146Wire);
+    return value.map(projectHistoricalResultToFrozenV146Wire);
   }
   if (value === null || typeof value !== "object") {
     return value;
@@ -241,7 +245,7 @@ function projectResultToFrozenV146Wire(value: unknown): unknown {
           key !== "elementalApplicationIcdLogId" &&
           key !== "elementalApplicationIcdLogIds",
       )
-      .map(([key, entry]) => [key, projectResultToFrozenV146Wire(entry)]),
+      .map(([key, entry]) => [key, projectHistoricalResultToFrozenV146Wire(entry)]),
   );
 }
 
@@ -379,8 +383,8 @@ function decisionProjection(result: ReturnType<typeof runVector>) {
   );
 }
 
-function makeFixture(result: ReturnType<typeof runVector>): DamageGroupFixture {
-  const projected = projectResultToFrozenV146Wire(
+function makeHistoricalFixture(result: ReturnType<typeof runVector>): DamageGroupFixture {
+  const projected = projectHistoricalResultToFrozenV146Wire(
     structuredClone(
       projectSimulationResultV152ToV151(
         projectSimulationResultV153ToV152(result),
@@ -484,16 +488,173 @@ function loadOrCreateFixture(
   return fixtureSchema.parse(JSON.parse(frozenBytes.toString("utf8")));
 }
 
-describe("1.46 ordinary direct-damage-group Golden", () => {
-  it("matches the synthetic zero, switch, tail, and reset vector", () => {
+
+const historicalDirectGroupBytes = readFileSync(new URL(
+  "../../../test-vectors/src/fixtures/historical-direct-damage-group-v153-84ff5cd.json", import.meta.url,
+));
+const historicalDirectGroupArchive = JSON.parse(historicalDirectGroupBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string }; observedRunCount: number; sourceWireSha256: string; sourceWireText: string;
+};
+function historicalDirectGroupResult(): SimulationResult {
+  expect(byteSha256(historicalDirectGroupArchive.sourceWireText)).toBe(historicalDirectGroupArchive.sourceWireSha256);
+  const result = JSON.parse(historicalDirectGroupArchive.sourceWireText) as SimulationResult;
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
+
+function directGroupMechanics(result: SimulationResult) {
+  const { runManifest: _manifest, resolvedRuntimeOptions: _options, reproducibilityKey: _key, ...mechanics } = result;
+  return mechanics;
+}
+function expectCurrentDirectGroupContract(result: SimulationResult): void {
+  const before = JSON.stringify(result);
+  const historical = historicalDirectGroupResult();
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.resolvedRuntimeOptions).toEqual({ ...historical.resolvedRuntimeOptions, flatStatBuffSemantics: "canonical-v1" });
+  expect(result.runManifest.resolvedRuntimeOptions).toEqual(result.resolvedRuntimeOptions);
+  expect(result.runManifest.reproducibilityKey).toBe(result.reproducibilityKey);
+  expect(result.reproducibilityKey).not.toBe(historical.reproducibilityKey);
+  const { reproducibilityKey: _oldKey, resolvedRuntimeOptions: _oldOptions, ...oldManifest } = historical.runManifest;
+  const { reproducibilityKey: _key, resolvedRuntimeOptions: _options, ...manifest } = result.runManifest;
+  expect(manifest).toEqual(oldManifest);
+  expect(simulationResultSchema.parse(JSON.parse(before))).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+
+  // Exact expected full mechanics, not a wire converter. These five direct
+  // resolution rows formerly omitted position; they now explicitly reserve I0.
+  // Every event/group/timeline field and all references remain unmodified.
+  const expected = structuredClone(directGroupMechanics(historical));
+  expect(expected.hitResolutionLog.map((row) => row.id)).toEqual([0, 1, 2, 3, 4]);
+  for (const [id, row] of expected.hitResolutionLog.entries()) {
+    expect(row).toMatchObject({ id, frame: EXPECTED_DECISIONS[id]!.frame, resolutionKind: "direct",
+      hitId: EXPECTED_DECISIONS[id]!.hitId, targetId: "enemy-0", damageEventId: id });
+    expect(row).not.toHaveProperty("eventPriority");
+    expect(row).not.toHaveProperty("eventSequence");
+    expect(row).not.toHaveProperty("intraEventSequence");
+    row.eventPriority = 3; row.eventSequence = id + 1; row.intraEventSequence = 0;
+  }
+  expect(directGroupMechanics(result)).toStrictEqual(expected);
+  expect(decisionProjection(result)).toEqual(EXPECTED_DECISIONS);
+  expect(result.directDamageGroupLog).toEqual(historical.directDamageGroupLog);
+  expect(canonicalSha256(result.directDamageGroupLog)).toBe(DIRECT_DAMAGE_GROUP_LOG_SHA256);
+
+  // Independent physical damage: ATK1000, scaling1, level90 vs110 DEF,
+  // resistance10%, no crit/bonus/reaction; configured group multiplier2.
+  const defense = (90 + 100) / ((90 + 100) + (110 + 100));
+  const positive = 1000 * defense * (1 - 0.1) * 2;
+  expect(positive).toBe(855);
+  const damage = [positive, 0, positive, positive, positive];
+  expect(result.damageEvents).toHaveLength(5);
+  expect(result.directDamageGroupLog).toHaveLength(5);
+  expect(result.damageEvents.map((event) => event.finalDamage)).toEqual(damage);
+  for (const [id, decision] of result.directDamageGroupLog.entries()) {
+    const event = result.damageEvents[id]!;
+    const resolution = result.hitResolutionLog[id]!;
+    expect(decision).toMatchObject({ id, damageEventId: id, hitResolutionLogId: id,
+      sourceActorId: "a", targetId: "enemy-0", profileId: GCSIM_DAMAGE_GROUP_ROOT.profileId,
+      evaluation: "evaluated", icdTag: "synthetic-shared-tag", configuredMultiplier: 2,
+      prePluginMultiplier: 2, postPluginMultiplier: 2, pluginMultiplierTrace: [] });
+    expect(resolution).toMatchObject({ id, frame: EXPECTED_DECISIONS[id]!.frame, eventPriority: 3,
+      eventSequence: id + 1, intraEventSequence: 0, outcome: "landed", landed: true, damageEventId: id,
+      potentialDamage: damage[id], finalDamage: damage[id], displayDamage: damage[id] });
+    expect(event).toMatchObject({ id, frame: EXPECTED_DECISIONS[id]!.frame, hitId: decision.hitId,
+      eventPriority: 3, eventSequence: id + 1, targetResolutionId: id, targetId: "enemy-0",
+      sourceActorId: "a", scalingOwnerId: "a", creditOwnerId: "a", kind: "direct", element: "physical",
+      reaction: "none", groupMultiplier: decision.effectiveMultiplier,
+      potentialDamage: damage[id], finalDamage: damage[id], displayDamage: damage[id],
+      damageComposition: { direct: damage[id], additiveReaction: 0, transformativeReaction: 0 },
+      damageFactors: { scaling: 1, scalingValue: 1000, flatDamage: 0, baseDamage: 1000,
+        damageBonusMultiplier: 1, defenseMultiplier: defense, resistanceMultiplier: 0.9,
+        critMultiplier: 1, amplifyingReactionMultiplier: 1, groupMultiplier: decision.effectiveMultiplier } });
+    // Exercise the actual calculator entry point, including the zero slot.
+    const replay = replaySimulationHit({ schemaVersion: "calculator-event-v1", eventId: id, sourceResult: result });
+    expect(replay.originalDamage).toBe(damage[id]);
+    expect(replay.reproducedDamage).toBe(damage[id]);
+    expect(replay.difference).toBe(0);
+  }
+  // One actor/tag window survives the group switch; the current group's tail
+  // clamps at index1. At F5 the original six-frame window resets before consume,
+  // opening pole-extra-attack at index0 with its own F34 deadline.
+  expect(result.directDamageGroupLog.map((entry) => entry.hitIndex)).toEqual([0, 1, 2, 3, 0]);
+  expect(result.directDamageGroupLog.map((entry) => entry.sequenceIndex)).toEqual([0, 1, 1, 1, 0]);
+  expect(result.directDamageGroupLog.map((entry) => entry.damageGroupOnEnemyHitAllowed)).toEqual([true, false, true, true, true]);
+  expect(result.directDamageGroupLog.map((entry) => entry.resetAtFrame)).toEqual([5, 5, 5, 5, 34]);
+  expect(result.totalDamage).toBe(4 * positive);
+  expect(result.dps).toBe(4 * positive);
+  expect(result.byCharacter.a).toBe(4 * positive);
+  expect(result.damageCurve.map((point) => [point.damageEventId, point.frame, point.cumulativeDamage])).toEqual([
+    [0, 0, positive], [1, 1, positive], [2, 2, 2 * positive], [3, 4, 3 * positive], [4, 5, 4 * positive],
+  ]);
+  expect(result.elementalApplicationIcdLog).toEqual([]);
+  expect(result.reactionDamageLog).toEqual([]);
+  expect(result.reactionTaskLog).toEqual([]);
+  expect(JSON.stringify(result)).toBe(before);
+}
+
+const hostileDirectGroupCases: Array<{ name: string; mutate: (result: SimulationResult) => void }> = [
+  { name: "zero slot becomes a positive sequence slot", mutate: (result) => { result.directDamageGroupLog[1]!.sequenceMultiplier = 1; } },
+  { name: "zero slot forges the OnEnemyHit gate", mutate: (result) => { result.directDamageGroupLog[1]!.damageGroupOnEnemyHitAllowed = true; } },
+  { name: "group switch replaces the existing window owner", mutate: (result) => { result.directDamageGroupLog[2]!.windowStartGroup = "chasca-tap"; } },
+  { name: "tail index escapes its clamped sequence", mutate: (result) => { result.directDamageGroupLog[3]!.sequenceIndex = 3; } },
+  { name: "new window deadline uses the wrong reset boundary", mutate: (result) => { result.directDamageGroupLog[4]!.resetAtFrame = 35; } },
+  { name: "F5 hit consumes the stale window index", mutate: (result) => { result.directDamageGroupLog[4]!.hitIndex = 4; } },
+  { name: "damage backlink aliases the zero event", mutate: (result) => { result.directDamageGroupLog[0]!.damageEventId = 1; } },
+  { name: "dangling resolution backlink", mutate: (result) => { result.directDamageGroupLog[0]!.hitResolutionLogId = 999; } },
+  { name: "plugin-free post multiplier is forged", mutate: (result) => { result.directDamageGroupLog[0]!.postPluginMultiplier = 99; } },
+  { name: "coordinated log order swap", mutate: (result) => {
+    [result.directDamageGroupLog[0], result.directDamageGroupLog[1]] = [result.directDamageGroupLog[1]!, result.directDamageGroupLog[0]!];
+    result.directDamageGroupLog[0]!.id = 0; result.directDamageGroupLog[1]!.id = 1;
+  } },
+  { name: "damage formula loses its group multiplier", mutate: (result) => { result.damageEvents[2]!.damageFactors.groupMultiplier = 1; } },
+  { name: "unversioned group-log field", mutate: (result) => { Object.assign(result.directDamageGroupLog[0]!, { unversionedField: true }); } },
+];
+
+describe("current direct-damage-group contract", () => {
+  it("retains exact current resolution positions, independent damage, group causality and calculator replay", () => {
     const result = runVector();
-    const repeated = runVector();
+    expect(runVector()).toStrictEqual(result);
+    expectCurrentDirectGroupContract(result);
+    expect(() => makeHistoricalFixture(result)).toThrow(/flatStatBuffSemantics/);
+  });
+  it("pins genuine source provenance and immutable historical bytes", () => {
+    expect(byteSha256(historicalDirectGroupBytes)).toBe("58e5028f6c29bb1169eae03b6aa884d7aff972d68e23e53fc3ec451c922fd4b0");
+    expect(historicalDirectGroupArchive).toMatchObject({ fixtureVersion: "historical-direct-damage-group-v153-84ff5cd-v1",
+      observedRunCount: 3, source: { commit: "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5", tree: "72bd69a8c54a3e115685c7ee52f5862064c70f55" } });
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(FIXTURE_SHA256);
+  });
+  it.each(hostileDirectGroupCases)("rejects $name at public parsing and real capture import", ({ mutate }) => {
+    const result = runVector();
+    const before = JSON.stringify(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
+    const capture = { schemaVersion: "calculator-event-v1", eventId: 0, sourceResult: result };
+    expect(parseSimulationHit(JSON.stringify(capture)).sourceResult).toEqual(result);
+    const forged = structuredClone(result); mutate(forged);
+    expect(JSON.stringify(forged)).not.toBe(before);
+    const parsed = simulationResultSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("Forged direct-damage-group result unexpectedly parsed");
+    expect(() => parseSimulationHit(JSON.stringify({ ...capture, sourceResult: forged }))).toThrow(parsed.error.message);
+    // The real untrusted ingress parses all public facets before the trusted
+    // helper. Do not assign an arbitrary-JSON guarantee to that helper alone.
+    expect(JSON.stringify(result)).toBe(before);
+  });
+});
+
+describe("1.46 ordinary direct-damage-group Golden", () => {
+  it("matches the authentic historical zero, switch, tail, and reset vector", () => {
+    const result = historicalDirectGroupResult();
+    const repeated = historicalDirectGroupResult();
     expect(repeated).toEqual(result);
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
     expect(decisionProjection(result)).toEqual(EXPECTED_DECISIONS);
 
-    const generated = makeFixture(result);
+    const generated = makeHistoricalFixture(result);
     const frozen = loadOrCreateFixture(generated);
     expect(frozen).toEqual(generated);
     expect(frozen.result.directDamageGroupLog).toEqual(
@@ -503,7 +664,7 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
       frozen.directDamageGroupLogCanonicalSha256,
     );
     expect(
-      canonicalSha256(projectResultToFrozenV146Wire(result.damageEvents)),
+      canonicalSha256(projectHistoricalResultToFrozenV146Wire(result.damageEvents)),
     ).toBe(frozen.damageEventsCanonicalSha256);
 
     expect(result.directDamageGroupLog).toHaveLength(5);
@@ -575,7 +736,7 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
   });
 
   it("requires explicit creation and atomically refuses overwrite", () => {
-    const generated = makeFixture(runVector());
+    const generated = makeHistoricalFixture(historicalDirectGroupResult());
     const probeDirectory = mkdtempSync(
       resolve(tmpdir(), "gdl-direct-group-v146-gate-"),
     );

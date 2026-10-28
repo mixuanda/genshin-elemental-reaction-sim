@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { spawnSync } from 'node:child_process';
+import { sharedCharacterFixes } from '../scripts/shared-character-fixes.mjs';
 
 const packageDir = dirname(fileURLToPath(import.meta.url));
 const pins = JSON.parse(readFileSync(join(packageDir, 'pins.json'), 'utf8'));
@@ -174,6 +175,29 @@ const phaseCompletionPatches = [
   'patches/130-animation-callback-core.patch',
   'patches/130-animation-callback-sites.patch',
   'patches/131-raiden-owned-native.patch',
+  // a7 also initializes character passives before InitializeTeam sets HP.
+  // Sample A4 on OnInitialize; preserve native heal/drain callbacks.
+  '../patches/132-neuvillette-initial-hp-a4.patch',
+  // Backport upstream 2f1dc6a / PR3210; press and hold E use sampled CR.
+  '../patches/133-venti-skill-crit.patch',
+  // Keep each delayed black-E attack independent without shifting talent read-site coordinates.
+  '../patches/134-durin-black-skill-capture.patch',
+  // Snapshot only the opt-in weapon contribution; preserve hit qualification.
+  '../patches/135-athame-trigger-hit-atk.patch',
+  // Query normal attack speed for the action being constructed, not its predecessor.
+  '../patches/136-normal-attack-speed-context.patch',
+  // Cross-pin correctness fixes use the exact same patch bytes as Classic.
+  ...sharedCharacterFixes.map(name => `../patches/${name}`),
+  // Stellar-only Swift correction: keep original E-index receipts as history.
+  'patches/138-iansan-swift-normal-talent.patch',
+  // C1 counts actual Nightsoul consumed, with a bounded float threshold guard.
+  'patches/139-iansan-c1-consumption-threshold.patch',
+  // C2 belongs only to the current on-field teammate; retain existing snapshots.
+  'patches/140-iansan-c2-active-recipient.patch',
+  // The marker's actual expiry ends NS/A1/C4, without killing a later E/Q instance.
+  'patches/141-iansan-burst-expiry.patch',
+  // Q's initial 15-point restoration can overflow too; do not credit it as C4 Scale overflow.
+  'patches/142-iansan-c6-burst-entry-overflow.patch',
 ].map(path => join(packageDir, path));
 const phasePatches = [phaseBoundaryPatchFile, phaseActorStatePatchFile, phaseTargetStatePatchFile, phaseRuntimeStatePatchFile, ...phaseCompletionPatches];
 const characterEnergyPatchFile = join(packageDir, '../patches/020-character-energy.patch');
@@ -509,7 +533,7 @@ manifest.files.push(record(join(staged, 'inventory-metadata.json'), 'inventory-m
 writeFileSync(join(staged, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 for (const destination of [outputDir, publicDir]) {
   mkdirSync(destination, { recursive: true });
-  for (const name of ['source-host.wasm', 'wasm_exec.js', 'manifest.json', 'inventory-metadata.json', 'talent-table-registry.json', 'talent-read-instrumentation.json']) {
+  for (const name of ['source-host.wasm', 'wasm_exec.js', 'go-build-info.txt', 'manifest.json', 'inventory-metadata.json', 'talent-table-registry.json', 'talent-read-instrumentation.json']) {
     const target = join(destination, name);
     if (existsSync(target)) chmodSync(target, 0o644);
     copyFileSync(join(staged, name), target);
@@ -521,5 +545,4 @@ for (const destination of [outputDir, publicDir]) {
     copyFileSync(join(licenses, name), target);
   }
 }
-copyFileSync(join(staged, 'go-build-info.txt'), join(outputDir, 'go-build-info.txt'));
 console.log(JSON.stringify({ sourceCommit: pins.sourceRevision, verifiedBlobCount, wasm: manifest.files[0], manifest: join(outputDir, 'manifest.json') }, null, 2));

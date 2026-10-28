@@ -6,8 +6,8 @@ import { sourceHostDrainSourceRuleDescriptor } from "./source-host-drain-source-
 import { resolveSourceHostTargetApplication } from "./source-host-target-application";
 /** The source runtime supplies state and one actual CRIT outcome; this core supplies damage. */
 import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, reactionLevelBaseDamage } from "./calculator-formula";
-import { expr, TraceBuilder, traceInput, traceText, type CalculationTraceNode } from "./calculation-trace";
-import { executeSourceHostNestedStatRead, executeSourceHostStatProvenance } from "./source-host-stat-provenance";
+import { isImmutableTraceNode, expr, TraceBuilder, traceInput, traceText, type CalculationTraceNode } from "./calculation-trace";
+import { assertSourceHostSnapshotTiming, executeSourceHostNestedStatRead, executeSourceHostStatProvenance } from "./source-host-stat-provenance";
 import { linkSourceHostDamageStatInputs } from "./source-host-damage-stat-links";
 import { executeSourceHostScalarProvenance, type SourceHostScalarKind } from "./source-host-scalar-provenance";
 import { resolveSourceHostArtifactScalarInput } from "./source-host-artifact-formula";
@@ -31,7 +31,7 @@ import { resolveSourceHostPlayerDrainRequest, resolveSourceHostPlayerShieldMinim
 import { resolveSourceHostSpecialRequest } from "./source-host-special-formula";
 import { resolveSourceHostStellarRequest } from "./source-host-stellar-formula";
 import {
-  SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT, SOURCE_HOST_PROTOCOL, sourceHostCalculationRequestSchema,
+  SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT, SOURCE_HOST_PROTOCOL, sourceHostCalculationRequestSchema, sourceHostCalculationRecordSchema,
   type SourceHostCalculationRecord, type SourceHostCalculationRequest, type SourceHostDamageRequest, type SourceHostSpecialRequest,
   type SourceHostCharacterFlatRequest, type SourceHostCharacterMultiplierRequest, type SourceHostTargetApplicationRequest,
   isSourceHostOutgoingRequest,
@@ -220,6 +220,8 @@ function resolveCharacterMultiplierDependencies(request: SourceHostCharacterMult
   return { trace: [...unique.values()], links, gaps };
 }
 function runDamage(request: SourceHostDamageRequest, components: SourceHostCalculationLookup, explicitFinalScaling = false, weaponEdit?: SourceHostWeaponEditOverride, artifactEdit?: SourceHostWeaponEditOverride): Omit<SourceHostCalculation, "request" | "verification" | "explanationStatus"> {
+  if (request.snapshot.statProvenance)
+    assertSourceHostSnapshotTiming(request.snapshot.statProvenance, request.snapshotFrame, request.frame);
   const input = request.input;
   assertSupportedRanges(input);
   const prefix = new TraceBuilder(sourceFormulaRefs(request.sourceCommit));
@@ -365,7 +367,45 @@ function runDamage(request: SourceHostDamageRequest, components: SourceHostCalcu
 }
 
 /** Pure arithmetic, with the actual source RNG outcome and no native fallback. */
+// Live evaluation memoizes its append-only private lookup.
+// Public mutable replay/edit lookups remain uncached and continue validating mutations.
+// Whole-run validation may explicitly own a fresh, isolated immutable snapshot.
+const liveResolverMemos = new WeakMap<SourceHostCalculationLookup, WeakMap<object, SourceHostCalculation>>();
+const validationMemos = new WeakMap<SourceHostCalculationLookup, { owned: WeakSet<object>; memo: WeakMap<object, SourceHostCalculation> }>();
+function freezeValidationValue(value: unknown, seen = new WeakSet<object>()): void {
+  if (value === null || typeof value !== "object" || seen.has(value) || isImmutableTraceNode(value)) return;
+  seen.add(value);
+  for (const child of Object.values(value)) freezeValidationValue(child, seen);
+  Object.freeze(value);
+}
+/** A per-validation snapshot; callers never receive the mutable backing Map. */
+export function createSourceHostValidationLookup(records: SourceHostCalculationLookup): SourceHostCalculationLookup {
+  const copy = new Map<number, SourceHostCalculationRecord>(), owned = new WeakSet<object>();
+  for (const [id, raw] of records) {
+    const row = sourceHostCalculationRecordSchema.parse(structuredClone(raw));
+    if (id !== row.request.id || copy.has(id)) throw new Error("校验索引与公式身份不一致。");
+    freezeValidationValue(row);
+    owned.add(row.request);
+    copy.set(id, row);
+  }
+  const view: SourceHostCalculationLookup = Object.freeze({
+    get size() { return copy.size; }, get: (id: number) => copy.get(id), has: (id: number) => copy.has(id),
+    entries: () => copy.entries(), keys: () => copy.keys(), values: () => copy.values(),
+    [Symbol.iterator]: () => copy[Symbol.iterator](),
+    forEach: (fn: (value: SourceHostCalculationRecord, key: number, map: SourceHostCalculationLookup) => void, thisArg?: unknown) => copy.forEach((value,key)=>fn.call(thisArg,value,key,view)),
+  });
+  validationMemos.set(view, { owned, memo: new WeakMap() });
+  return view;
+}
 export function resolveSourceHostRequest(raw: unknown, components: SourceHostCalculationLookup = new Map(), options: { explicitFinalScaling?: boolean; weaponEdit?: SourceHostWeaponEditOverride; artifactEdit?: SourceHostWeaponEditOverride; drainMemo?: Map<number, SourceHostCalculation> } = {}): SourceHostCalculation {
+  if (!options.explicitFinalScaling && !options.weaponEdit && !options.artifactEdit && typeof raw === "object" && raw !== null && Object.isFrozen(raw)) {
+    const prior = liveResolverMemos.get(components)?.get(raw);
+    if (prior) return prior;
+  }
+  const validation = !options.explicitFinalScaling && !options.weaponEdit && !options.artifactEdit && !options.drainMemo
+    && typeof raw === "object" && raw !== null ? validationMemos.get(components) : undefined;
+  const cacheable = validation && typeof raw === "object" && raw !== null && validation.owned.has(raw);
+  if (cacheable) { const prior = validation.memo.get(raw); if (prior) return prior; }
   const request = sourceHostCalculationRequestSchema.parse(raw);
   const drainMemo = options.drainMemo ?? new Map<number, SourceHostCalculation>();
   if (request.kind === "character-drain") {
@@ -1183,28 +1223,83 @@ export function resolveSourceHostRequest(raw: unknown, components: SourceHostCal
   const result: SourceHostCalculation = { request, ...calculated, trace,
     explanationGaps: [...new Set(calculated.explanationGaps)], verification: "provisional", explanationStatus: "partial" };
   if (request.kind === "character-drain") drainMemo.set(request.id, result);
+  if (cacheable) { freezeValidationValue(result);validation.memo.set(raw as object,result); }
   return result;
 }
 
+export interface SourceHostFormulaProfile {
+  calls: number;
+  requestChars: number;
+  parseMs: number;
+  calculateMs: number;
+  captureMs: number;
+  responseMs: number;
+  totalMs: number;
+  traceNodeReferences: number;
+  byKind: Record<string, { calls: number; totalMs: number }>;
+}
+
 /** One resolver per run. The returned number is used by Go for actual callbacks/HP. */
-export function createSourceHostFormulaResolver() {
+export function createSourceHostFormulaResolver(options: { memoize?: boolean; profile?: boolean } = {}) {
   const calculations: SourceHostCalculation[] = [];
   const records = new Map<number, SourceHostCalculationRecord>();
   const drainMemo = new Map<number, SourceHostCalculation>();
+  const memo = new WeakMap<object, SourceHostCalculation>();
+  const frozen = new WeakSet<object>();
+  const profile: SourceHostFormulaProfile | undefined = options.profile ? {
+    calls: 0, requestChars: 0, parseMs: 0, calculateMs: 0, captureMs: 0,
+    responseMs: 0, totalMs: 0, traceNodeReferences: 0, byKind: {},
+  } : undefined;
+  const freeze = (value: unknown): void => {
+    if (value === null || typeof value !== "object" || frozen.has(value) || isImmutableTraceNode(value)) return;
+    frozen.add(value);
+    for (const child of Object.values(value)) freeze(child);
+    Object.freeze(value);
+  };
+  if (options.memoize !== false) liveResolverMemos.set(records, memo);
   return {
     calculations,
+    profile,
     resolve(requestJson: string): string {
       let id: number | null = null;
+      let kind = "error";
+      const started = profile ? performance.now() : 0;
       try {
         const request: unknown = JSON.parse(requestJson);
+        const parsed = profile ? performance.now() : 0;
+        if (profile) profile.parseMs += parsed - started;
         if (typeof request === "object" && request !== null && "id" in request && typeof request.id === "number") id = request.id;
         const result = resolveSourceHostRequest(request, records, { drainMemo });
+        const calculated = profile ? performance.now() : 0;
+        if (profile) profile.calculateMs += calculated - parsed;
+        kind = result.request.kind;
         if (records.has(result.request.id)) throw new Error(`重复来源计算 ID ${result.request.id}`);
+        if (options.memoize !== false) {
+          freeze(result);
+          memo.set(result.request, result);
+        }
         calculations.push(result);
         records.set(result.request.id, result);
-        return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });
+        const captured = profile ? performance.now() : 0;
+        const response = JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });
+        if (profile) {
+          profile.captureMs += captured - calculated;
+          profile.responseMs += performance.now() - captured;
+          profile.traceNodeReferences += result.trace.length;
+        }
+        return response;
       } catch (error) {
         return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id, error: error instanceof Error ? error.message : String(error) });
+      } finally {
+        if (profile) {
+          const elapsed = performance.now() - started;
+          profile.calls++;
+          profile.requestChars += requestJson.length;
+          profile.totalMs += elapsed;
+          const group = profile.byKind[kind] ??= { calls: 0, totalMs: 0 };
+          group.calls++;
+          group.totalMs += elapsed;
+        }
       }
     },
   };

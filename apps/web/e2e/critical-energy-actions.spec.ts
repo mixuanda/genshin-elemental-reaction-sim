@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -11,29 +12,33 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
-async function selectAction(page: Page, character: string, label: string, skillId: string): Promise<void> {
-  await page.locator("#calc-character").selectOption(character);
+async function selectAction(page: Page, character: string, label: string, skillId: string, checkpoint?: (stage: string) => Promise<void>): Promise<void> {
+  await (await revealControl(page.locator("#calc-character"))).selectOption(character);
   await expect(page.locator("#calc-skill")).toBeEnabled();
   const value = await page.locator("#calc-skill option").filter({ hasText: label }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
-  await page.locator("#calc-talent-level").fill("1");
-  await page.locator("#calc-talent-level").press("Tab");
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
+  await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
   await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(1);
   expect((await audit(page)).document.gameContext?.skillId).toBe(skillId);
-  await page.locator("#calc-ascension").selectOption("4");
-  await page.locator('[data-field="build.stats.atk"]').fill("1000");
-  await page.locator('[data-field="build.stats.critRate"]').fill("0.5");
-  await page.locator('[data-field="build.stats.critDamage"]').fill("1");
+  await checkpoint?.("talent-loaded");
+  await (await revealControl(page.locator("#calc-ascension"))).selectOption("4");
+  await checkpoint?.("ascension-selected");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1000");
+  await checkpoint?.("atk-filled");
+  await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.5");
+  await (await revealControl(page.locator('[data-field="build.stats.critDamage"]'))).fill("1");
 }
 
 async function expectCalculatorRoundTrip(page: Page, name: string): Promise<void> {
   const before = await audit(page);
   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name, mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name, mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   const restored = await audit(page);
   expect(restored.document.gameContext).toEqual(before.document.gameContext);
@@ -43,9 +48,21 @@ async function expectCalculatorRoundTrip(page: Page, name: string): Promise<void
 }
 
 test("Keqing Q and Xingqiu E retain sourced passive accounting, single-hit access and complete context in JSON", async ({ page }) => {
+  const started = performance.now();
+  let pageErrorCount = 0;
+  page.on("pageerror", () => { pageErrorCount += 1; });
   await page.goto("/calculator");
-  await selectAction(page, "character:10000042", "天街巡游·完整十击", "keqing-burst-complete-cast");
+  await selectAction(page, "character:10000042", "天街巡游·完整十击", "keqing-burst-complete-cast", async stage => {
+    const state = await page.locator("#calc-results .calculator-audit pre").textContent();
+    const snapshot = state ? JSON.parse(state) as { document: CalculatorDocument; result: CalculatorResult } : null;
+    console.info("keqing-ui-checkpoint", { stage, elapsedMs: performance.now() - started,
+      buildMode: snapshot?.document.build.mode,
+      hasCritRate: Boolean(snapshot && "stats" in snapshot.document.build && snapshot.document.build.stats.critRate !== undefined),
+      status: snapshot?.result.status,
+      critControlCount: await page.locator('[data-field="build.stats.critRate"]').count(), pageErrorCount });
+  });
   const keqing = await audit(page);
+  console.info("keqing-ui-checkpoint", { stage: "selected", elapsedMs: performance.now() - started, pageErrorCount });
   expect(keqing.result.status).toBe("calculated");
   expect(keqing.result.hits).toHaveLength(10);
   expect(keqing.document.gameContext?.scopeCoverage).toBe("complete-cast");
@@ -54,13 +71,22 @@ test("Keqing Q and Xingqiu E retain sourced passive accounting, single-hit acces
   expect(keqing.result.totals!.nonCritical).toBeCloseTo(keqingNonCrit, 9);
   expect(keqing.result.totals!.expected).toBeCloseTo(keqingNonCrit * (1 + 0.65), 9);
   expect(keqing.result.hits.every(hit => hit.effectiveCritRate === 0.65)).toBe(true);
-  await page.locator("#calc-results .calculator-hit-card").first().locator(":scope > summary").click();
+  await (await revealControl(page.locator("#calc-results .calculator-hit-card").first().locator(":scope > summary"))).click();
   await expect(page.locator('#calc-results [data-trace-node="characterCritRate"]').first()).toContainText("0.15");
-  await page.locator("#calc-keqing-a4-included").selectOption("1");
-  await page.locator('[data-field="build.stats.critRate"]').fill("0.65");
+  await (await revealControl(page.locator("#calc-keqing-a4-included"))).selectOption("1");
+  // Preserve the exact accounting assertion; fail with state evidence rather than
+  // assuming a global test timeout proves that a control disappeared.
+  const includedPanel = await audit(page);
+  expect(includedPanel.document.build.mode).toBe(keqing.document.build.mode);
+  expect(includedPanel.document.build).toEqual(keqing.document.build);
+  expect(includedPanel.document.gameContext?.keqingBurst?.a4IncludedInPanel).toBe(true);
+  const critControlCount = await page.locator('[data-field="build.stats.critRate"]').count();
+  console.info("keqing-ui-checkpoint", { stage: "included-a4", elapsedMs: performance.now() - started, buildMode: includedPanel.document.build.mode, status: includedPanel.result.status, critControlCount, pageErrorCount });
+  expect(critControlCount).toBe(1);
+  await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.65");
   expect((await audit(page)).result.totals).toEqual(keqing.result.totals);
-  await page.locator("#calc-scope").selectOption("single-hit");
-  await page.locator('[data-hit-id="keqing-burst-complete-cast-final"]').check();
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
+  await (await revealControl(page.locator('[data-hit-id="keqing-burst-complete-cast-final"]'))).check();
   const finalHit = await audit(page);
   expect(finalHit.result.hits).toHaveLength(1);
   expect(finalHit.result.totals!.nonCritical).toBeCloseTo(1000 * 1.888 * 0.5 * 0.9, 9);
@@ -68,24 +94,24 @@ test("Keqing Q and Xingqiu E retain sourced passive accounting, single-hit acces
   await expectCalculatorRoundTrip(page, "keqing-q-final-hit.json");
 
   await selectAction(page, "character:10000025", "古华剑·画雨笼山·完整两段", "xingqiu-skill-complete-cast");
-  await page.locator("#calc-constellation").selectOption("4");
-  await page.locator("#calc-xingqiu-burst-active").selectOption("1");
+  await (await revealControl(page.locator("#calc-constellation"))).selectOption("4");
+  await (await revealControl(page.locator("#calc-xingqiu-burst-active"))).selectOption("1");
   const duringQ = await audit(page);
   expect(duringQ.result.hits).toHaveLength(2);
   // Fixed T1 E values 1.68 + 1.912. C4 Q-at-cast multiplies the base by 1.5; A4 adds 20% Hydro bonus.
   const xingqiuBase = 1000 * (1.68 + 1.912) * 1.5 * 1.2 * 0.5;
   expect(duringQ.result.totals!.nonCritical).toBeCloseTo(xingqiuBase * 0.9, 9);
   expect(duringQ.result.totals!.expected).toBeCloseTo(xingqiuBase * 0.9 * 1.5, 9);
-  await page.locator("#calc-xingqiu-c2-active").selectOption("1");
+  await (await revealControl(page.locator("#calc-xingqiu-c2-active"))).selectOption("1");
   const c2 = await audit(page);
   // The existing C2 shred makes 10% - 15% = -5% RES; the negative-resistance branch is 1 - (-.05)/2.
   expect(c2.result.totals!.nonCritical).toBeCloseTo(xingqiuBase * 1.025, 9);
   expect(c2.result.totals!.expected).toBeCloseTo(xingqiuBase * 1.025 * 1.5, 9);
-  await page.locator('[data-field="hits.0.damageBonus"]').fill("0.2");
-  await page.locator('[data-field="hits.1.damageBonus"]').fill("0.2");
-  await page.locator("#calc-xingqiu-a4-included").selectOption("1");
-  await page.locator('[data-field="enemy.resistance"]').fill("-0.05");
-  await page.locator("#calc-xingqiu-c2-included-resistance").selectOption("1");
+  await (await revealControl(page.locator('[data-field="hits.0.damageBonus"]'))).fill("0.2");
+  await (await revealControl(page.locator('[data-field="hits.1.damageBonus"]'))).fill("0.2");
+  await (await revealControl(page.locator("#calc-xingqiu-a4-included"))).selectOption("1");
+  await (await revealControl(page.locator('[data-field="enemy.resistance"]'))).fill("-0.05");
+  await (await revealControl(page.locator("#calc-xingqiu-c2-included-resistance"))).selectOption("1");
   const accounted = await audit(page);
   expect(accounted.result.totals!.nonCritical).toBeCloseTo(c2.result.totals!.nonCritical, 9);
   expect(accounted.result.totals!.expected).toBeCloseTo(c2.result.totals!.expected, 9);
@@ -130,29 +156,30 @@ async function waitForSimulation(page: Page): Promise<void> {
 test("Explicit Favonius weapon uses actual critical outcomes, exact cooldown and particle energy feedback through worker and record restore", async ({ page }) => {
   const config = syntheticFavonius();
   await page.goto("/results");
-  await page.locator("#importInput").setInputFiles({ name: "favonius-feedback.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "favonius-feedback.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#favoniusModelEnabled")).not.toBeChecked();
-  await page.locator("#favoniusModelEnabled").check();
-  await page.locator('[data-favonius-weapon="a"]').selectOption("favoniussword");
-  await page.locator('[data-favonius-refinement="a"]').selectOption("5");
-  await page.locator('[data-favonius-delay="a"]').fill("10");
+  await (await revealControl(page.locator("#favoniusModelEnabled"))).check();
+  await (await revealControl(page.locator('[data-favonius-weapon="a"]'))).selectOption("favoniussword");
+  await (await revealControl(page.locator('[data-favonius-refinement="a"]'))).selectOption("5");
+  await (await revealControl(page.locator('[data-favonius-delay="a"]'))).fill("10");
   await expect(page.locator('[data-favonius-weapon="b"]')).toHaveValue("disabled");
-  await page.locator("#team-apply").click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await (await revealControl(page.locator("#team-apply"))).click();
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.favoniusModel).toEqual({ mode: "fixed-source-independent-stream-v1", actors: [{ actorId: "a", weaponId: "favoniussword", refinement: 5, particleDelayFrames: 10 }] });
   expect(saved.timeline).toEqual(config.timeline);
   expect(saved.characters).toEqual(config.characters);
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#critModeInput").selectOption("seeded-random-v1");
-  await page.locator("#energyModeInput").selectOption("zero");
-  await page.locator("#iterationInput").fill("1");
-  await page.getByRole("button", { name: "运行模拟", exact: true }).click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("seeded-random-v1");
+  await (await revealControl(page.locator("#energyModeInput"))).selectOption("zero");
+  await (await revealControl(page.locator("#iterationInput"))).fill("1");
+  await (await revealControl(page.getByRole("button", { name: "运行模拟", exact: true }))).click();
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig.favoniusModel).toEqual(saved.favoniusModel);
   expect(record.batchSummary.favoniusPolicy).toEqual({ sourceProfileId: "gcsim-favonius-reference-v1", rngStream: "favonius-v1", rngAlgorithm: "fnv1a32-mulberry32-v1", matchesGcsimRandomSequence: false, cooldownClock: "global-frame-assumes-no-character-hitlag" });
   expect(record.options.execution?.criticalSampling).toBe("seeded-random-v1");
@@ -178,19 +205,19 @@ test("Explicit Favonius weapon uses actual critical outcomes, exact cooldown and
   expect(record.result.actionLog.filter(action => action.sourceAbilityId === "spend").map(action => [action.frame, action.energyBefore, action.energyAfter])).toEqual([[12, 6, 0]]);
   expect(record.result.energyStats.a).toMatchObject({ gained: 12, spent: 6, final: 6 });
   expect(record.result.energyStats.b).toMatchObject({ gained: 9.6, spent: 0, final: 9.6 });
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   await expect(page.locator("#actionStateAudit [data-action-favonius-index]")).toHaveCount(4);
   const firstTrigger = page.locator('#actionStateAudit [data-action-favonius-index="1"]');
-  await firstTrigger.locator("summary").click();
+  await (await revealControl(firstTrigger.locator("summary"))).click();
   const displayed = JSON.parse((await firstTrigger.locator("pre").textContent())!);
   expect(displayed.trigger).toEqual(triggers[0]);
   expect(displayed.particle).toEqual(record.result.particleEvents[0]);
   expect(displayed.energy).toEqual(record.result.energyLog.filter(entry => entry.receiveFrame === 11));
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "favonius-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "favonius-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record.wire)) });
+  await expectReadonlyRecord(page, record);
   await expect(page.locator("#randomSeedInput")).toHaveValue(record.batchSummary.seed);
-  await waitForSimulation(page);
-  const restored = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const restored = await downloadSimulationRecord(page);
   expect(restored.sourceConfig).toEqual(record.sourceConfig);
   expect(restored.options).toEqual(record.options);
   expect(restored.result.favoniusLog).toEqual(decisions);

@@ -1,0 +1,7 @@
+{
+  "command": "npm run typecheck",
+  "exitCode": 0,
+  "rawLogPath": "/tmp/GIDPS-native-result-reopen-20261023-typecheck-final.log",
+  "rawLogSha256": "a335af3d948aa795f09046e2e7e7a6d2e7fc3b42cb557030c183a51c175f75a4",
+  "rawLog": "\n> genshin-dps-lab@1.0.0 typecheck\n> npm run check:workspace && tsc --noEmit\n\n\n> genshin-dps-lab@1.0.0 check:workspace\n> node scripts/check-workspace-resolution.mjs\n\nWorkspace package entries resolve to this checkout.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.1\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1\nnpm notice To update run: npm install -g npm@12.2.1\nnpm notice\n"
+}

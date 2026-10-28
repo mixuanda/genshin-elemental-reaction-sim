@@ -1,0 +1,401 @@
+{
+  "format": "gidps-alhaitham-primary-projection-v1",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "provisional",
+  "files": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/alhaitham.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/alhaitham.go",
+      "bytes": 2240,
+      "sha256": "1f236fa9f79043bea436483c83cd42c46e5a51359b0cac4f8a07e660d9c937c7",
+      "gitBlob": "5281460e3951bb0ced167feca91a16cfacf9c558"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/skill.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/skill.go",
+      "bytes": 8383,
+      "sha256": "5ae471fa15743760b2e03e0524ee067c845a42bbdcf335fe2f94542b0b82f64a",
+      "gitBlob": "3da2f04ffd4a7841cb697eb7e56cc8c51907f071"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/attack.go",
+      "bytes": 3386,
+      "sha256": "4dca63e81d85743d17babe4b685cbc1c5024688192fe82fcea96037f7307a076",
+      "gitBlob": "c336168ea27833dcf6fb7e3d5762d856ff8f0d3d"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/asc.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/asc.go",
+      "bytes": 1626,
+      "sha256": "c6f12e7168a055727300620a16403ea76a01bdb9455083a3884fb3c104214c52",
+      "gitBlob": "2c2dba9839695c2704e8face0162819377af4fb8"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/cons.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/cons.go",
+      "bytes": 4051,
+      "sha256": "c0b72a860f29cd61c0760fd9f7aeece0ae385025cb371df3f66da1b83a65a251",
+      "gitBlob": "2764352bc7f5641604626cd819cb9a9eb4dfe5cd"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/zz_alhaitham.dm.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/zz_alhaitham.dm.go",
+      "bytes": 5364,
+      "sha256": "f8af00daa2b5b886d602abf9f7a79b9de2e36e3e53318ca4225468e5bccd7197",
+      "gitBlob": "3503c55c72cbd69c82e9791066e966e5c0df3e5a"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/burst.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/burst.go",
+      "bytes": 2122,
+      "sha256": "e4d9837f23c20f21626369b7f9f51ee698d487e1e70de01126354f8b52b23bf7",
+      "gitBlob": "048c94fc5cd419dc557ebce9f82a4264c4320904"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/charge.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/charge.go",
+      "bytes": 1713,
+      "sha256": "3a8d4439535ff124d68bd4c52b06440d4734a7b69c562f863c4b8ff5586b836a",
+      "gitBlob": "80ad1eded6d593920e4ba7fc3bd5d9b7ebe82d2b"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/alhaitham/plunge.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/alhaitham/plunge.go",
+      "bytes": 6725,
+      "sha256": "a3ba844ed5e0964015f776b666cbacf92449b75dfbb87845d5f2bf504ba7c2dc",
+      "gitBlob": "dcf14c6f6ff477588884c8a185c5ad69fb89297e"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/enemy/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/mods.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlob": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/combat/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go",
+      "bytes": 2494,
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "gitBlob": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/template/character/character.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlob": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/stats.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlob": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/modifier/modifier.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    }
+  ],
+  "crossVariant": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "files": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/alhaitham.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/alhaitham.go",
+        "bytes": 2240,
+        "sha256": "1f236fa9f79043bea436483c83cd42c46e5a51359b0cac4f8a07e660d9c937c7",
+        "gitBlob": "5281460e3951bb0ced167feca91a16cfacf9c558"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/skill.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/skill.go",
+        "bytes": 8383,
+        "sha256": "5ae471fa15743760b2e03e0524ee067c845a42bbdcf335fe2f94542b0b82f64a",
+        "gitBlob": "3da2f04ffd4a7841cb697eb7e56cc8c51907f071"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/attack.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/attack.go",
+        "bytes": 3386,
+        "sha256": "4dca63e81d85743d17babe4b685cbc1c5024688192fe82fcea96037f7307a076",
+        "gitBlob": "c336168ea27833dcf6fb7e3d5762d856ff8f0d3d"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/asc.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/asc.go",
+        "bytes": 1626,
+        "sha256": "c6f12e7168a055727300620a16403ea76a01bdb9455083a3884fb3c104214c52",
+        "gitBlob": "2c2dba9839695c2704e8face0162819377af4fb8"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/cons.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/cons.go",
+        "bytes": 4008,
+        "sha256": "2994bccd53f23b2b2bfc9b4537477447e6950e6286974d14ca19e962d1996bf8",
+        "gitBlob": "daf459573aa194e122f0f55b30dba145518a7bf8"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/zz_alhaitham.dm.go",
+        "bytes": 5364,
+        "sha256": "f8af00daa2b5b886d602abf9f7a79b9de2e36e3e53318ca4225468e5bccd7197",
+        "gitBlob": "3503c55c72cbd69c82e9791066e966e5c0df3e5a"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/burst.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/burst.go",
+        "bytes": 2122,
+        "sha256": "e4d9837f23c20f21626369b7f9f51ee698d487e1e70de01126354f8b52b23bf7",
+        "gitBlob": "048c94fc5cd419dc557ebce9f82a4264c4320904"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/charge.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/charge.go",
+        "bytes": 1713,
+        "sha256": "3a8d4439535ff124d68bd4c52b06440d4734a7b69c562f863c4b8ff5586b836a",
+        "gitBlob": "80ad1eded6d593920e4ba7fc3bd5d9b7ebe82d2b"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/alhaitham/plunge.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/alhaitham/plunge.go",
+        "bytes": 6725,
+        "sha256": "a3ba844ed5e0964015f776b666cbacf92449b75dfbb87845d5f2bf504ba7c2dc",
+        "gitBlob": "dcf14c6f6ff477588884c8a185c5ad69fb89297e"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/attack.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attack.go",
+        "bytes": 2255,
+        "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+        "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/enemy/attack.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/attack.go",
+        "bytes": 7607,
+        "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+        "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/mods.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go",
+        "bytes": 9924,
+        "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+        "gitBlob": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/combat/attack.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/attack.go",
+        "bytes": 2494,
+        "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+        "gitBlob": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/template/character/character.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go",
+        "bytes": 5080,
+        "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+        "gitBlob": "f25b799d41269c2088e35e5668e20737d905f27e"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/stats.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/stats.go",
+        "bytes": 3321,
+        "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+        "gitBlob": "33d47f781e040dbabac6622360272235888cf663"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/modifier/modifier.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go",
+        "bytes": 3345,
+        "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+        "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+      }
+    ],
+    "differences": [
+      "internal/characters/alhaitham/cons.go",
+      "internal/template/character/character.go",
+      "pkg/core/player/character/mods.go"
+    ]
+  },
+  "coefficients": [
+    {
+      "sourceTable": "mirrorAtk",
+      "abilityKey": "combat2",
+      "parameterKeys": [
+        "param4",
+        "param6",
+        "param8"
+      ],
+      "values": [
+        0.672,
+        0.7224,
+        0.7728,
+        0.84,
+        0.8904,
+        0.9408,
+        1.008,
+        1.0752,
+        1.1424,
+        1.2096,
+        1.2768,
+        1.344,
+        1.428,
+        1.512,
+        1.596
+      ]
+    },
+    {
+      "sourceTable": "mirrorEm",
+      "abilityKey": "combat2",
+      "parameterKeys": [
+        "param5",
+        "param7",
+        "param9"
+      ],
+      "values": [
+        1.344,
+        1.4448,
+        1.5456,
+        1.68,
+        1.7808,
+        1.8816,
+        2.016,
+        2.1504,
+        2.2848,
+        2.4192,
+        2.5536,
+        2.688,
+        2.856,
+        3.024,
+        3.192
+      ]
+    }
+  ],
+  "timing": [
+    {
+      "mirrors": 1,
+      "snapshotDelay": 20,
+      "leftHitFrames": [
+        39
+      ],
+      "rightHitFrames": [
+        40
+      ]
+    },
+    {
+      "mirrors": 2,
+      "snapshotDelay": 22,
+      "leftHitFrames": [
+        28,
+        37
+      ],
+      "rightHitFrames": [
+        26,
+        35
+      ]
+    },
+    {
+      "mirrors": 3,
+      "snapshotDelay": 26,
+      "leftHitFrames": [
+        32,
+        41,
+        51
+      ],
+      "rightHitFrames": [
+        32,
+        41,
+        51
+      ]
+    }
+  ],
+  "mechanics": {
+    "instances": "skill.go:projectionAttack queues exactly mirrorCount hits, all with E mirrorAtk plus mirrorEm FlatDmg; none are normal attack damage.",
+    "trigger": "on-field Alhaitham; own NA/CA/plunge callback hits an enemy; >=1 mirror; projection 96-frame ICD inactive. Triggering attack is not part of this projection event.",
+    "masteryTrigger": "skill.go constructs ai.FlatDmg=mirrorEm[TalentLvlSkill()]*Stat(EM) when triggering projection, before delayed attack snapshots.",
+    "attackSnapshot": "QueueAttack in pkg/core/attack.go samples ATK/CR/CD/general DMG at delay20/22/26; each queued projection has the same delay for one action.",
+    "a4Hit": "asc.go attack modifier matches projection ICDGroup or burst; pkg/enemy/attack.go applies attack mods during hit handling; A4 reads current Stat(EM), min(0.001*EM,1), not necessarily trigger or snapshot mastery.",
+    "constellation": "C0–C6 selected projection. C1 reduces E cooldown by72f after a landed projection, with60f ICD; no change to this hit. C2 adds50EM per generated mirror,480f independently per slot,max4; overflow generation calls c2 before capping mirrors. C3 is already represented by supplied effective E talent, never added again. C5 sets BurstCon=5 and changes Q effective talent only, never projection E.",
+    "c2Accounting": "Delayed snapshot uses50*(actual unexpired C2 stacks - C2 stacks already present in input mastery), through the common equipment mastery-phase rebuilder. Stable total mastery explicitly shares the complete rebuilt value across source stages. When varying, trigger/impact inputs are their complete actual final mastery including that stage C2; no snapshot delta is added to them.",
+    "c4Snapshot": "cons.go:c4Gain grants0.1 DendroP per actual Q-generated mirror,900 frames with hitlag; c4Loss gives30EM per consumed mirror to other party members and explicitly skips Alhaitham. Projection QueueAttack captures the active own DendroP at its delayed20/22/26-frame Snapshot. Its subsequent expiry before impact does not remove that snapshot contribution. No own C4 mastery is manufactured.",
+    "c4LifecycleLimit": "burst.go consumes immediately; its184-frame task requires Alhaitham still active, then mirrorGain and c4Gain run. C6 forces generated=3 but does not prove the delayed generation ran or overflow occurred. Same-key modifier.Add overwrites rather than stacking C4. Although the source comment says a new Q clears previous durations, c4Gain(0)/c4Loss(0) return without explicit deletion in these fixed revisions. This module accepts only the actual active snapshot share0–3 and does not infer refresh, clearing, cast history or expiry.",
+    "c6Snapshot": "skill.go caps mirrorCount at3 after checking overflow; C6 receives only the excess. cons.go setsCR0.1 andCD0.7 in one StatMod. Classic marks AffectedStat=CR, Stellar removes that field; both template Snapshot methods call CharWrapper.Stats(), which adds the complete StatMod.Amount vector without the single-stat filter, so both CR and CD reach the projection snapshot.",
+    "c6Expiry": "cons.go:c6 loops once per excess mirror. It first grants360 frames with hitlag, or extends an existing active status by360 frames per excess mirror. modifier.Base.Extend adds to remaining expiry rather than resetting6seconds; Stats excludes expiry<=currentFrame. Actual state at delayed offense snapshot is explicit; no timer, capped-mirror inference, autoactivation or full mirror lifecycle is implemented.",
+    "c4C6Accounting": "Each hit declares own C4 ratio already present in damageBonus and whether C6 CR/CD already exist in the entered panel or explicit per-hit final critical stats. Damage bonus combines the existing live-impact A4 delta and snapshotC4 delta; independent owned CR/CD formulas add only C6 differences. Unknown imported shares block. A nonzero C6 difference with an explicit per-hit final critical override is rejected because that override bypasses the formula; a verified frozen conversion keeps its captured effective stats and identity."
+  },
+  "limitations": [
+    "One actual projection event or its selected contacts, not a full E/mirror/infused-attack rotation.",
+    "No generated mirrors, mirror decay or overflow, automatic 1.6s eligibility, trigger NA/CA/plunge damage, burst, energy or reactions.",
+    "Left/right scheduling has identical coefficient counts but differing hit frames; module reports alternatives and does not invent a side.",
+    "Shared mastery is used only with explicit stability confirmation; otherwise trigger mastery and impact mastery are separate explicit inputs.",
+    "Source/equipment/elemental damage contributions remain conditional; imported panel cannot prove mirror count, actual contacts, stability or own A4 included share.",
+    "Varying-stage C2 with executable EM-sensitive equipment conversions or hit formulas is rejected with the named rules and actual-final-panel control; C1 cooldown history and C2 independent stack expiry are not replayed.",
+    "C4/C6 require explicit actual still-valid delayed-snapshot states and included shares. Constellation, held mirrors, choosing a3-mirror action or pressing Q never proves those states.",
+    "No teammate C4 mastery feedback or derived teammate conversion is manufactured; any external mastery must obey the same complete actual stage-panel inputs.",
+    "C5 does not add E talent. Burst damage is not implemented here; the fixed burst source even samples its EM coefficient with TalentLvlSkill while ATK uses TalentLvlBurst, so this projection evidence must not be presented as Q coverage.",
+    "C4 refresh/zero-generation semantics and C6 expiry extension are documented from fixed source but not replayed; explicit actual snapshot state avoids fabricating a mirror timeline."
+  ],
+  "supportedConstellations": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ]
+}

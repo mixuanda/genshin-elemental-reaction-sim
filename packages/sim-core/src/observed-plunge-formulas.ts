@@ -81,6 +81,9 @@ export function prepareObservedPlungeDocument(document: CalculatorDocument): Cal
   if (result.scope === "single-hit") {
     result.hits = result.hits.filter((hit): hit is OrdinaryHit => hit.kind === "ordinary");
     if (!result.hits.length) result.hits = originals;
+    // Switching from a prepared whole cast must not retain its now-removed
+    // schedule dependency on the already-occurred selected hit.
+    for (const hit of result.hits) hit.dependencies = hit.dependencies.filter(id => !id.startsWith(sourcePrefix));
     addDependency(`${sourcePrefix}physical`, physicalIssues, result.hits);
     result.selectedHitIds = result.selectedHitIds.filter((id) => result.hits.some((hit) => hit.id === id)).slice(0, 1);
     if (!result.selectedHitIds.length) result.selectedHitIds = [result.hits[0]!.id];

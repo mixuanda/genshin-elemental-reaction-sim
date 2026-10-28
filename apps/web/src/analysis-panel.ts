@@ -1,3 +1,5 @@
+import { getSimulationAnalysisCapability } from "../../../packages/sim-core/src/simulation-analysis-capability";
+import { importSessionPolicy } from './import-session-policy';
 import type { SimulationResult } from "@genshin-dps-lab/schemas";
 import { evaluateSimulationSteadyState, measureDamageWindow, summarizeRotationExecution, type DamageWindow, type ErSearchResult, type SimulationStartupResult } from "../../../packages/sim-core/src/simulation-analysis";
 import { renderStartupLedger } from "./startup-ledger";
@@ -28,6 +30,13 @@ const objectRecord = (value: unknown): Record<string, unknown> | undefined =>
   typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
 
 /** Read the captured boundary values; viewing a checkpoint never advances a stream. */
+/** Actual report download action shared by the click listener and regression tests. */
+export function exportSimulationAnalysisReport(report: () => unknown): void {
+  importSessionPolicy.assertWorkspacePersistenceAllowed();
+  const url = URL.createObjectURL(new Blob([JSON.stringify(report(), null, 2)], { type: "application/json" }));
+  const link = document.createElement("a"); link.href = url; link.download = "simulation-analysis.json"; link.click(); URL.revokeObjectURL(url);
+}
+
 export function renderRandomCheckpointOverview(root: HTMLElement, result: SimulationResult): void {
   const checkpoints = result.executionAudit?.phaseCheckpoints ?? [];
   root.innerHTML = `<p>检查点保存该帧所有事件执行前的状态。抽样次数为本次运行截至该边界的累计次数，不随测量窗口重置。状态捕获不等于随机稳态证明。</p>${checkpoints.length
@@ -68,10 +77,13 @@ export function renderAnalysisPanel(root: HTMLElement, result: SimulationResult)
   let startupResult: SimulationStartupResult | null = null;
   let stochasticResult: StochasticStartupResult | null = null;
   let rotationSummary = summarizeRotationExecution(result);
+  const analysisCapability = getSimulationAnalysisCapability(result.config);
+  const analysisUnavailable = !analysisCapability.supported;
   const maximumStochasticWarmup = Math.floor((600 - result.config.duration) / (2 * result.config.cycleLength));
   const steady = evaluateSimulationSteadyState(result);
   const durationTicks = Math.round(result.config.duration * 60);
   root.innerHTML = `<div class="workspace-stack">
+    ${analysisCapability.supported ? "" : `<p class="calculator-hint" role="status" data-analysis-unsupported="${analysisCapability.code}">${esc(analysisCapability.message)}</p>`}
     <article class="card"><h2>测量窗口</h2><p>按已完成的模拟结果取半开区间 [开始帧, 结束帧)。保留区间内空闲时间；终点帧伤害不计入。改变窗口不会重置能量、冷却或实体。</p>
       <div class="workspace-fields"><label>窗口类型<select id="analysis-window-preset"><option value="full">完整观察窗口</option><option value="cycle">首个配置周期</option><option value="15">开场 15 秒</option><option value="18">开场 18 秒</option><option value="20">开场 20 秒</option><option value="custom">自定义整帧窗口</option></select></label>
       <label>开始帧<input id="analysis-start" type="number" min="0" max="${durationTicks - 1}" step="1" value="0"></label>
@@ -79,14 +91,14 @@ export function renderAnalysisPanel(root: HTMLElement, result: SimulationResult)
       <label>主目标<select id="analysis-target">${result.enemyTargets.map((target) => `<option value="${esc(target.id)}">${esc(target.name)}</option>`).join("")}</select></label></div>
       <div id="analysis-window-output" role="status"></div><p class="muted">首个配置周期采用 cycleLength，并不把失败、延迟或尚未完成的指令称为完整可执行轮转。</p><div id="analysis-rotation-output"></div><section id="analysis-weapon-proc-ledger"></section><section id="analysis-thrilling-tales-ledger"></section><section id="analysis-sacrificial-ledger"></section><section id="analysis-artifact-event-ledger"></section><section id="analysis-artifact-damage-ledger"></section><section id="analysis-player-shield-ledger"></section><section id="analysis-artifact-buff-ledger"></section>
     </article>
-    <article class="card"><h2>稳态检查与预热</h2><div id="analysis-steady-output" role="status"><p>${steady.status === "not-established" ? "未建立稳态" : `已建立 ${steady.periodCycles} 周期重复，稳态 DPS ${num(steady.steadyStateDps!)}`}</p><p>${steady.reasons.map(esc).join("；")}</p></div><p>可以在一次连续运行中先执行预热，再测量当前时长的观察窗口。预热行动和所有状态会延续进入窗口，不会只补满能量。总模拟上限 600 秒。</p><div class="workspace-fields"><label>预热周期数<input id="analysis-warmup-cycles" type="number" min="1" step="1" value="${Math.max(1, Math.min(20, Math.floor((600 - result.config.duration) / result.config.cycleLength)))}"></label><label>预热起始能量<select id="analysis-warmup-energy"><option value="zero">零能量</option><option value="full">满能量</option><option value="configured">按角色配置</option></select></label></div><button id="analysis-steady-run">连续预热并检查稳态</button><button id="analysis-steady-cancel" hidden>取消预热</button><div id="analysis-startup-output" role="status" aria-live="polite"></div></article>
+    <article class="card"><h2>稳态检查与预热</h2><div id="analysis-steady-output" role="status"><p>${steady.status === "not-established" ? "未建立稳态" : `已建立 ${steady.periodCycles} 周期重复，稳态 DPS ${num(steady.steadyStateDps!)}`}</p><p>${steady.reasons.map(esc).join("；")}</p></div><p>可以在一次连续运行中先执行预热，再测量当前时长的观察窗口。预热行动和所有状态会延续进入窗口，不会只补满能量。总模拟上限 600 秒。</p><div class="workspace-fields"><label>预热周期数<input id="analysis-warmup-cycles" type="number" min="1" step="1" value="${Math.max(1, Math.min(20, Math.floor((600 - result.config.duration) / result.config.cycleLength)))}"></label><label>预热起始能量<select id="analysis-warmup-energy"><option value="zero">零能量</option><option value="full">满能量</option><option value="configured">按角色配置</option></select></label></div><button id="analysis-steady-run"${analysisUnavailable ? " disabled" : ""}>连续预热并检查稳态</button><button id="analysis-steady-cancel" hidden>取消预热</button><div id="analysis-startup-output" role="status" aria-live="polite"></div></article>
     <article class="card"><h2>随机检查点</h2><section id="analysis-random-checkpoints"></section></article>
-    <article class="card"><h2>随机预热与起步敏感性</h2><p>对每组种子分别从零能量与满能量连续运行，在 W 和 2W 预热后取相同时长窗口。保留所有实际状态，不把随机状态要求为逐周期相同；比较伤害、能量和行动拒绝的配对差值。</p><div class="workspace-fields"><label>独立种子组数<input id="analysis-stochastic-samples" type="number" min="2" max="32" step="1" value="8" required></label><label>W 预热周期数<input id="analysis-stochastic-cycles" type="number" min="1" max="${Math.max(1, maximumStochasticWarmup)}" step="1" value="${Math.max(1, Math.min(5, maximumStochasticWarmup))}" required></label></div><p>默认8组，共16次连续运行；每次 2W 加当前 ${num(result.config.duration)} 秒观察窗口不得超过600秒。沿用本次运行的种子基础、暴击与回能政策；结果为有限样本诊断，不自动认证随机稳态。</p>${maximumStochasticWarmup < 1 ? '<p class="calculator-error">当前观察时长与周期无法容纳至少一个W预热；请缩短原情景的观察时长后重新模拟。</p>' : ""}<button id="analysis-stochastic-run"${maximumStochasticWarmup < 1 ? " disabled" : ""}>运行随机预热诊断</button><button id="analysis-stochastic-cancel" hidden>取消诊断</button><div id="analysis-stochastic-output" role="status" aria-live="polite"></div></article>
+    <article class="card"><h2>随机预热与起步敏感性</h2><p>对每组种子分别从零能量与满能量连续运行，在 W 和 2W 预热后取相同时长窗口。保留所有实际状态，不把随机状态要求为逐周期相同；比较伤害、能量和行动拒绝的配对差值。</p><div class="workspace-fields"><label>独立种子组数<input id="analysis-stochastic-samples" type="number" min="2" max="32" step="1" value="8" required></label><label>W 预热周期数<input id="analysis-stochastic-cycles" type="number" min="1" max="${Math.max(1, maximumStochasticWarmup)}" step="1" value="${Math.max(1, Math.min(5, maximumStochasticWarmup))}" required></label></div><p>默认8组，共16次连续运行；每次 2W 加当前 ${num(result.config.duration)} 秒观察窗口不得超过600秒。沿用本次运行的种子基础、暴击与回能政策；结果为有限样本诊断，不自动认证随机稳态。</p>${maximumStochasticWarmup < 1 ? '<p class="calculator-error">当前观察时长与周期无法容纳至少一个W预热；请缩短原情景的观察时长后重新模拟。</p>' : ""}<button id="analysis-stochastic-run"${analysisUnavailable || maximumStochasticWarmup < 1 ? " disabled" : ""}>运行随机预热诊断</button><button id="analysis-stochastic-cancel" hidden>取消诊断</button><div id="analysis-stochastic-output" role="status" aria-live="polite"></div></article>
     <article class="card"><h2>充能需求求解</h2><p>固定本次配装、动作、${esc(result.resolvedRuntimeOptions.energyMode)} 起步方式与种子；逐个检查有限充能网格，返回每个失败原因。不会用更高充能必然更好的假设跳过候选。</p>
       <div class="workspace-fields"><label>角色<select id="analysis-er-actor">${result.config.characters.map((actor) => `<option value="${esc(actor.id)}">${esc(actor.name)}</option>`).join("")}</select></label>
       <label>最低充能（%）<input id="analysis-er-min" type="number" min="0" step="1" value="100"></label><label>最高充能（%）<input id="analysis-er-max" type="number" min="0" step="1" value="300"></label>
       <label>步长（百分点）<input id="analysis-er-step" type="number" min="0.1" step="0.1" value="10"></label><label>安全裕量（百分点）<input id="analysis-er-margin" type="number" min="0" step="1" value="0"></label></div>
-      <div class="editor-actions"><button id="analysis-er-run">计算充能需求</button><button id="analysis-er-cancel" hidden>取消求解</button></div><div id="analysis-er-output" role="status" aria-live="polite"></div>
+      <div class="editor-actions"><button id="analysis-er-run"${analysisUnavailable ? " disabled" : ""}>计算充能需求</button><button id="analysis-er-cancel" hidden>取消求解</button></div><div id="analysis-er-output" role="status" aria-live="polite"></div>
     </article><div><button id="analysis-export">导出本次分析</button></div>
   </div>`;
   renderRandomCheckpointOverview(root.querySelector<HTMLElement>("#analysis-random-checkpoints")!, result);
@@ -129,9 +141,10 @@ export function renderAnalysisPanel(root: HTMLElement, result: SimulationResult)
   const stochasticOutput = root.querySelector<HTMLElement>("#analysis-stochastic-output")!;
   const startupOutput = root.querySelector<HTMLElement>("#analysis-startup-output")!;
   const output = root.querySelector<HTMLElement>("#analysis-er-output")!;
-  const finish = (): void => { pendingSearch?.terminate(); pendingSearch = null; run.disabled = false; steadyRun.disabled = false; stochasticRun.disabled = maximumStochasticWarmup < 1; cancel.hidden = true; steadyCancel.hidden = true; stochasticCancel.hidden = true; };
+  const finish = (): void => { pendingSearch?.terminate(); pendingSearch = null; run.disabled = analysisUnavailable; steadyRun.disabled = analysisUnavailable; stochasticRun.disabled = analysisUnavailable || maximumStochasticWarmup < 1; cancel.hidden = true; steadyCancel.hidden = true; stochasticCancel.hidden = true; };
   cancel.addEventListener("click", () => { finish(); output.textContent = "已取消求解；未把部分候选声明为最小充能。"; });
   run.addEventListener("click", () => {
+    if (!analysisCapability.supported) { output.textContent = analysisCapability.message; return; }
     erResult = null;
     const values = ["analysis-er-min", "analysis-er-max", "analysis-er-step", "analysis-er-margin"].map((id) => Number(input(id).value) / 100);
     pendingSearch = new Worker(new URL("./analysis-worker.ts", import.meta.url), { type: "module" });
@@ -152,6 +165,7 @@ export function renderAnalysisPanel(root: HTMLElement, result: SimulationResult)
   });
   steadyCancel.addEventListener("click", () => { finish(); startupOutput.textContent = "已取消预热；未宣称建立稳态。"; });
   steadyRun.addEventListener("click", () => {
+    if (!analysisCapability.supported) { startupOutput.textContent = analysisCapability.message; return; }
     startupResult = null;
     pendingSearch = new Worker(new URL("./analysis-worker.ts", import.meta.url), { type: "module" });
     steadyRun.disabled = true; run.disabled = true; stochasticRun.disabled = true; steadyCancel.hidden = false;
@@ -235,15 +249,20 @@ export function renderAnalysisPanel(root: HTMLElement, result: SimulationResult)
     pendingSearch.postMessage({ kind: "steady", config: result.config, options: result.resolvedRuntimeOptions, warmupCycles: Number(input("analysis-warmup-cycles").value), warmupEnergyMode: select("analysis-warmup-energy").value });
   });
   root.querySelector("#analysis-export")!.addEventListener("click", () => {
-    const report = { kind: "simulation-analysis-v1", reproducibilityKey: result.reproducibilityKey, dataVersion: result.dataVersion, engineVersion: result.engineVersion, config: result.config, runtimeOptions: result.resolvedRuntimeOptions, window, rotationSummary, steady, startup: startupResult, energyRecharge: erResult, stochasticStartup: stochasticResult };
-    const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: "application/json" }));
-    const link = document.createElement("a"); link.href = url; link.download = "simulation-analysis.json"; link.click(); URL.revokeObjectURL(url);
+    try {
+    exportSimulationAnalysisReport(() => ({ kind: "simulation-analysis-v1", reproducibilityKey: result.reproducibilityKey, dataVersion: result.dataVersion, engineVersion: result.engineVersion, config: result.config, runtimeOptions: result.resolvedRuntimeOptions, window, rotationSummary, steady, startup: startupResult, energyRecharge: erResult, stochasticStartup: stochasticResult }));
+    } catch (error) {
+      const notice = document.createElement('p'); notice.setAttribute('role', 'status');
+      notice.textContent = error instanceof Error ? error.message : '不能导出本次资料。';
+      root.querySelector('#analysis-export')!.after(notice);
+    }
   });
   stochasticCancel.addEventListener("click", () => {
     finish(); stochasticResult = null;
     stochasticOutput.textContent = "已取消随机预热诊断；部分运行不会作为完整统计结果导出。";
   });
   stochasticRun.addEventListener("click", () => {
+    if (!analysisCapability.supported) { stochasticOutput.textContent = analysisCapability.message; return; }
     const sampleInput = input("analysis-stochastic-samples"), warmupInput = input("analysis-stochastic-cycles");
     if (!sampleInput.reportValidity() || !warmupInput.reportValidity()) return;
     stochasticResult = null;

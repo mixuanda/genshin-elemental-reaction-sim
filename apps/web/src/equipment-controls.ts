@@ -1,6 +1,6 @@
 import {
   equipmentCatalog, equipmentDatasetSource, STORY_TRIAL_WEAPON_IDS, equipmentLevelRange, legalWeaponRefinements, resolveEquipmentBuild,
-  type EquipmentBuildResolution, type EquipmentDataset, type EquipmentBuildInput
+  type EquipmentBuildResolution, type EquipmentDataset, type EquipmentBuildInput, type CharacterLevelCap
 } from "@genshin-dps-lab/game-data/equipment-build";
 import { mountArtifactControls } from "./artifact-controls";
 import type { ArtifactPieceInput } from "@genshin-dps-lab/game-data/artifact-build";
@@ -15,6 +15,8 @@ type BuffElement = keyof typeof elementLabels;
 export interface EquipmentControlsOptions {
   dataset?: EquipmentDataset;
   getCharacterId(): string | null;
+  /** Bind only action facts proved by the current calculator before materializing equipment. */
+  prepareInput?(input: EquipmentBuildInput): EquipmentBuildInput;
   /** Only called by the explicit apply action. Replace the previous build; never add to final stats. */
   onResolve(resolution: EquipmentBuildResolution): void;
   applyLabel?: string;
@@ -65,8 +67,9 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     const ascensionOptions = (promotions: typeof character.stats.promotion, selected: number) => promotions.map((p, i) => `<option value="${i}"${i === selected ? " selected" : ""}>突破 ${i} · 上限 ${p.maxlevel}</option>`).join("");
     container.innerHTML = `<legend>装备基础推导 · ${esc(character.name)}</legend>` +
       `<p class="calculator-hint">工作区来源 ${esc(source.gameVersion)}（${esc(source.releaseStatus)}）的精确等级和突破查表；数值／机制状态仍为暂定。只允许与角色匹配的常规武器，不补造精炼档位。</p>` +
-      `<div class="calculator-fields"><label>角色等级<input data-equipment="level" type="number" min="1" max="90" step="1" value="90"></label>` +
-      `<label>角色突破<select data-equipment="ascension">${ascensionOptions(character.stats.promotion, characterAscension)}</select></label></div>` +
+      `<div class="calculator-fields"><label>角色等级<input data-equipment="level" type="number" min="1" max="100" step="1" value="90"></label>` +
+      `<label>角色突破<select data-equipment="ascension">${ascensionOptions(character.stats.promotion, characterAscension)}</select></label>` +
+      `<label>已解锁等级上限<select data-equipment="characterLevelCap"><option value="90">90 · 常规突破</option><option value="95">95 · 无主的命星</option><option value="100">100 · 无主的命星</option></select></label></div>` +
       `<label>武器<select data-equipment="weapon">${weapons.map(w => `<option value="${esc(w.id)}"${w.id === weapon.id ? " selected" : ""}>${esc(w.name)} · ${w.rarity} 星</option>`).join("")}</select></label>` +
       `<div class="calculator-fields"><label>武器等级<input data-equipment="weaponLevel" type="number" min="1" max="${weapon.stats.promotion[weaponAscension]!.maxlevel}" step="1" value="${weapon.stats.promotion[weaponAscension]!.maxlevel}"></label>` +
       `<label>武器突破<select data-equipment="weaponAscension">${ascensionOptions(weapon.stats.promotion, weaponAscension)}</select></label>` +
@@ -135,12 +138,14 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     if (target) { target.textContent = message; target.className = error ? "calculator-error" : "calculator-hint"; }
   };
 
-  function updateLevelRange(ascensionKey: string, levelKey: string, entry: (typeof equipmentCharacters)[number] | (typeof equipmentWeapons)[number]): void {
-    const range = equipmentLevelRange(entry, Number(field(ascensionKey).value));
+  function updateLevelRange(ascensionKey: string, levelKey: string, entry: (typeof equipmentCharacters)[number] | (typeof equipmentWeapons)[number], preserveValue = false): void {
+    const ascension = Number(field(ascensionKey).value);
+    const characterLevelCap = levelKey === "level" ? Number(field("characterLevelCap").value) as CharacterLevelCap : undefined;
+    const range = equipmentLevelRange(entry, ascension, characterLevelCap);
     const input = field<HTMLInputElement>(levelKey);
     input.min = String(range.min);
     input.max = String(range.max);
-    if (Number(input.value) < range.min || Number(input.value) > range.max) input.value = String(range.max);
+    if (!preserveValue && (Number(input.value) < range.min || Number(input.value) > range.max)) input.value = String(range.max);
   }
 
   container.addEventListener("change", event => {
@@ -155,13 +160,25 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     if (target.dataset.equipment === "weapon") {
       const level = field("level").value;
       const ascension = field("ascension").value;
+      const characterLevelCap = field("characterLevelCap").value;
       activeWeaponId = (target as HTMLSelectElement).value;
       render();
       field("ascension").value = ascension;
       field("level").value = level;
+      field("characterLevelCap").value = characterLevelCap;
       updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
     }
-    if (target.dataset.equipment === "ascension") updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
+    if (target.dataset.equipment === "ascension") {
+      if (field("ascension").value !== "6") field("characterLevelCap").value = "90";
+      updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
+    }
+    if (target.dataset.equipment === "characterLevelCap") {
+      if (field("ascension").value !== "6") {
+        field("characterLevelCap").value = "90";
+        status("请先完成角色普通突破 6，再选择 95/100 级解锁上限。", true);
+      }
+      updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!, true);
+    }
     if (target.dataset.equipment === "weaponAscension") updateLevelRange("weaponAscension", "weaponLevel", equipmentWeapons.find(w => w.id === activeWeaponId)!);
     if (target.dataset.equipment === "refinement") {
       const weapon = equipmentWeapons.find(w => w.id === activeWeaponId)!;
@@ -172,6 +189,7 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     return {
         characterId: activeCharacterId!, weaponId: activeWeaponId,
         level: Number(field("level").value), ascension: Number(field("ascension").value),
+        ...(field("characterLevelCap").value === "90" ? {} : { characterLevelCap: Number(field("characterLevelCap").value) as CharacterLevelCap }),
         weaponLevel: Number(field("weaponLevel").value), weaponAscension: Number(field("weaponAscension").value),
         refinement: Number(field("refinement").value), effectsDisabled: field<HTMLInputElement>("effectsDisabled").checked,
         artifacts: artifactEditor?.getArtifacts() ?? [],
@@ -188,8 +206,11 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
   container.addEventListener("click", event => {
     if (!(event.target as HTMLElement).closest("[data-equipment-apply]")) return;
     try {
-      const resolution = resolveEquipmentBuild(getInput(), options.dataset);
+      const entered = getInput();
+      const input = options.prepareInput?.(entered) ?? entered;
+      const resolution = resolveEquipmentBuild(input, options.dataset);
       options.onResolve(resolution);
+      if (input !== entered) setInput(input);
       status(`已应用 ${resolution.characterName} / ${resolution.weaponName}，${resolution.build.equipment.artifacts?.length ?? 0} 件圣遗物。词条逐项计入；来源、强化档位和适用效果见计算轨迹。未实现条款已列出并停用。`);
     } catch (error) { status(error instanceof Error ? error.message : String(error), true); }
   });
@@ -199,7 +220,7 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     if (next !== activeCharacterId || !container.childElementCount) { activeCharacterId = next; artifactDraft = []; elementDrafts.clear(); render(false); }
   };
   refreshCharacter();
-  return { refreshCharacter, getInput, setInput(input) {
+  function setInput(input: EquipmentBuildInput): void {
     if (input.characterId !== options.getCharacterId()) throw new Error("配装角色与当前选择不一致。");
     activeCharacterId = input.characterId;
     activeWeaponId = input.weaponId;
@@ -208,8 +229,9 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
     render(false);
     if (activeWeaponId !== input.weaponId) throw new Error("此角色不能装备导入武器，或当前目录未收录该武器。");
     for (const key of ["level", "ascension", "weaponLevel", "weaponAscension", "refinement"] as const) field(key).value = String(input[key]);
-    updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!);
-    updateLevelRange("weaponAscension", "weaponLevel", equipmentWeapons.find(w => w.id === activeWeaponId)!);
+    field("characterLevelCap").value = String(input.characterLevelCap ?? 90);
+    updateLevelRange("ascension", "level", equipmentCharacters.find(c => c.id === activeCharacterId)!, true);
+    updateLevelRange("weaponAscension", "weaponLevel", equipmentWeapons.find(w => w.id === activeWeaponId)!, true);
     for (const key of ["effectsDisabled", "weaponEffectsEnabled", "setEffectsEnabled"] as const) field<HTMLInputElement>(key).checked = input[key] ?? false;
     const context = input.effectContext;
     if (context) {
@@ -225,5 +247,6 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
         }
       }
     }
-  } };
+  }
+  return { refreshCharacter, getInput, setInput };
 }

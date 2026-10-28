@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "314218dd990813224488ebbb5faff2c41c1ab993",
+  "scope": "Iansan C4/event/resource ordering read-only audit; no new simulation, build or Go tests",
+  "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "optimizerRevision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archive": {
+    "path": "packages/game-data/sources/iansan-swift-resolved-casts/source.json.gz",
+    "sha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec",
+    "unchanged": true
+  },
+  "nativeSources": [
+    {
+      "path": "internal/characters/iansan/iansan.go",
+      "upstreamSha256": "0a405ccf6284d152820171b59d4619eb4c253e7aff0d3b2b3edfb17848461f22",
+      "gitBlobSha1": "9a0672064215a6a40c29bae9401975b02eb80c16",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "72ab76a9249ad6362f65f0f940a275b847b320bf17456dca97baa8004a172bc4",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/iansan.go"
+    },
+    {
+      "path": "internal/characters/iansan/skill.go",
+      "upstreamSha256": "3a05af9e483794e24e01157eafe234e6b12aea76ff15ff6584732437ed3c3399",
+      "gitBlobSha1": "b1cf0956b6ea5919aa78f04d0dfe8d2a3f4343d7",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "9034152df29c13c6531a0b153201486498968662518ae34eb7a63ddd72ec7127",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/skill.go"
+    },
+    {
+      "path": "internal/characters/iansan/cons.go",
+      "upstreamSha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+      "gitBlobSha1": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "deb5dce7176f65f6916d21e91170bdeab85b0ac60b46df9e3e03040a27241311",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/cons.go"
+    },
+    {
+      "path": "internal/characters/iansan/burst.go",
+      "upstreamSha256": "658a1dfddcc66a79d8cae06d4cb4f6fb62a33f0fbde023771bfe7c7aeae0e124",
+      "gitBlobSha1": "7775958be290fa773164ad7d5719430c548b69f1",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "ce2a792a9de7a7f0256a3336109f53182a1d50f4ec0f123d3d4c114deb188edb",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/burst.go"
+    },
+    {
+      "path": "internal/characters/iansan/asc.go",
+      "upstreamSha256": "d88c164485eeab10789d1ec256aeb636910d08f0f2c6ca8424d007aa5fe12360",
+      "gitBlobSha1": "3a18863d186d26d36f1c615a945e97df4ef1accf",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "33dc2c48965581c9b3979f4b5f30bb9b288cfdfc2f80534c5821b4b27836ef18",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/asc.go"
+    },
+    {
+      "path": "internal/template/nightsoul/nightsoul.go",
+      "upstreamSha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "gitBlobSha1": "c014ea4505d6ca601c39ccdfbf0a967b1f50523b",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/nightsoul/nightsoul.go"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "upstreamSha256": "7256ca1d27b03e1855f3cdb014644115003e7585f3f6bf6023871a78c76a180c",
+      "gitBlobSha1": "4c6f739ee82d4aa50e0cd899238237044e99ba22",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "dd028478aab3f080eba7e5c146cf80c63550003e8eeedb12a37386e8703df581",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/exec.go"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "upstreamSha256": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46",
+      "gitBlobSha1": "e0d2ec53cc57341da1a8b33064ce3f0f553d307e",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "ac6091938235b729719e3dbf66509e5c410c91e3ab2d584328482f37047c4ef3",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/core/player/character/hitlag.go",
+      "upstreamSha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "upstreamSha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+      "gitBlobSha1": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "8f9551c7b1ee91e4804c0aea7576b6febc53453d31686afb29d3c3931368ed5b",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "upstreamSha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/core.go"
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "upstreamSha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/task/task.go"
+    },
+    {
+      "path": "pkg/core/event/event.go",
+      "upstreamSha256": "edfda6f51cea27a114318242202f0ce4d4e09a44e22f3f76b6adb775fa875608",
+      "gitBlobSha1": "10d27ad273075ae6824885d2bb0a8290ab0dc731",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "f68ac459d2f9781fab25273b592476d3058c7675feeb5bd0332dbd4ac8cddbe6",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/event/event.go"
+    },
+    {
+      "path": "pkg/simulation/run.go",
+      "upstreamSha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "gitBlobSha1": "0d4bdf5efb5607cad9deee83bfda795e315a8a5b",
+      "matchesPinnedTree": true,
+      "actualPatchedSha256": "cbc6aebf5d5682f806a684129151ce12106e1cdba9cc759d8ecfeade849483e7",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/simulation/run.go"
+    }
+  ],
+  "optimizerSources": [
+    {
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "sha256": "aa1a04be529dc04322a02e11a667fb92313f8c647aab71b54d982548d6e03738",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Iansan/index.tsx"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+      "sha256": "f74ce3aab15e228fba93d391ac13b03c5bcf21fc7bb1718971792f8277ad2c1a",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Iansan/skillParam.json"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json",
+      "sha256": "c571a86a8924789e8b05dbf1809c254434fda367681fdd4d4aae158ff73cfb6e",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json"
+    }
+  ],
+  "fixedText": {
+    "burstEndsNightsoul": "动能标示退场时，伊安珊的夜魂加持将会结束。",
+    "burstMovement": "此外，动能标示存在期间，将记录除伊安珊外的队伍中自己的当前场上角色的移动距离；每秒都将基于上一秒记录的移动距离，为伊安珊恢复夜魂值。",
+    "c4": {
+      "0": "动能标示存在期间，除伊安珊外的队伍中自己的当前场上角色施放元素爆发后，伊安珊将获得两层「原力激扬」，持续至动能标示退场，每次召唤动能标示至多触发一次该效果；伊安珊通过动能标示恢复夜魂值时，将消耗一层「原力激扬」，为伊安珊额外恢复4点夜魂值。",
+      "1": "此外，若动能标示的夜魂值恢复量溢出，伊安珊下一次通过动能标示恢复夜魂值时，还会额外恢复相当于本次溢出量50%的夜魂值。"
+    },
+    "a1": {
+      "0": "「雷霆飞缒」命中敌人后，伊安珊将获得「标准动作」效果，持续15秒。",
+      "1": "持续期间，伊安珊的攻击力提升20%，通过元素爆发<strong>力的三原理</strong>中的动能标示恢复夜魂值时，还会额外恢复1点夜魂值；此外，队伍中自己的当前场上角色消耗或恢复夜魂值后，伊安珊下一次通过动能标示恢复夜魂值时，额外恢复的夜魂值提升至4点，该效果每2.8秒至多触发一次。",
+      "2": "「标准动作」效果将在伊安珊的夜魂加持结束时消失。"
+    },
+    "c6": {
+      "0": "动能标示的持续时间延长3秒。",
+      "1": "此外，伊安珊触发恢复夜魂值的效果时，若夜魂值恢复量溢出，将获得「极限发力」效果，使队伍中自己的当前场上角色造成的伤害提升25%，持续3秒。"
+    }
+  },
+  "optimizerC4Parameters": [
+    4,
+    0.5
+  ],
+  "optimizerLimit": "index.tsx constellation4 reads [4,0.5] but renders only ct.talentTem; it does not execute movement, stack, event or expiry history.",
+  "builtArtifact": {
+    "manifest": "/tmp/GIDPS-iansan-team-20261023/built/manifest.json",
+    "manifestSha256": "ead28f8cedd13ff5e3a4906b146fd52638bd7d245dae1066678d7c774dec4b87",
+    "wasm": {
+      "path": "source-host.wasm",
+      "sha256": "e607f7cfe90b778cbd95ba4fa1d0184c00464ac187f2bc8f65a20834ec0fbc45",
+      "bytes": 72153797
+    },
+    "goVersion": "go1.27.1",
+    "patch138To140": [
+      {
+        "path": "138-iansan-swift-normal-talent.patch",
+        "sha256": "cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538",
+        "bytes": 536
+      },
+      {
+        "path": "139-iansan-c1-consumption-threshold.patch",
+        "sha256": "6f61d4f4ee3478b8b55ce4097c5ac35e6719a79188bb34126263444227b12e79",
+        "bytes": 879
+      },
+      {
+        "path": "140-iansan-c2-active-recipient.patch",
+        "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f",
+        "bytes": 457
+      }
+    ]
+  },
+  "existingCapture": {
+    "path": "/tmp/GIDPS-iansan-team-20261023/after-sentinel/c6-q-team.native.json",
+    "sha256": "56e1efea206004f1e069a8edbc279ae8a0ca8d2fea280f9f02d9b4ff2bd92d49",
+    "actualEndFrame": 1200,
+    "marker": {
+      "actorIndex": 0,
+      "statusKey": "iansan-burst",
+      "instanceId": 1,
+      "createdFrame": 1,
+      "creationActionSequence": 1,
+      "initialExpiryFrame": 901,
+      "finalExpiryFrame": 906,
+      "endState": "removed",
+      "endFrame": 717,
+      "nativeOverwrite": false
+    },
+    "exitNightsoulFrames": [
+      717
+    ],
+    "phaseObservationPresent": false,
+    "privateFieldOccurrences": {
+      "pointsOverflow": 0,
+      "c4Stacks": 0,
+      "c4Generated": 0,
+      "burstRestoreNS": 0,
+      "a1Increase": 0,
+      "nightsoulPoints": 0,
+      "ExitStateF": 0
+    },
+    "limit": "This actual20s capture depleted NS at717 before marker natural expiry906. It is not a positive-NS marker-expiry reproduction and has no teammate Q/C4 stack trace."
+  },
+  "conclusions": {
+    "markerExpiry": "Source-proven missing cleanup when positive NS outlives natural marker expiry. Runtime positive-NS boundary fixture belongs to root; no fresh run claimed.",
+    "c4Stacks": "Grant, two consumes, per-marker once gate and reset-on-new-Q match fixed textual clauses; no demonstrated numerical C4 stack defect in this audit. Natural-expiry/early-exit private stale stack value has no current path to applying without a valid marker.",
+    "overflow": "Prior overflow is read by c4Points before restorePointsTask overwrites it. It survives Q restart/exit in source, but fixed text does not unambiguously specify cross-marker clearing. Do not patch that unresolved policy.",
+    "a1": "A1 next-restore flag is consumed by a1Points before GeneratePoints. Generated/consumed event carries actual retained/used amount, but A1 callback does not inspect amount; zero-net qualification remains a separate unproven game-semantics question.",
+    "c6OtherRestore": "Only marker restore calls c6OnOverflow; Q+40 GeneratePoints15 does not. Fixed C6 text is broader. E→Q overflow path needs narrow actual qualification before any separate fix."
+  },
+  "eventOrder": [
+    "Frame increment -> Combat/constructs -> Player animation and all character-local queues -> Core.Tasks -> external energy/hurt -> OnTick -> new input/actions.",
+    "Core.Tasks equal due clocks use increasing insertion id; local character queues always precede core tasks.",
+    "useAbility emits OnBurst before invocation capture and actual Burst method. Exec movement parameter is emitted after the method, before OnActionExec.",
+    "swap delayed callback updates active actor before OnCharacterSwap.",
+    "OnNightsoulGenerate/Consume callbacks run synchronously after point clamp, before the corresponding existing log."
+  ],
+  "minimalObservation": {
+    "reuseFirst": "Existing opt-in phaseObservation can expose concrete private fields at actual evaluator markers via read-only reflection, with explicit unknown numeric/closure gaps. Ordinary captures here omit those fields. Markers are not arbitrary per-frame checkpoints.",
+    "fields": [
+      "frame and character TimePassed",
+      "owner actorIndex and current active actorIndex",
+      "burstSrc and nightsoulSrc",
+      "actual marker status instance/expiry and A1 state",
+      "NS before/requested/retained/after",
+      "burstRestoreNS before reset",
+      "prior/new pointsOverflow",
+      "c4Generated and c4Stacks before/after",
+      "a1Increase before/after and actual already-evaluated A1 contribution",
+      "current actionSequence and existing task/event origin"
+    ],
+    "safety": "If producer instrumentation is needed, record already-read locals after native operations. Do not call a1Points/c4Points/GeneratePoints/Stats again, add gameplay event listeners/emissions, schedule extra gameplay tasks, or consume RNG."
+  },
+  "root141Review": {
+    "proposed": "Source-bound global Core.Tasks expiry poll using StatusDuration(marker)+1, re-read actual inclusive status after hitlag, then exitNightsoul; clear c4Stacks on exit.",
+    "reason": "Avoid a late periodic restore branch killing fresh E. New Q and early exit invalidate burstSrc; equal-due newer E entry runs after older Q expiry task.",
+    "requiredBoundaryFixtures": [
+      "positive NS at C4 12s and C6 15s marker expiry",
+      "hitlag extends marker beyond original deadline",
+      "Q instance replacement and early exit invalidate old callback",
+      "E enters before marker exit and is cleared; E entry exactly at expiry+1 occurs after old exit and remains; E begins after old exit remains",
+      "A1/C2 clear with marker exit; pre-made snapshots remain unchanged; no later old C1 consumption"
+    ],
+    "notImplementedOrRunHere": true
+  }
+}

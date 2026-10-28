@@ -1,0 +1,10 @@
+{
+  "kind": "offline fresh-result validation, not browser latency",
+  "elapsedMs": 7476.352417999999,
+  "identity": {
+    "captureSha256": "f0a92dd23c53024b4c4042e33143dd6f76b1d1988d5f78745387dbf479c67380",
+    "validatedSha256": "f0a92dd23c53024b4c4042e33143dd6f76b1d1988d5f78745387dbf479c67380",
+    "calculations": 19602,
+    "applications": 610
+  }
+}

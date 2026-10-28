@@ -1,3 +1,4 @@
+import { revealControl } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -26,9 +27,9 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   for (const [id, label] of Object.entries({ filletblade: "吃虎鱼刀", prototypearchaic: "试作古华", snowtombedstarsilver: "雪葬的星银", dragonspinespear: "龙脊长枪", frostbearer: "忍冬之果" })) {
     await expect(weapon.locator(`option[value="${id}"]`)).toContainText(label);
   }
-  await weapon.selectOption("frostbearer");
-  await page.locator("#calc-proc-refinement").selectOption("1");
-  await page.locator('[data-action="load-weapon-proc"]').click();
+  await (await revealControl(weapon)).selectOption("frostbearer");
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("1");
+  await (await revealControl(page.locator('[data-action="load-weapon-proc"]'))).click();
   await expect(page.locator("#calc-character-status")).toContainText("不需要角色技能或队伍");
   await expect(page.locator("#calc-character")).toHaveValue("");
   await expect(page.locator("#calc-proc-trigger-aura-control")).toBeVisible();
@@ -40,14 +41,14 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   expect(unknown.result.totals).toBeUndefined();
   await expect(page.locator("#calc-results")).toContainText("未知不能默认无冰");
 
-  await page.locator("#calc-proc-trigger-aura").selectOption("0");
+  await (await revealControl(page.locator("#calc-proc-trigger-aura"))).selectOption("0");
   const ordinaryR1 = await audit(page);
   expectDamage(ordinaryR1.result, 1000, 0.8, 0.5, 1);
   const sourceCoefficient = page.locator('[data-field="hits.0.baseDamageFormula.inputs.0.value"]');
   await expect(sourceCoefficient).toBeDisabled();
   await expect(sourceCoefficient).toHaveValue("0.8");
   await expect(page.locator('[data-field="hits.0.terms.0.coefficient"]')).toHaveAttribute("readonly", "");
-  await page.locator("#calc-proc-trigger-aura").selectOption("1");
+  await (await revealControl(page.locator("#calc-proc-trigger-aura"))).selectOption("1");
   const cryoR1 = await audit(page);
   expectDamage(cryoR1.result, 1000, 2, 0.5, 1);
   expect(cryoR1.document.weaponProc).toEqual({ weaponId: "frostbearer", refinement: 1, triggeringTargetCryoOrFrozen: true });
@@ -55,16 +56,16 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   expect(selection.result!.value).toBe(2);
   expect(selection.inputs.find(input => input.key === "triggeringTargetCryoOrFrozen")).toMatchObject({ value: 1, origin: "explicit-trigger-context" });
   const detail = page.locator('#calc-results [data-detail-id="weaponProcCoefficient"]');
-  await detail.locator(":scope > summary").click();
+  await (await revealControl(detail.locator(":scope > summary"))).click();
   await expect(detail.locator(".trace-substitution")).toContainText(selection.substitution);
   await expect(detail).toContainText("原触发目标");
 
   for (const [field, value] of Object.entries({ atk: 1500, critRate: 0.25, critDamage: 1.2 })) {
-    await page.locator(`[data-field="build.stats.${field}"]`).fill(String(value));
+    await (await revealControl(page.locator(`[data-field="build.stats.${field}"]`))).fill(String(value));
   }
   const edited = await audit(page);
   expectDamage(edited.result, 1500, 2, 0.25, 1.2);
-  await page.locator("#calc-proc-refinement").selectOption("5");
+  await (await revealControl(page.locator("#calc-proc-refinement"))).selectOption("5");
   const cryoR5 = await audit(page);
   expectDamage(cryoR5.result, 1500, 3.6, 0.25, 1.2);
   expect(cryoR5.document.build).toEqual(edited.document.build);
@@ -74,9 +75,9 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   await expect(sourceCoefficient).toBeDisabled();
 
   const downloading = page.waitForEvent("download");
-  await page.locator('[data-action="export"]').click();
+  await (await revealControl(page.locator('[data-action="export"]'))).click();
   const saved = JSON.parse(await readFile((await (await downloading).path())!, "utf8")) as CalculatorDocument;
-  await page.locator("#calc-import").setInputFiles({ name: "frost-proc-complete.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "frost-proc-complete.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(saved)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   await expect(weapon).toHaveValue("frostbearer");
   await expect(page.locator("#calc-proc-refinement")).toHaveValue("5");
@@ -88,19 +89,19 @@ test("Five new standalone procs expose source conditions and regenerate formulas
   // Keep the saved high-coefficient AST intact while changing only the explicit source context.
   const changedContext = structuredClone(saved);
   changedContext.weaponProc!.triggeringTargetCryoOrFrozen = false;
-  await page.locator("#calc-import").setInputFiles({ name: "frost-proc-edited-context.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(changedContext)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "frost-proc-edited-context.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(changedContext)) });
   await expect(page.locator("#calc-proc-trigger-aura")).toHaveValue("0");
   const ordinaryR5 = await audit(page);
   expectDamage(ordinaryR5.result, 1500, 1.4, 0.25, 1.2);
   expect(ordinaryR5.document.build).toEqual(saved.build);
   expect(ordinaryR5.result.hits[0]!.trace.find(node => node.id === "weaponProcCoefficient")!.result!.value).toBe(1.4);
   await expect(sourceCoefficient).toHaveValue("1.4");
-  await page.locator("#calc-proc-trigger-aura").selectOption("");
+  await (await revealControl(page.locator("#calc-proc-trigger-aura"))).selectOption("");
   const unknownAgain = await audit(page);
   expect(unknownAgain.result.status).toBe("blocked");
   expect(unknownAgain.result.totals).toBeUndefined();
 
-  await weapon.selectOption("filletblade");
+  await (await revealControl(weapon)).selectOption("filletblade");
   await expect(page.locator("#calc-proc-trigger-aura-control")).toBeHidden();
   const fillet = await audit(page);
   expect(fillet.document.build).toEqual(saved.build);

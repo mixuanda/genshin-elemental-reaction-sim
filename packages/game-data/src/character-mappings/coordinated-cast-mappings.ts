@@ -135,6 +135,6 @@ export const replacedCoordinatedCastPartialMappingIds = new Set([
   "dehya-skill-skillreposition-hit",
   "dehya-skill-skilldotatk-hit",
   "fischl-skill-birdsum-hit",
-  "fischl-skill-birdatk-hit",
+  // Preserve the independent Oz contact; it does not assert a complete lifetime.
   "fischl-burst-burst-hit",
 ]);

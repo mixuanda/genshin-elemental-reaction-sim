@@ -1,7 +1,8 @@
 import { summarizeSourceHostRandomness } from "../../../packages/sim-core/src/source-host-randomness";
 import { sourceHostTargetPhaseIdentity } from "../../../packages/sim-core/src/source-host-target-phase";
 import { summarizeStochasticValues, type StochasticDistribution } from "../../../packages/sim-core/src/stochastic-startup";
-import { sourceHostInitialEnergyIdentity, type SourceHostResult } from "../../../packages/sim-core/src/source-host-wire";
+import { sourceHostInitialEnergyIdentity, type SourceHostResult, type SourceHostEnergyApplication } from "../../../packages/sim-core/src/source-host-wire";
+import { sourceHostFixedDamageWindow } from "../../../packages/sim-core/src/source-host-observation-window";
 
 type NativeCharacter = {
   name?: string;
@@ -40,6 +41,7 @@ export interface SourceEnergyActorWindow {
   recharge: number | null;
   startEnergy: number | null;
   endEnergy: number | null;
+  energyBoundarySource: "energy-applications" | "native-tick-samples";
   gained: number;
   wasted: number;
   spent: number;
@@ -134,8 +136,10 @@ export function addSourceHostRechargeContribution(config: string, actorKey: stri
 
 export function analyzeSourceHostEnergy(result: SourceHostResult, windowSelection?: number | SourceHostObservationPolicy): SourceHostEnergyAnalysis {
   const native = result.result as NativeResult;
-  const duration = number(native.duration);
-  if (duration === null || !Number.isInteger(duration) || duration <= 0) throw new Error("来源结果没有有效的实际观察帧数。");
+  const nativeDuration = number(native.duration);
+  if (nativeDuration === null || !Number.isInteger(nativeDuration) || nativeDuration <= 0) throw new Error("来源结果没有有效的实际观察帧数。");
+  const fixedWindow = sourceHostFixedDamageWindow(result);
+  const duration = fixedWindow?.endFrame ?? nativeDuration;
   const characters = Array.isArray(native.characters) ? native.characters : [];
   const rows = (Array.isArray(result.logs) ? result.logs : []).map(value => value as LogRow).filter(row => row && typeof row === "object");
   const events: SourceEnergyEvent[] = [];
@@ -171,6 +175,16 @@ export function analyzeSourceHostEnergy(result: SourceHostResult, windowSelectio
   }
   events.sort((a, b) => a.frame - b.frame);
   attempts.sort((a, b) => a.frame - b.frame);
+  const writesByActor = new Map<number, SourceHostEnergyApplication[]>();
+  if (fixedWindow) for (const write of result.energyApplications ?? []) {
+    const writes = writesByActor.get(write.actorIndex) ?? [];
+    const previous = writes.at(-1);
+    if (!Number.isInteger(write.frame) || !Number.isFinite(write.energyBefore) || !Number.isFinite(write.energyAfter)
+      || previous && (write.frame < previous.frame || write.id <= previous.id || write.energyBefore !== previous.energyAfter)) {
+      throw new Error("逐次能量回执的顺序或连续余额不一致，不能恢复精确边界能量。");
+    }
+    writes.push(write); writesByActor.set(write.actorIndex, writes);
+  }
   const observationPolicy = typeof windowSelection === "object" && windowSelection !== null
     ? { warmupFrames: windowSelection.warmupFrames, windowFrames: windowSelection.windowFrames } : null;
   const cut = typeof windowSelection === "number" ? windowSelection : Math.floor(duration / 2);
@@ -182,20 +196,36 @@ export function analyzeSourceHostEnergy(result: SourceHostResult, windowSelectio
     if (duration > 1 && (!Number.isInteger(cut) || cut <= 0 || cut >= duration)) throw new Error("观察窗分界必须位于本次实际执行内部。");
     if (duration === 1 && windowSelection !== undefined) throw new Error("单帧来源结果不能设置分窗边界。");
   }
-  // The source trace stores frame F at energy_status[F - 1]. Use half-open
-  // ranges over source frames 1..duration so each boundary has an exact trace.
+  // Completed timed results share the damage curve's [0, duration) window.
+  // Keep the original 1-based diagnostic convention for legacy/early-ended
+  // records without that explicit window; never rewrite their saved receipts.
+  const start = fixedWindow ? 0 : 1;
   const bounds: Array<[number, number]> = observationPolicy
-    ? [[1 + observationPolicy.warmupFrames, 1 + observationPolicy.warmupFrames + observationPolicy.windowFrames],
-      [1 + observationPolicy.warmupFrames + observationPolicy.windowFrames, 1 + observationPolicy.warmupFrames + 2 * observationPolicy.windowFrames]]
-    : duration === 1 ? [[1, 2]] : [[1, cut + 1], [cut + 1, duration + 1]];
+    ? [[start + observationPolicy.warmupFrames, start + observationPolicy.warmupFrames + observationPolicy.windowFrames],
+      [start + observationPolicy.warmupFrames + observationPolicy.windowFrames, start + observationPolicy.warmupFrames + 2 * observationPolicy.windowFrames]]
+    : duration === 1 ? [[start, start + 1]] : [[start, cut + start], [cut + start, duration + start]];
   const energyAt = (actorIndex: number, boundary: number): number | null => {
+    const writes = writesByActor.get(actorIndex);
+    if (writes?.length) {
+      // An action may add energy after OnTick at the same frame. The ordered
+      // actual applications, not that frame's earlier sample, define its end.
+      for (let index = writes.length - 1; index >= 0; index--) if (writes[index]!.frame < boundary) return writes[index]!.energyAfter;
+      return result.startupState?.actors.find(actor => actor.actorIndex === actorIndex)?.energy ?? writes[0]!.energyBefore;
+    }
     const trace = characters[actorIndex]?.energy_status;
+    if (fixedWindow && boundary <= 1) {
+      const preceding = events.filter(event => event.actorIndex === actorIndex && event.frame < boundary).at(-1);
+      const atBoundary = events.find(event => event.actorIndex === actorIndex && event.frame === boundary);
+      return preceding?.after ?? atBoundary?.before ?? result.startupState?.actors.find(actor => actor.actorIndex === actorIndex)?.energy ?? null;
+    }
     if (boundary === 1) {
       const startup = result.startupState?.actors.find(actor => actor.actorIndex === actorIndex);
       if (startup) return startup.energy;
       const first = events.find(event => event.actorIndex === actorIndex && event.frame <= 1);
       return first?.before ?? (Array.isArray(trace) ? number(trace[0]) : null);
     }
+    // F=B-1's OnTick sample can precede later same-frame action energy. This
+    // legacy fallback is explicitly labelled sampling, never exact frame-end.
     return Array.isArray(trace) ? number(trace[boundary - 2]) : null;
   };
   const windows = bounds.map(([startFrame, endFrame]): SourceEnergyWindow => {
@@ -213,6 +243,7 @@ export function analyzeSourceHostEnergy(result: SourceHostResult, windowSelectio
       const missingAttempts = uncoveredFailures > 0;
       return { actorIndex, actor: character.name || `队伍第 ${actorIndex + 1} 位`, recharge: recharge.get(actorIndex) ?? null,
         startEnergy: energyAt(actorIndex, startFrame), endEnergy: energyAt(actorIndex, endFrame),
+        energyBoundarySource: writesByActor.has(actorIndex) ? "energy-applications" : "native-tick-samples",
         gained: energy.reduce((sum, event) => sum + event.gained, 0),
         wasted: energy.reduce((sum, event) => sum + event.wasted, 0),
         spent: energy.reduce((sum, event) => sum + (event.kind === "drain" ? Math.max(0, event.before - event.after) : 0), 0),
@@ -244,8 +275,9 @@ export function summarizeSourceHostEnergyRuns(results: readonly SourceHostResult
     || JSON.stringify(results[index]!.targetScene) !== JSON.stringify(results[0]!.targetScene)
     || sourceHostTargetPhaseIdentity(results[index]!.targetPhases) !== sourceHostTargetPhaseIdentity(results[0]!.targetPhases)
     || sourceHostInitialEnergyIdentity(results[index]!.initialEnergy) !== sourceHostInitialEnergyIdentity(results[0]!.initialEnergy)
+    || JSON.stringify(run.windows[0]!.actors.map(actor => actor.energyBoundarySource)) !== JSON.stringify(first.windows[0]!.actors.map(actor => actor.energyBoundarySource))
     || JSON.stringify(((results[index]!.result as NativeResult).characters ?? []).map(character => character.name ?? "")) !== JSON.stringify(party))) {
-    throw new Error("来源批次脚本、初能覆盖、源码、产物、动作模式、队伍或观察时长不一致。");
+    throw new Error("来源批次脚本、初能覆盖、源码、产物、动作模式、队伍、能量边界证据或观察时长不一致。");
   }
   const metric = (values: Array<number | null>): StochasticDistribution | null => values.some(value => value === null) ? null : summarizeStochasticValues(values as number[]);
   const windows = first.windows.map((window, windowIndex) => ({ startFrame: window.startFrame, endFrame: window.endFrame,

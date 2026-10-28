@@ -1,3 +1,5 @@
+import { parseSimulationHit } from "@genshin-dps-lab/sim-core";
+import { revealControl, downloadSimulationRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -10,14 +12,14 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
 async function selectAction(page: Page, form: string, label: string, skillId: string): Promise<void> {
-  await page.locator("#calc-form").selectOption(form);
+  await (await revealControl(page.locator("#calc-form"))).selectOption(form);
   const value = await page.locator("#calc-skill option").filter({ hasText: label }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
   expect((await audit(page)).document.gameContext?.skillId).toBe(skillId);
 }
 
@@ -37,44 +39,44 @@ async function waitForSimulation(page: Page): Promise<void> {
 
 test("Noelle sourced actions preserve historical Q conversion, C2 and C6 through final JSON and fresh equipment", async ({ page }) => {
   await page.goto("/calculator");
-  await page.locator("#calc-character").selectOption("character:10000034");
+  await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000034");
   await expect(page.locator("#calc-skill")).toBeEnabled();
   await selectAction(page, "", "护心铠·施放命中", "noelle-skill-shielddmg");
   expect((await audit(page)).result.status).toBe("calculated");
   await selectAction(page, "noelle-burst-inactive", "基础普攻第 1 下", "noelle-normal-1");
-  await page.locator('[data-field="build.stats.atk"]').fill("1000");
-  await page.locator('[data-field="build.stats.def"]').fill("1500");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1000");
+  await (await revealControl(page.locator('[data-field="build.stats.def"]'))).fill("1500");
   const inactive = await audit(page);
   expect(inactive.document.hits[0]!.kind === "ordinary" && inactive.document.hits[0]!.element).toBe("physical");
   const normalCoefficient = inactive.document.hits[0]!.kind === "ordinary" && inactive.document.hits[0]!.terms[0]!.coefficient;
-  await page.locator('[data-field="gameContext.noelleBurst.defenseSnapshotNonExtra"]').fill("800");
-  await page.locator('[data-field="gameContext.noelleBurst.effectiveTalentLevel"]').fill("1");
-  await page.locator("#calc-noelle-burst-active").selectOption("1");
-  await page.locator("#calc-noelle-burst-accounting").selectOption("add-to-panel");
+  await (await revealControl(page.locator('[data-field="gameContext.noelleBurst.defenseSnapshotNonExtra"]'))).fill("800");
+  await (await revealControl(page.locator('[data-field="gameContext.noelleBurst.effectiveTalentLevel"]'))).fill("1");
+  await (await revealControl(page.locator("#calc-noelle-burst-active"))).selectOption("1");
+  await (await revealControl(page.locator("#calc-noelle-burst-accounting"))).selectOption("add-to-panel");
   const q1 = await audit(page);
   expect(perHitValues(q1.result, "sourceAttackAdjustment")).toEqual([320]); // Historical 800 DEF × Q1 source coefficient 0.4.
   expect(perHitValues(q1.result, "hitAttack")).toEqual([1320]);
   expect(q1.document.hits[0]!.kind === "ordinary" && q1.document.hits[0]!.element).toBe("geo");
-  await page.locator('[data-field="gameContext.noelleBurst.effectiveTalentLevel"]').fill("10");
+  await (await revealControl(page.locator('[data-field="gameContext.noelleBurst.effectiveTalentLevel"]'))).fill("10");
   const q10 = await audit(page);
   expect(perHitValues(q10.result, "sourceAttackAdjustment")).toEqual([576]); // Q10 source coefficient 0.72.
   expect(q10.document.gameContext?.effectiveTalentLevel).toBe(inactive.document.gameContext?.effectiveTalentLevel);
   expect(q10.document.hits[0]!.kind === "ordinary" && q10.document.hits[0]!.terms[0]!.coefficient).toBe(normalCoefficient);
-  await page.locator('[data-field="build.stats.def"]').fill("9999");
+  await (await revealControl(page.locator('[data-field="build.stats.def"]'))).fill("9999");
   expect((await audit(page)).result.totals).toEqual(q10.result.totals); // Current DEF never replaces the historical non-Extra snapshot.
-  await page.locator("#calc-constellation").selectOption("6");
+  await (await revealControl(page.locator("#calc-constellation"))).selectOption("6");
   const c6 = await audit(page);
   expect(perHitValues(c6.result, "sourceAttackAdjustment")).toEqual([976]);
   expect(perHitValues(c6.result, "hitAttack")).toEqual([1976]);
-  await page.locator('[data-field="build.stats.atk"]').fill("1976");
-  await page.locator("#calc-noelle-burst-accounting").selectOption("already-in-final-panel");
-  await page.locator('[data-field="gameContext.noelleBurst.defenseSnapshotNonExtra"]').fill("");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1976");
+  await (await revealControl(page.locator("#calc-noelle-burst-accounting"))).selectOption("already-in-final-panel");
+  await (await revealControl(page.locator('[data-field="gameContext.noelleBurst.defenseSnapshotNonExtra"]'))).fill("");
   const included = await audit(page);
   expect(included.result.totals).toEqual(c6.result.totals);
   expect(included.result.hits[0]!.trace.find(node => node.id === "sourceAttackAdjustment")?.status).toBe("not-applicable");
-  await page.locator('[data-field="gameContext.noelleBurst.defenseSnapshotNonExtra"]').fill("800");
-  await page.locator('[data-field="build.stats.atk"]').fill("1000");
-  await page.locator("#calc-noelle-burst-accounting").selectOption("add-to-panel");
+  await (await revealControl(page.locator('[data-field="gameContext.noelleBurst.defenseSnapshotNonExtra"]'))).fill("800");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1000");
+  await (await revealControl(page.locator("#calc-noelle-burst-accounting"))).selectOption("add-to-panel");
   await selectAction(page, "noelle-burst-inactive", "重击·终结命中", "noelle-charged-finisher");
   const charged = await audit(page);
   expect(charged.document.gameContext?.scopeCoverage).toBe("selected-components");
@@ -88,26 +90,26 @@ test("Noelle sourced actions preserve historical Q conversion, C2 and C6 through
   expect(perHitValues(cast.result, "sourceAttackAdjustment")).toEqual([976, 976]);
   expect(perHitValues(cast.result, "hitAttack")).toEqual([1976, 1976]);
   await selectAction(page, "noelle-burst-inactive", "基础普攻第 1 下", "noelle-normal-1");
-  await page.locator('[data-equipment="weapon"]').selectOption("weapon:12510");
-  await page.locator('[data-equipment="weaponEffectsEnabled"]').check();
-  await page.locator('[data-equipment="effectsDisabled"]').check();
-  await page.locator("[data-equipment-apply]").click();
+  await (await revealControl(page.locator('[data-equipment="weapon"]'))).selectOption("weapon:12510");
+  await (await revealControl(page.locator('[data-equipment="weaponEffectsEnabled"]'))).check();
+  await (await revealControl(page.locator('[data-equipment="effectsDisabled"]'))).check();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const equipped = await audit(page);
   expect(equipped.document.gameContext?.noelleBurst).toMatchObject({ active: true, effectiveTalentLevel: 10, defenseSnapshotNonExtra: 800, accounting: "add-to-panel" });
   expect(perHitValues(equipped.result, "sourceAttackAdjustment")).toEqual([976]);
   const baseAttack = equipped.result.trace.find(node => node.id === "build.finalAtk")?.result?.value;
   expect(baseAttack).toBeDefined();
   expect(perHitValues(equipped.result, "hitAttack")).toEqual([baseAttack! + 976]);
-  await page.locator("#calc-build-mode").selectOption("manual-final");
+  await (await revealControl(page.locator("#calc-build-mode"))).selectOption("manual-final");
   const final = await audit(page);
   expect(final.document.build.mode !== "equipment-derived" && final.document.build.stats.atk).toBe(baseAttack);
   expect(final.document.gameContext?.noelleBurst?.accounting).toBe("add-to-panel");
   expect(final.result.totals).toEqual(equipped.result.totals);
   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name: "noelle-q-active-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "noelle-q-active-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   expect((await audit(page)).result.totals).toEqual(equipped.result.totals);
-  await page.locator("[data-equipment-apply]").click();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const reapplied = await audit(page);
   expect(reapplied.document.build.mode).toBe("equipment-derived");
   expect(reapplied.result.totals).toEqual(equipped.result.totals);
@@ -125,17 +127,19 @@ test("Noelle sourced Q to N rotation records actual conversion, delayed energy a
     energyEvents: { frame: number; logs: { pre_drain?: number; post_drain?: number; max_energy: number } }[];
   };
   await page.goto("/rotation");
-  await page.locator("#rotation-source-noelle-burst-normal > summary").click();
-  await page.locator("#rotation-load-source-noelle-burst-normal").click();
+  await (await revealControl(page.locator("#rotation-source-examples > summary"))).click();
+  await (await revealControl(page.locator("#rotation-source-noelle-burst-normal > summary"))).click();
+  await (await revealControl(page.locator("#rotation-load-source-noelle-burst-normal"))).click();
+  await (await revealControl(page.locator("#rotation-advanced-controls > summary"))).click();
   await expect(page.locator("[data-noelle-active-assumptions]")).toBeVisible();
   await expect(page.locator("[data-noelle-active-assumptions]")).toContainText("TODO");
   await expect(page.locator("#rotation-list li")).toHaveCount(5);
-  await page.locator("#rotation-compile").click();
+  await (await revealControl(page.locator("#rotation-compile"))).click();
   await expect(page.locator("#rotation-timeline")).toContainText("已编译 5 条指令");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await expect(page).toHaveURL(/\/results$/);
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig.dataVersion).toBe("source-noelle:burst-normal-c0-t1-b4ae769-v1");
   expect(record.sourceConfig.meta.verificationStatus).toBe("provisional");
   expect(external.evidenceStatus).toBe("fixed-source-assumed");
@@ -164,13 +168,13 @@ test("Noelle sourced Q to N rotation records actual conversion, delayed energy a
   expect(result.normalHitEnergyLog?.map(entry => entry.frame)).toEqual(external.hits.slice(2).map(hit => hit.frame));
   for (const entry of result.normalHitEnergyLog!) expect(entry.rngStream).toBe("normal-hit-energy-v1");
   // The independent random-energy stream is inspected from this run, not equated to gcsim's sample draw sequence.
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   const debitRow = page.locator('#actionStateAudit [data-action-cost-operation="debit"]');
   await expect(debitRow).toContainText(`${debit.frame}f`);
-  await debitRow.locator("summary").click();
+  await (await revealControl(debitRow.locator("summary"))).click();
   expect(JSON.parse((await debitRow.locator("pre").textContent())!).cost).toEqual(result.energyCostLog![1]);
   const conversionRow = page.locator('#actionStateAudit [data-action-conversion-index="0"]');
-  await conversionRow.locator("summary", { hasText: "查看实际快照转换公式" }).click();
+  await (await revealControl(conversionRow.locator("summary", { hasText: "查看实际快照转换公式" }))).click();
   const conversionAudit = JSON.parse((await conversionRow.locator("pre").textContent())!);
   expect(conversionAudit.conversion).toEqual(conversion);
   expect(conversionAudit.action).toEqual(result.actionLog[conversion.actionLogIndex]);
@@ -179,24 +183,29 @@ test("Noelle sourced Q to N rotation records actual conversion, delayed energy a
   await expect(conversionRow.locator('[data-trace-node="statConversionAttack"]')).toContainText(String(external.defenseSnapshot.logs["atk added"]));
   await expect(page.locator("#actionStateAudit [data-action-normal-energy-index]")).toHaveCount(4);
   const normalEnergyRow = page.locator('#actionStateAudit [data-action-normal-energy-index="0"]');
-  await normalEnergyRow.locator("summary").click();
+  await (await revealControl(normalEnergyRow.locator("summary"))).click();
   expect(JSON.parse((await normalEnergyRow.locator("pre").textContent())!)).toEqual(result.normalHitEnergyLog![0]);
   // Both a Q hit and an actually infused normal keep the same conversion history on restore.
   for (const [index, event] of [result.damageEvents[0]!, result.damageEvents[2]!].entries()) {
-    await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-    await page.locator(`#hitTableBody tr[data-hit-id="${event.id}"]`).click();
+    await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+    await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${event.id}"]`))).click();
     await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
     const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
     expect(sourceTrace.some(node => node.id === "statConversionDefense")).toBe(true);
     expect(sourceTrace.some(node => node.id === "statConversionAttack")).toBe(true);
-    await page.locator("#openHitCalculator").click();
+    await (await revealControl(page.locator("#openHitCalculator"))).click();
     await expect(page).toHaveURL(/\/calculator$/);
     await expect(page.getByTestId("replay-difference")).toHaveText("0");
     const restoredTrace = await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
     expect(restoredTrace).toEqual(sourceTrace);
-    const captured = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
+    const capturedWire = await downloadJson<unknown>(page, '[data-action="export"]');
+    const captured = parseSimulationHit(JSON.stringify(capturedWire));
+    // This historical worker path uses simulate(), not the nearby-wet witnessed protocol.
+    expect((capturedWire as { schemaVersion: string }).schemaVersion).toBe("calculator-event-v1");
+    expect(captured.schemaVersion).toBe("calculator-event-v1");
+    expect(captured.eventStepResult).toBeUndefined();
     expect(captured.eventId).toBe(event.id);
     expect(captured.sourceResult).toEqual(result);
-    if (index === 0) await page.locator('.product-nav a[href="/results"]').click();
+    if (index === 0) await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
   }
 });
