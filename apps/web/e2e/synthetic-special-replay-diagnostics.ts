@@ -16,7 +16,9 @@ const fixtureVersions = {
 export function parseSyntheticSpecialReplay(wire: CapturedSpecialSimulation, profile: keyof typeof fixtureVersions): CapturedSpecialSimulation {
   try { return parseSpecialSimulation(JSON.stringify(wire)); }
   catch (error) {
-    if (wire.request.profile === profile && wire.request.config.dataVersion === fixtureVersions[profile]) {
+    const config = wire.request.config;
+    if (wire.request.profile === profile && typeof config === "object" && config !== null && !Array.isArray(config)
+      && "dataVersion" in config && config.dataVersion === fixtureVersions[profile]) {
       try {
         const replay: unknown = JSON.parse(JSON.stringify(runSpecialSimulation(wire.request)));
         const differences: Difference[] = [];

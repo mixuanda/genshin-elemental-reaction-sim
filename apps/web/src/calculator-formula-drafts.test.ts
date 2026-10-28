@@ -102,7 +102,7 @@ describe("source-owned formula coefficients versus restored battle answers", () 
   });
   it("retains explicit answers by owner while source fields stay fresh", () => {
     const formula = nefer(10).hits[0];
-    if (formula.kind !== "ordinary") throw new Error("Expected ordinary hit");
+    if (formula?.kind !== "ordinary") throw new Error("Expected ordinary hit");
     const next: CalculatorFormula = structuredClone(formula.damageBonusFormula!);
     const old = structuredClone(next);
     next.inputs = [
