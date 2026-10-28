@@ -1,8 +1,9 @@
+import { parseSyntheticSpecialReplay } from "./synthetic-special-replay-diagnostics";
 import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
-import { parseSimulationHit, parseSpecialSimulation, type CapturedSpecialSimulation, type CalculatorDocument, type CalculatorResult } from "@genshin-dps-lab/sim-core";
+import { parseSimulationHit, type CapturedSpecialSimulation, type CalculatorDocument, type CalculatorResult } from "@genshin-dps-lab/sim-core";
 import type { SimulationStartupResult } from "../../../packages/sim-core/src/simulation-analysis";
 import type { LunarMixedV2SimulationResult } from "../../../packages/sim-core/src/lunar-mixed-v2-runtime";
 import { makeConfig } from "../../../packages/sim-core/src/__tests__/fixtures";
@@ -133,7 +134,7 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
   const reportWire = await downloadJson<CapturedSpecialSimulation & { ui?: { declaredAbilities?: unknown[] } }>(page, '[data-lunar-action="export"]');
   expect(reportWire.schemaVersion).toBe("special-complete-reexecution-v1");
   expect(reportWire.request.profile).toBe("lunar-mixed-v2");
-  const report = parseSpecialSimulation(JSON.stringify(reportWire));
+  const report = parseSyntheticSpecialReplay(reportWire, "lunar-mixed-v2");
   expect(report).toStrictEqual(reportWire);
   expect(reportWire.ui?.declaredAbilities).toEqual(expected.options.abilities);
   expect(report.request.abilities).toEqual(expected.options.abilities);

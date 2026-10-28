@@ -35,7 +35,7 @@ async function sourceInput(page: Page, formula: "additiveBaseFormula" | "resista
   if (hit.kind !== "ordinary") throw new Error("Expected a source ordinary hit");
   const index = hit[formula]!.inputs.findIndex(input => input.key === key);
   expect(index).toBeGreaterThanOrEqual(0);
-  return page.locator(`[data-field="hits.${hitIndex}.${formula}.inputs.${index}.value"]`);
+  return revealControl(page.locator(`[data-field="hits.${hitIndex}.${formula}.inputs.${index}.value"]`));
 }
 
 function hitValue(result: CalculatorResult, id: string): number {
@@ -52,7 +52,7 @@ test("reviewed source resource and resistance formulas, final panels and indepen
   expect(await will.locator("option").evaluateAll(options => options.map(option => (option as HTMLOptionElement).value))).toEqual(["20", "40", "60", "80", "100"]);
   await (await revealControl(page.locator('[data-field="hits.0.additiveBaseDamage"]'))).fill("500");
   expect((await audit(page)).result.totals?.nonCritical).toBeCloseTo(1274.76, 9);
-  await will.selectOption("100");
+  await (await revealControl(will)).selectOption("100");
   const consumed = await audit(page);
   expect(consumed.document.gameContext?.skillId).toBe("lohen-skill-etch-resource");
   expect(consumed.result.totals?.nonCritical).toBeCloseTo(1585.8, 9);
@@ -154,7 +154,12 @@ test("mixed Lunar reactions share one run, actual Geo budgets and both calculato
   if (report.result.schemaVersion !== "lunar-mixed-simulation-v1") throw new Error("Expected mixed-v1 result");
   const result = report.result;
   expect(result.schemaVersion).toBe("lunar-mixed-simulation-v1");
-  expect(result.profile).toEqual(expected.profile);
+  // The archived fixture predates the explicit artifact-scope clarification.
+  // Transform this one expected prose field only; retain every numeric and causal oracle.
+  const priorScope = "特殊基础提升、增伤、加算、擢升和额外攻击为本参考配置显式 0／1；未自动补未建模角色天赋。";
+  expect(expected.profile.assumptions.filter(value => value === priorScope)).toHaveLength(1);
+  expect(result.profile).toEqual({ ...expected.profile, assumptions: expected.profile.assumptions.map(value =>
+    value === priorScope ? `除显式选择的月曜圣遗物条款外，${priorScope}` : value) });
   for (const key of ["totalDamage", "classicDamage", "lunarChargedDamage", "lunarCrystallizeDamage"] as const) expect(result[key]).toBeCloseTo(expected[key], 8);
   expect(result.totalDamage).toBe(result.classicDamage + result.lunarChargedDamage + result.lunarCrystallizeDamage);
   expect(result.specialDamageEvents.map(event => ({ id: event.id, branch: event.intent.branch, frame: event.frame, snapshotFrame: event.intent.snapshotFrame, damage: event.damage, contributors: event.intent.contributorIds, executionOrder: event.executionOrder }))).toEqual(expected.events);

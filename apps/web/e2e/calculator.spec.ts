@@ -47,7 +47,7 @@ async function exportDocument<T = CalculatorDocument>(page: Page): Promise<T> {
   return JSON.parse(await readFile(path!, "utf8")) as T;
 }
 
-function showcaseResponse(avatarId: number, skillLevels: Record<string, number> = {}, observedBonusLevels?: Record<string, number>) {
+function showcaseResponse(avatarId: number, skillLevels: Record<string, number> = {}, observedBonusLevels?: Record<string, number>, observedPhysicalBonus?: number) {
   return {
     fetchedAt: "2026-09-22T00:00:00.000Z",
     cache: "hit",
@@ -61,6 +61,7 @@ function showcaseResponse(avatarId: number, skillLevels: Record<string, number> 
         ...(observedBonusLevels === undefined ? {} : { proudSkillExtraLevelMap: observedBonusLevels }),
         fightPropMap: {
           "20": 0.7, "22": 1.2, "23": 1, "28": 0,
+          ...(observedPhysicalBonus === undefined ? {} : { "30": observedPhysicalBonus }),
           "40": 0.5, "2000": 20000, "2001": 2000, "2002": 800,
         },
         // Deliberately retain a weapon in the import. Its base ATK must never
@@ -336,9 +337,23 @@ test("public showcase imports preserve final stats while unknown identities cann
     await expect(page.locator("#calc-document-controls")).toBeEmpty();
   }
   {
-    await page.route("**/api/showcase/900000002", route => route.fulfill({
+    // Known talents do not establish an omitted physical bonus for the first normal candidate.
+    await page.route("**/api/showcase/900000004", route => route.fulfill({
       status: 200, contentType: "application/json",
       body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 }, {})),
+    }));
+    await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
+    await (await revealControl(page.locator("#calc-showcase-uid"))).fill("900000004");
+    await (await revealControl(page.locator('[data-action="showcase"]'))).click();
+    await (await revealControl(page.locator('[data-showcase-index="0"]'))).click();
+    await expect(page.locator("#calc-results")).toContainText("physical 伤害加成");
+    await expect(page.locator("#calc-document-controls")).toBeEmpty();
+  }
+  {
+    await page.route("**/api/showcase/900000002", route => route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 }, {}, 0)),
     }));
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");

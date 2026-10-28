@@ -42,6 +42,7 @@ test("Stateful weapon procs remain independent single hits with editable panels,
   expectDamage(r1.result, 1000, 1);
   const assumptions = page.locator("#calc-results .calculator-status li");
   const sourceConflict = assumptions.filter({ hasText: "来源冲突：固定 Optimizer TheFlute sheet" });
+  await revealControl(sourceConflict);
   await expect(sourceConflict).toBeVisible();
   await expect(sourceConflict).toContainText("R1–R4");
   await expect(sourceConflict).toContainText("100%／125%／150%／175%／200%");
@@ -61,6 +62,7 @@ test("Stateful weapon procs remain independent single hits with editable panels,
   await expect(coefficient).toHaveValue("2");
   await expect(coefficient).toBeDisabled();
   await expect(page.locator('[data-field="hits.0.terms.0.coefficient"]')).toHaveAttribute("readonly", "");
+  await revealControl(sourceConflict);
   await expect(sourceConflict).toBeVisible();
   const selected = r5.result.hits[0]!.trace.find(node => node.id === "weaponProcCoefficient")!;
   expect(selected.result!.value).toBe(2);
@@ -86,6 +88,7 @@ test("Stateful weapon procs remain independent single hits with editable panels,
   expect(crescent.document.enemy).toEqual(r5.document.enemy);
   expectDamage(crescent.result, 1500, 0.4);
   const windowNote = assumptions.filter({ hasText: "来源无独立追击伤害冷却" });
+  await revealControl(windowNote);
   await expect(windowNote).toBeVisible();
   await expect(windowNote).toContainText("300帧增益");
   await expect(windowNote).toContainText("不以冷却0计算频率或期望值");

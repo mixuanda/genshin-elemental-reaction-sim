@@ -1,3 +1,4 @@
+import { parseSyntheticSpecialReplay } from "./synthetic-special-replay-diagnostics";
 import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
@@ -151,7 +152,7 @@ test("rotation DSL and visual ordering retain requested frames, movement and act
   expect(result?.timelineExecution?.commandResults.slice(0, 6).map(command => command.requestedFrame)).toEqual([14, 20, 25, 35, 50, 55]);
   await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
   await expect(page.locator("#rotation-dsl")).toHaveValue(editedDsl);
-  await page.getByText("载入来源动作示例 · 安柏 N1–N5", { exact: true }).click();
+  await (await revealControl(page.getByText("载入来源动作示例 · 安柏 N1–N5", { exact: true }))).click();
   await (await revealControl(page.locator("#rotation-load-source-chain"))).click();
   await expect(page.locator("#execution-profile")).toHaveValue("unchanged");
   await (await revealControl(page.locator("#rotation-dsl"))).fill("at 1f N5");
@@ -229,7 +230,7 @@ test("executed Stellar Conduct fields and the explicit Moondew ability restore t
   const bloomWire = await downloadJson<CapturedSpecialSimulation & { ui?: { declaredAbilities?: LunarBloomAbilityDeclaration[] } }>(page, '[data-lunar-action="export"]');
   expect(bloomWire.schemaVersion).toBe("special-complete-reexecution-v1");
   expect(bloomWire.request.profile).toBe("lunar-bloom");
-  const bloom = parseSpecialSimulation(JSON.stringify(bloomWire));
+  const bloom = parseSyntheticSpecialReplay(bloomWire, "lunar-bloom");
   expect(bloom).toStrictEqual(bloomWire);
   if (bloom.result.schemaVersion !== "lunar-bloom-simulation-v1") throw new Error("Expected Lunar Bloom result");
   const declaredAbilities = bloomWire.ui?.declaredAbilities;

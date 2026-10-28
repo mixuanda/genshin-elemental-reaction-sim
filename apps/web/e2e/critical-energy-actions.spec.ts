@@ -16,7 +16,7 @@ async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
-async function selectAction(page: Page, character: string, label: string, skillId: string): Promise<void> {
+async function selectAction(page: Page, character: string, label: string, skillId: string, checkpoint?: (stage: string) => Promise<void>): Promise<void> {
   await (await revealControl(page.locator("#calc-character"))).selectOption(character);
   await expect(page.locator("#calc-skill")).toBeEnabled();
   const value = await page.locator("#calc-skill option").filter({ hasText: label }).getAttribute("value");
@@ -26,8 +26,11 @@ async function selectAction(page: Page, character: string, label: string, skillI
   await expect(page.locator("#calc-skill")).toBeEnabled();
   await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(1);
   expect((await audit(page)).document.gameContext?.skillId).toBe(skillId);
+  await checkpoint?.("talent-loaded");
   await (await revealControl(page.locator("#calc-ascension"))).selectOption("4");
+  await checkpoint?.("ascension-selected");
   await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1000");
+  await checkpoint?.("atk-filled");
   await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.5");
   await (await revealControl(page.locator('[data-field="build.stats.critDamage"]'))).fill("1");
 }
@@ -49,7 +52,15 @@ test("Keqing Q and Xingqiu E retain sourced passive accounting, single-hit acces
   let pageErrorCount = 0;
   page.on("pageerror", () => { pageErrorCount += 1; });
   await page.goto("/calculator");
-  await selectAction(page, "character:10000042", "天街巡游·完整十击", "keqing-burst-complete-cast");
+  await selectAction(page, "character:10000042", "天街巡游·完整十击", "keqing-burst-complete-cast", async stage => {
+    const state = await page.locator("#calc-results .calculator-audit pre").textContent();
+    const snapshot = state ? JSON.parse(state) as { document: CalculatorDocument; result: CalculatorResult } : null;
+    console.info("keqing-ui-checkpoint", { stage, elapsedMs: performance.now() - started,
+      buildMode: snapshot?.document.build.mode,
+      hasCritRate: Boolean(snapshot && "stats" in snapshot.document.build && snapshot.document.build.stats.critRate !== undefined),
+      status: snapshot?.result.status,
+      critControlCount: await page.locator('[data-field="build.stats.critRate"]').count(), pageErrorCount });
+  });
   const keqing = await audit(page);
   console.info("keqing-ui-checkpoint", { stage: "selected", elapsedMs: performance.now() - started, pageErrorCount });
   expect(keqing.result.status).toBe("calculated");
