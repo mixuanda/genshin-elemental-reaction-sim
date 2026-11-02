@@ -56,7 +56,8 @@ function showcaseResponse(avatarId: number, skillLevels: Record<string, number> 
       playerInfo: { level: 60, worldLevel: 9 },
       avatarInfoList: [{
         avatarId,
-        propMap: { "4001": { type: 4001, ival: "90" } },
+        // Enka documents val as the property value and explicitly ignores ival.
+        propMap: { "4001": { type: 4001, ival: "90", val: "90" } },
         skillLevelMap: skillLevels,
         ...(observedBonusLevels === undefined ? {} : { proudSkillExtraLevelMap: observedBonusLevels }),
         fightPropMap: {
@@ -307,6 +308,23 @@ test("formal skill selection tolerates unrelated gaps but blocks missing selecte
 
 test("public showcase imports preserve final stats while unknown identities cannot borrow talents", async ({ page }) => {
   {
+    // An ignored ival must not establish a missing observed level, even when
+    // every other field required for the following positive case is present.
+    const response = showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 }, {}, 0);
+    Reflect.deleteProperty(response.data.avatarInfoList[0]!.propMap["4001"], "val");
+    await page.route("**/api/showcase/900000005", route => route.fulfill({
+      status: 200, contentType: "application/json", body: JSON.stringify(response),
+    }));
+    await page.goto("/calculator");
+    await loadExample(page, "fixture-a");
+    await (await revealControl(page.locator("#calc-showcase-uid"))).fill("900000005");
+    await (await revealControl(page.locator('[data-action="showcase"]'))).click();
+    await (await revealControl(page.locator('[data-showcase-index="0"]'))).click();
+    await expect(page.locator("#calc-results")).toContainText("导入缺少：角色等级");
+    await expect(page.getByTestId("calc-expected")).toHaveCount(0);
+    await expect(page.locator("#calc-document-controls")).toBeEmpty();
+  }
+  {
     // A known identity without observed bonus-talent evidence must remain blocked.
     await page.route("**/api/showcase/900000003", route => route.fulfill({
       status: 200, contentType: "application/json",
@@ -337,10 +355,13 @@ test("public showcase imports preserve final stats while unknown identities cann
     await expect(page.locator("#calc-document-controls")).toBeEmpty();
   }
   {
-    // Known talents do not establish an omitted physical bonus for the first normal candidate.
+    // Known talents do not establish an omitted physical bonus. Kaeya's
+    // base normal is physical; Durin's preferred action is now his white Q.
+    const response = showcaseResponse(10000015, { "10073": 10, "10074": 10, "10075": 10 }, {});
+    Object.assign(response.data.avatarInfoList[0]!.fightPropMap, { "46": 0.5 });
     await page.route("**/api/showcase/900000004", route => route.fulfill({
       status: 200, contentType: "application/json",
-      body: JSON.stringify(showcaseResponse(10000123, { "11231": 10, "11232": 10, "11235": 10 }, {})),
+      body: JSON.stringify(response),
     }));
     await page.goto("/calculator");
     await loadExample(page, "fixture-a");

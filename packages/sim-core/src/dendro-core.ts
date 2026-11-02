@@ -1,5 +1,7 @@
 import {
-  CLASSIC_REACTION_FORMULA_PROFILE
+  CLASSIC_REACTION_FORMULA_PROFILE,
+  resolveAngularGeometry,
+  type AngularGeometryMath
 } from "@genshin-dps-lab/reaction-formulas";
 
 /**
@@ -163,7 +165,8 @@ export class DendroCoreManager {
   private readonly usedReservationIds = new Set<number>();
   private nextCoreId = 0;
 
-  constructor(private readonly random: DendroCoreRandomSource) {}
+  constructor(private readonly random: DendroCoreRandomSource,
+    private readonly angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()) {}
 
   /**
    * Detached entity and allocation state, without expiring entities or drawing
@@ -276,10 +279,10 @@ export class DendroCoreManager {
       position: {
         x:
           input.targetPosition.x +
-          Math.cos(radians) * spawnRadius,
+          this.angular.cos(radians) * spawnRadius,
         y:
           input.targetPosition.y +
-          Math.sin(radians) * spawnRadius
+          this.angular.sin(radians) * spawnRadius
       },
       hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
       spawnRadius,

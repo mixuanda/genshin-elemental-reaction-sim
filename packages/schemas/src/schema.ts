@@ -1,4 +1,5 @@
 import { weaponHitStackModelSchema, weaponHitStackWeaponType } from "./weapon-hit-stack-model";
+import { ANGULAR_GEOMETRY_SEMANTICS } from "@genshin-dps-lab/reaction-formulas";
 import { playerShieldModelSchema, playerShieldLogEntrySchema, playerShieldStateSchema } from "./player-shield-schema";
 import { ARTIFACT_BUFF_SOURCE, artifactBuffModelSchema, artifactBuffConfigurationIssues } from "./artifact-buff-model";
 import { targetHealthModelSchema } from "./target-health-schema";
@@ -842,7 +843,8 @@ export const resolvedSimulationRuntimeOptionsSchema = z
 export const currentResolvedSimulationRuntimeOptionsSchema =
   resolvedSimulationRuntimeOptionsSchema.extend({
     execution: simulationExecutionOptionsSchema.optional(),
-    flatStatBuffSemantics: z.literal("canonical-v1").optional()
+    flatStatBuffSemantics: z.literal("canonical-v1").optional(),
+    angularGeometrySemantics: z.literal(ANGULAR_GEOMETRY_SEMANTICS).optional()
   }).superRefine((options, context) => {
     if (options.flatStatBuffSemantics !== undefined && options.compatibilityMode !== "legal-frame-v1") {
       context.addIssue({ code: "custom", path: ["flatStatBuffSemantics"], message: "canonical flat-stat buffs require the legal-frame runtime" });
@@ -1595,6 +1597,8 @@ const simulationRunManifestV142ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -1671,6 +1675,8 @@ const simulationRunManifestV144ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -1744,6 +1750,8 @@ const simulationRunManifestV145ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -1825,6 +1833,8 @@ const simulationRunManifestV146ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -1909,6 +1919,8 @@ const simulationRunManifestV147ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -1998,6 +2010,8 @@ const simulationRunManifestV148ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -2088,6 +2102,8 @@ const simulationRunManifestV149ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -2179,6 +2195,8 @@ const simulationRunManifestV150ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -2266,6 +2284,8 @@ const simulationRunManifestV151ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -2351,6 +2371,8 @@ const simulationRunManifestV152ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const pluginIds = new Set<string>();
     for (const [index, plugin] of manifest.plugins.entries()) {
       if (plugin.order !== index || plugin.index !== index) {
@@ -2449,6 +2471,8 @@ const simulationRunManifestV153ValueSchema = z
   })
   .strict()
   .superRefine((manifest, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     if (manifest.pluginCapabilities.length !== manifest.plugins.length) {
       context.addIssue({
         code: "custom",

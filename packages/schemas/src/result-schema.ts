@@ -2759,6 +2759,8 @@ export const simulationResultV142ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -2918,6 +2920,8 @@ export const simulationResultV144ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -3077,6 +3081,8 @@ export const simulationResultV145ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -3239,6 +3245,8 @@ export const simulationResultV146ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -3401,6 +3409,8 @@ export const simulationResultV147ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -5118,6 +5128,8 @@ export const simulationResultV148ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -5276,6 +5288,8 @@ export const simulationResultV149ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -5559,6 +5573,8 @@ export const simulationResultV150ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -6488,6 +6504,8 @@ export const simulationResultV151ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -6764,6 +6782,8 @@ export const simulationResultV152ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -7338,6 +7358,8 @@ const simulationResultV153LeafSchema = z
 /** New envelope parser supplies positions only after strict witness replay. */
 export function resultValueSchemaWithSteps(stepPositions?:ReactionStepPositions) {
  return simulationResultV153LeafSchema.superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const frozenReferenceView =
       projectV150ResultForFrozenReferenceFacets(
         result as unknown as SimulationResultForV150

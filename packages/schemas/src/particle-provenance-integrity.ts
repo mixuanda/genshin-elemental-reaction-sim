@@ -1,3 +1,4 @@
+import { resolveAngularGeometry, type AngularGeometryMath } from "@genshin-dps-lab/reaction-formulas";
 import { isDeclaredTargetDefeatedMiss } from "./target-health-integrity";
 import type { RefinementCtx } from "zod";
 import { EnergyReplayRandom, replayFavoniusParticleSpawns } from "./energy-replay-integrity";
@@ -314,11 +315,12 @@ function normalizeSignedDegrees(value: number): number {
 function transformActorLocalPoint(
   point: { x: number; y: number },
   actorPosition: { x: number; y: number },
-  actorFacingDegrees: number
+  actorFacingDegrees: number,
+  angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()
 ): { x: number; y: number } {
   const radians = (actorFacingDegrees * Math.PI) / 180;
-  const cosine = Math.cos(radians);
-  const sine = Math.sin(radians);
+  const cosine = angular.cos(radians);
+  const sine = angular.sin(radians);
   return {
     x:
       actorPosition.x +
@@ -338,7 +340,8 @@ function resolveWorldHitGeometry(
         position: { x: number; y: number };
         facingDegrees: number;
       }
-    | undefined
+    | undefined,
+  angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()
 ): ResolvedWorldHitGeometry {
   if ((geometry.coordinateSpace ?? "world") === "world") {
     return {
@@ -358,7 +361,8 @@ function resolveWorldHitGeometry(
       origin: transformActorLocalPoint(
         geometry.origin,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       )
     };
   }
@@ -369,7 +373,8 @@ function resolveWorldHitGeometry(
       origin: transformActorLocalPoint(
         geometry.origin,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       ),
       rotationDegrees: normalizeSignedDegrees(
         geometry.rotationDegrees + actorPose.facingDegrees
@@ -383,12 +388,14 @@ function resolveWorldHitGeometry(
       start: transformActorLocalPoint(
         geometry.start,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       ),
       end: transformActorLocalPoint(
         geometry.end,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       )
     };
   }
@@ -398,7 +405,8 @@ function resolveWorldHitGeometry(
     origin: transformActorLocalPoint(
       geometry.origin,
       actorPose.position,
-      actorPose.facingDegrees
+      actorPose.facingDegrees,
+      angular
     ),
     directionDegrees: normalizeSignedDegrees(
       geometry.directionDegrees + actorPose.facingDegrees
@@ -409,7 +417,8 @@ function resolveWorldHitGeometry(
 function resolveHitGeometry(
   geometry: ResolvedWorldHitGeometry,
   targetPosition: { x: number; y: number },
-  hitboxRadius: number
+  hitboxRadius: number,
+  angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()
 ): {
   landed: boolean;
   distance: number;
@@ -431,8 +440,8 @@ function resolveHitGeometry(
   }
   if (geometry.kind === "rectangle") {
     const radians = (geometry.rotationDegrees * Math.PI) / 180;
-    const cosine = Math.cos(radians);
-    const sine = Math.sin(radians);
+    const cosine = angular.cos(radians);
+    const sine = angular.sin(radians);
     const deltaX = targetPosition.x - geometry.origin.x;
     const deltaY = targetPosition.y - geometry.origin.y;
     const localX = deltaX * cosine + deltaY * sine;
@@ -473,7 +482,7 @@ function resolveHitGeometry(
       };
     }
     const targetDirectionDegrees =
-      (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
+      (angular.atan2(deltaY, deltaX) * 180) / Math.PI;
     const angularDifference = Math.abs(
       normalizeSignedDegrees(
         targetDirectionDegrees - geometry.directionDegrees
@@ -498,10 +507,10 @@ function resolveHitGeometry(
             {
               x:
                 geometry.origin.x +
-                geometry.radius * Math.cos(angleRadians),
+                geometry.radius * angular.cos(angleRadians),
               y:
                 geometry.origin.y +
-                geometry.radius * Math.sin(angleRadians)
+                geometry.radius * angular.sin(angleRadians)
             }
           );
         })
@@ -1522,9 +1531,11 @@ function buildExpectedTargetPlans(
   );
   const geometry = hit.geometry;
   if (geometry !== undefined) {
+    const angular = resolveAngularGeometry(result.resolvedRuntimeOptions.angularGeometrySemantics);
     const resolvedGeometry = resolveWorldHitGeometry(
       geometry,
-      actorPose
+      actorPose,
+      angular
     );
     return targets.map((target) => {
       const targetPosition = resolveTargetPosition(target.id, frame);
@@ -1536,7 +1547,8 @@ function buildExpectedTargetPlans(
       const geometryResolution = resolveHitGeometry(
         resolvedGeometry,
         targetPosition,
-        target.hitboxRadius
+        target.hitboxRadius,
+        angular
       );
       return resolveExpectedDirectTargetPlan({
         result,

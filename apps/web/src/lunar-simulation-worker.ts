@@ -1,6 +1,7 @@
 import { captureSpecialSimulation, parseSpecialSimulation, runSpecialSimulation, type SpecialSimulationRequest } from "@genshin-dps-lab/sim-core";
 import { applyExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
 import type { LunarWorkerRequest, LunarWorkerResponse, LunarExecutionBaselineAudit } from "./lunar-simulation-panel";
+import { newSimulationOptions } from "./new-simulation-options";
 
 const scope = globalThis as unknown as {
   onmessage: ((event: MessageEvent<LunarWorkerRequest>) => void) | null;
@@ -15,21 +16,25 @@ scope.onmessage = (event): void => {
       return;
     }
     if (request.type !== "run") return;
+    // Only a new run adopts the current angular profile. Saved captures above
+    // are replayed with their own recorded options, including historical absence.
+    const options = newSimulationOptions(request.options);
     let executionBaseline: LunarExecutionBaselineAudit | undefined;
     if (request.executionBaseline !== undefined) {
       const baseline = request.executionBaseline;
-      const { config: appliedConfig, profile, ...audit } = applyExecutionProfile(baseline.sourceConfig, baseline.profile, baseline.options);
+      const baselineOptions = newSimulationOptions(baseline.options);
+      const { config: appliedConfig, profile, ...audit } = applyExecutionProfile(baseline.sourceConfig, baseline.profile, baselineOptions);
       const originalCommandCount = baseline.sourceConfig.timeline!.commands.length;
       // Only the original commands receive profile delays. Source cleanse was
       // appended after baseline application in the previous UI path, so its
       // explicitly supplied final request frame remains unchanged.
       request.config.timeline!.commands = [...appliedConfig.timeline!.commands, ...request.config.timeline!.commands.slice(originalCommandCount)];
-      executionBaseline = { ...baseline, profile, audit };
+      executionBaseline = { ...baseline, options: baselineOptions, profile, audit };
     }
     const specialRequest: SpecialSimulationRequest = {
       profile: request.profile,
       config: request.config,
-      options: request.options,
+      options,
       party: request.party,
       ...(request.artifactOptions === undefined ? {} : {
         artifacts: request.artifactOptions.artifacts,

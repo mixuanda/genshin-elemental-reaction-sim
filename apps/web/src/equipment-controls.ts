@@ -211,7 +211,16 @@ export function mountEquipmentControls(container: HTMLElement, options: Equipmen
       const resolution = resolveEquipmentBuild(input, options.dataset);
       options.onResolve(resolution);
       if (input !== entered) setInput(input);
-      status(`已应用 ${resolution.characterName} / ${resolution.weaponName}，${resolution.build.equipment.artifacts?.length ?? 0} 件圣遗物。词条逐项计入；来源、强化档位和适用效果见计算轨迹。未实现条款已列出并停用。`);
+      const equipment = resolution.build.equipment;
+      const pendingCount = new Set([
+        ...(equipment.pendingHitEffects ?? []),
+        ...(equipment.pendingReactionEffects ?? []),
+        ...(equipment.pendingResistanceEffects ?? [])
+      ].map(effect => effect.id)).size;
+      const conditions = pendingCount
+        ? `另有 ${pendingCount} 项效果条件未填写；受影响的招式需补齐上方条件后计算。`
+        : "词条已计入当前面板。";
+      status(`已应用 ${resolution.characterName} / ${resolution.weaponName}，${equipment.artifacts?.length ?? 0} 件圣遗物。${conditions}`);
     } catch (error) { status(error instanceof Error ? error.message : String(error), true); }
   });
 

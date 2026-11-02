@@ -104,11 +104,25 @@ test("reviewed source resource and resistance formulas, final panels and indepen
   const previous = await audit(page);
   await expect(page.locator('[data-equipment-elements-state="setBuffElements"]')).toHaveValue("unknown");
   await (await revealControl(page.locator("[data-equipment-apply]"))).click();
-  await expect(page.locator("[data-equipment-status]")).toContainText("setBuffElements");
-  expect((await audit(page)).document).toEqual(previous.document);
+  // Pure hit bonuses now retain missing conditions on the applicable hit.
+  // Applying the base equipment is allowed; calculating this electro hit is
+  // still forbidden until both independent Cinder windows are explicit.
+  const unknown = await audit(page);
+  await expect(page.locator("[data-equipment-status]")).toContainText("2 项效果条件未填写");
+  expect(unknown.document.build.mode).toBe("equipment-derived");
+  expect(unknown.document.gameContext).toEqual(previous.document.gameContext);
+  expect(unknown.document.enemy).toEqual(previous.document.enemy);
+  expect(unknown.result.status).toBe("blocked");
+  expect(unknown.result.totals).toBeUndefined();
+  for (const key of ["setBuffElements", "setExtraBuffElements"]) {
+    expect(unknown.result.blockers.join(";")).toContain(key);
+    await expect(page.locator("#calc-results")).toContainText(key);
+  }
   for (const key of ["setBuffElements", "setExtraBuffElements"]) await (await revealControl(page.locator(`[data-equipment-elements-state="${key}"]`))).selectOption("known");
   await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const empty = await audit(page);
+  await expect(page.locator("[data-equipment-status]")).toContainText("词条已计入当前面板");
+  await expect(page.locator("[data-equipment-status]")).not.toContainText("条件未填写");
   expect(empty.document.build.mode).toBe("equipment-derived");
   expect(hitValue(empty.result, "applicableDamageBonus")).toBeCloseTo(0.2, 12);
   await (await revealControl(page.locator('[data-equipment-elements="setBuffElements"] [data-equipment-element="electro"]'))).check();

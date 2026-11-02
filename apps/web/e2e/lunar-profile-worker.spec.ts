@@ -71,7 +71,7 @@ test("lunar Worker applies the original runtime profile once and preserves an ap
   expect(baseline.sourceConfig.reactionEngine).toBeUndefined();
   expect(baseline.sourceConfig.timeline!.commands).toHaveLength(4);
   // Explicit Run creates a new legal-frame calculation; it does not rewrite a stored historical result.
-  expect(baseline.options).toEqual({ ...runtimeOptions, compatibilityMode: "legal-frame-v1" });
+  expect(baseline.options).toEqual({ ...runtimeOptions, compatibilityMode: "legal-frame-v1", angularGeometrySemantics: "fdlibm-angular-v1" });
   expect(baseline.audit.baselineRuntimeOptions).toMatchObject({ randomSeed: seed, energyMode: "configured", critMode: "noCrit" });
   expect(baseline.audit.changes.map(row => [row.originalStartTick, row.requestedTick, row.addedDelayFrames])).toEqual([[0, 1, 1], [5, 7, 1], [6, 9, 1], [153, 157, 1]]);
   expect(report.request.profile).toBe("lunar-bloom");

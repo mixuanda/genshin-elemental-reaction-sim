@@ -22,6 +22,9 @@ test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Stateful weapon procs remain independent single hits with editable panels, source conflict notes and complete formula explanations", async ({ page }) => {
   await page.goto("/calculator");
   const weapon = page.locator("#calc-proc-weapon");
+  // The application mounts after navigation; inspect the attached control,
+  // then use its native disclosure instead of racing evaluateAll on no nodes.
+  await revealControl(weapon);
   // Exact supported independent-proc identity set, not an inferred dynamic count.
   expect(await weapon.locator("option").evaluateAll(options => options.map(option => (option as HTMLOptionElement).value))).toEqual([
     "halberd", "ashgravendrinkinghorn", "sequenceofsolitude", "filletblade", "prototypearchaic", "snowtombedstarsilver", "dragonspinespear", "frostbearer", "flute", "debateclub", "crescentpike", "endoftheline", "messenger", "swordofnarzissenkreuz", "eyeofperception", "theviridescenthunt",

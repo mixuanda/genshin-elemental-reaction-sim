@@ -815,7 +815,29 @@ function compareCodeUnits(left: string, right: string): number {
 
 function cleanGaugeUnits(value: number): number {
   if (Math.abs(value) <= AURA_EPSILON) return 0;
+  // A binary fraction with at most 12 fractional bits has at most 12 decimal
+  // places already. Multiplication by 2^12 is exact when finite; all other
+  // values retain the original decimal conversion, including non-finite input.
+  if (typeof value === "number" && Number.isInteger(value * 4096)) return value;
   return Number(value.toFixed(12));
+}
+
+/** Fresh engine-owned owner slots, with the same canonical code-unit order. */
+function snapshotSourceSlots(
+  sourceSlots: ReadonlyMap<string, number>
+): NonNullable<AuraStateEntry["sourceSlots"]> {
+  const result: NonNullable<AuraStateEntry["sourceSlots"]> = [];
+  for (const [sourceActorId, gaugeUnits] of sourceSlots) {
+    if (gaugeUnits > AURA_EPSILON) {
+      result.push({ sourceActorId, gaugeUnits: cleanGaugeUnits(gaugeUnits) });
+    }
+  }
+  if (result.length > 1) {
+    result.sort((left, right) =>
+      compareCodeUnits(left.sourceActorId, right.sourceActorId)
+    );
+  }
+  return result;
 }
 
 function remainingDecayFrames(
@@ -2434,12 +2456,17 @@ export class AuraEngine {
   }
 
   private snapshot(): AuraStateEntry[] {
-    return [...this.auras.values()]
-      .filter((aura) => aura.gaugeUnits > AURA_EPSILON)
-      .sort((left, right) =>
+    const activeAuras: MutableAura[] = [];
+    for (const aura of this.auras.values()) {
+      if (aura.gaugeUnits > AURA_EPSILON) activeAuras.push(aura);
+    }
+    if (activeAuras.length > 1) {
+      activeAuras.sort((left, right) =>
         compareCodeUnits(left.element, right.element)
-      )
-      .map((aura) => {
+      );
+    }
+    const result: AuraStateEntry[] = [];
+    for (const aura of activeAuras) {
         const expiresAtFrame =
           aura.element === "burningFuel"
             ? this.burningFuelExpiryFrame()
@@ -2492,7 +2519,7 @@ export class AuraEngine {
                         )
                       )
                     : null;
-        return {
+        result.push({
           element: aura.element,
           gaugeUnits: cleanGaugeUnits(aura.gaugeUnits),
           expiresAtFrame,
@@ -2509,21 +2536,11 @@ export class AuraEngine {
           ...(aura.sourceSlots === undefined
             ? {}
             : {
-                sourceSlots: [...aura.sourceSlots]
-                  .filter(
-                    ([, gaugeUnits]) =>
-                      gaugeUnits > AURA_EPSILON
-                  )
-                  .sort(([left], [right]) =>
-                    compareCodeUnits(left, right)
-                  )
-                  .map(([sourceActorId, gaugeUnits]) => ({
-                    sourceActorId,
-                    gaugeUnits: cleanGaugeUnits(gaugeUnits)
-                  }))
+                sourceSlots: snapshotSourceSlots(aura.sourceSlots)
               })
-        };
-      });
+        });
+    }
+    return result;
   }
 
   private hasElectroChargedAuras(): boolean {

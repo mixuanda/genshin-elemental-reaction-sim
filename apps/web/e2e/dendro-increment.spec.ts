@@ -30,7 +30,7 @@ async function neferInput(page: Page, hitIndex: number, path: "damageBonusFormul
   const formula = path === "elementalMasteryAdjustment.formula" ? hit.elementalMasteryAdjustment!.formula : hit[path]!;
   const index = formula.inputs.findIndex(input => input.key === key);
   expect(index).toBeGreaterThanOrEqual(0);
-  return page.locator(`[data-field="hits.${hitIndex}.${path}.inputs.${index}.value"]`);
+  return revealControl(page.locator(`[data-field="hits.${hitIndex}.${path}.inputs.${index}.value"]`));
 }
 
 function perHitValues(result: CalculatorResult, id: string): number[] {
@@ -101,7 +101,7 @@ test("Nefer C2 and C4 keep per-hit EM accounting and sourced resistance through 
   expect(restored.document.hits.map(hit => hit.kind === "ordinary" && hit.elementalMasteryAdjustment?.accounting)).toEqual(["add-to-panel", "add-to-panel"]);
 });
 
-test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources with complete hit replays", async ({ page }) => {
+async function runMixedV2Scenario(page: Page) {
   const expected = JSON.parse(await readFile(new URL("../../../docs/fixtures/lunar-mixed-v2-reference.synthetic.expected.json", import.meta.url), "utf8")) as {
     sourceAbilityRequest: { actorId: string; atFrame: number; talentLevel: number; ascension: number; constellation: number };
     options: { party: { actorId: string; characterKey: string }[]; abilities: unknown[] };
@@ -141,9 +141,22 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
   if (report.result.schemaVersion !== "lunar-mixed-simulation-v2") throw new Error("Expected mixed-v2 result");
   expect(await page.evaluate(() => window.GenshinDpsLab.getConfig())).toEqual(original);
   const result = report.result;
+  return { expected, original, report, reportWire, result };
+}
+
+test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources with ordinary hit replay", async ({ page }) => {
+  const { expected, result } = await runMixedV2Scenario(page);
   expect(result.schemaVersion).toBe("lunar-mixed-simulation-v2");
   expect(result.baseResult.config.reactionEngine?.mode).toBe("aura-v7");
-  expect(result.profile).toEqual(expected.profile);
+  // This archived fixture predates two source-scope clarifications. Adapt only
+  // those exact prose entries; every numeric, ordering and ownership oracle
+  // below remains unchanged, as does the fixture file itself.
+  const scopeClarifications: Record<string, string> = {
+    "LC/LCrys专属加成为显式0/1；Moondew执行来源月兆HP提升，其他未建模角色效果不自动启用。": "除显式选择的月曜圣遗物条款外，LC/LCrys专属加成为显式0/1；Moondew执行来源月兆HP提升，其他未建模角色效果不自动启用。",
+    "固定来源参考，未声明当前游戏实测；火冰风/Stellar、多目标、玩家受伤与特殊随机暴击未接入。": "固定来源参考，未声明当前游戏实测；火冰风/Stellar、多目标、玩家受伤与特殊暴击后的被动反馈未接入。"
+  };
+  for (const prior of Object.keys(scopeClarifications)) expect(expected.profile.assumptions.filter(value => value === prior)).toHaveLength(1);
+  expect(result.profile).toEqual({ ...expected.profile, assumptions: expected.profile.assumptions.map(value => scopeClarifications[value] ?? value) });
   for (const key of ["totalDamage", "classicDamage", "lunarChargedDamage", "lunarCrystallizeDamage", "lunarBloomDamage"] as const) expect(result[key]).toBeCloseTo(expected[key], 8);
   expect(result.totalDamage).toBe(result.classicDamage + result.lunarChargedDamage + result.lunarCrystallizeDamage + result.lunarBloomDamage);
   expect(result.specialDamageEvents.map(event => ({ id: event.id, kind: event.kind, branch: event.kind === "reaction" ? event.intent.branch : "lunar-bloom-direct", frame: event.frame, damage: event.damage, executionOrder: event.executionOrder }))).toEqual(expected.specialEvents);
@@ -181,8 +194,15 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
   expect(capture.eventId).toBe(ordinary.id);
   expect(capture.sourceResult).toEqual(result.baseResult);
   await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
-  // One saved run supplies every special replay, including all three direct hits.
-  for (const [index, event] of result.specialDamageEvents.entries()) {
+});
+
+for (const kind of ["reaction", "direct-ability"] as const) test(`mixed v2 restores every ${kind} hit from one saved run through the calculator`, async ({ page }) => {
+  const { result } = await runMixedV2Scenario(page);
+  // Distinct user flows share the same fixed input/seed. Each keeps the
+  // original 30-second budget and checks every event of its mechanism kind.
+  const events = result.specialDamageEvents.filter(event => event.kind === kind);
+  expect(events).toHaveLength(kind === "reaction" ? 4 : 3);
+  for (const [index, event] of events.entries()) {
     await (await revealControl(page.locator(`[data-lunar-event="${event.id}"] > summary`))).click();
     await expect(page.locator(`[data-lunar-execution-order="${event.id}"]`)).toContainText(`frame ${event.executionOrder.frame} · priority ${event.executionOrder.priority} · sequence ${event.executionOrder.sequence}`);
     await (await revealControl(page.locator(`[data-lunar-open-calculator="${event.id}"]`))).click();
@@ -192,7 +212,7 @@ test("mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources wi
     expect(hit.kind === "special" && hit.context).toEqual(event.context);
     expect(replay.result.totals?.expected).toBeCloseTo(event.damage, 8);
     expect(replay.result.verification).toBe("provisional");
-    if (index < result.specialDamageEvents.length - 1) await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+    if (index < events.length - 1) await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
   }
 });
 

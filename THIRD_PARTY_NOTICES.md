@@ -95,3 +95,35 @@ pinned by `package-lock.json`. The generated records remain
 `verificationStatus: "provisional"` and `simulationStatus: "metadata-only"`
 because community/datamined numbers do not by themselves verify frames, ICD,
 Aura, target rules, particles, snapshots or special mechanics.
+
+## fdlibm angular algorithms
+
+`packages/reaction-formulas/src/deterministic-angular.ts` adapts the sine,
+cosine, pi/2 reduction, arctangent and quadrant algorithms from
+[fdlibm 5.3](https://netlib.org/fdlibm/readme). The original notice is retained
+in that source file. Source URLs and SHA-256 values are recorded in
+[`docs/validation/fdlibm-angular-sources.json`](./docs/validation/fdlibm-angular-sources.json).
+The web distribution includes the notice at
+[`apps/web/public/licenses/fdlibm-Sun.txt`](./apps/web/public/licenses/fdlibm-Sun.txt).
+This entry does not change the repository's root licence.
+
+Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+
+Developed at SunSoft, a Sun Microsystems, Inc. business.
+Permission to use, copy, modify, and distribute this
+software is freely granted, provided that this notice
+is preserved.
+
+## Zod runtime validation
+
+- Project: [colinhacks/zod](https://github.com/colinhacks/zod)
+- Pinned npm package: `zod@4.6.6`
+- Published source revision: `284243fb0d6532665afdc9239188773bb624f73c`
+- License: MIT; unchanged from the previously pinned `4.4.3` package.
+- Copyright: Copyright (c) 2025 Colin McDonnell
+- Web distribution notice: [`apps/web/public/licenses/zod-MIT.txt`](./apps/web/public/licenses/zod-MIT.txt)
+
+The package provides runtime configuration and saved-result validation. Its
+copyright and permission notice are retained with the web artifact. This
+dependency update does not change the repository's root licence or the
+separate Classic and Stellar engine licence scopes.
