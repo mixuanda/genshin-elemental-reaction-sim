@@ -1,0 +1,230 @@
+{
+  "schema": "iansan-120-kinich-recharge-comparison-v1",
+  "candidateId": "iansan-kaeya-favonius-recharge-20261023",
+  "status": "passed-bounded-single-seed-full-Q",
+  "equipmentProducerCommit": "e49f9d353bf85b7a2d3e0bf8e66cf5befd400896",
+  "baselineCommit": "8b7b1a86cd1497dc3ba73ccb5ad3add0aa8fb9b5",
+  "nativeExecutionsForCandidate": 1,
+  "identity": {
+    "native": {
+      "sha256": "ccc8679e75e433bc7d9570ab94151b104a4434762b57e72508073773da6bb99e",
+      "bytes": 8538053
+    },
+    "result": {
+      "sha256": "46bd31ca0d7f577f8869c68c21776d86dd60c060a0f26bbe910e6c1d3fd3e466",
+      "bytes": 8562220
+    },
+    "requestSha256": "e9a3524c097cf110faad849a444680d27a032d633299a27f07bd0faa0cbb1413",
+    "wasmSha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+    "seed": "20261023"
+  },
+  "captureDirectory": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge",
+  "result": {
+    "name": "run.result.json",
+    "bytes": 8562220,
+    "sha256": "46bd31ca0d7f577f8869c68c21776d86dd60c060a0f26bbe910e6c1d3fd3e466"
+  },
+  "native": {
+    "name": "run.native.json",
+    "bytes": 8538053,
+    "sha256": "ccc8679e75e433bc7d9570ab94151b104a4434762b57e72508073773da6bb99e"
+  },
+  "trace": {
+    "name": "run.formula-replay.ndjson",
+    "bytes": 599564320,
+    "sha256": "0e830030a0d98441028a3a56110fd3e49138762e2917288bbdbaf232b32a37ce",
+    "origin": "offline-same-native-request-replay",
+    "format": "NDJSON; stream lines, never parse the complete file as one JSON value"
+  },
+  "completeFile": {
+    "path": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge/run.complete.json",
+    "sha256": "305cd8c3001caa5b5005aa9565239ae16101e019fcd5b1941fabbc9581ded55e"
+  },
+  "independentAudit": {
+    "path": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge/independent-audit.json",
+    "sha256": "a46cc99f324a2ccb66f92746110a315bc00d48190be194ba9447b2c93f176fb3"
+  },
+  "initialPostprocessingFailure": {
+    "path": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge-native-run.log",
+    "sha256": "d01c86a63bc876e75de2a174bffc744809182437ecf39eef2faeba5b1dd6980b",
+    "message": "RangeError: Invalid string length while serializing callback array after native completed; no repeated simulation"
+  },
+  "offlineRecoveryLog": {
+    "path": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge-offline-recovery.log",
+    "sha256": "67fbb4653c0633fb803144f519bd3af74dc5608a7ef7e6280b551eed6e9eae94",
+    "testsPassed": 1
+  },
+  "verification": {
+    "candidatePreflightAndStreamingTests": 6,
+    "originalBaselineAuditTestsRetained": 9,
+    "baselineWithCritBoundaryTests": 10,
+    "candidateOfflineNegativeTests": 4,
+    "nativeBasePanelsChecked": 665,
+    "energyWrites": 130,
+    "particleAmountFormulas": 88,
+    "cooldownChecks": 36,
+    "QDecisions": 12,
+    "allIntendedQ": true,
+    "missedQ": []
+  },
+  "panels": {
+    "iansan": {
+      "energyRecharge": 2.537068198,
+      "rawCritRate": 1.0028,
+      "critRate": 1,
+      "baseAttack": 821.78432472,
+      "atkPercent": 1.2307000000000001,
+      "flatAttack": 349.9,
+      "rolls": 45
+    },
+    "kaeya": {
+      "energyRecharge": 2.805331802,
+      "rawCritRate": 1.0028,
+      "critRate": 1,
+      "baseAttack": 677.3802041000001,
+      "atkPercent": 0.8162,
+      "flatAttack": 330.45,
+      "rolls": 45
+    }
+  },
+  "energyReconciliation": [
+    {
+      "actor": "iansan",
+      "startup": 70,
+      "actuallyReceived": 420.0,
+      "actuallySpent": 420,
+      "final": 70
+    },
+    {
+      "actor": "kaeya",
+      "startup": 60,
+      "actuallyReceived": 360.0,
+      "actuallySpent": 360,
+      "final": 60
+    }
+  ],
+  "C1": [
+    {
+      "actor": "iansan",
+      "source": "iansan-c1",
+      "operation": "flat-change",
+      "requested": 90.0,
+      "credited": 90.0,
+      "wasted": 0.0,
+      "events": 6
+    }
+  ],
+  "favonius": {
+    "procs": 21,
+    "perActor": {
+      "iansan": 6,
+      "kaeya": 15
+    },
+    "qualification": "Every observed proc links a real positive critical hit, current on-field owner, expired actual hitlag-extended R5 CD, event listener, particle-delivery task and actual energy writes. No scheduled free particles."
+  },
+  "c4BeforeQ": {
+    "observations": [
+      {
+        "phaseFrame": 1,
+        "actualBurstFrame": 1,
+        "observedPointsOverflow": 0,
+        "observedC4Stacks": 0,
+        "observedMovementBuffer": 0,
+        "interveningNightsoulMutationCount": 0
+      },
+      {
+        "phaseFrame": 1228,
+        "actualBurstFrame": 1237,
+        "observedPointsOverflow": 0,
+        "observedC4Stacks": 0,
+        "observedMovementBuffer": 0,
+        "interveningNightsoulMutationCount": 0
+      },
+      {
+        "phaseFrame": 2410,
+        "actualBurstFrame": 2417,
+        "observedPointsOverflow": 0,
+        "observedC4Stacks": 0,
+        "observedMovementBuffer": 0,
+        "interveningNightsoulMutationCount": 0
+      },
+      {
+        "phaseFrame": 3607,
+        "actualBurstFrame": 3614,
+        "observedPointsOverflow": 0,
+        "observedC4Stacks": 0,
+        "observedMovementBuffer": 0,
+        "interveningNightsoulMutationCount": 0
+      },
+      {
+        "phaseFrame": 4804,
+        "actualBurstFrame": 4811,
+        "observedPointsOverflow": 0,
+        "observedC4Stacks": 0,
+        "observedMovementBuffer": 0,
+        "interveningNightsoulMutationCount": 0
+      },
+      {
+        "phaseFrame": 6001,
+        "actualBurstFrame": 6008,
+        "observedPointsOverflow": 0,
+        "observedC4Stacks": 0,
+        "observedMovementBuffer": 0,
+        "interveningNightsoulMutationCount": 0
+      }
+    ],
+    "scope": "Directly visible pre-Q private fields and unchanged intervening resource logs in this no-movement axis only. Does not resolve the general cross-marker overflow-return rule."
+  },
+  "damage": {
+    "hits": 246,
+    "totalDamage": 798971.2144022143,
+    "dps": 6658.093453351786,
+    "perActor": {
+      "iansan": 189461.63667119577,
+      "kaeya": 609509.577731019
+    },
+    "handHit": {
+      "calculationId": 42,
+      "frame": 207,
+      "baseAttack": 821.78432472,
+      "nonExtraAttack": 2347.4111580969043,
+      "qUpdateCalculationId": 41,
+      "qUpdateFrame": 201,
+      "qUpdatePoints": 43.599999999999966,
+      "qAddedAttack": 633.8010126861642,
+      "finalAttack": 2981.2121707830684,
+      "normal10Coefficient": 1.6643,
+      "damageBonus": 0.25,
+      "defense": 0.5,
+      "resistance": 0.9,
+      "crit": true,
+      "expected": 4186.376507110157,
+      "actual": 4186.376507110156
+    }
+  },
+  "activity": {
+    "secondsWithAtLeastOneHit": 112,
+    "phaseHits": [
+      40,
+      41,
+      41,
+      41,
+      41,
+      42
+    ]
+  },
+  "baselinePreserved": {
+    "offlineRecheck": "/tmp/GIDPS-iansan-120-evidence-20261023/baseline-after-candidate-adapter.audit.json",
+    "sha256": "3613b1e615ca8f2f9022f2aeba8f4d55ddb7e0de010a94ed277c891b5d759732",
+    "hits": 208,
+    "totalDamage": 76605.56459049942,
+    "missedQ": 7
+  },
+  "critBoundaryContract": "<= matches pinned enemy/damage.go and existing shared formula/capture contract; explicit original5% below/equal/above and false-critical-above negatives retained.",
+  "steadyStateProven": false,
+  "limits": [
+    "One source-backed legal hypothetical equipment candidate, one seed and full energy once; not a player inventory or stochastic/steady-state guarantee.",
+    "The actual native execution is retained unchanged. Initial giant callback-array serialization failed; complete result/trace were finalized offline, not with a second simulation.",
+    "Trace is replay NDJSON and must be streamed; geometry, particle RNG and general C4 cross-marker semantics were not independently rerun."
+  ]
+}

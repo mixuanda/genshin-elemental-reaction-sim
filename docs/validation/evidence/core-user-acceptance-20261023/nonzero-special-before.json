@@ -1,0 +1,155 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/GIDPS-cloud/player-import-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "apps/web/e2e/lunar-special-capture.spec.ts",
+      "--config",
+      "/tmp/GIDPS-core-acceptance-20261023/playwright.config.mjs",
+      "--grep",
+      "special result capture roundtrips",
+      "--workers",
+      "1",
+      "--reporter=json"
+    ],
+    "configFile": "/tmp/GIDPS-core-acceptance-20261023/playwright.config.mjs",
+    "rootDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/GIDPS-core-acceptance-20261023/nonzero-special-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "lunar-special-capture.spec.ts",
+      "file": "lunar-special-capture.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "special result capture roundtrips through the normal page and rejects a changed complete result",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8948,
+                  "error": {
+                    "message": "Error: Read-only re-export must preserve identity provenance, configuration changes and original JSON.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[33m@@ -8024,30 +8024,26 @@\u001b[39m\n\u001b[2m          \"constellation\": 0,\u001b[22m\n\u001b[2m          \"sourceAbilityId\": \"ui-moondew-cleanse\",\u001b[22m\n\u001b[2m          \"talentLevel\": 10\u001b[22m\n\u001b[2m        }\u001b[22m\n\u001b[2m      ],\u001b[22m\n\u001b[32m-     \"explicitConfigurationChanges\": [\u001b[39m\n\u001b[32m-       \"用户明确加入来源月露涤荡 ui-moondew-cleanse；仅修改运行副本，原配置未改。最终请求帧已在主工作区执行配置之后给出，不重复应用其延迟。新增指令：{\\\"type\\\":\\\"charge\\\",\\\"actorId\\\":\\\"c\\\",\\\"abilityId\\\":\\\"ui-moondew-cleanse\\\",\\\"atFrame\\\":160}；来源能力：{\\\"id\\\":\\\"ui-moondew-cleanse\\\",\\\"actorId\\\":\\\"c\\\",\\\"name\\\":\\\"月露涤荡 · 完整闲置起手\\\",\\\"kind\\\":\\\"charge\\\",\\\"cancelFrame\\\":124,\\\"animationEndFrame\\\":124,\\\"cooldownFrames\\\":0,\\\"hits\\\":[]}。\",\u001b[39m\n\u001b[32m-       \"本次专属运行明确选择 legal-frame-v1 整数帧调度；原全局运行选项 legal-frame-v1 未修改。\"\u001b[39m\n\u001b[32m-     ],\u001b[39m\n\u001b[31m+     \"explicitConfigurationChanges\": [],\u001b[39m\n\u001b[2m      \"identityMappings\": [\u001b[22m\n\u001b[2m        {\u001b[22m\n\u001b[2m          \"actorElement\": \"hydro\",\u001b[22m\n\u001b[2m          \"actorId\": \"c\",\u001b[22m\n\u001b[2m          \"actorName\": \"A\",\u001b[22m\n\u001b[2m          \"characterKey\": \"columbina\",\u001b[22m\n\u001b[2m          \"evidence\": \"user-conditioned\",\u001b[22m\n\u001b[32m-         \"reason\": \"用户明确选择身份 columbina；仅作为本次转换资格条件，未修改配置面板或天赋。\"\u001b[39m\n\u001b[31m+         \"reason\": \"完整捕获保存的本次角色身份键：columbina；仅恢复原运行输入。\"\u001b[39m\n\u001b[2m        },\u001b[22m\n\u001b[2m        {\u001b[22m\n\u001b[2m          \"actorElement\": \"dendro\",\u001b[22m\n\u001b[2m          \"actorId\": \"d\",\u001b[22m\n\u001b[2m          \"actorName\": \"A\",\u001b[22m\n\u001b[2m          \"characterKey\": \"nahida\",\u001b[22m\n\u001b[2m          \"evidence\": \"user-conditioned\",\u001b[22m\n\u001b[32m-         \"reason\": \"用户明确选择身份 nahida；仅作为本次转换资格条件，未修改配置面板或天赋。\"\u001b[39m\n\u001b[31m+         \"reason\": \"完整捕获保存的本次角色身份键：nahida；仅恢复原运行输入。\"\u001b[39m\n\u001b[2m        }\u001b[22m\n\u001b[2m      ]\u001b[22m\n\u001b[2m    }\u001b[22m\n\u001b[2m  }\u001b[22m\n\u001b[32m-\u001b[39m",
+                    "stack": "Error: Read-only re-export must preserve identity provenance, configuration changes and original JSON.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[33m@@ -8024,30 +8024,26 @@\u001b[39m\n\u001b[2m          \"constellation\": 0,\u001b[22m\n\u001b[2m          \"sourceAbilityId\": \"ui-moondew-cleanse\",\u001b[22m\n\u001b[2m          \"talentLevel\": 10\u001b[22m\n\u001b[2m        }\u001b[22m\n\u001b[2m      ],\u001b[22m\n\u001b[32m-     \"explicitConfigurationChanges\": [\u001b[39m\n\u001b[32m-       \"用户明确加入来源月露涤荡 ui-moondew-cleanse；仅修改运行副本，原配置未改。最终请求帧已在主工作区执行配置之后给出，不重复应用其延迟。新增指令：{\\\"type\\\":\\\"charge\\\",\\\"actorId\\\":\\\"c\\\",\\\"abilityId\\\":\\\"ui-moondew-cleanse\\\",\\\"atFrame\\\":160}；来源能力：{\\\"id\\\":\\\"ui-moondew-cleanse\\\",\\\"actorId\\\":\\\"c\\\",\\\"name\\\":\\\"月露涤荡 · 完整闲置起手\\\",\\\"kind\\\":\\\"charge\\\",\\\"cancelFrame\\\":124,\\\"animationEndFrame\\\":124,\\\"cooldownFrames\\\":0,\\\"hits\\\":[]}。\",\u001b[39m\n\u001b[32m-       \"本次专属运行明确选择 legal-frame-v1 整数帧调度；原全局运行选项 legal-frame-v1 未修改。\"\u001b[39m\n\u001b[32m-     ],\u001b[39m\n\u001b[31m+     \"explicitConfigurationChanges\": [],\u001b[39m\n\u001b[2m      \"identityMappings\": [\u001b[22m\n\u001b[2m        {\u001b[22m\n\u001b[2m          \"actorElement\": \"hydro\",\u001b[22m\n\u001b[2m          \"actorId\": \"c\",\u001b[22m\n\u001b[2m          \"actorName\": \"A\",\u001b[22m\n\u001b[2m          \"characterKey\": \"columbina\",\u001b[22m\n\u001b[2m          \"evidence\": \"user-conditioned\",\u001b[22m\n\u001b[32m-         \"reason\": \"用户明确选择身份 columbina；仅作为本次转换资格条件，未修改配置面板或天赋。\"\u001b[39m\n\u001b[31m+         \"reason\": \"完整捕获保存的本次角色身份键：columbina；仅恢复原运行输入。\"\u001b[39m\n\u001b[2m        },\u001b[22m\n\u001b[2m        {\u001b[22m\n\u001b[2m          \"actorElement\": \"dendro\",\u001b[22m\n\u001b[2m          \"actorId\": \"d\",\u001b[22m\n\u001b[2m          \"actorName\": \"A\",\u001b[22m\n\u001b[2m          \"characterKey\": \"nahida\",\u001b[22m\n\u001b[2m          \"evidence\": \"user-conditioned\",\u001b[22m\n\u001b[32m-         \"reason\": \"用户明确选择身份 nahida；仅作为本次转换资格条件，未修改配置面板或天赋。\"\u001b[39m\n\u001b[31m+         \"reason\": \"完整捕获保存的本次角色身份键：nahida；仅恢复原运行输入。\"\u001b[39m\n\u001b[2m        }\u001b[22m\n\u001b[2m      ]\u001b[22m\n\u001b[2m    }\u001b[22m\n\u001b[2m  }\u001b[22m\n\u001b[32m-\u001b[39m\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts:69:142",
+                    "location": {
+                      "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts",
+                      "column": 142,
+                      "line": 69
+                    },
+                    "snippet": "  67 |   await expect(page.locator('[data-testid=\"lunar-total-damage\"]')).toHaveText(expectedTotal!);\n  68 |   expect(await page.locator(\"[data-lunar-event]\").evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.lunarEvent))).toEqual(expectedEventIds);\n> 69 |   expect(await downloadCaptureJson(page), \"Read-only re-export must preserve identity provenance, configuration changes and original JSON.\").toBe(savedJson);\n     |                                                                                                                                              ^\n  70 |\n  71 |   const changed = JSON.parse(JSON.stringify(capture)) as UiCapture<LunarBloomSimulationResult>;\n  72 |   changed.result.specialDamageEvents[0]!.damage += 1;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts",
+                        "column": 142,
+                        "line": 69
+                      },
+                      "message": "Error: Read-only re-export must preserve identity provenance, configuration changes and original JSON.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[33m@@ -8024,30 +8024,26 @@\u001b[39m\n\u001b[2m          \"constellation\": 0,\u001b[22m\n\u001b[2m          \"sourceAbilityId\": \"ui-moondew-cleanse\",\u001b[22m\n\u001b[2m          \"talentLevel\": 10\u001b[22m\n\u001b[2m        }\u001b[22m\n\u001b[2m      ],\u001b[22m\n\u001b[32m-     \"explicitConfigurationChanges\": [\u001b[39m\n\u001b[32m-       \"用户明确加入来源月露涤荡 ui-moondew-cleanse；仅修改运行副本，原配置未改。最终请求帧已在主工作区执行配置之后给出，不重复应用其延迟。新增指令：{\\\"type\\\":\\\"charge\\\",\\\"actorId\\\":\\\"c\\\",\\\"abilityId\\\":\\\"ui-moondew-cleanse\\\",\\\"atFrame\\\":160}；来源能力：{\\\"id\\\":\\\"ui-moondew-cleanse\\\",\\\"actorId\\\":\\\"c\\\",\\\"name\\\":\\\"月露涤荡 · 完整闲置起手\\\",\\\"kind\\\":\\\"charge\\\",\\\"cancelFrame\\\":124,\\\"animationEndFrame\\\":124,\\\"cooldownFrames\\\":0,\\\"hits\\\":[]}。\",\u001b[39m\n\u001b[32m-       \"本次专属运行明确选择 legal-frame-v1 整数帧调度；原全局运行选项 legal-frame-v1 未修改。\"\u001b[39m\n\u001b[32m-     ],\u001b[39m\n\u001b[31m+     \"explicitConfigurationChanges\": [],\u001b[39m\n\u001b[2m      \"identityMappings\": [\u001b[22m\n\u001b[2m        {\u001b[22m\n\u001b[2m          \"actorElement\": \"hydro\",\u001b[22m\n\u001b[2m          \"actorId\": \"c\",\u001b[22m\n\u001b[2m          \"actorName\": \"A\",\u001b[22m\n\u001b[2m          \"characterKey\": \"columbina\",\u001b[22m\n\u001b[2m          \"evidence\": \"user-conditioned\",\u001b[22m\n\u001b[32m-         \"reason\": \"用户明确选择身份 columbina；仅作为本次转换资格条件，未修改配置面板或天赋。\"\u001b[39m\n\u001b[31m+         \"reason\": \"完整捕获保存的本次角色身份键：columbina；仅恢复原运行输入。\"\u001b[39m\n\u001b[2m        },\u001b[22m\n\u001b[2m        {\u001b[22m\n\u001b[2m          \"actorElement\": \"dendro\",\u001b[22m\n\u001b[2m          \"actorId\": \"d\",\u001b[22m\n\u001b[2m          \"actorName\": \"A\",\u001b[22m\n\u001b[2m          \"characterKey\": \"nahida\",\u001b[22m\n\u001b[2m          \"evidence\": \"user-conditioned\",\u001b[22m\n\u001b[32m-         \"reason\": \"用户明确选择身份 nahida；仅作为本次转换资格条件，未修改配置面板或天赋。\"\u001b[39m\n\u001b[31m+         \"reason\": \"完整捕获保存的本次角色身份键：nahida；仅恢复原运行输入。\"\u001b[39m\n\u001b[2m        }\u001b[22m\n\u001b[2m      ]\u001b[22m\n\u001b[2m    }\u001b[22m\n\u001b[2m  }\u001b[22m\n\u001b[32m-\u001b[39m\n\n  67 |   await expect(page.locator('[data-testid=\"lunar-total-damage\"]')).toHaveText(expectedTotal!);\n  68 |   expect(await page.locator(\"[data-lunar-event]\").evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.lunarEvent))).toEqual(expectedEventIds);\n> 69 |   expect(await downloadCaptureJson(page), \"Read-only re-export must preserve identity provenance, configuration changes and original JSON.\").toBe(savedJson);\n     |                                                                                                                                              ^\n  70 |\n  71 |   const changed = JSON.parse(JSON.stringify(capture)) as UiCapture<LunarBloomSimulationResult>;\n  72 |   changed.result.specialDamageEvents[0]!.damage += 1;\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts:69:142"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:38:24.988Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/GIDPS-core-acceptance-20261023/nonzero-special-artifacts/lunar-special-capture-spec-9fdaf-s-a-changed-complete-result/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/GIDPS-core-acceptance-20261023/nonzero-special-artifacts/lunar-special-capture-spec-9fdaf-s-a-changed-complete-result/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/lunar-special-capture.spec.ts",
+                    "column": 142,
+                    "line": 69
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a046d2d86248db260ed1-32ceab2f697fcf7cb468",
+          "file": "lunar-special-capture.spec.ts",
+          "line": 26,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T19:38:24.396Z",
+    "duration": 10011.846000000001,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

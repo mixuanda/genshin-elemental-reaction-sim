@@ -1,0 +1,51 @@
+{
+  "fixtureNotice": "SYNTHETIC C6 known base+bonus final-panel import fixture; no real account or equipment; IDs 1..C are positive test-only constellation count markers, not asserted live IDs. Observed panel contains no C6 condition bonus; Arlecchino Pyro explicitly includes innate40%.",
+  "playerInfo": {},
+  "avatarInfoList": [
+    {
+      "avatarId": 10000096,
+      "propMap": {
+        "4001": {
+          "ival": "100",
+          "val": "100"
+        },
+        "1002": {
+          "val": "6"
+        }
+      },
+      "talentIdList": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "skillLevelMap": {
+        "10961": 10,
+        "10962": 10,
+        "10965": 10
+      },
+      "proudSkillExtraLevelMap": {
+        "9631": 3
+      },
+      "fightPropMap": {
+        "2000": 30000,
+        "2001": 2000,
+        "2002": 800,
+        "28": 300,
+        "20": 0.5,
+        "22": 1,
+        "23": 1.5,
+        "30": 0,
+        "40": 0.4,
+        "41": 0,
+        "42": 0,
+        "43": 0,
+        "44": 0,
+        "45": 0,
+        "46": 0
+      }
+    }
+  ]
+}

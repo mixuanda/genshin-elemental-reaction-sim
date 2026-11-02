@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { simulationResultSchema } from "@genshin-dps-lab/schemas";
-import { createNoelleBurstNormalScenario, createNoelleSourceAbilities } from "../noelle-source-action";
+import { createNoelleBurstNormalScenario, createNoelleSourceAbilities, validateNoelleSourceActionSequence } from "../noelle-source-action";
 import { simulate } from "../simulator";
 import { captureSimulationHit, replaySimulationHit } from "../calculator-bridge";
 import { createAmberSkillBurstScenario, deriveSourceBackedRotationMappings, validateSourceBackedActionSequence } from "../source-action-library";
@@ -81,4 +81,22 @@ describe("Noelle source Q to normal chain", () => {
     expect(validateSourceBackedActionSequence(old).status).toBe("invalid");
   });
 
+});
+
+// Source contract absence is distinct from a declared model, including null in untrusted input.
+it("rejects injected optional models without treating absent Noelle fields as invalid identities", () => {
+  const config = createNoelleBurstNormalScenario();
+  expect(validateNoelleSourceActionSequence(config).status).toBe("valid");
+  for (const key of ["favoniusModel", "weaponProcModel", "thrillingTalesModel", "sacrificialModel", "staminaModel"] as const) {
+    for (const value of [null, {}]) {
+      const changed = structuredClone(config);
+      Object.assign(changed, { [key]: value });
+      const verdict = validateNoelleSourceActionSequence(changed);
+      expect(verdict.status).toBe("invalid");
+      expect(verdict.issues.join(";")).toContain(key);
+    }
+  }
+  const missing = structuredClone(config);
+  delete missing.normalHitEnergyModel;
+  expect(validateNoelleSourceActionSequence(missing).status).toBe("invalid");
 });

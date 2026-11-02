@@ -1,0 +1,610 @@
+{
+  "evidence": {
+    "source": "apps/web/public/source-host/{manifest,inventory-metadata}.json",
+    "manifestSha256": "a1227b856daffaea61b62a76872fec76741958a713e4e9b729a001fe20130440",
+    "inventoryMetadataSha256": "c518f93cdab88931f7c459b0dd24e50c2672cffec0ce7c4e87038fcad87b73ef",
+    "scope": "Only the 11 registered character/weapon/set rows required by the two published presets; not a replacement host manifest."
+  },
+  "inventory": {
+    "repository": "https://github.com/genshinsim/gcsim",
+    "hostVariant": "classic",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "characters": [
+      {
+        "kind": "character",
+        "key": "durin",
+        "sourceGameId": 10000123,
+        "name": "杜林",
+        "packagePath": "internal/characters/durin",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_SWORD_ONE_HAND",
+        "actionCapabilities": {
+          "schemaVersion": 1,
+          "actions": [
+            {
+              "kind": "skill",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/durin/skill.go",
+                "line": 59
+              },
+              "method": "Skill",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "burst",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/durin/burst.go",
+                "line": 47
+              },
+              "method": "Burst",
+              "parameters": [
+                {
+                  "key": "travel",
+                  "source": {
+                    "path": "internal/characters/durin/burst.go",
+                    "line": 49
+                  }
+                }
+              ],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "attack",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/durin/attack.go",
+                "line": 45
+              },
+              "method": "Attack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "charge",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/durin/charge.go",
+                "line": 26
+              },
+              "method": "ChargeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "aim",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 118
+              },
+              "method": "Aimed",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "low_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 130
+              },
+              "method": "LowPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "high_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 126
+              },
+              "method": "HighPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "dash",
+              "status": "implemented",
+              "source": {
+                "path": "internal/template/character/stam.go",
+                "line": 41
+              },
+              "method": "Dash",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "jump",
+              "status": "implemented",
+              "source": {
+                "path": "internal/template/character/stam.go",
+                "line": 116
+              },
+              "method": "Jump",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            }
+          ],
+          "normalChain": {
+            "length": 4,
+            "source": {
+              "path": "internal/characters/durin/durin.go",
+              "line": 23
+            }
+          }
+        }
+      },
+      {
+        "kind": "character",
+        "key": "faruzan",
+        "sourceGameId": 10000076,
+        "name": "珐露珊",
+        "packagePath": "internal/characters/faruzan",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_BOW",
+        "actionCapabilities": {
+          "schemaVersion": 1,
+          "actions": [
+            {
+              "kind": "skill",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/faruzan/skill.go",
+                "line": 44
+              },
+              "method": "Skill",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "burst",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/faruzan/burst.go",
+                "line": 43
+              },
+              "method": "Burst",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "attack",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/faruzan/attack.go",
+                "line": 32
+              },
+              "method": "Attack",
+              "parameters": [
+                {
+                  "key": "travel",
+                  "source": {
+                    "path": "internal/characters/faruzan/attack.go",
+                    "line": 33
+                  }
+                }
+              ],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "charge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 122
+              },
+              "method": "ChargeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "aim",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/faruzan/aimed.go",
+                "line": 41
+              },
+              "method": "Aimed",
+              "parameters": [
+                {
+                  "key": "hold",
+                  "source": {
+                    "path": "internal/characters/faruzan/aimed.go",
+                    "line": 42
+                  }
+                },
+                {
+                  "key": "travel",
+                  "source": {
+                    "path": "internal/characters/faruzan/aimed.go",
+                    "line": 52
+                  }
+                },
+                {
+                  "key": "weakspot",
+                  "source": {
+                    "path": "internal/characters/faruzan/aimed.go",
+                    "line": 56
+                  }
+                }
+              ],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "low_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 130
+              },
+              "method": "LowPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "high_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 126
+              },
+              "method": "HighPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "dash",
+              "status": "implemented",
+              "source": {
+                "path": "internal/template/character/stam.go",
+                "line": 41
+              },
+              "method": "Dash",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "jump",
+              "status": "implemented",
+              "source": {
+                "path": "internal/template/character/stam.go",
+                "line": 116
+              },
+              "method": "Jump",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            }
+          ],
+          "normalChain": {
+            "length": 4,
+            "source": {
+              "path": "internal/characters/faruzan/faruzan.go",
+              "line": 21
+            }
+          }
+        }
+      },
+      {
+        "kind": "character",
+        "key": "nicole",
+        "sourceGameId": 10000131,
+        "name": "尼可",
+        "packagePath": "internal/characters/nicole",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_CATALYST",
+        "actionCapabilities": {
+          "schemaVersion": 1,
+          "actions": [
+            {
+              "kind": "skill",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/nicole/skill.go",
+                "line": 34
+              },
+              "method": "Skill",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "burst",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/nicole/burst.go",
+                "line": 90
+              },
+              "method": "Burst",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "attack",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/nicole/attack.go",
+                "line": 42
+              },
+              "method": "Attack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "charge",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/nicole/charge.go",
+                "line": 27
+              },
+              "method": "ChargeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "aim",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 118
+              },
+              "method": "Aimed",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "low_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 130
+              },
+              "method": "LowPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "high_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 126
+              },
+              "method": "HighPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "dash",
+              "status": "implemented",
+              "source": {
+                "path": "internal/template/character/stam.go",
+                "line": 41
+              },
+              "method": "Dash",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "jump",
+              "status": "implemented",
+              "source": {
+                "path": "internal/template/character/stam.go",
+                "line": 116
+              },
+              "method": "Jump",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            }
+          ],
+          "normalChain": {
+            "length": 3,
+            "source": {
+              "path": "internal/characters/nicole/nicole.go",
+              "line": 25
+            }
+          }
+        }
+      },
+      {
+        "kind": "character",
+        "key": "wanderer",
+        "sourceGameId": 10000075,
+        "name": "流浪者",
+        "packagePath": "internal/characters/wanderer",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_CATALYST",
+        "actionCapabilities": {
+          "schemaVersion": 1,
+          "actions": [
+            {
+              "kind": "skill",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/skill.go",
+                "line": 137
+              },
+              "method": "Skill",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "burst",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/burst.go",
+                "line": 45
+              },
+              "method": "Burst",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "attack",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/attack.go",
+                "line": 74
+              },
+              "method": "Attack",
+              "parameters": [
+                {
+                  "key": "travel",
+                  "source": {
+                    "path": "internal/characters/wanderer/attack.go",
+                    "line": 138
+                  }
+                }
+              ],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "charge",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/charge.go",
+                "line": 41
+              },
+              "method": "ChargeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "aim",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 118
+              },
+              "method": "Aimed",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "low_plunge",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/plunge.go",
+                "line": 31
+              },
+              "method": "LowPlungeAttack",
+              "parameters": [
+                {
+                  "key": "collision",
+                  "source": {
+                    "path": "internal/characters/wanderer/plunge.go",
+                    "line": 46
+                  }
+                }
+              ],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "high_plunge",
+              "status": "unsupported",
+              "source": {
+                "path": "internal/template/character/character.go",
+                "line": 126
+              },
+              "method": "HighPlungeAttack",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "dash",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/dash.go",
+                "line": 25
+              },
+              "method": "Dash",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            },
+            {
+              "kind": "jump",
+              "status": "implemented",
+              "source": {
+                "path": "internal/characters/wanderer/jump.go",
+                "line": 20
+              },
+              "method": "Jump",
+              "parameters": [],
+              "parameterScope": "resolved-method-and-forwarded-same-receiver-helpers"
+            }
+          ],
+          "normalChain": {
+            "length": 3,
+            "source": {
+              "path": "internal/characters/wanderer/wanderer.go",
+              "line": 26
+            }
+          }
+        }
+      }
+    ],
+    "weapons": [
+      {
+        "kind": "weapon",
+        "key": "favoniuswarbow",
+        "sourceGameId": 15401,
+        "name": "西风猎弓",
+        "packagePath": "internal/weapons/bow/favonius",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_BOW"
+      },
+      {
+        "kind": "weapon",
+        "key": "angelosheptades",
+        "sourceGameId": 14523,
+        "name": "尘光七谕",
+        "packagePath": "internal/weapons/catalyst/angelosheptades",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_CATALYST"
+      },
+      {
+        "kind": "weapon",
+        "key": "tulaytullahsremembrance",
+        "sourceGameId": 14512,
+        "name": "图莱杜拉的回忆",
+        "packagePath": "internal/weapons/catalyst/tulaytullahsremembrance",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_CATALYST"
+      },
+      {
+        "kind": "weapon",
+        "key": "athameartis",
+        "sourceGameId": 11518,
+        "name": "黑蚀",
+        "packagePath": "internal/weapons/sword/athameartis",
+        "maximumLevel": 90,
+        "weaponClass": "WEAPON_SWORD_ONE_HAND"
+      }
+    ],
+    "artifacts": [
+      {
+        "kind": "artifact",
+        "key": "desertpavilionchronicle",
+        "sourceGameId": 15027,
+        "name": "沙上楼阁史话",
+        "packagePath": "internal/artifacts/desertpavilionchronicle"
+      },
+      {
+        "kind": "artifact",
+        "key": "gladiatorsfinale",
+        "sourceGameId": 15001,
+        "name": "角斗士的终幕礼",
+        "packagePath": "internal/artifacts/gladiator"
+      },
+      {
+        "kind": "artifact",
+        "key": "noblesseoblige",
+        "sourceGameId": 15007,
+        "name": "昔日宗室之仪",
+        "packagePath": "internal/artifacts/noblesse"
+      }
+    ]
+  }
+}

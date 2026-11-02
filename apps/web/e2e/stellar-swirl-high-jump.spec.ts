@@ -24,6 +24,7 @@ test("Stellar Worker consumes an actual jump, lands a declared plunge and export
   await expect(page.locator("#cancelRunButton")).toBeHidden();
   await expect(page.locator("#simulationProgress")).toHaveText("");
   await expect(page.locator("#exportRunButton")).toBeEnabled();
+  await page.locator('.tab[data-tab="special"]').click();
   await page.locator('[data-lunar-action="refresh"]').click();
   await page.locator("[data-lunar-profile]").selectOption("stellar-swirl");
   await page.locator('[data-lunar-party-index="0"]').selectOption("sandrone");

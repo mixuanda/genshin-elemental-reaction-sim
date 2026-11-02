@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "browser": "154.0.8037.57",
+  "nativeRuns": 0,
+  "independentPanelNotPlayerBuild": true,
+  "constellation": 2,
+  "effectiveELevel": 10,
+  "totals": {
+    "nonCritical": 3481.4519999999998,
+    "critical": 6962.9039999999995,
+    "expected": 5222.178
+  },
+  "sameHitC2RangeAutomaticallyDerived": true,
+  "manualSampleOriginRecorded": true,
+  "signatureEquipment": {
+    "firstSample": 1703.3537657642514,
+    "independentExpected": 3628.356635382116,
+    "actualTotals": {
+      "nonCritical": 3539.860132080113,
+      "critical": 5309.790198120169,
+      "expected": 3628.3566353821157
+    },
+    "unknownTimingRejectedBeforeApply": true,
+    "freshSourceSampleNotOldManualSample": true,
+    "automaticConditionsShown": true,
+    "savedReopenedBuildAndDamageUnchanged": true,
+    "bareEquipmentNotGraduationPreset": true
+  },
+  "unsatisfiedConditionBlocksAndCorrectionRestores": true,
+  "savedReopenedContextAndDamageUnchanged": true,
+  "desktopAndNarrow": true,
+  "errors": [],
+  "production": "paused-not-deployed",
+  "moduleTests": 21,
+  "publicIntegrationTests": 5,
+  "fullRegressionRerun": false,
+  "source": "packages/game-data/sources/nicole-skill-initial/manifest.json",
+  "limits": [
+    "C0–C2 E initial only; not complete Q/C1 schedule",
+    "Fixed b4 community implementation, E shield/buff/hit order has upstream TODO; not game validation",
+    "C2 ascension below4 remains blocked",
+    "R1 first shield refresh only, no ongoing refresh or energy model in this calculator"
+  ],
+  "strictOptionalTypesFixed": true,
+  "affectedTestsAfterTypeFix": 15,
+  "typecheck": "passed",
+  "webBuild": "passed"
+}

@@ -1,0 +1,233 @@
+{
+  "scope": "pinned-source-identity-and-independent-arithmetic; not game certification",
+  "sources": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "files": [
+        {
+          "path": "internal/characters/noelle/burst.go",
+          "bytes": 3922,
+          "gitBlobSha1": "ae4b7433645675eecd49144e5e39384088562842",
+          "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d"
+        },
+        {
+          "path": "internal/characters/noelle/attack.go",
+          "bytes": 3227,
+          "gitBlobSha1": "d0a03d5fb48ee67feb9d54591ec03b25e8381594",
+          "sha256": "45c5e467e50ed82d0ee64fae4dd425f90a86d82bae19ebc09f6592130f03b1b8"
+        },
+        {
+          "path": "internal/characters/noelle/noelle.go",
+          "bytes": 1536,
+          "gitBlobSha1": "ce31150fa480543faf8402480a87d4c60cce9449",
+          "sha256": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf"
+        },
+        {
+          "path": "internal/characters/noelle/zz_noelle.dm.go",
+          "bytes": 5059,
+          "gitBlobSha1": "b98c2ce27278494a2aeefddaf571119a47d59240",
+          "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe"
+        },
+        {
+          "path": "internal/characters/noelle/config.yml",
+          "bytes": 5163,
+          "gitBlobSha1": "fc2584ff204e91480283b8323da795bfcc75a785",
+          "sha256": "fa7936b527e52cc88b869d3075415e93c3e0bf922e0b6907c4dcaa9388c42ff3"
+        },
+        {
+          "path": "pkg/catalog/character.dm.go",
+          "bytes": 436821,
+          "gitBlobSha1": "22b2536e01cb520f0fff588977cba0db5b668328",
+          "sha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906"
+        },
+        {
+          "path": "pkg/catalog/weapon.dm.go",
+          "bytes": 410160,
+          "gitBlobSha1": "c2e731713d4fe18414efdb66cdb0c8c276b64e69",
+          "sha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351"
+        },
+        {
+          "path": "pkg/catalog/curve.dm.go",
+          "bytes": 24758,
+          "gitBlobSha1": "b960e695c8a6a154e6b5b931d7276c14fc3edbad",
+          "sha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6"
+        },
+        {
+          "path": "pkg/core/player/character/mods.go",
+          "bytes": 9963,
+          "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+          "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1"
+        },
+        {
+          "path": "pkg/core/player/character/hitlag.go",
+          "bytes": 1566,
+          "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+          "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7"
+        },
+        {
+          "path": "pkg/modifier/modifier.go",
+          "bytes": 3345,
+          "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+          "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9"
+        },
+        {
+          "path": "pkg/core/energy.go",
+          "bytes": 2639,
+          "gitBlobSha1": "307f035e82bf5570c7b2ae86a4314201e025ca9e",
+          "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c"
+        }
+      ],
+      "facts": {
+        "omittedExtendSeconds": 10,
+        "acceptedExtendRange": [
+          0,
+          10
+        ],
+        "baseDurationFrames": 980,
+        "c5BonusAlreadyNative": 3,
+        "effectiveQ13DefConversion": 0.85,
+        "c6AdditionalDefConversion": 0.5,
+        "runtimeKillExtensionNotGeneratedByBurst": true
+      }
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "files": [
+        {
+          "path": "internal/characters/noelle/burst.go",
+          "bytes": 3922,
+          "gitBlobSha1": "ae4b7433645675eecd49144e5e39384088562842",
+          "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d"
+        },
+        {
+          "path": "internal/characters/noelle/attack.go",
+          "bytes": 3227,
+          "gitBlobSha1": "d0a03d5fb48ee67feb9d54591ec03b25e8381594",
+          "sha256": "45c5e467e50ed82d0ee64fae4dd425f90a86d82bae19ebc09f6592130f03b1b8"
+        },
+        {
+          "path": "internal/characters/noelle/noelle.go",
+          "bytes": 1536,
+          "gitBlobSha1": "ce31150fa480543faf8402480a87d4c60cce9449",
+          "sha256": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf"
+        },
+        {
+          "path": "internal/characters/noelle/zz_noelle.dm.go",
+          "bytes": 5059,
+          "gitBlobSha1": "b98c2ce27278494a2aeefddaf571119a47d59240",
+          "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe"
+        },
+        {
+          "path": "internal/characters/noelle/config.yml",
+          "bytes": 5163,
+          "gitBlobSha1": "fc2584ff204e91480283b8323da795bfcc75a785",
+          "sha256": "fa7936b527e52cc88b869d3075415e93c3e0bf922e0b6907c4dcaa9388c42ff3"
+        },
+        {
+          "path": "pkg/catalog/character.dm.go",
+          "bytes": 462986,
+          "gitBlobSha1": "92805fdb1af53f964388372e63112ff709e49842",
+          "sha256": "17694990dfc23467ae6f032d69eea012d7e7f323dfc7afb9d24716e42c923547"
+        },
+        {
+          "path": "pkg/catalog/weapon.dm.go",
+          "bytes": 428207,
+          "gitBlobSha1": "ca82929079e21de07c0d63b782b2cda9128d5a20",
+          "sha256": "cba0e900d03fcd750bdbabdd2c545cf7eeb9e81bbb2e8c092dea68fbf9e2629c"
+        },
+        {
+          "path": "pkg/catalog/curve.dm.go",
+          "bytes": 24758,
+          "gitBlobSha1": "b960e695c8a6a154e6b5b931d7276c14fc3edbad",
+          "sha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6"
+        },
+        {
+          "path": "pkg/core/player/character/mods.go",
+          "bytes": 9924,
+          "gitBlobSha1": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c",
+          "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4"
+        },
+        {
+          "path": "pkg/core/player/character/hitlag.go",
+          "bytes": 1566,
+          "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+          "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7"
+        },
+        {
+          "path": "pkg/modifier/modifier.go",
+          "bytes": 3345,
+          "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+          "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9"
+        },
+        {
+          "path": "pkg/core/energy.go",
+          "bytes": 2639,
+          "gitBlobSha1": "307f035e82bf5570c7b2ae86a4314201e025ca9e",
+          "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c"
+        }
+      ],
+      "facts": {
+        "omittedExtendSeconds": 10,
+        "acceptedExtendRange": [
+          0,
+          10
+        ],
+        "baseDurationFrames": 980,
+        "c5BonusAlreadyNative": 3,
+        "effectiveQ13DefConversion": 0.85,
+        "c6AdditionalDefConversion": 0.5,
+        "runtimeKillExtensionNotGeneratedByBurst": true
+      }
+    }
+  ],
+  "independentArithmetic": {
+    "characterLevel": 90,
+    "enemyLevel": 90,
+    "enemyResistance": 0.1,
+    "baseAtk": 214.40247280000003,
+    "nonExtraDef": 1038.115239525,
+    "burstAtk": 1615.85804615875,
+    "normalTalent10Multipliers": [
+      1.564,
+      1.4501,
+      1.7051,
+      2.2423
+    ],
+    "physicalN1": 150.89646035664003,
+    "geoN1": 1137.2408928865284
+  },
+  "captureAudit": {
+    "captureSha256": "1add339a1742eca2fb89c7531acbe07e6172a69d7d0fdae720c2f7b91dafbc12",
+    "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "scope": "one Q then continuous normal attacks; no steady-state Q claim",
+    "hits": 110,
+    "normalHitsByElement": {
+      "geo": 16,
+      "physical": 92
+    },
+    "qCount": 1,
+    "qEnergy": [
+      60,
+      0
+    ],
+    "energyApplicationCount": 24,
+    "normalEnergyApplications": 23,
+    "endingEnergy": 23,
+    "energyScope": "actual random na-ca-on-hit triggers, each +1; probability history not independently reconstructed",
+    "qCooldownFrames": 900,
+    "baseExpiryFrame": 981,
+    "hitlagExtensionFrames": 198,
+    "finalExpiryFrame": 1179,
+    "lastHitFrame": 7137,
+    "maxAbsoluteDamageError": 0.0,
+    "expectedTotal": 38168.12035863541,
+    "actualTotal": 38168.12035863541,
+    "rejectedTampering": [
+      "damage",
+      "expired-infusion",
+      "explicit-extension",
+      "energy",
+      "cooldown"
+    ]
+  }
+}

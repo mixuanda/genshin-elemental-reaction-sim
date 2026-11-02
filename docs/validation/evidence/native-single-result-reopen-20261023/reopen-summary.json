@@ -1,0 +1,14 @@
+{
+  "positiveApplications": 1,
+  "positiveFrame": 101,
+  "positiveSubtotal": 24409.6621312273,
+  "positiveExactBytes": true,
+  "rejectedStartupMismatch": true,
+  "failedImportPreservedPrevious": true,
+  "editorChangesKeptOriginalExport": true,
+  "zeroApplications": 0,
+  "zeroExactBytes": true,
+  "positiveImportWorkerDelta": 0,
+  "zeroImportWorkerDelta": 0,
+  "zeroCreatedOnlyAfterExplicitRun": true
+}

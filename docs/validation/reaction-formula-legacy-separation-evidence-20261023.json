@@ -1,0 +1,113 @@
+{
+  "scope": "test protocol isolation; no production numerical repair or current integrity leak found",
+  "baseline": "23e9094",
+  "originalFullRun": {
+    "originalFullRun": "/workspace/GIDPS-cloud/function-batch-20261022/full-current.json",
+    "originalFullRunSha256": "069df5504955986bc7abebf7515ec2f547fd76e0a5559babb579781df44be6db",
+    "summary": {
+      "numPassedTests": 3134,
+      "numFailedTests": 79,
+      "numPendingTests": 1,
+      "numTotalTests": 3214
+    }
+  },
+  "originalBoundedReproduction": {
+    "numPassedTests": 1,
+    "numFailedTests": 5,
+    "numPendingTests": 17
+  },
+  "recoveredOriginalFailures": [
+    "current SimulationResult reaction-formula root integrity accepts exact current results at both public and trusted boundaries",
+    "current SimulationResult reaction-formula root integrity rejects a coordinated Superconduct level-base rewrite",
+    "current SimulationResult reaction-formula root integrity rejects a coordinated Melt base rewrite",
+    "current SimulationResult reaction-formula root integrity rejects a coordinated 'aggravate' 'levelBaseDamage' rewrite"
+  ],
+  "unchangedOriginalPassesInCurrentFile": 7,
+  "finalTargeted": {
+    "numPassedTests": 19,
+    "numFailedTests": 0,
+    "numPendingTests": 0
+  },
+  "files": [
+    {
+      "path": "packages/sim-core/src/__tests__/reaction-formula-integrity.test.ts",
+      "passed": 11
+    },
+    {
+      "path": "packages/sim-core/src/__tests__/reaction-formula-legacy-v144.test.ts",
+      "passed": 8
+    }
+  ],
+  "assertionPreservation": {
+    "unchangedCurrentFunctions": [
+      "immuneTarget",
+      "makeOneHitConfig",
+      "makeAdditiveConfig",
+      "cloneResult",
+      "refreshReproducibilityIdentity",
+      "expectFormulaRejection",
+      "updatePotentialDamage",
+      "damageFormulaMultiplier"
+    ],
+    "currentForgerRejectionCallSites": 5,
+    "historicalProjectorRemovedFromCurrentTest": true,
+    "archiveWorkspaceResolutions": {
+      "schemas": "/workspace/GIDPS-cloud/failure-triage-20261022/old-84ff5cd/packages/schemas",
+      "sim-core": "/workspace/GIDPS-cloud/failure-triage-20261022/old-84ff5cd/packages/sim-core",
+      "reaction-formulas": "/workspace/GIDPS-cloud/failure-triage-20261022/old-84ff5cd/packages/reaction-formulas"
+    }
+  },
+  "fixture": {
+    "path": "packages/sim-core/src/__tests__/fixtures/reaction-formula-v144-84ff5cd.json",
+    "bytes": 141221,
+    "sha256": "6dee5dd4000a4bfe77d811fa44bcd56710c0dbc295a0b110d086f6614c625033",
+    "source": {
+      "repository": "mixuanda/genshin-elemental-reaction-sim",
+      "commit": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+      "method": "immutable original reaction-formula-integrity test with in-memory observation before its original V144 assertion; original 11/11 passed",
+      "files": [
+        {
+          "path": "packages/sim-core/src/__tests__/reaction-formula-integrity.test.ts",
+          "gitBlobSha1": "4307ce4406b49173e6b6a3b3f158b8bfdaa12cf3",
+          "sha256": "17b16204cee8506662b9827137fb69530e0469a656dc460d2b8f1e204baf0c88",
+          "bytes": 19533
+        },
+        {
+          "path": "packages/sim-core/src/__tests__/fixtures.ts",
+          "gitBlobSha1": "b5818d530930545c670653fb0abac41665f8aca8",
+          "sha256": "c430c846e91f8ba91e259fa335e60d788db1f9379f0c13f117c66fbc222868a7",
+          "bytes": 4197
+        },
+        {
+          "path": "packages/sim-core/src/simulator.ts",
+          "gitBlobSha1": "f59d6950e8a195ea4ec9c1e19ae4c16b82e1d5ba",
+          "sha256": "fd7a10fc4cf320c277ceb5a5b081f34c3fba17278b7a21371d1d9c3b4514a5d0",
+          "bytes": 579777
+        },
+        {
+          "path": "packages/schemas/src/schema.ts",
+          "gitBlobSha1": "083303354a5b7f44f0c247e2da7b128a82607ae5",
+          "sha256": "1b643e9af365e7818fb276147901d9bd1e0ab2496654d9877c1d725df4abf84d",
+          "bytes": 1120171
+        },
+        {
+          "path": "packages/schemas/src/result-integrity.ts",
+          "gitBlobSha1": "be534677e9deae5d1d476c536c067c9d4a305ae0",
+          "sha256": "03e5a7866ba6cd1cb38453e3a17c9d281f76699e05894176a583cf4e11849ff6",
+          "bytes": 648708
+        },
+        {
+          "path": "packages/reaction-formulas/src/profile.ts",
+          "gitBlobSha1": "bf924781956f0344d1dd274a5b5cbdc664f58411",
+          "sha256": "692b46a18c306dca72a31a890052478ae11fe5c32c622afad05450375b88b249",
+          "bytes": 10848
+        }
+      ]
+    }
+  },
+  "focusedTypecheck": "passed",
+  "productionFilesChanged": [],
+  "existingGoldenFilesChanged": [],
+  "fullSuiteRun": false,
+  "longSimulationRun": false
+}

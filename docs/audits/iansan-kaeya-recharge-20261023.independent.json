@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "method": "Independent Python Decimal sum directly from pinned JSON stat tables/catalog/curves; does not import TS resolver or infer stats from energy captures.",
+  "equipmentSha256": "f158fd30624f692c1c893329592724c2ef3de745e396220de24ec5a77c817a99",
+  "validationReceiptSha256": "d4e866b5c336e0f9329e3a06d45a55d8139d3709ac35eda1afb6204143cb9f08",
+  "activeSnapshot": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "rawSourceSha256": {
+    "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+    "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json": "78d922ea7eb883b77c7101bd7be72159188aef4105ec5fc056fa3ec4aa722241",
+    "packages/game-data/sources/artifacts/artifact_main.json": "b4ac7d336caa5298e6f78921e2790042592f8ae70ff2e2428f2a23d594783ab4",
+    "packages/game-data/sources/artifacts/artifact_sub.json": "5507dff48dc632ee6401adc518a6290d4607264738624ec51308ac7a2cb7e3e8"
+  },
+  "builds": [
+    {
+      "actor": "iansan",
+      "artifactTotalsDecimal": {
+        "hp": "5078.75",
+        "critRate_": "0.9528",
+        "enerRech_": "1.2308",
+        "atk_": "0.9907",
+        "def": "115.75",
+        "atk": "349.90"
+      },
+      "weaponERBonusDecimal": "0.306268198",
+      "characterAscensionERBonusDecimal": "0",
+      "totalERDecimal": "2.537068198",
+      "rawCRDecimal": "1.0028",
+      "staticAttackWithoutPassivesDecimal": "2183.054293152904",
+      "rolls": 45,
+      "agreesWithActualAPIReceipt": true
+    },
+    {
+      "actor": "kaeya",
+      "artifactTotalsDecimal": {
+        "hp": "5078.75",
+        "critRate_": "0.9528",
+        "enerRech_": "0.9261",
+        "atk_": "0.8162",
+        "def": "115.75",
+        "atk": "330.45",
+        "cryo_dmg_": "0.466"
+      },
+      "weaponERBonusDecimal": "0.612531802",
+      "characterAscensionERBonusDecimal": "0.2667",
+      "totalERDecimal": "2.805331802",
+      "rawCRDecimal": "1.0028",
+      "staticAttackWithoutPassivesDecimal": "1560.70792668642",
+      "rolls": 45,
+      "agreesWithActualAPIReceipt": true
+    }
+  ],
+  "nativeSimulationPerformed": false
+}

@@ -1,0 +1,194 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "test-vector-1",
+  "randomSeed": "test-seed",
+  "meta": {
+    "name": "感电教官与停顿协议回归（合成）",
+    "version": "1",
+    "verificationStatus": "verified"
+  },
+  "duration": 1,
+  "cycleLength": 1,
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defReduction": 0,
+    "targets": [
+      {
+        "id": "enemy-0",
+        "name": "Source",
+        "resistance": 0.1,
+        "initialAura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 1
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "wet",
+        "name": "Wet",
+        "resistance": 0.1,
+        "initialAura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 1
+          }
+        ],
+        "position": {
+          "x": 1,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "ec-owner",
+      "name": "EC Owner",
+      "element": "electro",
+      "color": "#ff0000",
+      "level": 90,
+      "energyMax": 60,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 1000,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 10000,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 700,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 120,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0.2,
+        "energyRecharge": 1
+      }
+    }
+  ],
+  "rotation": [],
+  "timeline": {
+    "mode": "legal-frame-v1",
+    "fps": 60,
+    "legalityMode": "strict",
+    "initialActiveCharacterId": "ec-owner",
+    "swapFrames": 1,
+    "abilities": [
+      {
+        "id": "start-ec",
+        "actorId": "ec-owner",
+        "name": "Start EC",
+        "kind": "skill",
+        "cancelFrame": 11,
+        "animationEndFrame": 11,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "start-ec-hit",
+            "label": "Start EC",
+            "scaling": 1,
+            "element": "electro",
+            "targetHitlag": {
+              "haltFrames": 5,
+              "factor": 0.25
+            },
+            "geometry": {
+              "kind": "circle",
+              "coordinateSpace": "world",
+              "origin": {
+                "x": 0,
+                "y": 0
+              },
+              "radius": 0.01
+            },
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "no-icd-v1"
+              }
+            },
+            "frame": 0
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "type": "skill",
+        "actorId": "ec-owner",
+        "abilityId": "start-ec"
+      }
+    ]
+  },
+  "reactionEngine": {
+    "mode": "aura-v8"
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "target-local-hitlag-v1"
+  },
+  "targetTaskModel": {
+    "mode": "target-phase-v2"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "nearby-wet-radius-v1",
+    "radius": 3,
+    "verificationStatus": "provisional"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+    "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+  },
+  "artifactBuffModel": {
+    "mode": "fixed-source-no-character-hitlag-v1",
+    "actors": [
+      {
+        "actorId": "ec-owner",
+        "effectId": "instructor-4pc"
+      }
+    ]
+  },
+  "callbackBusModel": {
+    "mode": "legacy-no-versioned-callback-bus-v1",
+    "policyId": "legacy-no-versioned-callback-bus-v1"
+  }
+}

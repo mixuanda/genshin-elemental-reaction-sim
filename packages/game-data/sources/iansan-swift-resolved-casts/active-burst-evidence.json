@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "scope": "C0 Swift Stormflight only; optional actual Q attack feedback, not a Q/Swift rotation or current-game certification",
+  "supplements": "manifest.json; original source.json.gz and original talent binding remain unchanged",
+  "archiveSha256": "bd9cec771d0adc043622153bb8242cef441dcde67a362bbb36bfbbba0720b2ec",
+  "sourceFiles": [
+    {
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+      "bytes": 10009,
+      "sha256": "aa1a04be529dc04322a02e11a667fb92313f8c647aab71b54d982548d6e03738",
+      "computedGitBlobSha1": "d1878b74dfe3fbd488bcbfddb961ff2c2bc59b53",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Iansan/index.tsx"
+    },
+    {
+      "archiveKey": "optimizer/libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+      "bytes": 4705,
+      "sha256": "f74ce3aab15e228fba93d391ac13b03c5bcf21fc7bb1718971792f8277ad2c1a",
+      "computedGitBlobSha1": "4b80dc92dc003969fe8f28e35a67ad5b0a2b7263",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Iansan/skillParam.json"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/burst.go",
+      "bytes": 4195,
+      "sha256": "658a1dfddcc66a79d8cae06d4cb4f6fb62a33f0fbde023771bfe7c7aeae0e124",
+      "computedGitBlobSha1": "7775958be290fa773164ad7d5719430c548b69f1",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/burst.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/asc.go",
+      "bytes": 2151,
+      "sha256": "d88c164485eeab10789d1ec256aeb636910d08f0f2c6ca8424d007aa5fe12360",
+      "computedGitBlobSha1": "3a18863d186d26d36f1c615a945e97df4ef1accf",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/asc.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/iansan.go",
+      "bytes": 2029,
+      "sha256": "0a405ccf6284d152820171b59d4619eb4c253e7aff0d3b2b3edfb17848461f22",
+      "computedGitBlobSha1": "9a0672064215a6a40c29bae9401975b02eb80c16",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/iansan.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/charge.go",
+      "bytes": 3092,
+      "sha256": "af3cedb1a1b13a26b09e901d942de0ede63a1a4dcdd7afe1449bd4246c9cae91",
+      "computedGitBlobSha1": "240d95690c0e3e5cbde03b67b4e743265f713b85",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/charge.go"
+    },
+    {
+      "archiveKey": "gcsim/internal/characters/iansan/zz_iansan.dm.go",
+      "bytes": 2814,
+      "sha256": "7ee6b65bcbdc6816139dd07cf5c5b4f582181efae11c8356f46b55f8635f074d",
+      "computedGitBlobSha1": "99ca2bfe2a27e38bcd9ae85571fa3eb8cc1e11eb",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/zz_iansan.dm.go"
+    },
+    {
+      "archiveKey": "gcsim/pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "computedGitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/stats.go"
+    }
+  ],
+  "additionalReadOnlySource": {
+    "path": "internal/characters/iansan/cons.go",
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/cons.go",
+    "bytes": 2352,
+    "sha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+    "computedGitBlobSha1": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a",
+    "identityLimit": "Downloaded fixed raw URL, computed byte/blob hashes; no claim of independent tree verification. Original source is not copied into this supplement."
+  },
+  "formula": {
+    "highThreshold": 42,
+    "maxNightsoulPoints": 54,
+    "highAttackConversionByLevel": [
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27,
+      0.27
+    ],
+    "lowAttackConversionPerPointByLevel": [
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005,
+      0.005
+    ],
+    "maxAttackBonusByLevel": [
+      330,
+      370,
+      410,
+      450,
+      490,
+      530,
+      570,
+      610,
+      650,
+      690,
+      730,
+      770,
+      810,
+      850,
+      890
+    ],
+    "expression": "min(nonExtraAttackAtActualLastUpdate * (pointsAtActualLastUpdate >= 42 ? 0.27 : 0.005 * pointsAtActualLastUpdate), maxAttackBonus[effectiveQLevel - 1])",
+    "beneficiary": "Only the current active character, including Iansan herself (Optimizer index.tsx121; gcsim burst.go89-105).",
+    "recursionExclusion": "Q is Extra:true and updateATKBuff uses SelectStat(true,BaseATK,ATKP,ATK), which skips every Extra StatMod. Optimizer reads premod.atk before the Q team total.atk addition. Do not reconstruct this input from a final imported ATK.",
+    "sampleTiming": "gcsim refreshes immediately on Q and queues each next refresh after18 character-task frames. Inputs must describe the actual most recent refresh used by this hit, not automatically its current NS or current ATK.",
+    "a1Interaction": "Prior A1 is ordinary 20% base ATK and may enter the Q update input when actually present then. A1 at Q update and A1 at hit snapshot can differ. This Swift awards/refreshes its new A1 after damage, so it never boosts itself or retroactively changes an earlier Q update.",
+    "effectiveQLevel": "Explicit independent effective burst level1-15; no inference from Swift NA level and no additional constellation boost.",
+    "zero": "Explicit zero ATK or zero NS returns zero; unknown is not zero. A known off-field owner receives zero from her own Q.",
+    "cap": "The cap is a fixed flat-ATK limit, not a percent of base ATK.",
+    "onFieldProof": "For a complete legal one-cast schedule with no hitlag/interruption/replacement, Swift snapshot and impact25f precede its earliest legal swap31f. Its allowed Q follow-up24f keeps Iansan active. Thus self-on-field is derived, without writing player observations; explicit off-field contradicts this bounded full action. Independent hits and incomplete schedules do not inherit this proof."
+  },
+  "limitations": [
+    "C1-C6 are still rejected; C1 resource, C2 A1 grant/party buff, C4 NS restore and C6 damage/duration are not silently omitted.",
+    "No automatic Q lifetime, expiry, movement, NS generation/consumption or energy/cooldown simulation.",
+    "Actual Q refresh attack and NS observations are mandatory for an on-field active-Q branch, including historical snapshots. Old inputs do not acquire this evidence automatically.",
+    "Historical final snapshots require explicit actual-Q-included confirmation and are never increased again. Converted snapshots retain exact source-state/talent identity.",
+    "Original conflicting gcsim Swift E-level index remains archived; resolved NA binding remains in force."
+  ]
+}

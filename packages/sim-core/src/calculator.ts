@@ -351,10 +351,11 @@ function executeEquipmentHitContext(build:CalculatorBuild,hit:OrdinaryCalculator
 }
 type ConvertedEquipmentPanel={stats:CalculatorFinalStats;sourceRefs:string[];ascension:number};
 type CalculatorHitEquipmentContext=ReturnType<typeof executeEquipmentHitContext>&{convertedPanel?:ConvertedEquipmentPanel|undefined};
-function equipmentPanelForConversion(build:CalculatorBuild,hit:OrdinaryCalculatorHit,panel:ReturnType<typeof executeHitPanel>,resolved:ReturnType<typeof executeEquipmentHitContext>,scope:FormulaScope,b:TraceBuilder):ConvertedEquipmentPanel|undefined {
+function equipmentPanelForConversion(build:CalculatorBuild,hit:OrdinaryCalculatorHit,panel:ReturnType<typeof executeHitPanel>,resolved:ReturnType<typeof executeEquipmentHitContext>,scope:FormulaScope,b:TraceBuilder,documentContext?:Pick<CalculatorDocument,"gameContext">):ConvertedEquipmentPanel|undefined {
   // The finite Phantasm combines ordinary and lunar samples. Freeze its actual
   // per-hit EM window even when no equipped stat-conversion formula was rebuilt.
-  if((!panel.rebuiltEquipment&&!hit.neferPhantasmEvent)||build.mode!=="equipment-derived"||!build.equipment||getCalculatorHitPendingReactionEffects(build,hit).length||getCalculatorHitPendingResistanceEffects(build,hit).length)return undefined;
+  // Kazuha's distinct 81f/82f Q snapshots also need capture without EM rebuilding.
+  if((!panel.rebuiltEquipment&&!hit.neferPhantasmEvent&&!documentContext?.gameContext?.kazuhaBurst)||build.mode!=="equipment-derived"||!build.equipment||getCalculatorHitPendingReactionEffects(build,hit).length||getCalculatorHitPendingResistanceEffects(build,hit).length)return undefined;
   if(scope.ascension===undefined)throw new Error("逐击装备转换快照需要明确突破阶段。");
   return {stats:{...panel.stats,critRate:resolved.critRate,critDamage:resolved.critDamage},ascension:scope.ascension,sourceRefs:[...new Set([...hit.sourceRefs,...build.equipment.sourceRefs,...b.nodes.flatMap(node=>node.sourceRefs)])]};
 }
@@ -369,7 +370,7 @@ export function resolveCalculatorHitEquipmentContext(build:CalculatorBuild,hit:O
   const pending=getCalculatorHitPendingEquipmentEffects(build,hit);if(pending.length)throw new Error(pending.map(pendingEquipmentReason).join("；"));
   const panel=executeHitPanel(build,stats,hit,scope,b,documentContext);
   const resolved=executeEquipmentHitContext(build,hit,panel.stats,b,scope,panel);
-  return {...resolved,convertedPanel:equipmentPanelForConversion(build,hit,panel,resolved,scope,b)};
+  return {...resolved,convertedPanel:equipmentPanelForConversion(build,hit,panel,resolved,scope,b,documentContext)};
 }
 export function restoreCalculatorHitEquipmentInputs(hit:OrdinaryCalculatorHit):OrdinaryCalculatorHit {
   if(hit.finalSnapshot&&hit.finalSnapshot.origin!=="equipment-conversion")return structuredClone(hit);
@@ -518,7 +519,7 @@ export function convertCalculatorToFinalPanel(document:CalculatorDocument,mode:"
       const audit=new TraceBuilder(hit.sourceRefs),scope=hitFormulaScope(build,result);
       const panel=executeHitPanel(build,resolvedStats,hit,scope,audit,result);
       const resolved=executeEquipmentHitContext(build,hit,panel.stats,audit,scope,panel);
-      const converted=pending.length?undefined:equipmentPanelForConversion(build,hit,panel,resolved,scope,audit);
+      const converted=pending.length?undefined:equipmentPanelForConversion(build,hit,panel,resolved,scope,audit,result);
       if(converted)convertedPanels.set(hit.id,converted);
       if(pending.length)hit.pendingEquipmentEffects=pending;
       if(resolved.finalizedEquipmentEffects.length){
@@ -551,6 +552,9 @@ export function convertCalculatorToFinalPanel(document:CalculatorDocument,mode:"
   result.build={mode,stats:resolvedStats,source:"当前构筑的装备属性已结算，不重复应用；逐命中角色来源调整仍按各段记账方式独立执行。",...(ascension===undefined?{}:{ascension})};
   return result;
 }
+function appendFinalizedEquipmentTrace(hit:OrdinaryCalculatorHit,b:TraceBuilder):void {
+  for(const [index,record] of (hit.finalizedEquipmentEffects??[]).entries())b.add(`finalizedEquipmentEffect.${index}`,"stage.finalizedEquipmentEffect",record.expression,record.inputs.map(input=>traceInput(input.key,input.value,input.unit,input.origin,input.meaningKey)),{unit:record.kind==="additive-base"?"damage":"ratio",status:"not-applicable",ruleId:record.ruleId,sourceRefs:record.sourceRefs,explanationKey:"explain.finalizedEquipmentEffect",applicabilityReason:`${record.label}：转换时记录的贡献 ${record.amount} 已含于本段${record.kind==="additive-base"?"附加基数":"最终暴击属性"}，只复现来源代入，不再次应用。`});
+}
 function calculateHit(doc:CalculatorDocument,hit:CalculatorHit,stats:CalculatorFinalStats|undefined):CalculatorHitResult {
   if(hit.kind==="ordinary"&&hit.finalSnapshot){
     const saved=hit.finalSnapshot,restored=finalSnapshotContext(hit)!;
@@ -562,6 +566,7 @@ function calculateHit(doc:CalculatorDocument,hit:CalculatorHit,stats:CalculatorF
       const unit=key==="characterLevel"||key==="ascension"?"level":key==="additiveBaseDamage"?"damage":key==="damageBonus"||key==="reactionBonus"?"ratio":panelUnit(key);
       audit.add(`snapshot.${key}`,"stage.capturedFinalSnapshot",v(key),[traceInput(key,value,unit,"captured-final-snapshot",`input.${key}`)],{unit,explanationKey:"explain.capturedFinalSnapshot",applicabilityReason:`${saved.source}；${saved.origin==="equipment-conversion"?"已转换的逐击":"历史"}进攻上下文，不读取当前构筑的装备数值或条件。目标防御和抗性仍按本次命中输入。`});
     }
+    appendFinalizedEquipmentTrace(hit,audit);
     return {...output,trace:[...audit.nodes,...output.trace]};
   }
   const blockers:string[]=[];
@@ -624,7 +629,7 @@ function calculateHit(doc:CalculatorDocument,hit:CalculatorHit,stats:CalculatorF
   if(weaponProcCoefficientFormula)executeContextFormula(b,"weaponProcCoefficient","来源武器追击倍率选择",weaponProcCoefficientFormula,{},"ratio","explain.contextFormula");
   const hitPanel=executeHitPanel(doc.build,stats,hit,formulaScope,b,doc),hitStats=hitPanel.stats;
   const equipmentContext=executeEquipmentHitContext(doc.build,hit,hitStats,b,formulaScope,hitPanel);
-  for(const [index,record] of (hit.finalizedEquipmentEffects??[]).entries())b.add(`finalizedEquipmentEffect.${index}`,"stage.finalizedEquipmentEffect",record.expression,record.inputs.map(input=>traceInput(input.key,input.value,input.unit,input.origin,input.meaningKey)),{unit:record.kind==="additive-base"?"damage":"ratio",status:"not-applicable",ruleId:record.ruleId,sourceRefs:record.sourceRefs,explanationKey:"explain.finalizedEquipmentEffect",applicabilityReason:`${record.label}：转换时记录的贡献 ${record.amount} 已含于本段${record.kind==="additive-base"?"附加基数":"最终暴击属性"}，只复现来源代入，不再次应用。`});
+  appendFinalizedEquipmentTrace(hit,b);
   const reactionBonus=executeHitReactionBonus(doc.build,hit,b),effectiveResistance=executeHitResistance(doc.build,hit,doc.enemy.resistance,b,formulaScope,hitStats);
   let damageBonus=executeHitDamageBonuses(doc.build,hit,b,hit.damageBonusFormula?"equipmentAndManualDamageBonus":"applicableDamageBonus",hitStats,hitPanel);
   if(hit.damageBonusFormula){
@@ -766,7 +771,8 @@ export function calculateDocument(document:CalculatorDocument,trust:CalculatorTr
   hits.forEach((result,index)=>{result.trace.push(...rawSourceStateTrace(doc,selected[index]!),...observedCharacterResourceTrace(doc,selected[index]!),...neferPhantasmEventTrace(selected[index]!),...iansanSwiftResolvedEventTrace(selected[index]!),...observedSpecialComponentEventTrace(selected[index]!),...travelerHydroResolvedEventTrace(selected[index]!),...travelerCryoStateEventTrace(selected[index]!),...travelerCrossEntityEventTrace(selected[index]!),...zibaiFiniteEventTrace(selected[index]!),...entityFollowupEventTrace(selected[index]!),...extendedStanceEventTrace(selected[index]!),...noellePlungeEventTrace(selected[index]!),...mixedSourceEventTrace(selected[index]!),...coordinatedEventTrace(selected[index]!),...heldLifecycleEventTrace(selected[index]!),...idleStanceEventTrace(selected[index]!),...observedEntityEventTrace(selected[index]!,doc),...periodicOrdinaryEventTrace(selected[index]!),...travelerMaleChargedEventTrace(selected[index]!));});
   const blockers=hits.flatMap(hit=>hit.blockers);
   const equipment=usesOrdinaryBuild&&doc.build.mode==="equipment-derived"?doc.build.equipment:undefined;
-  if(equipment?.additiveBaseBonuses?.length||equipment?.criticalBonuses?.length)hits.forEach((result,index)=>{if(selected[index]!.kind!=="ordinary")result.trace.push(infoNode("ordinaryEquipmentEffectsExcluded","普通命中的装备基数附加与标签暴击属性不适用于本段；未转成剧变、特殊反应或非伤害事件的效果。"));});
+  const excludedEquipment=doc.build.mode==="equipment-derived"?doc.build.equipment:undefined;
+  if(excludedEquipment?.additiveBaseBonuses?.length||excludedEquipment?.criticalBonuses?.length)hits.forEach((result,index)=>{if(selected[index]!.kind!=="ordinary")result.trace.push(infoNode("ordinaryEquipmentEffectsExcluded","普通命中的装备基数附加与标签暴击属性不适用于本段；未转成剧变、特殊反应或非伤害事件的效果。"));});
   const warnings=[...doc.assumptions,...hits.flatMap(hit=>hit.warnings??[]),...(equipment?.assumptions??[]),...(equipment?.effectBlockers??[])];
   if(usesOrdinaryBuild&&equipment&&equipment.bonusAccounting!=="core-sourced-v1")warnings.push("旧版装备文档兼容模式：元素／物理面板增伤已包含于各段输入，不再次从装备来源加算；重新应用装备会迁移到来源逐项结算。");
   if(usesOrdinaryBuild&&doc.build.mode!=="equipment-derived") warnings.push("最终面板作为入口；其之前的装备与增益分解不可用，不重复加入装备数值。");

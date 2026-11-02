@@ -1,0 +1,12 @@
+{
+  "scope": "Known issue annotation for the immutable historical hypothetical scene; not a result-schema migration or recomputation.",
+  "historicalCaptureSha256": "5d737b64f5e5f73fe22508a3bc0ad38e50525be9c74b875a482e0936b89587e8",
+  "historicalWasmSha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
+  "correctedWasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+  "issue": "Wanderer C2 Q-only damage bonus leaked to three C6 extra hits and two Nicole C1 projections owned by Wanderer.",
+  "changedHitCount": 5,
+  "isolatedOvercount": 218030.29333733,
+  "correctedSameSeedBaselineDps": 244413.35118070815,
+  "oldValuesRetained": true,
+  "replacementPage": "wanderer-team-recharge.html"
+}

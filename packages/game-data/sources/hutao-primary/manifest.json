@@ -1,0 +1,431 @@
+{
+  "format": "gidps-hutao-paramita-selected-hits-source-v1",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "provisional",
+  "files": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/skill.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/skill.go",
+      "sha256": "8ccdf8eebe5a75ef4561bf78822d81d399a0c9177e48a3acdad4bd89b91d1685",
+      "gitBlob": "8aa3d354ab9366e9902e315a07ae763314729e78"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/attack.go",
+      "sha256": "8bd8a66e73139d2da8fafb1029b25e7f846461ebf5bf6218bdff7a9f6ce1a8dc",
+      "gitBlob": "2d5ff8d31b4fbc690df4846ce91eea9ea58f099e"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/charge.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/charge.go",
+      "sha256": "ab0fe7084e1e4d917885de0ccd24629f9fa4621e5ae630ae82ae527ad75d3877",
+      "gitBlob": "f3a851be78a6e14b708b0a0a63e9dd655ee727a0"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/asc.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/asc.go",
+      "sha256": "bfc9270018335d4b61ffdd866da6f10a847c0fe7ee4fb1fcc918927ed711af9f",
+      "gitBlob": "49ae31517074dbf7095cfa48b08dd6eab51b85b6"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/cons.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/cons.go",
+      "sha256": "898f808f65281bc1d74fa9bc497e781c40ecf33f26b95c3ebf2177120ab02070",
+      "gitBlob": "e5d0426fa2afc8a4d153e97f829c92fa1d693790"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/hutao.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/hutao.go",
+      "sha256": "484ce9c2d3e8e50e7583741adc6705140f99ff099a67b2915582917437c97b6f",
+      "gitBlob": "89ce3569987d7fb4e620cb639bb186cdfc37833c"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/zz_hutao.dm.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/zz_hutao.dm.go",
+      "sha256": "ccfe0f4d7dff2a63c595aeac215af4b20faeb47dd4fc8bed09536f7f188a3495",
+      "gitBlob": "f416d0379c972bb3aad6724ee998ce03f74772f3"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/hutao/burst.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/hutao/burst.go",
+      "sha256": "8757cc0423fde1cb7dc8cdcd4d9485763c1145c160caa476dca6bbe7c20dce0e",
+      "gitBlob": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/character.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+    }
+  ],
+  "coefficients": [
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param1",
+      "action": "normal-1",
+      "hitmark": 12,
+      "snapshotFrame": 12,
+      "values": [
+        0.468864,
+        0.500832,
+        0.5328,
+        0.575424,
+        0.607392,
+        0.644688,
+        0.69264,
+        0.740592,
+        0.788544,
+        0.836496,
+        0.884448,
+        0.9324,
+        0.980352,
+        1.028304,
+        1.076256
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param2",
+      "action": "normal-2",
+      "hitmark": 9,
+      "snapshotFrame": 9,
+      "values": [
+        0.482539,
+        0.51544,
+        0.54834,
+        0.592207,
+        0.625108,
+        0.663491,
+        0.712842,
+        0.762193,
+        0.811543,
+        0.860894,
+        0.910244,
+        0.959595,
+        1.008946,
+        1.058296,
+        1.107647
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param3",
+      "action": "normal-3",
+      "hitmark": 17,
+      "snapshotFrame": 17,
+      "values": [
+        0.6105,
+        0.652125,
+        0.69375,
+        0.74925,
+        0.790875,
+        0.839438,
+        0.901875,
+        0.964313,
+        1.02675,
+        1.089188,
+        1.151625,
+        1.214063,
+        1.2765,
+        1.338938,
+        1.401375
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param4",
+      "action": "normal-4",
+      "hitmark": 22,
+      "snapshotFrame": 22,
+      "values": [
+        0.65641,
+        0.701165,
+        0.74592,
+        0.805594,
+        0.850349,
+        0.902563,
+        0.969696,
+        1.036829,
+        1.103962,
+        1.171094,
+        1.238227,
+        1.30536,
+        1.372493,
+        1.439626,
+        1.506758
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param5",
+      "action": "normal-5-1",
+      "hitmark": 15,
+      "snapshotFrame": 15,
+      "values": [
+        0.332737,
+        0.355423,
+        0.37811,
+        0.408359,
+        0.431045,
+        0.457513,
+        0.491543,
+        0.525573,
+        0.559603,
+        0.593633,
+        0.627663,
+        0.661693,
+        0.695722,
+        0.729752,
+        0.763782
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "action": "normal-5-2",
+      "hitmark": 26,
+      "snapshotFrame": 26,
+      "values": [
+        0.352,
+        0.376,
+        0.4,
+        0.432,
+        0.456,
+        0.484,
+        0.52,
+        0.556,
+        0.592,
+        0.628,
+        0.664,
+        0.7,
+        0.736,
+        0.772,
+        0.808
+      ]
+    },
+    {
+      "sourceTable": "attack",
+      "abilityKey": "combat1",
+      "parameterKey": "param7",
+      "action": "normal-6",
+      "hitmark": 27,
+      "snapshotFrame": 27,
+      "values": [
+        0.859584,
+        0.918192,
+        0.9768,
+        1.054944,
+        1.113552,
+        1.181928,
+        1.26984,
+        1.357752,
+        1.445664,
+        1.533576,
+        1.621488,
+        1.7094,
+        1.797312,
+        1.885224,
+        1.973136
+      ]
+    },
+    {
+      "sourceTable": "charge",
+      "abilityKey": "combat1",
+      "parameterKey": "param8",
+      "action": "charged",
+      "hitmark": 3,
+      "snapshotFrame": 0,
+      "values": [
+        1.3596,
+        1.4523,
+        1.545,
+        1.6686,
+        1.7613,
+        1.86945,
+        2.0085,
+        2.14755,
+        2.2866,
+        2.42565,
+        2.5647,
+        2.70375,
+        2.8428,
+        2.98185,
+        3.1209
+      ]
+    }
+  ],
+  "skillConversion": {
+    "sourceTable": "ppatk",
+    "abilityKey": "combat2",
+    "parameterKey": "param2",
+    "values": [
+      0.03841,
+      0.04071,
+      0.04301,
+      0.046,
+      0.0483,
+      0.0506,
+      0.05359,
+      0.05658,
+      0.05957,
+      0.06256,
+      0.06555,
+      0.06854,
+      0.07153,
+      0.07452,
+      0.07751
+    ],
+    "attackCapBaseMultiplier": 4,
+    "hpSample": "c.MaxHP() at E invocation, before the 30% current-HP drain",
+    "classification": "Extra flat ATK; not multiplied by ATK% or reused as HP"
+  },
+  "crossVariant": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "files": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/skill.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/skill.go",
+        "sha256": "8ccdf8eebe5a75ef4561bf78822d81d399a0c9177e48a3acdad4bd89b91d1685",
+        "gitBlob": "8aa3d354ab9366e9902e315a07ae763314729e78"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/attack.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/attack.go",
+        "sha256": "fb59b2caa0927b97ef1e6fea0d33e30478d7df482911eb6689e6bcb04d7c758f",
+        "gitBlob": "4379097b829e34563dd41a7f35f538f823283e19"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/charge.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/charge.go",
+        "sha256": "ab0fe7084e1e4d917885de0ccd24629f9fa4621e5ae630ae82ae527ad75d3877",
+        "gitBlob": "f3a851be78a6e14b708b0a0a63e9dd655ee727a0"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/asc.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/asc.go",
+        "sha256": "bfc9270018335d4b61ffdd866da6f10a847c0fe7ee4fb1fcc918927ed711af9f",
+        "gitBlob": "49ae31517074dbf7095cfa48b08dd6eab51b85b6"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/cons.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/cons.go",
+        "sha256": "898f808f65281bc1d74fa9bc497e781c40ecf33f26b95c3ebf2177120ab02070",
+        "gitBlob": "e5d0426fa2afc8a4d153e97f829c92fa1d693790"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/hutao.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/hutao.go",
+        "sha256": "484ce9c2d3e8e50e7583741adc6705140f99ff099a67b2915582917437c97b6f",
+        "gitBlob": "89ce3569987d7fb4e620cb639bb186cdfc37833c"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/zz_hutao.dm.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/zz_hutao.dm.go",
+        "sha256": "ccfe0f4d7dff2a63c595aeac215af4b20faeb47dd4fc8bed09536f7f188a3495",
+        "gitBlob": "f416d0379c972bb3aad6724ee998ce03f74772f3"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/hutao/burst.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/hutao/burst.go",
+        "sha256": "8757cc0423fde1cb7dc8cdcd4d9485763c1145c160caa476dca6bbe7c20dce0e",
+        "gitBlob": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/attack.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attack.go",
+        "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+        "gitBlob": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "pkg/core/player/character/character.go",
+        "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/character.go",
+        "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+        "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+      }
+    ],
+    "differences": [
+      {
+        "path": "internal/characters/hutao/attack.go",
+        "scope": "Stellar uses Paramita hitmarks for normal-cancel slices and allows last-normal to charged transitions. Direct multipliers, declared Paramita hitmark snapshots, E HP-to-ATK cap, and A4 behavior are unchanged. This module does not simulate cancellations or attack cycles."
+      }
+    ],
+    "allTenFilesByteIdentical": false
+  },
+  "support": {
+    "constellations": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "c1": "ActionStam returns zero for charged attacks during Paramita; no direct damage coefficient change. No stamina event is executed.",
+    "normalContacts": 7,
+    "chargedContacts": 1,
+    "scope": "one explicitly selected contact; not a normal chain or full E rotation",
+    "a4": "Ascension4+, +0.33 Pyro bonus at snapshot HP <=50%; stable threshold branch only because fixed source documents a 0.3s in-game polling approximation.",
+    "excluded": [
+      "Q",
+      "blood-blossom followups",
+      "energy and cooldown scheduling",
+      "PP slide cancellation lifecycle",
+      "claim of official game verification",
+      "C2 blood-blossom extra damage",
+      "C4 teammate crit-rate effects",
+      "C6 trigger/revival/duration/cooldown and source polling lifecycle"
+    ],
+    "maximumConstellation": 6,
+    "c2": "Only the Blood Blossom callback gains 0.1 MaxHP flat damage; no term is added to selected normal/charged contacts.",
+    "c3": "hutao.go SkillCon=3; common TalentLvlSkill adds the source three levels. This calculator consumes independently supplied effective E level once, without adding C3 again.",
+    "c4": "The target-death team CR callback explicitly excludes Hu Tao; no own normal/charged CR bonus is added.",
+    "c5": "hutao.go BurstCon=5 changes Q talent levels, outside these NA/CA contacts.",
+    "c6": {
+      "critRateBonus": 1,
+      "buffFrames": 600,
+      "cooldownFrames": 3600,
+      "sourcePollingFrames": 120,
+      "accounting": "explicit actual-hit c6Active minus explicitly included final-panel share; core clamps probability",
+      "activation": "never inferred from current HP/constellation; damage, revival, timing and source 2-second polling are not generated",
+      "fields": [
+        "c6Active",
+        "c6CritRateIncludedInPanel"
+      ]
+    },
+    "legacySkillIds": "Existing -c0-c1 skillIds remain stable identifiers; verified own-hit support now covers C0-C6 with explicit C6 state."
+  }
+}

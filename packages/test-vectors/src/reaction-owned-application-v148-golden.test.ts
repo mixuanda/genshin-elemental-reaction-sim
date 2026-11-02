@@ -7,6 +7,9 @@ import {
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
 } from "@genshin-dps-lab/icd-profiles";
 import {
+  assertTrustedSimulationResult,
+  simulationResultSchema,
+  type SimulationResult,
   assertTrustedSimulationResultV148,
   simulationResultV148Schema,
   type SimConfig,
@@ -15,6 +18,7 @@ import {
 import { describe, expect, it } from "vitest";
 
 import { simulate } from "../../sim-core/src/simulator";
+import { parseEventStepResult, simulateEventStepResult } from "../../sim-core/src/event-step-result";
 import {
   makeConfig,
   neutralStats,
@@ -353,7 +357,7 @@ function reactionDamageProjection(result: SimulationResultForV148) {
   }));
 }
 
-function burningDeliveryProjection(result: SimulationResultForV148) {
+function burningDeliveryProjection(result: SimulationResultForV148 | SimulationResult) {
   return result.targetPhaseLog.flatMap((phase) =>
     phase.model !== "target-phase-v3"
       ? []
@@ -407,37 +411,38 @@ function scenarioFixture(result: SimulationResultForV148) {
   };
 }
 
+type OwnedCase = "burning" | "swirl";
+const HISTORICAL_URL = new URL("./fixtures/historical-reaction-owned-application-v153-84ff5cd.json", import.meta.url);
+function readHistoricalOwned(): Record<OwnedCase, SimulationResult> {
+  const bytes = readFileSync(HISTORICAL_URL);
+  expect(byteSha256(bytes)).toBe("f533e25c7c6c8aedc67c36b212c966e9f8a9736ea33f7e8185b5a99f8fc157d7");
+  const archive = JSON.parse(bytes.toString("utf8")) as { fixtureVersion: string; source: { commit: string; tree: string }; cases: Array<{caseId: OwnedCase; sourceWireText: string; sourceWireSha256: string}> };
+  expect(archive).toMatchObject({fixtureVersion:"historical-reaction-owned-application-v153-84ff5cd-v1",source:{commit:"84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",tree:"72bd69a8c54a3e115685c7ee52f5862064c70f55"}});
+  expect(archive.cases.map(row=>row.caseId)).toEqual(["burning","swirl"]);
+  expect(archive.cases.map(row=>row.sourceWireSha256)).toEqual(["7b45cd656034b605f004c065ae075cf577ae9f0a20cc4665438219efab82d6ec","74572c25cc35f6e4fec46f841e7432f1014f7f1661a966c37934f6c775bb1367"]);
+  const result = {} as Record<OwnedCase,SimulationResult>;
+  for(const row of archive.cases){expect(byteSha256(Buffer.from(row.sourceWireText))).toBe(row.sourceWireSha256);result[row.caseId]=JSON.parse(row.sourceWireText) as SimulationResult;expect(result[row.caseId].resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");expect(result[row.caseId].runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");}
+  return result;
+}
+function runCurrentOwned(): Record<OwnedCase,SimulationResult> {
+  return {burning:simulate(makeBurningApplicationConfig(),{critMode:"noCrit",randomSeed:"synthetic-reaction-owned-burning-1.48"}),swirl:simulate(makeSwirlApplicationConfig(),{critMode:"noCrit",randomSeed:"synthetic-reaction-owned-swirl-1.48"})};
+}
+function historicalProjection(result: SimulationResult): SimulationResultForV148 {
+  return projectSimulationResultV149ToV148(projectSimulationResultV150ToV149(projectSimulationResultV151ToV150(projectSimulationResultV152ToV151(projectSimulationResultV153ToV152(result)))));
+}
 function runScenarios() {
-  return {
-    burning: projectSimulationResultV149ToV148(
-      projectSimulationResultV150ToV149(
-        projectSimulationResultV151ToV150(
-          projectSimulationResultV152ToV151(
-            projectSimulationResultV153ToV152(
-              simulate(makeBurningApplicationConfig(), {
-                critMode: "noCrit",
-                randomSeed: "synthetic-reaction-owned-burning-1.48",
-              }),
-            ),
-          ),
-        ),
-      ),
-    ),
-    swirl: projectSimulationResultV149ToV148(
-      projectSimulationResultV150ToV149(
-        projectSimulationResultV151ToV150(
-          projectSimulationResultV152ToV151(
-            projectSimulationResultV153ToV152(
-              simulate(makeSwirlApplicationConfig(), {
-                critMode: "noCrit",
-                randomSeed: "synthetic-reaction-owned-swirl-1.48",
-              }),
-            ),
-          ),
-        ),
-      ),
-    ),
-  };
+  const original=readHistoricalOwned();
+  return {burning:historicalProjection(original.burning),swirl:historicalProjection(original.swirl)};
+}
+/** Expected-only migration of thirteen source-proven identity/allocation fields.
+ * Never transform actual output, delete fields or rename any queue/reference ID. */
+function expectedCurrentOwned(): Record<OwnedCase,SimulationResult> {
+  const result=readHistoricalOwned();
+  for(const [key,reproducibilityKey,points] of [["burning","gdl-v2-fnv1a32-d7f07422",[4]],["swirl","gdl-v2-fnv1a32-bf7e6e5a",[5,11,17,23]]] as const){
+    const r=result[key];r.resolvedRuntimeOptions.flatStatBuffSemantics="canonical-v1";r.runManifest.resolvedRuntimeOptions.flatStatBuffSemantics="canonical-v1";r.reproducibilityKey=reproducibilityKey;r.runManifest.reproducibilityKey=reproducibilityKey;
+    for(const index of points){const point=r.targetStateTimeline.points[index]!;expect(point).toMatchObject({cause:"direct-hit-application",intraEventSequence:0});point.intraEventSequence=1;}
+  }
+  return result;
 }
 
 function makeFixture(results: ReturnType<typeof runScenarios>) {
@@ -467,7 +472,7 @@ function expectV148Trusted(result: SimulationResultForV148): void {
   expect(assertTrustedSimulationResultV148(result)).toBe(result);
 }
 
-function expectBurningSemantics(result: SimulationResultForV148): void {
+function expectBurningSemantics(result: SimulationResultForV148 | SimulationResult): void {
   const rows = result.elementalApplicationIcdLog.filter(
     (entry) => entry.sourceKind === "burning-tick",
   );
@@ -496,6 +501,7 @@ function expectBurningSemantics(result: SimulationResultForV148): void {
     ownerRows.every(
       (entry) =>
         entry.nominalGaugeUnits === 1 &&
+        entry.selector.mode === "fixed-gcsim-reaction-owned-application-v1" &&
         entry.selector.channel.kind === "burning-tick" &&
         entry.decision.kind === "reaction-fixed-gcsim" &&
         entry.decision.icdTag === "ICDTagBurningDamage" &&
@@ -536,7 +542,7 @@ function expectBurningSemantics(result: SimulationResultForV148): void {
   }
 }
 
-function expectSwirlSemantics(result: SimulationResultForV148): void {
+function expectSwirlSemantics(result: SimulationResultForV148 | SimulationResult): void {
   const rows = result.elementalApplicationIcdLog.filter(
     (entry) => entry.sourceKind === "swirl-propagation",
   );
@@ -561,6 +567,7 @@ function expectSwirlSemantics(result: SimulationResultForV148): void {
       (entry) =>
         entry.nominalGaugeUnits === 2.2 &&
         entry.effectiveGaugeUnits === 2.2 &&
+        entry.selector.mode === "fixed-gcsim-reaction-owned-application-v1" &&
         entry.selector.channel.kind === "swirl-propagation" &&
         entry.selector.channel.element === "pyro" &&
         entry.decision.kind === "reaction-fixed-gcsim" &&
@@ -665,4 +672,47 @@ describe("reaction-owned application 1.48 Golden", () => {
       expect(frozen).toEqual(generated);
     },
   );
+});
+
+describe("current reaction-owned Burning and Swirl contracts",()=>{
+  it("preserves complete current wires and independent target-owned numerical/causal outcomes",()=>{
+    const results=runCurrentOwned();expect(runCurrentOwned()).toStrictEqual(results);expect(results).toStrictEqual(expectedCurrentOwned());
+    for(const r of Object.values(results)){expect(simulationResultSchema.parse(r)).toEqual(r);expect(assertTrustedSimulationResult(r)).toBe(r);}
+    expectBurningSemantics(results.burning);expectSwirlSemantics(results.swirl);
+    // Fixed level90 curve, actual EM100/bonus.2/resistance.1; Burning .25 and Swirl .6.
+    const factor=1446.8535*(1+16*100/2100+.2)*.9,burningTick=.25*factor,swirlHit=.6*factor;
+    expect(results.burning.damageEvents).toHaveLength(28);expect(results.swirl.damageEvents).toHaveLength(24);
+    results.burning.damageEvents.forEach((row,index)=>expect(row.finalDamage).toBeCloseTo(index===0?0:burningTick,10));expect(results.burning.totalDamage).toBeCloseTo(27*burningTick,9);
+    const swirlZero=[0,6,12,13,14,15,16,17,18];results.swirl.damageEvents.forEach((row,index)=>expect(row.finalDamage).toBeCloseTo(swirlZero.includes(index)?0:swirlHit,10));expect(results.swirl.totalDamage).toBeCloseTo(15*swirlHit,9);
+    expect(results.swirl.damageEvents.map(row=>row.frame)).toEqual([0,1,5,5,5,5,6,7,11,11,11,11,12,13,17,17,17,17,36,37,41,41,41,41]);
+    // Target-owned Burning's late frame135 slot is absent; three actual nearby recipients per retained tick.
+    expect(results.burning.damageEvents.slice(1).map(row=>row.frame)).toEqual([15,30,45,60,75,90,105,120,150].flatMap(frame=>[frame,frame,frame]));
+    expect(results.burning.damageEvents.slice(1).map(row=>row.targetId)).toEqual(Array.from({length:9},()=>["early-recipient","enemy-0","late-recipient"]).flat());
+    const coordinates={burning:[[4,1,0,2,0]],swirl:[[5,0,0,4,0],[11,6,6,22,6],[17,12,12,40,12],[23,18,36,58,18]]} as const;
+    for(const key of ["burning","swirl"] as const)for(const [pointId,hitId,frame,sequence,damageId] of coordinates[key]){
+      expect(results[key].targetStateTimeline.points[pointId]).toMatchObject({cause:"direct-hit-application",frame,eventPriority:3,eventSequence:sequence,intraEventSequence:1,primaryDamageEventId:damageId});
+      expect(results[key].hitResolutionLog[hitId]).toMatchObject({frame,eventPriority:3,eventSequence:sequence,intraEventSequence:0,damageEventId:damageId});
+    }
+  });
+  it("refuses current canonical projection without mutating it while genuine history reproduces the frozen Golden",()=>{
+    const current=runCurrentOwned(),before=structuredClone(current);for(const r of Object.values(current))expect(()=>historicalProjection(r)).toThrow(/flatStatBuffSemantics/);expect(current).toStrictEqual(before);
+    expect(makeFixture(runScenarios())).toStrictEqual(JSON.parse(readFileSync(FIXTURE_URL,"utf8")));
+  });
+  it.each(["burning","swirl"] as const)("%s keeps direct substep chronology in the current oracle and real1.54 witness",key=>{
+    const current=runCurrentOwned()[key],pointId=key==="burning"?4:5,forged=structuredClone(current);forged.targetStateTimeline.points[pointId]!.intraEventSequence=0;
+    // Legacy1.53 does not attest this allocation index;1.54 carries actual witnesses.
+    expect(simulationResultSchema.parse(forged)).toEqual(forged);expect(()=>expect(forged).toStrictEqual(expectedCurrentOwned()[key])).toThrow();
+    const captured=simulateEventStepResult(key==="burning"?makeBurningApplicationConfig():makeSwirlApplicationConfig(),{critMode:"noCrit",randomSeed:`synthetic-reaction-owned-${key}-1.48`});
+    const before=structuredClone(captured.wire),parsed=parseEventStepResult(JSON.parse(JSON.stringify(captured.wire)));expect(parsed.result.damageEvents).toStrictEqual(current.damageEvents);expect(parsed.result.targetStateTimeline).toStrictEqual(current.targetStateTimeline);
+    const bad=structuredClone(captured.wire);bad.result.targetStateTimeline.points[pointId]!.intraEventSequence=0;expect(()=>parseEventStepResult(JSON.parse(JSON.stringify(bad)))).toThrow();expect(captured.wire).toStrictEqual(before);
+  });
+  for(const key of ["burning","swirl"] as const)it.each(["application-hit","hit-application","damage-hit","application-damage"] as const)(`${key}: public parser rejects forged %s`,mutation=>{
+    const original=runCurrentOwned()[key];expect(simulationResultSchema.parse(JSON.parse(JSON.stringify(original)))).toEqual(original);
+    const forged=structuredClone(original);const row=forged.elementalApplicationIcdLog.find(entry=>entry.sourceKind===(key==="burning"?"burning-tick":"swirl-propagation")&&entry.damageEventId!==null)!;
+    if(mutation==="application-hit")row.hitResolutionLogId=0;
+    if(mutation==="hit-application")forged.hitResolutionLog[row.hitResolutionLogId]!.elementalApplicationIcdLogId=0;
+    if(mutation==="damage-hit")forged.damageEvents[row.damageEventId!]!.targetResolutionId=0;
+    if(mutation==="application-damage")row.damageEventId=0;
+    expect(simulationResultSchema.safeParse(JSON.parse(JSON.stringify(forged))).success).toBe(false);expect(()=>expect(forged).toStrictEqual(expectedCurrentOwned()[key])).toThrow();expect(simulationResultSchema.parse(original)).toEqual(original);
+  });
 });

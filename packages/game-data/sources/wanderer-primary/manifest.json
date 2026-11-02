@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "numericEvidenceStatus": "single-source-extracted",
+  "status": "Fixed community source, not current-game certification",
+  "files": [
+    {
+      "path": "internal/characters/wanderer/wanderer.go",
+      "sha256": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd",
+      "gitBlob": "4d2bc8068319ae2ecd6a84516d603ee203252928",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/wanderer.go"
+    },
+    {
+      "path": "internal/characters/wanderer/attack.go",
+      "sha256": "f9d407581c920c4909e9577742126f68ac47a6021fa1c2b463527a8833f6efa5",
+      "gitBlob": "72e36762e68d56527ca8d394a364b0397e9d79e5",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/attack.go"
+    },
+    {
+      "path": "internal/characters/wanderer/skill.go",
+      "sha256": "0d0c449c12770964407d081f26fdbde5822a73f19616f61136a3b824f0d1eba1",
+      "gitBlob": "7e04db88622a87fc3ab3808a29829e827002cb1b",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/skill.go"
+    },
+    {
+      "path": "internal/characters/wanderer/burst.go",
+      "sha256": "7e5d27192b504c64c6ae77c28044f200deb42edacb766993fba557af31b1f5cd",
+      "gitBlob": "49e1c296b02cc3bb7d337405b6d4654965084344",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/burst.go"
+    },
+    {
+      "path": "internal/characters/wanderer/asc.go",
+      "sha256": "f418a0abcf94b94a6c2f9220d42547720593a6ba38333c3236d09773b0b8faa1",
+      "gitBlob": "a542b9c4f0b5e93327b77f352813c50e9e881524",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/asc.go"
+    },
+    {
+      "path": "internal/characters/wanderer/cons.go",
+      "sha256": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371",
+      "gitBlob": "711fd1dfc2707bc2fd4321410f45b507814d2543",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/cons.go"
+    },
+    {
+      "path": "internal/characters/wanderer/zz_wanderer.dm.go",
+      "sha256": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+      "gitBlob": "f481a945093ff74b54f146ee71366b672089a314",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/zz_wanderer.dm.go"
+    },
+    {
+      "path": "internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go",
+      "sha256": "8794151b734d749fc6f6c54c8ece794a26e40de62f8280229222d840179862fb",
+      "gitBlob": "b75702a09a043299f73fc936eefa872df78e63a0",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go"
+    }
+  ],
+  "tables": {
+    "attack": [
+      [
+        [
+          0.68714,
+          0.74307,
+          0.799,
+          0.8789,
+          0.93483,
+          0.99875,
+          1.08664,
+          1.17453,
+          1.26242,
+          1.3583,
+          1.45418,
+          1.55006,
+          1.64594,
+          1.74182,
+          1.8377
+        ]
+      ],
+      [
+        [
+          0.65016,
+          0.70308,
+          0.756,
+          0.8316,
+          0.88452,
+          0.945,
+          1.02816,
+          1.11132,
+          1.19448,
+          1.2852,
+          1.37592,
+          1.46664,
+          1.55736,
+          1.64808,
+          1.7388
+        ]
+      ],
+      [
+        [
+          0.47644,
+          0.51522,
+          0.554,
+          0.6094,
+          0.64818,
+          0.6925,
+          0.75344,
+          0.81438,
+          0.87532,
+          0.9418,
+          1.00828,
+          1.07476,
+          1.14124,
+          1.20772,
+          1.2742
+        ],
+        [
+          0.47644,
+          0.51522,
+          0.554,
+          0.6094,
+          0.64818,
+          0.6925,
+          0.75344,
+          0.81438,
+          0.87532,
+          0.9418,
+          1.00828,
+          1.07476,
+          1.14124,
+          1.20772,
+          1.2742
+        ]
+      ]
+    ],
+    "skillNABonus": [
+      1.329825,
+      1.349575,
+      1.369325,
+      1.395,
+      1.41475,
+      1.4345,
+      1.460175,
+      1.48585,
+      1.511525,
+      1.5372,
+      1.562875,
+      1.58855,
+      1.614225,
+      1.6399,
+      1.665575
+    ],
+    "burst": [
+      1.472,
+      1.5824,
+      1.6928,
+      1.84,
+      1.9504,
+      2.0608,
+      2.208,
+      2.3552,
+      2.5024,
+      2.6496,
+      2.7968,
+      2.944,
+      3.128,
+      3.312,
+      3.496
+    ]
+  },
+  "rules": {
+    "normal": "Each Windfavored normal Mult=attack[step][subhit][effectiveNA-1]*skillNABonus[effectiveE-1]. C5 is already included in effectiveE; do not add it again.",
+    "c6": "Parent successful hit callback checks Windfavored and positive Kuugoryoku; one extra0.4*parent.Mult at8f with a fresh snapshot, not a second copy of parent damage.",
+    "a1": "Actual Pyro ATKP30% and Cryo CR20% at selected snapshot; C4 chooses an additional random element only after an actual absorption. Neither means neither of these two offensive buffs, not no Hydro/Electro absorption.",
+    "q": "Five source hits92+6*i share55f snapshot. Windfavored C2 samples spent Kuugoryoku at cast: min(spent*.04,2). Not normal/extra damage; patch137 scopes the existing snapshot modifier.",
+    "limits": "No stance lifecycle, random C4, energy, speed/weapon stack history or queued attack reproduction. Selected C6 extra uses its own panel; not parent panel by default."
+  },
+  "c2ScopePatch": {
+    "path": "packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch",
+    "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa"
+  }
+}

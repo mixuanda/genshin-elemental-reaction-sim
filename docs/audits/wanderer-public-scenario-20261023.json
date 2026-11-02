@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "scope": "Read-only reuse of existing corrected Classic captures; no native/120-second run and no result mutation in this task.",
+  "repositoryBase": "404c76a7d9668169a1ee41273ee7d4226c9d3414",
+  "latestCompletedCapture": {
+    "endedAt": "2026-10-23T11:44:48.316Z",
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "executionArtifact": {
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "wasmBytes": 47084886
+    },
+    "files": [
+      {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.request.json",
+        "bytes": 3427,
+        "sha256": "c1158edf280d66b4fc567ef0c946892743b0e7aa41bea2f3adfe6b901711644f",
+        "matchesRunComplete": true
+      },
+      {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.gcsl",
+        "bytes": 3000,
+        "sha256": "4fed915e08373c9a25cdb28ef7fe0a9c63f36f5cae39808aa2f581c2c4c93059",
+        "matchesRunComplete": true
+      },
+      {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.native.json",
+        "bytes": 49679903,
+        "sha256": "0fdd4201c770aea374cc3edacee6b227ecd63a9f3979fd28ced51b19813a6fca",
+        "matchesRunComplete": true
+      },
+      {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.result.json",
+        "bytes": 50219676,
+        "sha256": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+        "matchesRunComplete": true
+      },
+      {
+        "path": "/tmp/GIDPS-legal-recharge-evidence-20261023/er150-seed-20261022-c2fixed/run.summary.json",
+        "bytes": 4670,
+        "sha256": "cca42f161ba918949f1035abaafd8b08f46b1236a1685dcd14bae05e6b504e80",
+        "matchesRunComplete": true
+      }
+    ]
+  },
+  "publicInputs": [
+    {
+      "path": "apps/web/public/examples/wanderer-team-120-classic.equipment.json",
+      "bytes": 23340,
+      "sha256": "e69e73a892aa7d48534c2e84493a95f83f96dd6f898caf654da27c0529f2bd68"
+    },
+    {
+      "path": "apps/web/public/examples/wanderer-team-120-classic.draft.json",
+      "bytes": 7928,
+      "sha256": "f76052c3a3c4693aae591974c74960b77f9d29f3c207141ab265508826a4fa04"
+    },
+    {
+      "path": "apps/web/public/examples/wanderer-team-recharge.original.gcsl",
+      "bytes": 3001,
+      "sha256": "a6bf4f3c03c2fc6e477651e23b3d6cea87bef1536020ffc48c94c6f55f72206f"
+    },
+    {
+      "path": "apps/web/public/examples/wanderer-team-recharge.er150.equipment.json",
+      "bytes": 3587,
+      "sha256": "9b2ebaf2f0276e3a41252ed658c9f5ae534f6c5b696d6a153fbc35c75555cd6a"
+    },
+    {
+      "path": "apps/web/public/examples/wanderer-team-recharge.er150.gcsl",
+      "bytes": 3000,
+      "sha256": "4fed915e08373c9a25cdb28ef7fe0a9c63f36f5cae39808aa2f581c2c4c93059"
+    }
+  ],
+  "currentRuntime": {
+    "manifestSha256": "a1227b856daffaea61b62a76872fec76741958a713e4e9b729a001fe20130440",
+    "inventoryMetadataSha256": "c518f93cdab88931f7c459b0dd24e50c2672cffec0ce7c4e87038fcad87b73ef"
+  },
+  "observed": {
+    "window": "[0,7200)",
+    "seed": "20261022",
+    "totalDamageFromNativeResult": 27069474.337322712,
+    "totalDamageFromApplications": 27069474.337322768,
+    "applicationCount": 610,
+    "nativeDps": 225578.9528110226,
+    "energyApplicationCount": 403,
+    "phaseFrames": [
+      1,
+      1322,
+      2643,
+      3964,
+      5285,
+      6606
+    ],
+    "qDecisionsReached": 23,
+    "qDecisionsReady": 23,
+    "wandererQDecisionFrames": [
+      1164,
+      2485,
+      3806,
+      5127,
+      6448
+    ],
+    "abilityGroups": [
+      {
+        "actorKey": "durin",
+        "ability": "Arcane Projection",
+        "hits": 6,
+        "damage": 428805.26231077017,
+        "firstFrame": 254,
+        "lastFrame": 6831,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "durin",
+        "ability": "Arcane Projection: Unity",
+        "hits": 3,
+        "damage": 354044.9393831723,
+        "firstFrame": 1692,
+        "lastFrame": 6976,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "durin",
+        "ability": "As the Light Shifts",
+        "hits": 18,
+        "damage": 461766.2336167349,
+        "firstFrame": 341,
+        "lastFrame": 7003,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "durin",
+        "ability": "Confirmation of Purity",
+        "hits": 6,
+        "damage": 148754.92183896585,
+        "firstFrame": 224,
+        "lastFrame": 6829,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "durin",
+        "ability": "Dragon of White Flame",
+        "hits": 104,
+        "damage": 3228093.840801652,
+        "firstFrame": 400,
+        "lastFrame": 7181,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "Arcane Projection",
+        "hits": 6,
+        "damage": 103031.56888490148,
+        "firstFrame": 488,
+        "lastFrame": 7093,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "Arcane Projection: Unity",
+        "hits": 3,
+        "damage": 128911.58074157107,
+        "firstFrame": 488,
+        "lastFrame": 5832,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+        "hits": 6,
+        "damage": 192476.75214063784,
+        "firstFrame": 458,
+        "lastFrame": 7063,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "Pressurized Collapse",
+        "hits": 42,
+        "damage": 880484.9794058738,
+        "firstFrame": 491,
+        "lastFrame": 7177,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "The Wind's Secret Ways",
+        "hits": 6,
+        "damage": 389889.1067569993,
+        "firstFrame": 518,
+        "lastFrame": 7123,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "Wind Realm of Nasamjnin",
+        "hits": 6,
+        "damage": 116356.08922445634,
+        "firstFrame": 373,
+        "lastFrame": 6978,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "faruzan",
+        "ability": "swirl-pyro",
+        "hits": 37,
+        "damage": 40150.184624999994,
+        "firstFrame": 374,
+        "lastFrame": 7124,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "nicole",
+        "ability": "Arcane Projection: Unity",
+        "hits": 3,
+        "damage": 328272.40625700343,
+        "firstFrame": 45,
+        "lastFrame": 5465,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "nicole",
+        "ability": "Revelation: Ladder of Divine Ascent",
+        "hits": 6,
+        "damage": 401206.920556218,
+        "firstFrame": 151,
+        "lastFrame": 6756,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "nicole",
+        "ability": "Revelation: Uncreated Light",
+        "hits": 6,
+        "damage": 191671.74798076437,
+        "firstFrame": 15,
+        "lastFrame": 6620,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Arcane Projection",
+        "hits": 10,
+        "damage": 511825.68176404637,
+        "firstFrame": 669,
+        "lastFrame": 6136,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Arcane Projection: Unity",
+        "hits": 10,
+        "damage": 1533536.7735166259,
+        "firstFrame": 852,
+        "lastFrame": 6575,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Charge Attack (Windfavored)",
+        "hits": 5,
+        "damage": 537976.2972096285,
+        "firstFrame": 606,
+        "lastFrame": 5890,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Hanega: Song of the Wind",
+        "hits": 6,
+        "damage": 335933.215818795,
+        "firstFrame": 539,
+        "lastFrame": 7144,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+        "hits": 25,
+        "damage": 2283179.6849929,
+        "firstFrame": 1261,
+        "lastFrame": 6569,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Normal 0 (Windfavored)",
+        "hits": 30,
+        "damage": 3013271.5279897302,
+        "firstFrame": 638,
+        "lastFrame": 6382,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Normal 1 (Windfavored)",
+        "hits": 30,
+        "damage": 2796118.799776033,
+        "firstFrame": 654,
+        "lastFrame": 6398,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Normal 2 (Windfavored)",
+        "hits": 60,
+        "damage": 4018077.9923899407,
+        "firstFrame": 701,
+        "lastFrame": 6453,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "Shugen: The Curtains’ Melancholic Sway",
+        "hits": 120,
+        "damage": 4575923.896390348,
+        "firstFrame": 646,
+        "lastFrame": 6461,
+        "formulaKinds": [
+          "damage"
+        ]
+      },
+      {
+        "actorKey": "wanderer",
+        "ability": "swirl-pyro",
+        "hits": 56,
+        "damage": 69713.93295,
+        "firstFrame": 540,
+        "lastFrame": 7145,
+        "formulaKinds": [
+          "damage"
+        ]
+      }
+    ],
+    "explanationStatus": "partial",
+    "explanationNoticeCount": 4131
+  },
+  "findings": [
+    {
+      "classification": "confirmed-user-input-wiring-gap",
+      "evidence": "The public er150 equipment JSON is a single EquipmentBuildInput; SourceTeamDraft import requires members/actions. The static draft compiles active wanderer and no ready/phase branches; the native witness starts active nicole with while/ready/phase.",
+      "resolution": "New dedicated prepareWandererPublicScenario validates the fixed payloads and all four actual piece builds, returns member-only editor draft and separate exact adaptive request. Shared UI integration belongs to root."
+    },
+    {
+      "classification": "required-non-text-request-setting",
+      "evidence": "The raw published GCSL calls phase(); patch073 registers this function only when PhaseConfig is present. Exact request must restore phaseObservation as well as script, seed, full-once startup and fixed duration."
+    }
+  ],
+  "limits": [
+    "No new engine mechanism defect independently demonstrated by this bounded review.",
+    "Actual source automatically produced 93 pyro swirls; no additional reactions or manual aura were injected. This is observation of the fixed source, not game-validation of every reaction rule.",
+    "Q acceptance is 23 reached decisions: Nicole/Durin/Faruzan each6; Wanderer5. Sixth phase is truncated before its WandererQ; this is not six full cycles or an unbounded steady-state proof.",
+    "Nicole/Durin builds retain the disclosed generic artifact assumptions, not player inventory or optimal builds.",
+    "Arcane Projection actorKey identifies the native attack executor; support owner attribution must use the separately audited origin chain.",
+    "Preparation is not shared UI acceptance; root owns actual loader and imported-result browser round trips."
+  ],
+  "verification": {
+    "command": "node node_modules/vitest/vitest.mjs run apps/web/src/wanderer-public-scenario.test.ts",
+    "result": "8 passed; no native engine invocation",
+    "log": "/tmp/GIDPS-wanderer-public-scenario-20261023.test.log"
+  }
+}

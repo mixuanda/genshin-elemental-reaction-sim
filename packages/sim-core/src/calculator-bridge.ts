@@ -1,3 +1,5 @@
+import { parseEventStepResult, EVENT_STEP_RESULT_FORMAT, type EventStepResult } from './event-step-result';
+import { replayDeclaredSwirlAmplification } from "./nested-swirl-amplification";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { getComposableSourceAbility } from "../../game-data/src/source-ability-registry";
 import { assertComposableSourceAbilities } from "./source-action-library";
@@ -5,14 +7,15 @@ import { calculateStatConversion } from "./stat-conversion";
 import { artifactDamageTrace } from "./artifact-damage-runtime";
 import { executeStellarConductAdjustment } from "./stellar-conduct-runtime";
 import { assertTrustedSimulationResult, simulationResultSchema, thrillingTalesForDamageEvent, type CharacterStats, type ScalingStat, type DamageEvent, type SimulationResult, type ActionConditionLogEntry, type WeaponProcLogEntry, type ThrillingTalesLogEntry } from "@genshin-dps-lab/schemas";
-import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, DAMAGE_FORMULA_SOURCES } from "./calculator-formula";
+import { calculateDamageTrace, calculateTransformativeDamageTrace, executeAdditiveDamage, reactionMasteryBonusExpression, DAMAGE_FORMULA_SOURCES } from "./calculator-formula";
 import { expr, TraceBuilder, traceInput, type CalculationTraceNode } from "./calculation-trace";
 import type { DamageCalculationInput, TransformativeReactionDamageInput } from "./formulas";
 import { getWeaponProcCoefficientFormula } from "./weapon-proc-calculator";
 
 /** The source result retains config, snapshots, reaction decisions and all pinned rule roots. */
 export interface CapturedSimulationHit {
-  schemaVersion: "calculator-event-v1";
+  schemaVersion: "calculator-event-v1" | "calculator-event-v2";
+  eventStepResult?: EventStepResult;
   eventId: number;
   sourceResult: SimulationResult;
 }
@@ -55,26 +58,29 @@ function snapshotStatFields(stats: CharacterStats, stat: ScalingStat) {
 function validateCapture(raw: unknown): CapturedSimulationHit {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) throw new Error("无效的模拟命中捕获文件。");
   const capture = raw as Record<string, unknown>;
-  if (capture.schemaVersion !== "calculator-event-v1" || !Number.isSafeInteger(capture.eventId) || (capture.eventId as number) < 0) {
+  if ((capture.schemaVersion !== "calculator-event-v1" && capture.schemaVersion !== "calculator-event-v2") || !Number.isSafeInteger(capture.eventId) || (capture.eventId as number) < 0) {
     throw new Error("不支持的模拟命中格式或事件 ID。");
   }
   // Zod models optional properties as T | undefined; the persisted wire uses
   // omitted optionals. Parsing precedes the existing semantic integrity gate.
-  const parsed = simulationResultSchema.parse(capture.sourceResult) as unknown as SimulationResult;
+  const witnessed = capture.schemaVersion === 'calculator-event-v2' ? parseEventStepResult(capture.eventStepResult) : null;
+  if(witnessed && capture.sourceResult !== undefined && JSON.stringify(capture.sourceResult)!==JSON.stringify(witnessed.result))throw Error('捕获结果与严格见证不一致。');
+  const parsed = witnessed?.result ?? simulationResultSchema.parse(capture.sourceResult) as unknown as SimulationResult;
   const sourceResult = assertTrustedSimulationResult(parsed);
   assertComposableSourceAbilities(sourceResult.config, { ...sourceResult.resolvedRuntimeOptions, plugins: sourceResult.pluginManifest });
   if (!sourceResult.damageEvents.some((event) => event.id === capture.eventId)) throw new Error("捕获文件中的命中不存在。");
-  return { schemaVersion: "calculator-event-v1", eventId: capture.eventId as number, sourceResult };
+  return { schemaVersion: witnessed ? "calculator-event-v2" : "calculator-event-v1", eventId: capture.eventId as number, sourceResult, ...(witnessed ? {eventStepResult:witnessed.wire} : {}) };
 }
 
 /** Only captures that can actually be reproduced are accepted for the calculator. */
 export function captureSimulationHit(rawResult: unknown, eventId: number): CapturedSimulationHit {
-  return replaySimulationHit({ schemaVersion: "calculator-event-v1", eventId, sourceResult: rawResult }).captured;
+  const witnessed=rawResult&&typeof rawResult==='object'&&'format' in rawResult&&rawResult.format===EVENT_STEP_RESULT_FORMAT;
+  return replaySimulationHit(witnessed ? {schemaVersion:'calculator-event-v2',eventId,eventStepResult:rawResult} : { schemaVersion: "calculator-event-v1", eventId, sourceResult: rawResult }).captured;
 }
 
 export function serializeSimulationHit(capture: CapturedSimulationHit): string {
   const verified = replaySimulationHit(capture).captured;
-  return JSON.stringify(verified, null, 2);
+  return JSON.stringify(verified.schemaVersion==='calculator-event-v2' ? {schemaVersion:verified.schemaVersion,eventId:verified.eventId,eventStepResult:verified.eventStepResult} : verified, null, 2);
 }
 
 export function parseSimulationHit(json: string): CapturedSimulationHit {
@@ -122,9 +128,31 @@ export function replaySimulationHit(rawCapture: unknown): SimulationHitReplay {
       sameNumber(calculation[field], factors[field], field);
     }
     trace = calculation.trace;
+    let formulaDamage = calculation.finalDamage;
+    const nested = replayDeclaredSwirlAmplification(result, event);
+    if (nested !== null) {
+      // These are freshly executed, privately immutable core nodes, not wire
+      // data. Bind them before adding a dependency on transformativeDamage.
+      for (const node of calculation.trace) policy.appendImmutable([node], node.id, node.id);
+      trace = [];
+      const origin = { kind: "replayed-source-declaration", reference: `actor:${nested.sourceActorId};trigger:${nested.triggerFrame};landing:${nested.landingFrame}` };
+      const masteryBonus = policy.add("nestedAmplifyingEmBonus", "stage.amplifyingEmBonus", reactionMasteryBonusExpression("amplifying"),
+        [traceInput("elementalMastery", nested.elementalMastery, "em", origin)],
+        { explanationKey: "explain.amplifyingEmBonus", applicabilityReason: "扩散使用触发帧精通；不是落地帧精通。" });
+      sameNumber(masteryBonus, nested.elementalMasteryBonus, "nestedAmplifyingEmBonus");
+      const multiplier = policy.add("nestedAmplifyingMultiplier", "stage.reactionMultiplier",
+        expr.mul(expr.input("reactionBase"), expr.add(expr.value(1), expr.input("elementalMasteryBonus"), expr.input("reactionBonus"))),
+        [traceInput("reactionBase", nested.base, "ratio", "compiled-classic-formula-profile"), traceInput("elementalMasteryBonus", masteryBonus, "ratio", origin), traceInput("reactionBonus", nested.reactionBonus, "ratio", origin)],
+        { explanationKey: "explain.reactionMultiplier", applicabilityReason: `${nested.reaction};增幅加成独立重放落地帧声明与命中局部加成。`, childIds: ["nestedAmplifyingEmBonus"] });
+      sameNumber(multiplier, nested.total, "nestedAmplifyingMultiplier");
+      formulaDamage = policy.add("nestedAmplifyingDamage", "stage.afterReaction",
+        expr.mul(expr.input("formulaDamage"), expr.input("reactionMultiplier")),
+        [traceInput("formulaDamage", calculation.finalDamage, "damage", "shared-transformative-core"), traceInput("reactionMultiplier", multiplier, "ratio", origin)],
+        { explanationKey: "explain.afterReaction", unit: "damage", childIds: ["transformativeDamage", "nestedAmplifyingMultiplier"] });
+    }
     potentialDamage = policy.add("reactionGroupPolicy", "stage.reactionGroupPolicy",
       expr.mul(expr.input("formulaDamage"), expr.input("groupMultiplier")),
-      [traceInput("formulaDamage", calculation.finalDamage, "damage", "captured-event"), traceInput("groupMultiplier", event.damageFactors.groupMultiplier, "ratio", "reaction-damage-group-log")],
+      [traceInput("formulaDamage", formulaDamage, "damage", nested === null ? "captured-event" : "source-proven-nested-amplification"), traceInput("groupMultiplier", event.damageFactors.groupMultiplier, "ratio", "reaction-damage-group-log")],
       { explanationKey: "explain.reactionGroupPolicy", unit: "damage" });
   } else {
     const owner = result.config.characters.find((character) => character.id === event.scalingOwnerId);

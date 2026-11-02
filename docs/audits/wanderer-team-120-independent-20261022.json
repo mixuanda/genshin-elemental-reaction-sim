@@ -1,0 +1,748 @@
+{
+  "schema": "wanderer-faruzan-independent-audit-v1",
+  "status": "passed",
+  "capture": {
+    "path": "/workspace/GIDPS-cloud/function-batch-20261022/wanderer-team-120/team-120-observed.native.json",
+    "sha256": "046eee1fdef51fe3ddf63a9582e37f391aeef5e9946d47f952fe0bcaba6a629f",
+    "durationFrames": 7200,
+    "seed": "20261022",
+    "configSha256": "a6bf4f3c03c2fc6e477651e23b3d6cea87bef1536020ffc48c94c6f55f72206f",
+    "applications": 618,
+    "calculations": 20096
+  },
+  "sources": {
+    "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "pristineRoot": "/workspace/GIDPS-cloud/source-build-cache/upstream/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/source",
+    "nativePatchedRoot": "/workspace/GIDPS-cloud/source-build-cache/build-o5sjpN/source",
+    "files": [
+      {
+        "path": "internal/characters/wanderer/zz_wanderer.dm.go",
+        "gitBlob": "f481a945093ff74b54f146ee71366b672089a314",
+        "upstreamSha256": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+        "nativePatchedSha256": "234add8b8549c043a034e180669a8466e61feddb802f6368efd3c89659ed3067",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/zz_wanderer.dm.go"
+      },
+      {
+        "path": "internal/characters/wanderer/wanderer.go",
+        "gitBlob": "4d2bc8068319ae2ecd6a84516d603ee203252928",
+        "upstreamSha256": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd",
+        "nativePatchedSha256": "5b99342d4adb30f912712499fe973b11bde4b9466d80ebf7b16363990c6d8051",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/wanderer.go"
+      },
+      {
+        "path": "internal/characters/wanderer/attack.go",
+        "gitBlob": "72e36762e68d56527ca8d394a364b0397e9d79e5",
+        "upstreamSha256": "f9d407581c920c4909e9577742126f68ac47a6021fa1c2b463527a8833f6efa5",
+        "nativePatchedSha256": "db770ea6ed5c4d86a501f1acdb985ca0b7663448872dcdd47de23931ce90eab6",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/attack.go"
+      },
+      {
+        "path": "internal/characters/wanderer/charge.go",
+        "gitBlob": "7c24d221b6699e9345286bb60914b15996130f69",
+        "upstreamSha256": "39a59af65e63e53aefaea2def40b5d2bca8359fab7016ad91674b7d31212feb4",
+        "nativePatchedSha256": "b24b74588c4c42e9cb57f974ae8cecf22224de35753da205fb53353d3bbc722d",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/charge.go"
+      },
+      {
+        "path": "internal/characters/wanderer/skill.go",
+        "gitBlob": "7e04db88622a87fc3ab3808a29829e827002cb1b",
+        "upstreamSha256": "0d0c449c12770964407d081f26fdbde5822a73f19616f61136a3b824f0d1eba1",
+        "nativePatchedSha256": "a1b5e3ca7e56afcfe8e41c3c089a22d48df9b80f6bfd26efd4587b0ca20fa4bf",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/skill.go"
+      },
+      {
+        "path": "internal/characters/wanderer/burst.go",
+        "gitBlob": "49e1c296b02cc3bb7d337405b6d4654965084344",
+        "upstreamSha256": "7e5d27192b504c64c6ae77c28044f200deb42edacb766993fba557af31b1f5cd",
+        "nativePatchedSha256": "503d903e4add652d7ff8d06497f8d5ef326a875dad41c95f4dc527cbd08e4f63",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/burst.go"
+      },
+      {
+        "path": "internal/characters/wanderer/cons.go",
+        "gitBlob": "711fd1dfc2707bc2fd4321410f45b507814d2543",
+        "upstreamSha256": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371",
+        "nativePatchedSha256": "b9eb5043728a3585f9eed1fd8033a47ce431add22f0cc847f7cfc08de11a996f",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/cons.go"
+      },
+      {
+        "path": "internal/characters/faruzan/zz_faruzan.dm.go",
+        "gitBlob": "2d81ba730c8199888d6107ff64545588809d6599",
+        "upstreamSha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+        "nativePatchedSha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/zz_faruzan.dm.go"
+      },
+      {
+        "path": "internal/characters/faruzan/faruzan.go",
+        "gitBlob": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+        "upstreamSha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+        "nativePatchedSha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/faruzan.go"
+      },
+      {
+        "path": "internal/characters/faruzan/attack.go",
+        "gitBlob": "cea30a38eab59b944ad323d307611f2d40e4b0d3",
+        "upstreamSha256": "257f19bde89aec0f18687c55ea4306e0d5f6318f50638039d48956de8bb37446",
+        "nativePatchedSha256": "fb7eea9f55c1fd7ffa7aa6ae3435ba367cabe3e602a2ba16fc182f128d95caf3",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/attack.go"
+      },
+      {
+        "path": "internal/characters/faruzan/aimed.go",
+        "gitBlob": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644",
+        "upstreamSha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+        "nativePatchedSha256": "e8da30b99fdbe04c3d48c50f459c001a03ebfa2fecf8fffcd496aad426d0cabc",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/aimed.go"
+      },
+      {
+        "path": "internal/characters/faruzan/skill.go",
+        "gitBlob": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+        "upstreamSha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+        "nativePatchedSha256": "e12a2a64f33a22713b966d3f69fd3679730684e5ec53c10184f3a8819caccf67",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/skill.go"
+      },
+      {
+        "path": "internal/characters/faruzan/burst.go",
+        "gitBlob": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf",
+        "upstreamSha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+        "nativePatchedSha256": "f07aaa5065e6bdcf1c9b5be13cb17e30dd1b452ed220d613b4f6a90724b29b9b",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/burst.go"
+      },
+      {
+        "path": "internal/characters/faruzan/asc.go",
+        "gitBlob": "9b3d5b04601ca942d1a245df0882f06d5561e3e4",
+        "upstreamSha256": "091a76bb82b013476b503b5b0b987083bfa17185fc41fdf5e9e187052ffb481c",
+        "nativePatchedSha256": "d4c7e7282b19336ad2ffe06790c20914fdee58d33a115d57966f28a296ea686f",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/asc.go"
+      },
+      {
+        "path": "internal/characters/faruzan/cons.go",
+        "gitBlob": "928806c76219dafdf8f944268a36a55bef52c9d3",
+        "upstreamSha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+        "nativePatchedSha256": "d6b5d3fb21a1fb2df85bb137894886d760d48fdbae59262345bf806eb74da392",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/faruzan/cons.go"
+      },
+      {
+        "path": "internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go",
+        "gitBlob": "b75702a09a043299f73fc936eefa872df78e63a0",
+        "upstreamSha256": "8794151b734d749fc6f6c54c8ece794a26e40de62f8280229222d840179862fb",
+        "nativePatchedSha256": "8794151b734d749fc6f6c54c8ece794a26e40de62f8280229222d840179862fb",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go"
+      },
+      {
+        "path": "pkg/core/attributes/stats.go",
+        "gitBlob": "cc142a8c7ebd88cf2e212786bc3f260b936fc960",
+        "upstreamSha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+        "nativePatchedSha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+      },
+      {
+        "path": "pkg/core/player/character/basestat.go",
+        "gitBlob": "5fe8a567471550f150af747910cd2fdcb17446e6",
+        "upstreamSha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+        "nativePatchedSha256": "5592c9a5bbd1ffbd405d0e962ccbeca468178df475430bcaa4bbfbcd99b1d0cf",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/basestat.go"
+      },
+      {
+        "path": "pkg/catalog/character.dm.go",
+        "gitBlob": "22b2536e01cb520f0fff588977cba0db5b668328",
+        "upstreamSha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+        "nativePatchedSha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/character.dm.go"
+      },
+      {
+        "path": "pkg/catalog/weapon.dm.go",
+        "gitBlob": "c2e731713d4fe18414efdb66cdb0c8c276b64e69",
+        "upstreamSha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+        "nativePatchedSha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/weapon.dm.go"
+      },
+      {
+        "path": "pkg/catalog/curve.dm.go",
+        "gitBlob": "b960e695c8a6a154e6b5b931d7276c14fc3edbad",
+        "upstreamSha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+        "nativePatchedSha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/curve.dm.go"
+      },
+      {
+        "path": "pkg/enemy/damage.go",
+        "gitBlob": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+        "upstreamSha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+        "nativePatchedSha256": "5cfa1c87d006c6e658c1c050f81dd5bbdbcf9712fe86d2dbbce9f8c274f1d23d",
+        "source": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      }
+    ]
+  },
+  "baseAttackDerivation": {
+    "wanderer": {
+      "characterLevel": 100,
+      "weaponLevel": 90,
+      "characterEquation": [
+        25.5094,
+        11.629,
+        104.747734
+      ],
+      "weaponEquation": [
+        47.537,
+        10.258,
+        186.7
+      ],
+      "characterBaseAtk": 401.39654659999997,
+      "weaponBaseAtk": 674.3345459999999,
+      "totalBaseAtk": 1075.7310926
+    },
+    "faruzan": {
+      "characterLevel": 90,
+      "weaponLevel": 90,
+      "characterEquation": [
+        16.4724,
+        8.349,
+        58.939335
+      ],
+      "weaponEquation": [
+        41.0671,
+        7.275,
+        155.6
+      ],
+      "characterBaseAtk": 196.4674026,
+      "weaponBaseAtk": 454.36315250000007,
+      "totalBaseAtk": 650.8305551000001
+    }
+  },
+  "checkedDamageFamilies": {
+    "Wind Realm of Nasamjnin": 6,
+    "Fully-Charged Aimed Shot (Hurricane Arrow)": 6,
+    "Pressurized Collapse": 41,
+    "The Wind's Secret Ways": 6,
+    "Hanega: Song of the Wind": 6,
+    "Charge Attack (Windfavored)": 6,
+    "Normal 0 (Windfavored)": 32,
+    "Shugen: The Curtains’ Melancholic Sway": 128,
+    "Normal 1 (Windfavored)": 32,
+    "Normal 2 (Windfavored)": 64,
+    "Kyougen: Five Ceremonial Plays (Windfavored)": 15
+  },
+  "checkedDamageHits": 342,
+  "checkedDamageHitsInsideWindow": 341,
+  "c6Links": 128,
+  "provenanceGaps": {
+    "faruzan-hurricane-arrow-talent-read": 6
+  },
+  "qCasts": [
+    {
+      "sourceFrame": 1173,
+      "hits": 5
+    },
+    {
+      "sourceFrame": 3704,
+      "hits": 5
+    },
+    {
+      "sourceFrame": 5029,
+      "hits": 5
+    }
+  ],
+  "c2Creations": [
+    {
+      "frame": 1173,
+      "currentPoints": 34,
+      "maxPoints": 120,
+      "bonus": 2
+    },
+    {
+      "frame": 3704,
+      "currentPoints": 34,
+      "maxPoints": 120,
+      "bonus": 2
+    },
+    {
+      "frame": 5029,
+      "currentPoints": 14,
+      "maxPoints": 100,
+      "bonus": 2
+    }
+  ],
+  "faruzanA4": {
+    "count": 83,
+    "values": [
+      208.26577763200004
+    ]
+  },
+  "observedGates": {
+    "faruzan-a4-icd": {
+      "count": 83,
+      "initialDuration": 48,
+      "minimumObservedSpacing": 49
+    },
+    "faruzan-c6-icd": {
+      "count": 35,
+      "initialDuration": 180,
+      "minimumObservedSpacing": 182
+    },
+    "faruzan-particle-icd": {
+      "count": 18,
+      "initialDuration": 330,
+      "minimumObservedSpacing": 366
+    },
+    "tulaytullahsremembrance-icd": {
+      "count": 96,
+      "initialDuration": 18,
+      "minimumObservedSpacing": 20
+    }
+  },
+  "representativeHits": {
+    "Wind Realm of Nasamjnin": {
+      "id": 92,
+      "ability": "Wind Realm of Nasamjnin",
+      "frame": 373,
+      "sourceFrame": 359,
+      "snapshotFrame": 373,
+      "scaling": 3.162,
+      "attack": 2417.1509563903946,
+      "flatDamage": 2195.569510972179,
+      "critRate": 0.6604000000000001,
+      "isCrit": false,
+      "factors": {
+        "base": 9838.600835078607,
+        "bonusFactor": 1.726,
+        "defenseFactor": 0.48717948717948717,
+        "resistanceFactor": 1.125,
+        "critFactor": 1,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 9307.127186122148,
+      "native": 9307.127186122148,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Fully-Charged Aimed Shot (Hurricane Arrow)": {
+      "id": 123,
+      "ability": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "frame": 458,
+      "sourceFrame": 399,
+      "snapshotFrame": 448,
+      "scaling": 2.232,
+      "attack": 2599.383511818395,
+      "flatDamage": 2195.569510972179,
+      "critRate": 0.6604000000000001,
+      "isCrit": true,
+      "factors": {
+        "base": 7997.393509350838,
+        "bonusFactor": 2.226,
+        "defenseFactor": 0.48717948717948717,
+        "resistanceFactor": 1.125,
+        "critFactor": 2.176,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 21231.175157303016,
+      "native": 21231.175157303016,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Pressurized Collapse": {
+      "id": 149,
+      "ability": "Pressurized Collapse",
+      "frame": 491,
+      "sourceFrame": 491,
+      "snapshotFrame": 458,
+      "scaling": 2.295,
+      "attack": 2599.383511818395,
+      "flatDamage": 2310.1555007561788,
+      "critRate": 0.6604000000000001,
+      "isCrit": true,
+      "factors": {
+        "base": 8275.740660379395,
+        "bonusFactor": 2.226,
+        "defenseFactor": 0.48717948717948717,
+        "resistanceFactor": 1.125,
+        "critFactor": 2.176,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 21970.12055383925,
+      "native": 21970.12055383925,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "The Wind's Secret Ways": {
+      "id": 180,
+      "ability": "The Wind's Secret Ways",
+      "frame": 518,
+      "sourceFrame": 464,
+      "snapshotFrame": 518,
+      "scaling": 8.024,
+      "attack": 2729.549622838395,
+      "flatDamage": 2518.421278388179,
+      "critRate": 0.6604000000000001,
+      "isCrit": true,
+      "factors": {
+        "base": 24420.327452043457,
+        "bonusFactor": 2.8085,
+        "defenseFactor": 0.48717948717948717,
+        "resistanceFactor": 1.275,
+        "critFactor": 2.576,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 109741.51431447009,
+      "native": 109741.51431447009,
+      "flatComponentRules": [
+        "char-add-faruzan-a4",
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Hanega: Song of the Wind": {
+      "id": 205,
+      "ability": "Hanega: Song of the Wind",
+      "frame": 539,
+      "sourceFrame": 537,
+      "snapshotFrame": 539,
+      "scaling": 2.023,
+      "attack": 4066.488731692504,
+      "flatDamage": 2310.1555007561788,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 10536.662204970115,
+        "bonusFactor": 2.7585,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 63535.155030533286,
+      "native": 63535.155030533286,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Charge Attack (Windfavored)": {
+      "id": 392,
+      "ability": "Charge Attack (Windfavored)",
+      "frame": 606,
+      "sourceFrame": 570,
+      "snapshotFrame": 606,
+      "scaling": 3.5456664672,
+      "attack": 4367.6934376205045,
+      "flatDamage": 2518.421278388179,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 18004.805439168696,
+        "bonusFactor": 2.7585,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 108567.40802913655,
+      "native": 108567.40802913655,
+      "flatComponentRules": [
+        "char-add-faruzan-a4",
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Normal 0 (Windfavored)": {
+      "id": 519,
+      "ability": "Normal 0 (Windfavored)",
+      "frame": 638,
+      "sourceFrame": 620,
+      "snapshotFrame": 633,
+      "scaling": 2.1926018175,
+      "attack": 4367.6934376205045,
+      "flatDamage": 2310.1555007561788,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 11886.768070365719,
+        "bonusFactor": 3.2545,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 84564.11601300798,
+      "native": 84564.11601300798,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Shugen: The Curtains’ Melancholic Sway": {
+      "id": 573,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "frame": 646,
+      "sourceFrame": 638,
+      "snapshotFrame": 646,
+      "scaling": 0.877040727,
+      "attack": 4367.6934376205045,
+      "flatDamage": 2310.1555007561788,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 6140.800528599995,
+        "bonusFactor": 3.4465000000000003,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 46263.80211950138,
+      "native": 46263.80211950138,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Normal 1 (Windfavored)": {
+      "id": 639,
+      "ability": "Normal 1 (Windfavored)",
+      "frame": 658,
+      "sourceFrame": 650,
+      "snapshotFrame": 653,
+      "scaling": 2.07460197,
+      "attack": 4367.6934376205045,
+      "flatDamage": 2518.421278388179,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 11579.646688431749,
+        "bonusFactor": 3.5425000000000004,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 89669.18366502295,
+      "native": 89669.18366502295,
+      "flatComponentRules": [
+        "char-add-faruzan-a4",
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Normal 2 (Windfavored)": {
+      "id": 881,
+      "ability": "Normal 2 (Windfavored)",
+      "frame": 705,
+      "sourceFrame": 668,
+      "snapshotFrame": 700,
+      "scaling": 1.520277105,
+      "attack": 4367.6934376205045,
+      "flatDamage": 2310.1555007561788,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 8950.259835629377,
+        "bonusFactor": 3.7345000000000006,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 73064.45611033172,
+      "native": 73064.45611033172,
+      "flatComponentRules": [
+        "char-add-durin-c1-white"
+      ]
+    },
+    "Kyougen: Five Ceremonial Plays (Windfavored)": {
+      "id": 3752,
+      "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "frame": 1265,
+      "sourceFrame": 1173,
+      "snapshotFrame": 1228,
+      "scaling": 3.128,
+      "attack": 3338.62032986116,
+      "flatDamage": 208.26577763200004,
+      "critRate": 0.9806999999999999,
+      "isCrit": true,
+      "factors": {
+        "base": 10651.470169437707,
+        "bonusFactor": 4.4985,
+        "defenseFactor": 0.5,
+        "resistanceFactor": 1.275,
+        "critFactor": 3.428924,
+        "amplificationFactor": 1,
+        "groupMultiplier": 1,
+        "elevationFactor": 1
+      },
+      "expected": 104740.66542790308,
+      "native": 104740.66542790308,
+      "flatComponentRules": [
+        "char-add-faruzan-a4"
+      ]
+    }
+  },
+  "team": {
+    "damage": 29580873.1052347,
+    "dps": 246507.27587695592,
+    "damageByActor": {
+      "nicole": 821198.5722949755,
+      "durin": 4831952.343051126,
+      "faruzan": 1977684.669473798,
+      "wanderer": 21950037.520414803
+    },
+    "shares": {
+      "wanderer": 0.7420348088552692,
+      "faruzan": 0.06685687276498348,
+      "nicole": 0.02776113366814904,
+      "durin": 0.1633471847115984
+    }
+  },
+  "halfOpenWindow": {
+    "range": [
+      0,
+      7200
+    ],
+    "endExcluded": true,
+    "applications": 617,
+    "damage": 29529976.748742145,
+    "dps": 246083.1395728512,
+    "damageByActor": {
+      "nicole": 821198.5722949755,
+      "durin": 4831952.343051126,
+      "faruzan": 1977684.669473798,
+      "wanderer": 21899141.163922247
+    },
+    "shares": {
+      "nicole": 0.027808981337242508,
+      "durin": 0.16362872155857514,
+      "faruzan": 0.06697210384894865,
+      "wanderer": 0.7415901932552338
+    },
+    "excludedApplications": [
+      {
+        "frame": 7200,
+        "actor": "wanderer",
+        "ability": "Shugen: The Curtains’ Melancholic Sway",
+        "damage": 50896.35649255663
+      }
+    ]
+  },
+  "checks": {
+    "capture-pin": 1,
+    "pinned-tree-snapshot": 1,
+    "upstream-git-blob": 22,
+    "exercised-atk-ordinary": 342,
+    "captured-unamplified-branch": 342,
+    "primary-source-table-present": 74,
+    "primary-source-table-identity": 74,
+    "specified-base-talents-and-cons": 74,
+    "raw-talent-table": 342,
+    "talent-index-once": 342,
+    "source-scaling": 342,
+    "base-atk-from-pinned-catalog": 342,
+    "specified-level-context": 342,
+    "scaling-atk-from-stats": 342,
+    "snapshot-atk-from-stats": 342,
+    "bonus-from-final-stats": 342,
+    "crit-damage-from-final-stats": 342,
+    "crit-rate-from-final-stats": 342,
+    "captured-crit-draw": 342,
+    "flat-components-conserve": 342,
+    "flat-component-applied-value": 230,
+    "hand-ordinary-damage": 342,
+    "stat-vector-addition": 140764,
+    "resistance-scalar-to-hit": 342,
+    "source-only-hurricane-arrow": 6,
+    "faruzan-q-vector": 339,
+    "faruzan-q-only-anemo-slot": 339,
+    "faruzan-c6-vector": 339,
+    "faruzan-c6-only-cd-slot": 339,
+    "faruzan-shred-only-anemo": 339,
+    "faruzan-shred-minus30": 339,
+    "talent-expression-product": 134,
+    "windfavored-ca-table-shape": 6,
+    "windfavored-na-table-shape": 128,
+    "tulay-r5-discrete-stacks": 256,
+    "c6-parent-exists": 128,
+    "c6-parent-is-windfavored-na": 128,
+    "c6-delay-fresh-snapshot": 128,
+    "faruzan-q-created-value": 128,
+    "faruzan-a4-base-atk": 83,
+    "faruzan-a4-pinned-base-atk": 83,
+    "faruzan-a4-stat-read": 83,
+    "wanderer-c2-points-cap": 3,
+    "wanderer-q-five-hit-timing": 3,
+    "wanderer-q-snapshot-timing": 3,
+    "this-capture-one-child-per-windfavored-na": 1,
+    "captured-gate-duration": 232,
+    "captured-gate-no-early-retrigger": 228,
+    "native-application-conserves-calculation": 618,
+    "raw-applied-no-kill-clipping": 618,
+    "team-damage-conservation": 1,
+    "actor-event-conservation": 4,
+    "actor-final-share": 4,
+    "team-share-conservation": 1,
+    "duration-dps": 1,
+    "half-open-plus-boundary-conserves-raw": 1,
+    "required-coverage": 7
+  },
+  "maxAbsoluteErrors": {
+    "raw-talent-table": 0.0,
+    "source-scaling": 0.0,
+    "base-atk-from-pinned-catalog": 0.0,
+    "scaling-atk-from-stats": 0.0,
+    "snapshot-atk-from-stats": 0.0,
+    "bonus-from-final-stats": 0.0,
+    "crit-damage-from-final-stats": 0.0,
+    "crit-rate-from-final-stats": 0.0,
+    "flat-components-conserve": 0.0,
+    "flat-component-applied-value": 0.0,
+    "hand-ordinary-damage": 0.0,
+    "stat-vector-addition": 0.0,
+    "resistance-scalar-to-hit": 0.0,
+    "faruzan-q-vector": 0.0,
+    "faruzan-q-only-anemo-slot": 0.0,
+    "faruzan-c6-vector": 0.0,
+    "faruzan-c6-only-cd-slot": 0.0,
+    "faruzan-shred-minus30": 0.0,
+    "talent-expression-product": 0.0,
+    "faruzan-q-created-value": 0.0,
+    "faruzan-a4-base-atk": 0.0,
+    "faruzan-a4-pinned-base-atk": 0.0,
+    "faruzan-a4-stat-read": 0.0,
+    "wanderer-c2-points-cap": 0.0,
+    "native-application-conserves-calculation": 0.0,
+    "raw-applied-no-kill-clipping": 0.0,
+    "team-damage-conservation": 7.450580596923828e-09,
+    "actor-event-conservation": 1.862645149230957e-08,
+    "actor-final-share": 1.1102230246251565e-16,
+    "team-share-conservation": 0.0,
+    "duration-dps": 5.820766091346741e-11,
+    "half-open-plus-boundary-conserves-raw": 0.0
+  },
+  "failures": [],
+  "evidenceLayers": {
+    "conditionalArithmetic": "Final damage, crit draw, final stat vectors and flat-component addition use the native's actual per-hit snapshots and component values. Agreement does not independently establish every upstream operand.",
+    "independentlyDerived": "Pinned raw talent tables/index formula and base-ATK catalog; Wanderer C6 coefficient/parent link and captured +8f timing; Q five hits/+55f snapshot/+92+6n timing; C2 captured-point mapping; Faruzan Q table/C6 CD/A4 base-ATK coefficient/shred; observed gate durations/no-early-retrigger.",
+    "stillOpen": "Nicole/Durin upstream formulas and trigger coverage; Wanderer point trajectory; exact Tulaytullah stack history (only discrete returned values/range and observed gate checked); in-game validation of source TODO snapshot timings; unexplained nonzero formula-creation links in product explanationGaps."
+  },
+  "bounds": [
+    "Single deterministic synthetic Classic capture; not player equipment, a best build, or a DPS distribution.",
+    "Ordinary Wanderer/Faruzan talents only. Nicole-created Arcane Projection and Swirl are excluded from independent talent/damage checks, included only in team accounting.",
+    "Durin C1 flat components are conserved per hit; their coefficient and upstream team buffs are audited separately by numerical_gap_audit.",
+    "Captured state/operand provenance is used, not invented. This does not independently prove every upstream state transition or all uncaptured game mechanics.",
+    "Native +8f C6 snapshot and +55f Q snapshot match pinned implementation, whose source marks timings TODO; not independent in-game timing measurements.",
+    "Energy/cooldown execution is owned by numerical_gap_audit; this report only checks observed A4/C6/particle/weapon gates and damage attribution.",
+    "No counterfactual marginal support attribution; damage credit is native attack-owner credit and sums to team damage."
+  ]
+}

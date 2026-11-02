@@ -3030,8 +3030,8 @@
     },
     {
       "path": "pkg/core/info/sourcehost_phase_attack.go",
-      "sha256": "0790e445cd612b9d93b0779233370544602796cbf43e62aeb721c9cd369fb218",
-      "bytes": 2187
+      "sha256": "a44da9fa51ae55d0278e2aaf23669cc602500906c48a1b768b394f3eb271956a",
+      "bytes": 2351
     },
     {
       "path": "pkg/core/info/sourcehost_talent.go",
@@ -3401,14 +3401,14 @@
   },
   "goVersion": "go1.27.1",
   "goArchive": {
-    "filename": "go1.27.1.darwin-arm64.tar.gz",
-    "sha256": "ee215d57e0ec269c60cc9ceca68e6bda321ba9ee5afe24f4b0988703c2d87d12",
-    "bytes": 68100347
+    "filename": "go1.27.1.linux-amd64.tar.gz",
+    "sha256": "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445",
+    "bytes": 70553950
   },
   "goCompiler": {
     "path": "bin/go",
-    "sha256": "132b69336a1f809932a8a20b0201dbbb980e86e3a323ae32e893639d83d71598",
-    "bytes": 16071392
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "bytes": 17142188
   },
   "linkedModules": [
     {
@@ -3445,8 +3445,8 @@
   "files": [
     {
       "path": "source-host.wasm",
-      "sha256": "95e33baf8dfdb7264cea14d9b339724de41311d906df93f8d4c1f4e0c8131256",
-      "bytes": 71852581
+      "sha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+      "bytes": 72155762
     },
     {
       "path": "wasm_exec.js",
@@ -3465,12 +3465,12 @@
     },
     {
       "path": "talent-read-instrumentation.json",
-      "sha256": "669a984f490fb6308a21c2c437a306dd314ad310d8f34e198ae6c6c5a9558a84",
-      "bytes": 393659
+      "sha256": "dc525fee0ec6e312f3774c1581565dae1cf8c0cd4c310f0d1cec59ff03262fb8",
+      "bytes": 393663
     },
     {
       "path": "inventory-metadata.json",
-      "sha256": "598f936917920b76b74899807e7ef434a818052b49734d650c8140760792952d",
+      "sha256": "35e9b36785df3c9dd51c38307be1a925e56d63a8b01ff78020887598ad3adbea",
       "bytes": 1883017
     }
   ],
@@ -3487,12 +3487,12 @@
     },
     "report": {
       "path": "talent-read-instrumentation.json",
-      "sha256": "669a984f490fb6308a21c2c437a306dd314ad310d8f34e198ae6c6c5a9558a84",
-      "bytes": 393659
+      "sha256": "dc525fee0ec6e312f3774c1581565dae1cf8c0cd4c310f0d1cec59ff03262fb8",
+      "bytes": 393663
     },
     "host": {
-      "goos": "darwin",
-      "goarch": "arm64"
+      "goos": "linux",
+      "goarch": "amd64"
     }
   },
   "licenses": [
@@ -4259,6 +4259,61 @@
       "path": "131-raiden-owned-native.patch",
       "sha256": "cb78fba57b722a36d30c12cd4a89c747d2256b3e3791b6aedb691044645372da",
       "bytes": 8300
+    },
+    {
+      "path": "132-neuvillette-initial-hp-a4.patch",
+      "sha256": "452b8d17b5c3e5d185e58d358e9c49495c4ccfcedcfb7e57df6c4b8077d89a15",
+      "bytes": 479
+    },
+    {
+      "path": "133-venti-skill-crit.patch",
+      "sha256": "ad685e7ef02da371e7ec7788460c1f7e9da61c2aa506762abee7d0171b5719fe",
+      "bytes": 464
+    },
+    {
+      "path": "134-durin-black-skill-capture.patch",
+      "sha256": "4657a3b4f8f880567e90ed0adb965b2c61306e300dcdb6117b153afaf7423dfd",
+      "bytes": 521
+    },
+    {
+      "path": "135-athame-trigger-hit-atk.patch",
+      "sha256": "491d0c83d2602278aff9b440a579f58285a2826a4c34dad60df389f70a71fd60",
+      "bytes": 4449
+    },
+    {
+      "path": "136-normal-attack-speed-context.patch",
+      "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
+      "bytes": 5729
+    },
+    {
+      "path": "137-wanderer-c2-burst-snapshot-scope.patch",
+      "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+      "bytes": 9512
+    },
+    {
+      "path": "138-iansan-swift-normal-talent.patch",
+      "sha256": "cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538",
+      "bytes": 536
+    },
+    {
+      "path": "139-iansan-c1-consumption-threshold.patch",
+      "sha256": "6f61d4f4ee3478b8b55ce4097c5ac35e6719a79188bb34126263444227b12e79",
+      "bytes": 879
+    },
+    {
+      "path": "140-iansan-c2-active-recipient.patch",
+      "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f",
+      "bytes": 457
+    },
+    {
+      "path": "141-iansan-burst-expiry.patch",
+      "sha256": "eae7cd8d42351bb3ccfd764aa30a74fd7c4db767fde22f20427518001bc8d626",
+      "bytes": 1197
+    },
+    {
+      "path": "142-iansan-c6-burst-entry-overflow.patch",
+      "sha256": "9ea33ee62b0f957a644ac14724b54aacee71eafc91095d92a482b7f7c474a221",
+      "bytes": 404
     }
   ],
   "supportedFormulaFamilies": [

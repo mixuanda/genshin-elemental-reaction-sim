@@ -1,0 +1,20 @@
+=== RUN   TestIansanC4SourceOtherActiveBurstAndMarkerGate
+--- PASS: TestIansanC4SourceOtherActiveBurstAndMarkerGate (0.00s)
+=== RUN   TestIansanC4SourceTwoFourPointRestorationsOncePerMarker
+--- PASS: TestIansanC4SourceTwoFourPointRestorationsOncePerMarker (0.00s)
+=== RUN   TestIansanC4SourcePreviousOverflowHalfAndNoDoubleCredit
+--- PASS: TestIansanC4SourcePreviousOverflowHalfAndNoDoubleCredit (0.00s)
+=== RUN   TestIansanC4SourceNewOverflowMayChainFromTheRefund
+--- PASS: TestIansanC4SourceNewOverflowMayChainFromTheRefund (0.00s)
+=== RUN   TestIansanC4SourceBelowC4HasNeitherLayersNorOverflowRefund
+--- PASS: TestIansanC4SourceBelowC4HasNeitherLayersNorOverflowRefund (0.00s)
+=== RUN   TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore
+=== RUN   TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/statusExpiredBeforeCallback
+=== RUN   TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/nativeNightsoulExitInvalidatesSource
+--- PASS: TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore (0.00s)
+    --- PASS: TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/statusExpiredBeforeCallback (0.00s)
+    --- PASS: TestIansanC4SourceExpiredAndExitedMarkersDoNotRestore/nativeNightsoulExitInvalidatesSource (0.00s)
+=== RUN   TestIansanC4SourceRenewalResetsGrantAndIgnoresOldCallback
+--- PASS: TestIansanC4SourceRenewalResetsGrantAndIgnoresOldCallback (0.00s)
+PASS
+ok  	github.com/genshinsim/gcsim/internal/characters/iansan	0.006s

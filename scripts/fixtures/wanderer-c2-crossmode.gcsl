@@ -1,0 +1,59 @@
+# Specified characters/weapons/constellations; all other inputs below are editable assumptions, not imported player data.
+# Shared Classic/Stellar short regression input. Existing legal developed artifact piece budgets are reused; generic Nicole/Durin budgets are not optimal-build recommendations.
+# Base talents 10/10/10; native constellation talent increases apply once. Other characters/weapons assumed 90/90.
+# Startup full energy ONCE; no energy bypass, enemy particles, per-cycle refill, damage-mode kill or shortened-window scaling.
+options iteration=1 duration=24 swap_delay=8 attack_delay=5 charge_delay=5 skill_delay=5 burst_delay=5 jump_delay=5 dash_delay=5 aim_delay=5;
+wanderer char lvl=100/100 cons=6 talent=10,10,10;
+wanderer add weapon="tulaytullahsremembrance" refine=5 lvl=90/90;
+wanderer add set="desertpavilionchronicle" count=4;
+wanderer add set="gladiatorsfinale" count=1;
+wanderer add stats hp=4780 cr=0.7386999999999999 cd=1.0879 atk%=0.9265999999999999 atk=373.26 er=0.1424 anemo%=0.466;
+
+faruzan char lvl=90/90 cons=6 talent=10,10,10;
+faruzan add weapon="favoniuswarbow" refine=5 lvl=90/90;
+faruzan add set="noblesseoblige" count=5;
+faruzan add stats hp=4780 er=1.1656 cr=0.6104 cd=0.6759999999999999 atk%=0.49550000000000005 atk=311 hp%=0.1982 anemo%=0.466;
+
+nicole char lvl=90/90 cons=2 talent=10,10,10;
+nicole add weapon="angelosheptades" refine=1 lvl=90/90;
+nicole add set="gladiatorsfinale" count=5;
+nicole add stats hp=4780 cr=0.7076 cd=0.7149 atk%=0.8741 er=0.5505 atk=311 hp%=0.1982 pyro%=0.466;
+
+durin char lvl=90/90 cons=2 talent=10,10,10;
+durin add weapon="athameartis" refine=1 lvl=90/90;
+durin add set="gladiatorsfinale" count=5;
+durin add stats hp=4780 cr=0.7076 cd=0.7149 atk%=0.8741 er=0.5505 atk=311 hp%=0.1982 pyro%=0.466;
+
+target lvl=100 resist=0.1 radius=2 pos=0,2.4;
+active nicole;
+while 1 {
+  phase("rotation");
+  nicole skill;
+  let nicoleQReady = .nicole.burst.ready;
+  print("audit-q|nicole|energy=", .nicole.energy, "|max=", .nicole.energymax, "|cd=", .nicole.burst.cd, "|ready=", nicoleQReady);
+  if nicoleQReady { nicole burst; }
+  durin swap;
+  durin skill;
+  durin skill;
+  let durinQReady = .durin.burst.ready;
+  print("audit-q|durin|energy=", .durin.energy, "|max=", .durin.energymax, "|cd=", .durin.burst.cd, "|ready=", durinQReady);
+  if durinQReady { durin burst; }
+  faruzan swap;
+  faruzan skill;
+  faruzan aim;
+  let faruzanQReady = .faruzan.burst.ready;
+  print("audit-q|faruzan|energy=", .faruzan.energy, "|max=", .faruzan.energymax, "|cd=", .faruzan.burst.cd, "|ready=", faruzanQReady);
+  if faruzanQReady { faruzan burst; }
+  wanderer swap;
+  wanderer skill;
+  wanderer charge;
+  for let chain = 0; chain < 6; chain = chain + 1 {
+    wanderer attack;
+    wanderer attack;
+    wanderer attack;
+  }
+  let wandererQReady = .wanderer.burst.ready;
+  print("audit-q|wanderer|energy=", .wanderer.energy, "|max=", .wanderer.energymax, "|cd=", .wanderer.burst.cd, "|ready=", wandererQReady);
+  if wandererQReady { wanderer burst; } else { wanderer skill; }
+  nicole swap;
+}

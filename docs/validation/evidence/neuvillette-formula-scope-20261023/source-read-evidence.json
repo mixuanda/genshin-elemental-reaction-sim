@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "path": "/workspace/GIDPS-cloud/vercel-readiness-20261022/rebuild-classic/source/internal/characters/neuvillette/charge.go",
+      "bytes": 13115,
+      "sha256": "1af1a945bee3d2772e2a21f4965cf1b1a294a1563851f688a7547b0993dffb6c",
+      "upstreamCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "note": "Existing modified/instrumented source for the unchanged Classic artifact; not identical to raw upstream and not rebuilt this batch"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/vercel-readiness-20261022/rebuild-classic/source/internal/characters/neuvillette/burst.go",
+      "bytes": 5548,
+      "sha256": "cef4738df2ab7f3072e38780992889d3ede8303bd9e1d75f9ae71187cd98bc9f",
+      "upstreamCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "note": "Existing modified/instrumented source for the unchanged Classic artifact; not identical to raw upstream and not rebuilt this batch"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/vercel-readiness-20261022/rebuild-classic/source/internal/characters/neuvillette/asc.go",
+      "bytes": 3269,
+      "sha256": "0db9301ba12139b9b4ce843786a74151800d0c24e58b62be7a6f8c10a28ff23f",
+      "upstreamCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "note": "Existing modified/instrumented source for the unchanged Classic artifact; not identical to raw upstream and not rebuilt this batch"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/vercel-readiness-20261022/rebuild-classic/source/internal/characters/neuvillette/zz_neuvillette.dm.go",
+      "bytes": 3068,
+      "sha256": "ff69094d9354cd5291116e5efd3e1cb9424de2497d223757dc24dbfdd57f77ab",
+      "upstreamCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "note": "Existing modified/instrumented source for the unchanged Classic artifact; not identical to raw upstream and not rebuilt this batch"
+    }
+  ],
+  "sourceReview": "Pinned upstream burst.go, charge.go and asc.go independently read through web tool on 2026-10-23; lifecycle conclusions remain scoped to simulator, not current game measurement."
+}

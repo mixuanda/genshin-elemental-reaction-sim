@@ -1,0 +1,1042 @@
+{
+  "source": "ec-contract-audit-20261021/runtime-probe.json",
+  "sourceSha256": "e85896a67f63ae5f6a823c43a10fdc67b7bd368789d06cc0ddc65571f9871e0a",
+  "baselineCommit": "ffbd58c712ce6f936613ff527c6450db3edcfab4",
+  "fields": [
+    "id",
+    "frame",
+    "targetId",
+    "sourceActorId",
+    "scalingOwnerId",
+    "creditOwnerId",
+    "finalDamage",
+    "potentialDamage",
+    "damageFactors",
+    "damageComposition",
+    "reactionAudit"
+  ],
+  "cases": [
+    [
+      {
+        "id": 0,
+        "frame": 0,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 450,
+        "potentialDamage": 450,
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "transformativeReactions": [],
+          "periodicReaction": {
+            "reaction": "electroCharged",
+            "generation": 1,
+            "operation": "start",
+            "damageElement": "electro",
+            "baseMultiplier": 2,
+            "firstDamageFrame": 10,
+            "nextTickFrame": 70,
+            "tickIntervalFrames": 60,
+            "waneDelayFrames": 6,
+            "waneGaugeUnits": 0.4,
+            "coexistenceExpiresAtFrame": 570
+          },
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u7531\u6c34\u96f7\u5171\u5b58\u81ea\u52a8\u5224\u5b9a\uff1b\u9996\u6b21\u5355\u76ee\u6807\u4f24\u5bb3\u4e0e\u540e\u7eed 60 \u5e27\u5468\u671f\u6d41\u5df2\u6392\u961f\u3002"
+        }
+      },
+      {
+        "id": 1,
+        "frame": 10,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 5483.847756226415,
+        "potentialDamage": 5483.847756226415,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 5483.847756226415
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      },
+      {
+        "id": 2,
+        "frame": 10,
+        "targetId": "wet",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 5483.847756226415,
+        "potentialDamage": 5483.847756226415,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 5483.847756226415
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      }
+    ],
+    [
+      {
+        "id": 0,
+        "frame": 0,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 450,
+        "potentialDamage": 450,
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "transformativeReactions": [],
+          "periodicReaction": {
+            "reaction": "electroCharged",
+            "generation": 1,
+            "operation": "start",
+            "damageElement": "electro",
+            "baseMultiplier": 2,
+            "firstDamageFrame": 10,
+            "nextTickFrame": 70,
+            "tickIntervalFrames": 60,
+            "waneDelayFrames": 6,
+            "waneGaugeUnits": 0.4,
+            "coexistenceExpiresAtFrame": 570
+          },
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u7531\u6c34\u96f7\u5171\u5b58\u81ea\u52a8\u5224\u5b9a\uff1b\u9996\u6b21\u5355\u76ee\u6807\u4f24\u5bb3\u4e0e\u540e\u7eed 60 \u5e27\u5468\u671f\u6d41\u5df2\u6392\u961f\u3002"
+        }
+      },
+      {
+        "id": 1,
+        "frame": 10,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 7589.780074285714,
+        "potentialDamage": 7589.780074285714,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 240,
+          "flatDamage": 0,
+          "baseDamage": 8433.088971428571,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 1.7142857142857142,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 7589.780074285714
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      },
+      {
+        "id": 2,
+        "frame": 10,
+        "targetId": "wet",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 7589.780074285714,
+        "potentialDamage": 7589.780074285714,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 240,
+          "flatDamage": 0,
+          "baseDamage": 8433.088971428571,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 1.7142857142857142,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 7589.780074285714
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      }
+    ],
+    [
+      {
+        "id": 0,
+        "frame": 0,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 450,
+        "potentialDamage": 450,
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "transformativeReactions": [],
+          "periodicReaction": {
+            "reaction": "electroCharged",
+            "generation": 1,
+            "operation": "start",
+            "damageElement": "electro",
+            "baseMultiplier": 2,
+            "firstDamageFrame": 10,
+            "nextTickFrame": 70,
+            "tickIntervalFrames": 60,
+            "waneDelayFrames": 6,
+            "waneGaugeUnits": 0.4,
+            "coexistenceExpiresAtFrame": 570
+          },
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u7531\u6c34\u96f7\u5171\u5b58\u81ea\u52a8\u5224\u5b9a\uff1b\u9996\u6b21\u5355\u76ee\u6807\u4f24\u5bb3\u4e0e\u540e\u7eed 60 \u5e27\u5468\u671f\u6d41\u5df2\u6392\u961f\u3002"
+        }
+      },
+      {
+        "id": 1,
+        "frame": 10,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 5483.847756226415,
+        "potentialDamage": 5483.847756226415,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 5483.847756226415
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      },
+      {
+        "id": 2,
+        "frame": 10,
+        "targetId": "wet",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 5483.847756226415,
+        "potentialDamage": 5483.847756226415,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 5483.847756226415
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      }
+    ],
+    [
+      {
+        "id": 0,
+        "frame": 0,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 450,
+        "potentialDamage": 450,
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "transformativeReactions": [],
+          "periodicReaction": {
+            "reaction": "electroCharged",
+            "generation": 1,
+            "operation": "start",
+            "damageElement": "electro",
+            "baseMultiplier": 2,
+            "firstDamageFrame": 10,
+            "nextTickFrame": 70,
+            "tickIntervalFrames": 60,
+            "waneDelayFrames": 6,
+            "waneGaugeUnits": 0.4,
+            "coexistenceExpiresAtFrame": 570
+          },
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u7531\u6c34\u96f7\u5171\u5b58\u81ea\u52a8\u5224\u5b9a\uff1b\u9996\u6b21\u5355\u76ee\u6807\u4f24\u5bb3\u4e0e\u540e\u7eed 60 \u5e27\u5468\u671f\u6d41\u5df2\u6392\u961f\u3002"
+        }
+      },
+      {
+        "id": 1,
+        "frame": 10,
+        "targetId": "enemy-0",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 7589.780074285714,
+        "potentialDamage": 7589.780074285714,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 240,
+          "flatDamage": 0,
+          "baseDamage": 8433.088971428571,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 1.7142857142857142,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 7589.780074285714
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      },
+      {
+        "id": 2,
+        "frame": 10,
+        "targetId": "wet",
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "finalDamage": 7589.780074285714,
+        "potentialDamage": 7589.780074285714,
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 240,
+          "flatDamage": 0,
+          "baseDamage": 8433.088971428571,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 1.7142857142857142,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 7589.780074285714
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "\u611f\u7535\u81ea\u8eab\u4f24\u5bb3\uff1a\u4e0d\u66b4\u51fb\u3001\u5ffd\u7565\u9632\u5fa1\u4e14\u4e0d\u9644\u7740\u5143\u7d20\uff1b\u5e94\u7528\u76ee\u6807\u5143\u7d20\u6297\u6027\u3001\u4f24\u5bb3\u7b56\u7565\u4e0e\u5bf9\u5e94\u53cd\u5e94\u4f24\u5bb3\u7ec4 ICD\u3002"
+        }
+      }
+    ]
+  ]
+}

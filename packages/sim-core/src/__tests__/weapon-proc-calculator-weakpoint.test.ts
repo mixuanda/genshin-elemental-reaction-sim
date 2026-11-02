@@ -32,8 +32,19 @@ it("calculates twenty standalone proc positions and preserves real CR while Mess
       expect(result.hits[0]!.trace.some(node => node.id === "expected.weakPointGuaranteedCritical")).toBe(true);
     } else {
       expect(result.hits[0]!.nonCriticalComparisonOnly).toBeUndefined();
-      expect(document.assumptions.join(" ")).toContain("自动触发边界");
-      expect(document.assumptions.join(" ")).not.toContain("无需随机触发抽样");
+      // Eye retains conflicting automatic-source coefficients. The other two
+      // now have explicit lifecycle implementations, but this entry still
+      // calculates one already-occurred hit without running that lifecycle.
+      const assumptions = document.assumptions.join(" ");
+      expect(assumptions).toContain("本次追击已经实际触发并命中所填目标");
+      if (weaponId === "eyeofperception") {
+        expect(assumptions).toContain("自动触发边界");
+        expect(assumptions).not.toContain("无需随机触发抽样");
+      } else {
+        expect(assumptions).not.toContain("自动触发边界");
+        expect(assumptions).toContain("本入口不执行这些时钟或抽样");
+        expect(assumptions).toContain(weaponId === "theviridescenthunt" ? "来源概率50%" : "来源概率无需随机触发抽样");
+      }
     }
     for (const node of result.trace) {
       if (!node.result) continue;

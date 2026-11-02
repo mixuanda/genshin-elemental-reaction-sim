@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-23",
+  "status": "fixed-source-provisional; no game verification or automatic team execution",
+  "scope": {
+    "skillId": "male-charged-aether-anemo-c0",
+    "compatibility": "Existing c0 skillId and hit IDs retained; reviewed constellation range belongs to the exact Anemo physical charged effect only.",
+    "characterId": "character:10000005",
+    "variantId": "aether-anemo",
+    "abilityId": "talent:traveleranemo:combat1",
+    "element": "physical",
+    "attackTag": "charged",
+    "minimumConstellation": 0,
+    "maximumConstellation": 6,
+    "otherMaleTravelerFormsMaximumConstellation": 0
+  },
+  "constellationEffects": [
+    {
+      "constellation": 1,
+      "effect": "Palm Vortex pulls nearby enemies/objects; no physical charged damage modifier. Actual contact is separately declared."
+    },
+    {
+      "constellation": 2,
+      "effect": "Permanent ER +0.16; no ATK, physical bonus, crit or NA-level modifier. This damage scope does not certify energy or action readiness."
+    },
+    {
+      "constellation": 3,
+      "effect": "Q level +3 only. The supplied effective NA level is used once, unchanged."
+    },
+    {
+      "constellation": 4,
+      "effect": "Incoming damage -10% during Palm Vortex; no outgoing physical charged modifier."
+    },
+    {
+      "constellation": 5,
+      "effect": "E level +3 only. The supplied effective NA level is used once, unchanged."
+    },
+    {
+      "constellation": 6,
+      "effect": "Q callback applies -0.20 resistance for Anemo and actual absorbed Cryo/Pyro/Hydro/Electro only. Physical resistance is unchanged; this charged branch adds no callback or debuff."
+    }
+  ],
+  "sourceCoefficientVectors": {
+    "authority": "frzyc/genshin-optimizer:180a0a1015cb725c7570cd828eb086749960df98:TravelerAnemoM.auto[5]/auto[6]",
+    "levels": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "hit-1": [
+      0.559,
+      0.6045,
+      0.65,
+      0.715,
+      0.7605,
+      0.8125,
+      0.884,
+      0.9555,
+      1.027,
+      1.105,
+      1.183,
+      1.261,
+      1.339,
+      1.417,
+      1.495
+    ],
+    "hit-2": [
+      0.60716,
+      0.65658,
+      0.706,
+      0.7766,
+      0.82602,
+      0.8825,
+      0.96016,
+      1.03782,
+      1.11548,
+      1.2002,
+      1.28492,
+      1.36964,
+      1.45436,
+      1.53908,
+      1.6238
+    ]
+  },
+  "behavior": {
+    "candidateHitFrames": [
+      9,
+      20
+    ],
+    "snapshotFrames": [
+      9,
+      20
+    ],
+    "animationFrames": 55,
+    "staminaCost": 20,
+    "requires": "No external infusion or special story charged effect; actual lawful preceding normal/counter, readiness, stamina, contacts, no hitlag/interruption/replacement, and actual snapshots or explicit stable panel. Independent occurred hit needs only its own qualification and does not infer full-cast eligibility."
+  },
+  "archive": {
+    "path": "packages/game-data/sources/traveler-male-charged-constellations/source.json.gz",
+    "bytes": 7241,
+    "sha256": "83705409418e1bcb9a5140d047909ee946282457a253f966263a39c697501575",
+    "format": "gzip JSON preserving UTF-8 original source strings; existing source archives unchanged"
+  },
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/traveler/common/anemo/cons.go",
+      "archiveKey": "gcsim/internal/characters/traveler/common/anemo/cons.go",
+      "bytes": 819,
+      "sha256": "ec5196509edf221b64528b57ef93a404b008ad547ac863573103fb2aafd96e55",
+      "computedGitBlobSha1": "e4ed55af135c5cbc2c04f3cbaa831d055ceea2c1",
+      "expectedGitBlobSha1": "e4ed55af135c5cbc2c04f3cbaa831d055ceea2c1",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "originalLocation": "packages/game-data/sources/traveler-cross-source-casts/source.json.gz",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/cons.go"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/traveler/common/anemo/traveleranemo.go",
+      "archiveKey": "gcsim/internal/characters/traveler/common/anemo/traveleranemo.go",
+      "bytes": 1392,
+      "sha256": "27ac2844f5342c64b49337e28a1d20d1c9b68e35a61897d32df0c5f8e4b704f1",
+      "computedGitBlobSha1": "eb591cd00a4af0644c0a75fc2b73f03a533804c7",
+      "expectedGitBlobSha1": "eb591cd00a4af0644c0a75fc2b73f03a533804c7",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "originalLocation": "packages/game-data/sources/traveler-cross-source-casts/source.json.gz",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/traveleranemo.go"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/traveler/common/anemo/burst.go",
+      "archiveKey": "gcsim/internal/characters/traveler/common/anemo/burst.go",
+      "bytes": 4033,
+      "sha256": "e59e47191c5b942db9c17220591fbadf69a584ad42ee9502f6c63efb2d234067",
+      "computedGitBlobSha1": "419f0fff1d04be092b15dea23a11304bf7655526",
+      "expectedGitBlobSha1": "419f0fff1d04be092b15dea23a11304bf7655526",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "originalLocation": "packages/game-data/sources/traveler-cross-source-casts/source.json.gz",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/burst.go"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/traveler/common/anemo/asc.go",
+      "archiveKey": "gcsim/internal/characters/traveler/common/anemo/asc.go",
+      "bytes": 1996,
+      "sha256": "59cdb96853c38f21dabcd87c5f958740ca3ba6b6303ba045d9646bfdfe0fe8c3",
+      "computedGitBlobSha1": "93752c3f7dc161319fe8b852ea5c876e4d5b45cb",
+      "expectedGitBlobSha1": "93752c3f7dc161319fe8b852ea5c876e4d5b45cb",
+      "verification": "fixed-codeload-archive-identity-and-computed-blob; no-local-tree-entry",
+      "originalLocation": "packages/game-data/sources/traveler-cross-source-casts/source.json.gz",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/asc.go"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/traveler/common/anemo/charge.go",
+      "archiveKey": "gcsim/internal/characters/traveler/common/anemo/charge.go",
+      "bytes": 2498,
+      "sha256": "632271862c90881e76ebf8ad4b8c06669a3510c0ee6d3c46c74d64f1d1875eb2",
+      "computedGitBlobSha1": "4a44ea0e614bc7b397cf7c94e11117d559743dca",
+      "expectedGitBlobSha1": "4a44ea0e614bc7b397cf7c94e11117d559743dca",
+      "verification": "matches existing fixed-source manifest bytes and recorded blob",
+      "originalLocation": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/anemo/charge.go",
+      "sourceRef": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/charge.go"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/sheets/src/Characters/TravelerAnemoF/anemo.tsx",
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/TravelerAnemoF/anemo.tsx",
+      "bytes": 13099,
+      "sha256": "32f44bcb60332fb27b3f02c6f28dcc498187df4b60a36d25365e31114294ae09",
+      "computedGitBlobSha1": "ad0dc397939e47eae5125f3e1b5a982d43e15f29",
+      "expectedGitBlobSha1": "ad0dc397939e47eae5125f3e1b5a982d43e15f29",
+      "verification": "matches existing fixed-source manifest bytes and recorded blob",
+      "originalLocation": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/sheets/src/Characters/TravelerAnemoF/anemo.tsx",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerAnemoF/anemo.tsx"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json",
+      "archiveKey": "optimizer/libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json",
+      "bytes": 5015,
+      "sha256": "f9b64a3108f389b6c553e0ed1615ee6fd46c38f174f5299b6148270b6e7cfae4",
+      "computedGitBlobSha1": "cf9c197a6885408e10d0d0d022e9b90750d9dfd6",
+      "expectedGitBlobSha1": "cf9c197a6885408e10d0d0d022e9b90750d9dfd6",
+      "verification": "matches existing fixed-source manifest bytes and recorded blob",
+      "originalLocation": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json",
+      "sourceRef": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/constellations/traveleranemo.json",
+      "archiveKey": "genshin-db/src/data/ChineseSimplified/constellations/traveleranemo.json",
+      "bytes": 1550,
+      "sha256": "15adfa19a48a957f7344ab3e74e6b81beb8ccf92b0c797094f66338c2b441d26",
+      "computedGitBlobSha1": "8cb35f7be8f6de9b700ffe823bb5f512ad598e09",
+      "expectedGitBlobSha1": "8cb35f7be8f6de9b700ffe823bb5f512ad598e09",
+      "verification": "https://api.github.com/repos/theBowja/genshin-db/contents/src/data/ChineseSimplified/constellations/traveleranemo.json?ref=49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "originalLocation": "fixed raw download; GitHub contents API at identical fixed ref",
+      "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/constellations/traveleranemo.json"
+    }
+  ],
+  "sourceRefs": [
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/cons.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/traveleranemo.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/burst.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/asc.go",
+    "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/anemo/charge.go",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerAnemoF/anemo.tsx",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json",
+    "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/constellations/traveleranemo.json"
+  ],
+  "sourceIdentityLimits": "Existing cross-source gcsim files retain fixed-codeload-archive and computed-blob evidence; this task does not upgrade them to full upstream tree verification. New genshin-db file matched fixed-ref GitHub contents blob. Existing Optimizer/male source identities verified against frozen manifest. No old source bundle, schema identity or Golden changed.",
+  "licenseEvidence": [
+    "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/LICENSE",
+    "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/LICENSE",
+    "packages/game-data/sources/traveler-male-charged-resolution/raw/genshin-db/LICENSE"
+  ],
+  "exclusions": [
+    "All non-Anemo high-constellation male Traveler branches.",
+    "Any external/story infusion, story extra charged output, preceding normal damage, external weapon/team callbacks or arbitrary additional damage.",
+    "Automatic enemy contact, stance, stamina, reaction, energy, CD or full rotation verification."
+  ]
+}

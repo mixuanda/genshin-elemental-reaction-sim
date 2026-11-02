@@ -1,9 +1,12 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
+  assertTrustedSimulationResult,
   parseVersionedSimulationResult,
   simulationResultSchema,
   simulationResultV150Schema,
@@ -11,7 +14,8 @@ import {
   simulationResultV152Schema,
   simulationResultV153Schema,
   type BasicReactionSchedulerModel,
-  type SimConfig
+  type SimConfig,
+  type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 
@@ -20,6 +24,27 @@ import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
+
+const historicalBytes = readFileSync(new URL("../../../test-vectors/src/fixtures/historical-scheduler-schema-v153-84ff5cd.json", import.meta.url));
+const historicalArchive = JSON.parse(historicalBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string };
+  cases: Array<{ caseId: string; sourceWireSha256: string; sourceWireText: string }>;
+};
+const sha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalLegacySwirl(): SimulationResult {
+  const row = historicalArchive.cases.find(candidate => candidate.caseId === "legacy-swirl");
+  if (!row) throw new Error("Missing pinned historical legacy Swirl input");
+  expect(sha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.schemaVersion).toBe("1.53.0");
+  expect(result.config.basicReactionSchedulerModel.mode).toBe("legacy-immediate-basic-reaction-scheduler-v1");
+  expect(result.basicReactionSchedulerLog).toHaveLength(1);
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
 
 const LEGACY_SCHEDULER = {
   mode: "legacy-immediate-basic-reaction-scheduler-v1",
@@ -308,14 +333,22 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
     ).toBe(false);
   });
 
+  it("pins historical scheduler input and refuses current canonical semantics without mutation", () => {
+    expect(sha256(historicalBytes)).toBe("293f38cebe7f32262b8e9f28298e905daff051ec91863bcd404afda8d60d70e2");
+    expect(historicalArchive.fixtureVersion).toBe("historical-scheduler-schema-v153-84ff5cd-v1");
+    expect(historicalArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalArchive.cases.map(row => row.caseId)).toEqual(["legacy-swirl"]);
+    const currentLegacy = runSchemaVector(LEGACY_SCHEDULER, false);
+    expect(currentLegacy.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+    const before = JSON.stringify(currentLegacy);
+    expect(() => projectSimulationResultV153ToV152(currentLegacy)).toThrow(/flatStatBuffSemantics/);
+    expect(JSON.stringify(currentLegacy)).toBe(before);
+  });
+
   it("keeps 1.50 strict against scheduler fields and timeline literals", () => {
-    const currentLegacy = runSchemaVector(
-      LEGACY_SCHEDULER,
-      false
-    );
     const frozen = projectSimulationResultV151ToV150(
       projectSimulationResultV152ToV151(
-        projectSimulationResultV153ToV152(currentLegacy)
+        projectSimulationResultV153ToV152(historicalLegacySwirl())
       ),
     );
     expect(simulationResultV150Schema.safeParse(frozen).success).toBe(

@@ -1,0 +1,499 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "failures": [],
+  "scope": "Exact saved execution only; fixed-source state consistency, not game timing/collision certification.",
+  "capture": {
+    "path": "/tmp/GIDPS-team-closure-20261023/head-5b43-real-ui/run.result.json",
+    "sha256": "da061210ea6d43d1554e761f3428c84dfd9cf65be34f1e4f6e25e47ed1ff6d1e",
+    "bytes": 119455012,
+    "configSha256": "4fed915e08373c9a25cdb28ef7fe0a9c63f36f5cae39808aa2f581c2c4c93059",
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "seed": "20261022",
+    "applicationCount": 610,
+    "nativeTotalDamage": 27069474.337322712,
+    "nativeDps": 225578.9528110226
+  },
+  "patchedSourceFiles": {
+    "internal/characters/wanderer/attack.go": "db770ea6ed5c4d86a501f1acdb985ca0b7663448872dcdd47de23931ce90eab6",
+    "internal/characters/wanderer/skill.go": "a1b5e3ca7e56afcfe8e41c3c089a22d48df9b80f6bfd26efd4587b0ca20fa4bf",
+    "internal/characters/wanderer/burst.go": "503d903e4add652d7ff8d06497f8d5ef326a875dad41c95f4dc527cbd08e4f63",
+    "internal/characters/wanderer/cons.go": "74baea99401a8ac4df625b6d0fa44533724100f03500326dd737394505cded78",
+    "internal/characters/wanderer/wanderer.go": "33a617c2a8e3431365ac5c81d2f6d0445e3db65195d3d44295760ee30dad232d",
+    "internal/characters/faruzan/burst.go": "f07aaa5065e6bdcf1c9b5be13cb17e30dd1b452ed220d613b4f6a90724b29b9b",
+    "internal/characters/faruzan/cons.go": "d6b5d3fb21a1fb2df85bb137894886d760d48fdbae59262345bf806eb74da392",
+    "pkg/core/attack.go": "1e176e0a67b17f2f88acbdad11a40ab8bba1e0fe4cf9a7e242afaacc6814dac9",
+    "pkg/core/combat/hitbox.go": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+    "pkg/core/info/circle.go": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83",
+    "pkg/target/target.go": "0358df230dab80f5f0b3e464285a0e8ee7394064d0959b324e9dc79bbda8fc32"
+  },
+  "eN3Cycles": [
+    {
+      "skillFrame": 537,
+      "actualA1Buffs": [
+        "pyro",
+        "hydro"
+      ],
+      "maximumPoints": 120,
+      "normalHits": 24,
+      "n3Hits": 12,
+      "minimumResourceLowerBound": 28,
+      "lastN3Hit": 1169,
+      "burstFrame": 1169,
+      "windfavoredStatusEnd": 1314,
+      "statusEndState": "removed"
+    },
+    {
+      "skillFrame": 1858,
+      "actualA1Buffs": [
+        "pyro",
+        "cryo"
+      ],
+      "maximumPoints": 100,
+      "normalHits": 24,
+      "n3Hits": 12,
+      "minimumResourceLowerBound": 15,
+      "lastN3Hit": 2490,
+      "burstFrame": 2490,
+      "windfavoredStatusEnd": 2635,
+      "statusEndState": "removed"
+    },
+    {
+      "skillFrame": 3179,
+      "actualA1Buffs": [
+        "pyro",
+        "hydro"
+      ],
+      "maximumPoints": 120,
+      "normalHits": 24,
+      "n3Hits": 12,
+      "minimumResourceLowerBound": 28,
+      "lastN3Hit": 3811,
+      "burstFrame": 3811,
+      "windfavoredStatusEnd": 3956,
+      "statusEndState": "removed"
+    },
+    {
+      "skillFrame": 4500,
+      "actualA1Buffs": [
+        "pyro",
+        "electro"
+      ],
+      "maximumPoints": 100,
+      "normalHits": 24,
+      "n3Hits": 12,
+      "minimumResourceLowerBound": 15,
+      "lastN3Hit": 5132,
+      "burstFrame": 5132,
+      "windfavoredStatusEnd": 5277,
+      "statusEndState": "removed"
+    },
+    {
+      "skillFrame": 5821,
+      "actualA1Buffs": [
+        "pyro",
+        "electro"
+      ],
+      "maximumPoints": 100,
+      "normalHits": 24,
+      "n3Hits": 12,
+      "minimumResourceLowerBound": 15,
+      "lastN3Hit": 6453,
+      "burstFrame": 6453,
+      "windfavoredStatusEnd": 6598,
+      "statusEndState": "removed"
+    },
+    {
+      "skillFrame": 7142,
+      "actualA1Buffs": [
+        "pyro",
+        "electro"
+      ],
+      "maximumPoints": 100,
+      "normalHits": 0,
+      "n3Hits": 0,
+      "minimumResourceLowerBound": null,
+      "lastN3Hit": null,
+      "burstFrame": null,
+      "windfavoredStatusEnd": 7200,
+      "statusEndState": "active-at-end"
+    }
+  ],
+  "truncatedChargeObservation": [
+    {
+      "stage": "queued",
+      "frame": 7175,
+      "origin": {
+        "creationActionSequence": 201,
+        "triggerActionSequence": 201,
+        "via": "action"
+      }
+    }
+  ],
+  "c6": {
+    "hitCount": 120,
+    "postQPrequeuedHits": [
+      {
+        "attackId": 111,
+        "parentAttackId": 109,
+        "parentFrame": 1169,
+        "burstFrame": 1169,
+        "snapshotAndHitFrame": 1177
+      },
+      {
+        "attackId": 247,
+        "parentAttackId": 245,
+        "parentFrame": 2490,
+        "burstFrame": 2490,
+        "snapshotAndHitFrame": 2498
+      },
+      {
+        "attackId": 382,
+        "parentAttackId": 380,
+        "parentFrame": 3811,
+        "burstFrame": 3811,
+        "snapshotAndHitFrame": 3819
+      },
+      {
+        "attackId": 518,
+        "parentAttackId": 516,
+        "parentFrame": 5132,
+        "burstFrame": 5132,
+        "snapshotAndHitFrame": 5140
+      },
+      {
+        "attackId": 653,
+        "parentAttackId": 651,
+        "parentFrame": 6453,
+        "burstFrame": 6453,
+        "snapshotAndHitFrame": 6461
+      }
+    ],
+    "nonWeaponOffensiveSnapshotChanges": [
+      {
+        "attackId": 46,
+        "parentAttackId": 44,
+        "parentSnapshotFrame": 704,
+        "extraSnapshotFrame": 717,
+        "changes": [
+          {
+            "statIndex": 5,
+            "parent": 1187.1868892393447,
+            "extra": 1487.1868892393447
+          }
+        ],
+        "newlyAppliedModifiers": [
+          "guidance-of-theosis"
+        ]
+      },
+      {
+        "attackId": 177,
+        "parentAttackId": 175,
+        "parentSnapshotFrame": 2025,
+        "extraSnapshotFrame": 2038,
+        "changes": [
+          {
+            "statIndex": 5,
+            "parent": 1187.1868892393447,
+            "extra": 1487.1868892393447
+          }
+        ],
+        "newlyAppliedModifiers": [
+          "guidance-of-theosis"
+        ]
+      },
+      {
+        "attackId": 313,
+        "parentAttackId": 311,
+        "parentSnapshotFrame": 3346,
+        "extraSnapshotFrame": 3359,
+        "changes": [
+          {
+            "statIndex": 5,
+            "parent": 1187.1868892393447,
+            "extra": 1487.1868892393447
+          }
+        ],
+        "newlyAppliedModifiers": [
+          "guidance-of-theosis"
+        ]
+      },
+      {
+        "attackId": 448,
+        "parentAttackId": 446,
+        "parentSnapshotFrame": 4667,
+        "extraSnapshotFrame": 4680,
+        "changes": [
+          {
+            "statIndex": 5,
+            "parent": 1187.1868892393447,
+            "extra": 1487.1868892393447
+          }
+        ],
+        "newlyAppliedModifiers": [
+          "guidance-of-theosis"
+        ]
+      },
+      {
+        "attackId": 584,
+        "parentAttackId": 582,
+        "parentSnapshotFrame": 5988,
+        "extraSnapshotFrame": 6001,
+        "changes": [
+          {
+            "statIndex": 5,
+            "parent": 1187.1868892393447,
+            "extra": 1487.1868892393447
+          }
+        ],
+        "newlyAppliedModifiers": [
+          "guidance-of-theosis"
+        ]
+      }
+    ],
+    "directCallbackQueuedAttackLinks": 0,
+    "callbackObservationLimit": "The callback queuedAttacks lists are empty here. Completed callback2, queued attack observations and actual parentAttackId/sourceFrame independently agree; direct callback-list links are not claimed.",
+    "timingQualification": "Source chooses a fresh snapshot8f after successful parent hit; actual game snapshot delay remains unproven."
+  },
+  "q": {
+    "hitCount": 25,
+    "casts": [
+      {
+        "castFrame": 1169,
+        "resourceAtCast": {
+          "currentPoints": 31,
+          "maxPoints": 120
+        },
+        "snapshotFrame": 1224,
+        "hitFrames": [
+          1261,
+          1267,
+          1273,
+          1279,
+          1285
+        ],
+        "snapshotAtk": 3050.10925082584,
+        "lastNormalSnapshotFrame": 1164,
+        "lastNormalSnapshotAtk": 4379.182358585185,
+        "supportModifiersExpiredSinceLastNormalSnapshot": [
+          {
+            "key": "grace-of-kenosis",
+            "expiry": 1214
+          },
+          {
+            "key": "nicole-c2",
+            "expiry": 1214
+          },
+          {
+            "key": "nob-4pc",
+            "expiry": 1184
+          },
+          {
+            "key": "guidance-of-theosis",
+            "expiry": 1214
+          }
+        ]
+      },
+      {
+        "castFrame": 2490,
+        "resourceAtCast": {
+          "currentPoints": 15,
+          "maxPoints": 100
+        },
+        "snapshotFrame": 2545,
+        "hitFrames": [
+          2582,
+          2588,
+          2594,
+          2600,
+          2606
+        ],
+        "snapshotAtk": 3050.10925082584,
+        "lastNormalSnapshotFrame": 2485,
+        "lastNormalSnapshotAtk": 4379.182358585185,
+        "supportModifiersExpiredSinceLastNormalSnapshot": [
+          {
+            "key": "grace-of-kenosis",
+            "expiry": 2535
+          },
+          {
+            "key": "nicole-c2",
+            "expiry": 2535
+          },
+          {
+            "key": "nob-4pc",
+            "expiry": 2505
+          },
+          {
+            "key": "guidance-of-theosis",
+            "expiry": 2535
+          }
+        ]
+      },
+      {
+        "castFrame": 3811,
+        "resourceAtCast": {
+          "currentPoints": 31,
+          "maxPoints": 120
+        },
+        "snapshotFrame": 3866,
+        "hitFrames": [
+          3903,
+          3909,
+          3915,
+          3921,
+          3927
+        ],
+        "snapshotAtk": 3050.10925082584,
+        "lastNormalSnapshotFrame": 3806,
+        "lastNormalSnapshotAtk": 4379.182358585185,
+        "supportModifiersExpiredSinceLastNormalSnapshot": [
+          {
+            "key": "grace-of-kenosis",
+            "expiry": 3856
+          },
+          {
+            "key": "nicole-c2",
+            "expiry": 3856
+          },
+          {
+            "key": "nob-4pc",
+            "expiry": 3826
+          },
+          {
+            "key": "guidance-of-theosis",
+            "expiry": 3856
+          }
+        ]
+      },
+      {
+        "castFrame": 5132,
+        "resourceAtCast": {
+          "currentPoints": 15,
+          "maxPoints": 100
+        },
+        "snapshotFrame": 5187,
+        "hitFrames": [
+          5224,
+          5230,
+          5236,
+          5242,
+          5248
+        ],
+        "snapshotAtk": 3050.10925082584,
+        "lastNormalSnapshotFrame": 5127,
+        "lastNormalSnapshotAtk": 4379.182358585185,
+        "supportModifiersExpiredSinceLastNormalSnapshot": [
+          {
+            "key": "grace-of-kenosis",
+            "expiry": 5177
+          },
+          {
+            "key": "nicole-c2",
+            "expiry": 5177
+          },
+          {
+            "key": "nob-4pc",
+            "expiry": 5147
+          },
+          {
+            "key": "guidance-of-theosis",
+            "expiry": 5177
+          }
+        ]
+      },
+      {
+        "castFrame": 6453,
+        "resourceAtCast": {
+          "currentPoints": 15,
+          "maxPoints": 100
+        },
+        "snapshotFrame": 6508,
+        "hitFrames": [
+          6545,
+          6551,
+          6557,
+          6563,
+          6569
+        ],
+        "snapshotAtk": 3050.10925082584,
+        "lastNormalSnapshotFrame": 6448,
+        "lastNormalSnapshotAtk": 4379.182358585185,
+        "supportModifiersExpiredSinceLastNormalSnapshot": [
+          {
+            "key": "grace-of-kenosis",
+            "expiry": 6498
+          },
+          {
+            "key": "nicole-c2",
+            "expiry": 6498
+          },
+          {
+            "key": "nob-4pc",
+            "expiry": 6468
+          },
+          {
+            "key": "guidance-of-theosis",
+            "expiry": 6498
+          }
+        ]
+      }
+    ],
+    "timingQualification": "Source55f is numerically relevant here because support buffs expire before it; no independent game measurement establishes a replacement frame."
+  },
+  "geometryAndGift": {
+    "relevantResolvedHits": 265,
+    "fixedTarget": {
+      "x": 0,
+      "y": 2.4,
+      "radius": 2
+    },
+    "movementActionCount": 0,
+    "giftWandererRefreshFrames": [
+      507,
+      746,
+      985,
+      1224,
+      1463,
+      1612,
+      1828,
+      2067,
+      2306,
+      2545,
+      2784,
+      2933,
+      3149,
+      3388,
+      3627,
+      3866,
+      4105,
+      4254,
+      4470,
+      4709,
+      4948,
+      5187,
+      5426,
+      5575,
+      5791,
+      6030,
+      6269,
+      6508,
+      6747,
+      6896,
+      7112
+    ],
+    "giftRelevantAnemoConsumers": 276,
+    "giftAnemoBonus": 0.3825,
+    "giftC6CritDamage": 0.4,
+    "qualification": "Stationary player at cast center remains inside40-radius source field. Q/C6 circles are centered on the fixed target. This does not certify actual game AoE, movement or triangle pulses."
+  },
+  "finding": "No new source-supported numerical defect demonstrated. Do not patch unexercised E-expiry TODO or substitute unmeasured Q/C6 snapshot timing.",
+  "notRun": [
+    "native simulation",
+    "120-second replay",
+    "WASM build",
+    "existing52calculator tests",
+    "full regression"
+  ]
+}

@@ -15,4 +15,5 @@ export const noellePlungeMappings: SourceHitMapping[] = noellePlungeTemplates.fl
   assumptions: ["C0、Q大扫除未激活、无外部附魔；每行只是单次来源角色模板，完整下落由核心展开碰撞与落地。", "实际起手资格必须是固定来源AirborneXianyun，不能以通用跳跃或星扩散腾空代替；确认执行后返回Grounded。", "明确有无路径碰撞、每击接触或落空、完整80/82帧观察；33f碰撞及39/42f落地分别取样，无卡肉或中断。"],
   exclusions: ["不推导Q的DEF转ATK、岩附魔、其他腾空来源或多次路径碰撞；既有低／高零碰撞动作保持独立。", "单击只计算已发生的本击，不要求未来碰撞或落地日程。"],
 })));
-export const replacedNoellePlungePartialMappingIds = new Set(["noelle-plunge-collision-hit"]);
+// Preserve the independently selected collision; observed full plunges are separate actions.
+export const replacedNoellePlungePartialMappingIds = new Set<string>();

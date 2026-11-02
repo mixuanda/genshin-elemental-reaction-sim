@@ -99,7 +99,12 @@ export function applyExecutionProfile(input: SimConfig, profile: ExecutionProfil
   validateExecutionProfile(profile);
   if (!input.timeline) throw new Error("输入延迟方案需要含动作定义的合法帧时间线。");
   const baselineMode: ExecutionBaselineMode = profile.version === "1.0.0" ? "structural-v1" : profile.baselineMode;
-  if (baselineMode === "structural-v1" && getRuntimeSkillCooldownActors(input).size > 0) throw new Error("旧1.0.0结构基线不能解析实际技能冷却队列；请明确选择1.1.0真实运行基线。");
+  if (baselineMode === "structural-v1" && getRuntimeSkillCooldownActors(input).size > 0) {
+    const unsupportedRuntime = (input.sacrificialModel?.actors.length ?? 0) > 0
+      ? "祭礼及实际技能冷却队列"
+      : "实际技能冷却队列";
+    throw new Error(`旧1.0.0结构基线不能解析${unsupportedRuntime}；请明确选择1.1.0真实运行基线。`);
+  }
   const runtimeBaseline = baselineMode === "runtime-energy-v1" ? simulate(input, runtimeOptions) : undefined;
   const baseline = runtimeBaseline === undefined ? compileLegalTimeline(input).execution : runtimeBaseline.timelineExecution!;
   const results = new Map(baseline.commandResults.map((result) => [result.commandIndex, result]));

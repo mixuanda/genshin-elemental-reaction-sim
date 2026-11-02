@@ -20,6 +20,14 @@ const finalizedIdentity = (hit: OrdinaryHit, context: IdleStanceCastContext) => 
   scalingSnapshot: hit.idleStanceEvent?.scalingSnapshotId ? context.snapshots?.[hit.idleStanceEvent.scalingSnapshotId] : undefined,
 }));
 const roleOf = (cast: IdleStanceTemplate, hit: OrdinaryHit) => hit.idleStanceEvent?.templateRole ?? Object.entries(cast.roles).find(([, role]) => role.mappingId === hit.id)?.[0];
+
+/** E's initial attack has no C6 callback; A1/C4 absorption is checked separately below. */
+export function isWandererInitialSingleHit(document: CalculatorDocument, hit: CalculatorHit): boolean {
+  const cast = templateOf(document);
+  return document.scope === "single-hit" && cast?.sourceSlug === "wanderer"
+    && hit.kind === "ordinary" && roleOf(cast, hit) === "initial";
+}
+
 const ascensionOf = (document: CalculatorDocument, hit: OrdinaryHit) => hit.finalSnapshot?.ascension ?? (document.build.mode === "equipment-derived" ? document.build.equipment?.ascension : document.build.ascension) ?? document.gameContext?.ascension;
 const coefficient = (values: number[], level: number) => values.length === 1 ? values[0]! : values[level - 1] ?? values[0]!;
 
@@ -79,7 +87,9 @@ export function prepareIdleStanceCastDocument(document: CalculatorDocument): Cal
   result.dependencies = result.dependencies.filter(row => !row.id.startsWith(prefix));
   result.dependencies.push({ id: sourceId, status: "provisional", reason: "固定来源的封闭后续输入与完整姿态生命周期；只生成明确接触的自身伤害。", sourceRefs: refs });
   const missing = oldHits.flatMap(hit => hit.kind === "blocked" && (result.scope !== "single-hit" || selected.has(hit.id)) ? hit.reasons : []);
-  if (game.constellation !== 0) missing.push("此姿态完整分支仅支持明确C0，不能省略高命座追加伤害与状态变化。");
+  const selectedHit = oldHits.find(hit => selected.has(hit.id));
+  const independentWandererInitial = selected.size === 1 && selectedHit !== undefined && isWandererInitialSingleHit(result, selectedHit);
+  if (game.constellation !== 0 && !independentWandererInitial) missing.push("此姿态完整分支仅支持明确C0，不能省略高命座追加伤害与状态变化。");
   if (game.effectiveTalentLevel > 15 || game.effectiveTalentLevel < 1) missing.push("有效天赋等级必须在固定来源1至15级范围。");
   if (result.scope === "single-hit") {
     result.hits = old.size ? [...old.values()].map(hit => {
@@ -179,7 +189,9 @@ export function prepareIdleStanceCastDocument(document: CalculatorDocument): Cal
   const selectedDependencies = new Set(result.hits.filter(hit => result.selectedHitIds.includes(hit.id)).flatMap(hit => hit.dependencies));
   const ready = !result.dependencies.some(row => selectedDependencies.has(row.id) && row.status === "missing");
   game.scopeCoverage = result.scope === "single-hit" ? "single-hit" : result.scope === "one-cast" && result.selectedHitIds.length === result.hits.length && ready ? "complete-cast" : "selected-components";
-  game.attributionPolicy = "仅限标签声明的封闭后续输入与完整C0状态生命周期；没有输入必须显式记录，全部自主攻击逐击确认接触。独立已发生命中不依赖未来状态。";
+  game.attributionPolicy = independentWandererInitial
+    ? "仅流浪者已发生的E初始命中，支持C0–C6；有效E等级直接使用，不再次增加命座等级。A1/C4吸收与实际面板条件仍独立检查，不包含空居普攻、重击、风矢或C6追加攻击，也不证明完整姿态。"
+    : "仅限标签声明的封闭后续输入与完整C0状态生命周期；没有输入必须显式记录，全部自主攻击逐击确认接触。独立已发生命中不依赖未来状态。";
   result.assumptions = [...result.assumptions.filter(note => !note.startsWith("姿态完整分支：")), "姿态完整分支：不续舞、不追击等限制属于本次输入条件；完整观察包含自动实体及攻击尾段，不代表任意实战轮转。来源倍率、采样时点、接触与角色自身份额均单独保存。"];
   return result;
 }

@@ -1,0 +1,1018 @@
+{
+  "schema": "iansan-120-kinich-evidence-index-v1",
+  "status": "passed-bounded-baseline-with-energy-skips",
+  "baseCommit": "314218dd990813224488ebbb5faff2c41c1ab993",
+  "sourceIdentity": {
+    "baseCommit": "314218dd990813224488ebbb5faff2c41c1ab993",
+    "requestSha256": "db8382760f42c0570ecea28e9f4eae9f34f2d13aa3192638982da8cc8683346c",
+    "nativeSha256": "60ab8c09e9674f7caf4c01bf4e38b147e0f8d0d9ac494c8b09a77363ca0330c5",
+    "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "wasmSha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+    "buildManifestSha256": "0c8bf23de678d04b348b50b8cd84889e2423be65d36cfeef7eb35205f87bdf02",
+    "seed": "20261023",
+    "window": "[0,7200)"
+  },
+  "sourceLock": "scripts/acceptance/iansan-120-kinich.source.json",
+  "captureDirectory": "/tmp/GIDPS-iansan-120-evidence-20261023/c6-kaeya-no-movement",
+  "resultSchema": "source-host-result-v1",
+  "formulaVersion": "shared-ast-source-host-v1",
+  "captureFiles": [
+    {
+      "name": "run.request.json",
+      "bytes": 1574,
+      "sha256": "db8382760f42c0570ecea28e9f4eae9f34f2d13aa3192638982da8cc8683346c"
+    },
+    {
+      "name": "run.gcsl",
+      "bytes": 1200,
+      "sha256": "b39e7c24af666aa1628bf7d7bad23f29c7f06bcc903004dde0778fe99a7db743"
+    },
+    {
+      "name": "run.source-lock.json",
+      "bytes": 7839,
+      "sha256": "7d42db40f80040767c0499c98b6dfc052bbbe10e9874b6b5446bfd21b46d74b9"
+    },
+    {
+      "name": "run.build-manifest.json",
+      "bytes": 163581,
+      "sha256": "0c8bf23de678d04b348b50b8cd84889e2423be65d36cfeef7eb35205f87bdf02"
+    },
+    {
+      "name": "host.json",
+      "bytes": 285,
+      "sha256": "73ab31b74fe7f16e586d08ab54aaf492bb8d1cf0fb4852774bf38f0d85709231"
+    },
+    {
+      "name": "run.native.json",
+      "bytes": 5656478,
+      "sha256": "60ab8c09e9674f7caf4c01bf4e38b147e0f8d0d9ac494c8b09a77363ca0330c5"
+    },
+    {
+      "name": "run.formula-callbacks.json",
+      "bytes": 304129077,
+      "sha256": "958d156a200cff83be71c318695aeb8a386cdb501968483b75f2945c6f5e4927"
+    },
+    {
+      "name": "run.native-timing.json",
+      "bytes": 48,
+      "sha256": "fada137ecfd2e738f26526717e06b5d4c95cc8ab6be882a13f4821d5d2eb1c7e"
+    },
+    {
+      "name": "run.result.json",
+      "bytes": 5671886,
+      "sha256": "6882a991f5345d6a872a3b43feee43b3df60b005caa28c7a1bd7604dbd655be8"
+    },
+    {
+      "name": "run.summary.json",
+      "bytes": 2796,
+      "sha256": "be2cf4665444c4bfbe2d08757511cab3c6eac3802dbacb1d4a6c40eb76eef565"
+    }
+  ],
+  "independentAudit": {
+    "path": "/tmp/GIDPS-iansan-120-evidence-20261023/c6-kaeya-no-movement/independent-audit.json",
+    "sha256": "3613b1e615ca8f2f9022f2aeba8f4d55ddb7e0de010a94ed277c891b5d759732"
+  },
+  "executionLog": {
+    "path": "/tmp/GIDPS-iansan-120-evidence-20261023/native-run.log",
+    "sha256": "81045a43d66f8c2c1971c91772f31b5d2ba86e6bb0100abc1d1ddab1834bac0f"
+  },
+  "checks": {
+    "realNativeRuns": 1,
+    "nativeTestsPassed": 1,
+    "offlineTestsPassed": 9,
+    "energyWrites": 85,
+    "particleAmountFormulas": 46,
+    "energyFormulaCount": 131,
+    "cooldownDurationChecks": 29,
+    "legalSkillBurstInvocations": 29,
+    "allAbilityInvocations": 161,
+    "sourceFiles": 25,
+    "normalAttacks": 126,
+    "qDecisions": 12,
+    "acceptedQ": 5
+  },
+  "qSummary": [
+    {
+      "actor": "iansan",
+      "intended": 6,
+      "actual": 2,
+      "skipped": 4
+    },
+    {
+      "actor": "kaeya",
+      "intended": 6,
+      "actual": 3,
+      "skipped": 3
+    }
+  ],
+  "missedQ": [
+    {
+      "actor": "iansan",
+      "frame": 1228,
+      "energy": 31,
+      "maxEnergy": 70,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 39,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 30,
+      "nextActionSequence": 31
+    },
+    {
+      "actor": "kaeya",
+      "frame": 1398,
+      "energy": 39.45423999999999,
+      "maxEnergy": 60,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 20.54576000000001,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 33,
+      "nextActionSequence": 34
+    },
+    {
+      "actor": "iansan",
+      "frame": 2425,
+      "energy": 65.2,
+      "maxEnergy": 70,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 4.799999999999997,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 58,
+      "nextActionSequence": 59
+    },
+    {
+      "actor": "kaeya",
+      "frame": 3836,
+      "energy": 40.45424,
+      "maxEnergy": 60,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 19.54576,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 91,
+      "nextActionSequence": 92
+    },
+    {
+      "actor": "iansan",
+      "frame": 4819,
+      "energy": 30.200000000000003,
+      "maxEnergy": 70,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 39.8,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 116,
+      "nextActionSequence": 117
+    },
+    {
+      "actor": "iansan",
+      "frame": 6016,
+      "energy": 63.6,
+      "maxEnergy": 70,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 6.399999999999999,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 145,
+      "nextActionSequence": 146
+    },
+    {
+      "actor": "kaeya",
+      "frame": 6186,
+      "energy": 37.45424,
+      "maxEnergy": 60,
+      "remainingCD": 0,
+      "ready": false,
+      "deficit": 22.54576,
+      "reason": "insufficient-energy",
+      "implicitSwapSequence": 148,
+      "nextActionSequence": 149
+    }
+  ],
+  "actualBurstInvocations": [
+    {
+      "actor": "iansan",
+      "frame": 1,
+      "actionSequence": 1
+    },
+    {
+      "actor": "kaeya",
+      "frame": 217,
+      "actionSequence": 5
+    },
+    {
+      "actor": "kaeya",
+      "frame": 2606,
+      "actionSequence": 62
+    },
+    {
+      "actor": "iansan",
+      "frame": 3631,
+      "actionSequence": 88
+    },
+    {
+      "actor": "kaeya",
+      "frame": 5000,
+      "actionSequence": 120
+    }
+  ],
+  "energyReconciliation": [
+    {
+      "actor": "iansan",
+      "startup": 70,
+      "actuallyReceived": 140.0,
+      "actuallySpent": 140,
+      "final": 70
+    },
+    {
+      "actor": "kaeya",
+      "startup": 60,
+      "actuallyReceived": 178.45474000000004,
+      "actuallySpent": 180,
+      "final": 58.45474
+    }
+  ],
+  "energySources": [
+    {
+      "actor": "iansan",
+      "source": "iansan-c1",
+      "operation": "flat-change",
+      "requested": 90.0,
+      "credited": 67.19999999999999,
+      "wasted": 22.80000000000001,
+      "events": 6
+    },
+    {
+      "actor": "iansan",
+      "source": "iansan",
+      "operation": "particle-apply",
+      "requested": 72.0,
+      "credited": 48.0,
+      "wasted": 24.0,
+      "events": 6
+    },
+    {
+      "actor": "kaeya",
+      "source": "iansan",
+      "operation": "particle-apply",
+      "requested": 24.320640000000004,
+      "credited": 12.160320000000006,
+      "wasted": 12.160319999999995,
+      "events": 6
+    },
+    {
+      "actor": "kaeya",
+      "source": "na-ca-on-hit",
+      "operation": "flat-change",
+      "requested": 28.0,
+      "credited": 22.34536,
+      "wasted": 5.6546400000000006,
+      "events": 28
+    },
+    {
+      "actor": "iansan",
+      "source": "kaeya",
+      "operation": "particle-apply",
+      "requested": 35.2,
+      "credited": 24.80000000000001,
+      "wasted": 10.39999999999999,
+      "events": 17
+    },
+    {
+      "actor": "kaeya",
+      "source": "kaeya",
+      "operation": "particle-apply",
+      "requested": 167.20439999999996,
+      "credited": 143.94906000000003,
+      "wasted": 23.25533999999998,
+      "events": 17
+    }
+  ],
+  "damage": {
+    "hits": 208,
+    "totalDamage": 76605.56459049942,
+    "dps": 638.3797049208284,
+    "perActor": {
+      "iansan": 30872.23236937466,
+      "kaeya": 45733.33222112474
+    },
+    "perAbility": [
+      {
+        "actor": "iansan",
+        "ability": "The Three Principles of Power",
+        "damage": 3321.811633642629
+      },
+      {
+        "actor": "iansan",
+        "ability": "Thunderbolt Rush",
+        "damage": 6017.267624675651
+      },
+      {
+        "actor": "iansan",
+        "ability": "Swift Stormflight",
+        "damage": 2000.6308610563833
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Glacial Waltz",
+        "damage": 8838.82939572281
+      },
+      {
+        "actor": "kaeya",
+        "ability": "superconduct",
+        "damage": 3906.50445
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Frostgnaw",
+        "damage": 8080.9966515192355
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Normal 0",
+        "damage": 5298.010982961755
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Normal 1",
+        "damage": 4832.008626100724
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Normal 2",
+        "damage": 5830.859706884896
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Normal 3",
+        "damage": 5443.497616855092
+      },
+      {
+        "actor": "kaeya",
+        "ability": "Normal 4",
+        "damage": 3502.624791080212
+      },
+      {
+        "actor": "iansan",
+        "ability": "superconduct",
+        "damage": 19532.522249999998
+      }
+    ],
+    "handHit": {
+      "calculationId": 38,
+      "frame": 207,
+      "baseAttack": 280.24560032,
+      "nonExtraAttack": 403.55366446079995,
+      "qUpdateCalculationId": 37,
+      "qUpdateFrame": 201,
+      "qUpdatePoints": 43.599999999999966,
+      "qAddedAttack": 108.95948940441599,
+      "finalAttack": 512.5131538652159,
+      "normal10Coefficient": 1.6643,
+      "damageBonus": 0.25,
+      "defense": 0.5,
+      "resistance": 0.9,
+      "crit": false,
+      "expected": 479.7987986125569,
+      "actual": 479.7987986125569
+    }
+  },
+  "activity": {
+    "perSecondHitCounts": [
+      2,
+      0,
+      0,
+      1,
+      2,
+      3,
+      4,
+      3,
+      2,
+      3,
+      3,
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      3,
+      0,
+      0,
+      2,
+      0,
+      2,
+      2,
+      1,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      3,
+      0,
+      0,
+      2,
+      2,
+      3,
+      4,
+      2,
+      3,
+      3,
+      3,
+      2,
+      3,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      1,
+      4,
+      0,
+      1,
+      0,
+      3,
+      2,
+      1,
+      1,
+      2,
+      1,
+      1,
+      2,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      3,
+      0,
+      0,
+      2,
+      2,
+      3,
+      4,
+      2,
+      3,
+      3,
+      3,
+      3,
+      3,
+      1,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      3,
+      0,
+      0,
+      2,
+      0,
+      2,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      1,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2
+    ],
+    "secondsWithAtLeastOneHit": 106,
+    "zeroHitSecondIndices": [
+      1,
+      2,
+      21,
+      22,
+      24,
+      41,
+      42,
+      62,
+      64,
+      81,
+      82,
+      101,
+      102,
+      104
+    ],
+    "phases": [
+      {
+        "phase": 0,
+        "startFrameInclusive": 0,
+        "endFrameExclusive": 1228,
+        "hits": 40,
+        "firstHitFrame": 39,
+        "lastHitFrame": 1196,
+        "largestBoundaryOrHitGapFrames": 153,
+        "abilityInvocations": 28,
+        "actions": [
+          {
+            "actor": "iansan",
+            "action": "burst",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "skill",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "charge",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "burst",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "skill",
+            "count": 3
+          },
+          {
+            "actor": "kaeya",
+            "action": "attack",
+            "count": 21
+          }
+        ]
+      },
+      {
+        "phase": 1,
+        "startFrameInclusive": 1228,
+        "endFrameExclusive": 2425,
+        "hits": 28,
+        "firstHitFrame": 1228,
+        "lastHitFrame": 2393,
+        "largestBoundaryOrHitGapFrames": 152,
+        "abilityInvocations": 26,
+        "actions": [
+          {
+            "actor": "iansan",
+            "action": "skill",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "charge",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "skill",
+            "count": 3
+          },
+          {
+            "actor": "kaeya",
+            "action": "attack",
+            "count": 21
+          }
+        ]
+      },
+      {
+        "phase": 2,
+        "startFrameInclusive": 2425,
+        "endFrameExclusive": 3622,
+        "hits": 41,
+        "firstHitFrame": 2425,
+        "lastHitFrame": 3590,
+        "largestBoundaryOrHitGapFrames": 152,
+        "abilityInvocations": 27,
+        "actions": [
+          {
+            "actor": "iansan",
+            "action": "skill",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "charge",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "burst",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "skill",
+            "count": 3
+          },
+          {
+            "actor": "kaeya",
+            "action": "attack",
+            "count": 21
+          }
+        ]
+      },
+      {
+        "phase": 3,
+        "startFrameInclusive": 3622,
+        "endFrameExclusive": 4819,
+        "hits": 30,
+        "firstHitFrame": 3622,
+        "lastHitFrame": 4787,
+        "largestBoundaryOrHitGapFrames": 152,
+        "abilityInvocations": 27,
+        "actions": [
+          {
+            "actor": "iansan",
+            "action": "burst",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "skill",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "charge",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "skill",
+            "count": 3
+          },
+          {
+            "actor": "kaeya",
+            "action": "attack",
+            "count": 21
+          }
+        ]
+      },
+      {
+        "phase": 4,
+        "startFrameInclusive": 4819,
+        "endFrameExclusive": 6016,
+        "hits": 41,
+        "firstHitFrame": 4819,
+        "lastHitFrame": 5984,
+        "largestBoundaryOrHitGapFrames": 152,
+        "abilityInvocations": 27,
+        "actions": [
+          {
+            "actor": "iansan",
+            "action": "skill",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "charge",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "burst",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "skill",
+            "count": 3
+          },
+          {
+            "actor": "kaeya",
+            "action": "attack",
+            "count": 21
+          }
+        ]
+      },
+      {
+        "phase": 5,
+        "startFrameInclusive": 6016,
+        "endFrameExclusive": 7200,
+        "hits": 28,
+        "firstHitFrame": 6016,
+        "lastHitFrame": 7181,
+        "largestBoundaryOrHitGapFrames": 152,
+        "abilityInvocations": 26,
+        "actions": [
+          {
+            "actor": "iansan",
+            "action": "skill",
+            "count": 1
+          },
+          {
+            "actor": "iansan",
+            "action": "charge",
+            "count": 1
+          },
+          {
+            "actor": "kaeya",
+            "action": "skill",
+            "count": 3
+          },
+          {
+            "actor": "kaeya",
+            "action": "attack",
+            "count": 21
+          }
+        ]
+      }
+    ],
+    "interpretation": "Hit presence is not animation occupancy. Real E/Q animations, target contact and the fixed observation cutoff can leave a second without damage; the input continuously requests legal normals/ready E rather than waiting out each phase."
+  },
+  "nightsoul": {
+    "finalPoints": 0.0,
+    "counts": {
+      "enter nightsoul blessing": 8,
+      "consume nightsoul points": 601,
+      "generate nightsoul points": 24,
+      "exit nightsoul blessing": 6,
+      "clear nightsoul points": 6
+    },
+    "interpretation": "Resource mutations are replayed exactly. GeneratePoints logs aggregate movement/A1/C4 contributions; this report does not infer their split from the amount."
+  },
+  "nightsoulEntriesAndExits": [
+    {
+      "nativeLogIndex": 39,
+      "frame": 41,
+      "event": "enter nightsoul blessing",
+      "before": 0.0,
+      "after": 15,
+      "active": true,
+      "operands": {
+        "points": 15,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 53,
+      "frame": 48,
+      "event": "enter nightsoul blessing",
+      "before": 14.4,
+      "after": 54,
+      "active": true,
+      "operands": {
+        "points": 54,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 604,
+      "frame": 819,
+      "event": "exit nightsoul blessing",
+      "before": 0,
+      "after": 0,
+      "active": false,
+      "operands": {}
+    },
+    {
+      "nativeLogIndex": 871,
+      "frame": 1240,
+      "event": "enter nightsoul blessing",
+      "before": 0.0,
+      "after": 54,
+      "active": true,
+      "operands": {
+        "points": 54,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 1343,
+      "frame": 1783,
+      "event": "exit nightsoul blessing",
+      "before": 0,
+      "after": 0,
+      "active": false,
+      "operands": {}
+    },
+    {
+      "nativeLogIndex": 1740,
+      "frame": 2437,
+      "event": "enter nightsoul blessing",
+      "before": 0.0,
+      "after": 54,
+      "active": true,
+      "operands": {
+        "duration": 960,
+        "points": 54
+      }
+    },
+    {
+      "nativeLogIndex": 2100,
+      "frame": 2980,
+      "event": "exit nightsoul blessing",
+      "before": 0,
+      "after": 0,
+      "active": false,
+      "operands": {}
+    },
+    {
+      "nativeLogIndex": 2531,
+      "frame": 3671,
+      "event": "enter nightsoul blessing",
+      "before": 0.0,
+      "after": 15,
+      "active": true,
+      "operands": {
+        "points": 15,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 2546,
+      "frame": 3678,
+      "event": "enter nightsoul blessing",
+      "before": 14.4,
+      "after": 54,
+      "active": true,
+      "operands": {
+        "points": 54,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 3061,
+      "frame": 4347,
+      "event": "exit nightsoul blessing",
+      "before": 0,
+      "after": 0,
+      "active": false,
+      "operands": {}
+    },
+    {
+      "nativeLogIndex": 3372,
+      "frame": 4831,
+      "event": "enter nightsoul blessing",
+      "before": 0.0,
+      "after": 54,
+      "active": true,
+      "operands": {
+        "points": 54,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 3730,
+      "frame": 5374,
+      "event": "exit nightsoul blessing",
+      "before": 0,
+      "after": 0,
+      "active": false,
+      "operands": {}
+    },
+    {
+      "nativeLogIndex": 4140,
+      "frame": 6028,
+      "event": "enter nightsoul blessing",
+      "before": 0.0,
+      "after": 54,
+      "active": true,
+      "operands": {
+        "points": 54,
+        "duration": 960
+      }
+    },
+    {
+      "nativeLogIndex": 4610,
+      "frame": 6571,
+      "event": "exit nightsoul blessing",
+      "before": 0,
+      "after": 0,
+      "active": false,
+      "operands": {}
+    }
+  ],
+  "iansanBurstStatuses": [
+    {
+      "actorIndex": 0,
+      "statusKey": "iansan-burst",
+      "instanceId": 1,
+      "createdFrame": 1,
+      "creationActionSequence": 1,
+      "initialExpiryFrame": 901,
+      "finalExpiryFrame": 906,
+      "endState": "removed",
+      "endFrame": 819,
+      "nativeOverwrite": false
+    },
+    {
+      "actorIndex": 0,
+      "statusKey": "iansan-burst",
+      "instanceId": 32,
+      "createdFrame": 3631,
+      "creationActionSequence": 88,
+      "initialExpiryFrame": 4531,
+      "finalExpiryFrame": 4536,
+      "endState": "removed",
+      "endFrame": 4347,
+      "nativeOverwrite": false
+    }
+  ],
+  "c4ObservationPoints": {
+    "otherBurst": {
+      "actor": "kaeya",
+      "frame": 217,
+      "actionSequence": 5
+    },
+    "followingPointRestores": [
+      {
+        "event": "character",
+        "frame": 241,
+        "ended": 241,
+        "char_index": 0,
+        "msg": "generate nightsoul points",
+        "logs": {
+          "previous points": 39.99999999999996,
+          "amount": 5,
+          "final": 44.99999999999996
+        },
+        "ordering": {
+          "previous points": 0,
+          "amount": 1,
+          "final": 2
+        }
+      },
+      {
+        "event": "character",
+        "frame": 301,
+        "ended": 301,
+        "char_index": 0,
+        "msg": "generate nightsoul points",
+        "logs": {
+          "previous points": 38.99999999999994,
+          "amount": 5,
+          "final": 43.99999999999994
+        },
+        "ordering": {
+          "previous points": 0,
+          "amount": 1,
+          "final": 2
+        }
+      }
+    ]
+  },
+  "cutoffParticleDelivery": {
+    "id": 1368,
+    "parentTaskId": 1367,
+    "queueId": 1,
+    "queuedFrame": 7120,
+    "queuedClock": 7120,
+    "dueClock": 7220,
+    "state": "pending",
+    "origin": {
+      "creationActionSequence": 169,
+      "triggerActionSequence": 169,
+      "parentAttackId": 206,
+      "via": "task"
+    },
+    "key": "core-particle-delivery"
+  },
+  "assumptions": {
+    "actors": [
+      "iansan",
+      "kaeya"
+    ],
+    "artifactPieces": 0,
+    "initialEnergy": "full once",
+    "movement": "No explicit movement param or function. Dash/position do not imply movement in this engine.",
+    "gameplayScope": "C6 includes C4; source-backed mechanism fixture, not an optimized player build.",
+    "qPolicy": "Six intended decisions per actor; guard actual ready; report each skipped Q.",
+    "phaseLengthFrames": 1200,
+    "phaseCount": 6,
+    "endFrame": 7200,
+    "phaseTiming": "Continuous Kaeya normals and ready E until each absolute 1200f boundary; next phase may be delayed by the actual last animation/cancel."
+  },
+  "uncovered": [
+    "Two-character source mechanism fixture, legal level-1 starter weapons and no artifacts; not a player graduation build.",
+    "Full energy once at startup, no external movement distance, injected energy, unlimited buff or repeated short-axis multiplication.",
+    "One seed and one real 120-second run. Particle generation RNG and Kaeya Q geometry assumptions are not independently rerun.",
+    "C4/A1 restoration split and positive-points marker-expiry edge require the separately retained source/Go/short-native evidence; aggregate point logs alone do not prove them.",
+    "This axis depletes Nightsoul before the Iansan marker expiry; patch141 positive-points expiry is covered by the separate short-native/Go evidence, not by this120s run.",
+    "This is C6 (including C4), not a separately run C4-only fixture.",
+    "Seven intended Q casts skip for actual insufficient energy; no steady full-Q rotation is claimed."
+  ],
+  "explanationStatus": "partial",
+  "explanationNoticeCount": 116,
+  "productionChanges": false
+}

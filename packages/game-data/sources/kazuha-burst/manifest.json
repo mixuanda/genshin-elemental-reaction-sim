@@ -1,0 +1,184 @@
+{
+  "format": "gidps-kazuha-burst-source-v1",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "fixed-source-reviewed-c0-c1-direct-burst",
+  "files": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/kazuha/burst.go",
+      "sha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f",
+      "gitBlob": "436f9ee6c85d6bb977cc4f168a4799359d45c17e"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/kazuha/asc.go",
+      "sha256": "33d045a3a33b8ef2452699e7d83e9603a8a3684d5fba360566252af6dfefaecd",
+      "gitBlob": "7d829cb72e2d9d1374f8f36f6bbe475f033b2d17"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/kazuha/cons.go",
+      "sha256": "ec3b0253b1e5272ecf5e1317628a1b3a7da5bd43ae70d9a3a5201e82a58f9a9a",
+      "gitBlob": "4bacb3c246aca00b8e9b9a2d2654d5ba60d3bd8d"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/kazuha/kazuha.go",
+      "sha256": "9a6a4b87d45280e11a8fb99497c2a01f806748798aaa07a9f976946218e03f54",
+      "gitBlob": "543e65517766d80eec846324f4854faba1295a9a"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/kazuha/zz_kaedeharakazuha.dm.go",
+      "sha256": "f26d39690958e646dd80b8c19104ee73ca380e316d94ff00c47ad67da4f63b23",
+      "gitBlob": "66cc0d43f90b75be43a282ff7e70cb41e7f08041"
+    }
+  ],
+  "coefficients": [
+    {
+      "sourceTable": "burstSlash",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        2.624,
+        2.8208,
+        3.0176,
+        3.28,
+        3.4768,
+        3.6736,
+        3.936,
+        4.1984,
+        4.4608,
+        4.7232,
+        4.9856,
+        5.248,
+        5.576,
+        5.904,
+        6.232
+      ]
+    },
+    {
+      "sourceTable": "burstDot",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        1.2,
+        1.29,
+        1.38,
+        1.5,
+        1.59,
+        1.68,
+        1.8,
+        1.92,
+        2.04,
+        2.16,
+        2.28,
+        2.4,
+        2.55,
+        2.7,
+        2.85
+      ]
+    },
+    {
+      "sourceTable": "burstEleDot",
+      "abilityKey": "combat3",
+      "parameterKey": "param3",
+      "values": [
+        0.36,
+        0.387,
+        0.414,
+        0.45,
+        0.477,
+        0.504,
+        0.54,
+        0.576,
+        0.612,
+        0.648,
+        0.684,
+        0.72,
+        0.765,
+        0.81,
+        0.855
+      ]
+    }
+  ],
+  "crossVariant": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "files": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/kazuha/burst.go",
+        "sha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f",
+        "gitBlob": "436f9ee6c85d6bb977cc4f168a4799359d45c17e"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/kazuha/asc.go",
+        "sha256": "f41aa061dc26f7e17c3e2fa31841d84f3821d4dbc783ec98e4bf76541fe7661d",
+        "gitBlob": "59af08ddda492c7476e613359d9f56ae95fc0b90"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/kazuha/cons.go",
+        "sha256": "ec3b0253b1e5272ecf5e1317628a1b3a7da5bd43ae70d9a3a5201e82a58f9a9a",
+        "gitBlob": "4bacb3c246aca00b8e9b9a2d2654d5ba60d3bd8d"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/kazuha/kazuha.go",
+        "sha256": "9a6a4b87d45280e11a8fb99497c2a01f806748798aaa07a9f976946218e03f54",
+        "gitBlob": "543e65517766d80eec846324f4854faba1295a9a"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/kazuha/zz_kaedeharakazuha.dm.go",
+        "sha256": "f26d39690958e646dd80b8c19104ee73ca380e316d94ff00c47ad67da4f63b23",
+        "gitBlob": "66cc0d43f90b75be43a282ff7e70cb41e7f08041"
+      }
+    ],
+    "differences": [
+      {
+        "path": "asc.go",
+        "diff": "--- \n+++ \n@@ -81,6 +81,7 @@\n \t}\n \n \tc.Core.Events.Subscribe(event.OnSwirlCryo, swirlfunc(attributes.CryoP, \"cryo\"), \"kazuha-a4-cryo\")\n+\tc.Core.Events.Subscribe(event.OnStellarSwirl, swirlfunc(attributes.CryoP, \"cryo\"), \"kazuha-a4-cryo\")\n \tc.Core.Events.Subscribe(event.OnSwirlElectro, swirlfunc(attributes.ElectroP, \"electro\"), \"kazuha-a4-electro\")\n \tc.Core.Events.Subscribe(event.OnSwirlHydro, swirlfunc(attributes.HydroP, \"hydro\"), \"kazuha-a4-hydro\")\n \tc.Core.Events.Subscribe(event.OnSwirlPyro, swirlfunc(attributes.PyroP, \"pyro\"), \"kazuha-a4-pyro\")\n"
+      }
+    ]
+  },
+  "numericEvidenceStatus": "single-source-extracted",
+  "sourceReview": {
+    "frames": {
+      "snapshot": 81,
+      "initialSlash": 82,
+      "anemoTicks": [
+        140,
+        257,
+        374,
+        491,
+        608
+      ],
+      "absorptionChecks": [
+        81,
+        99,
+        117,
+        135,
+        153,
+        171,
+        189,
+        207,
+        225,
+        243,
+        261,
+        279,
+        297,
+        315,
+        333,
+        351,
+        369
+      ]
+    },
+    "ordering": "Absorbed elemental DoT is queued before the Anemo DoT at each shared tick.",
+    "a4": "0.0004 * NonExtraStat(EM), triggered by an actual same-owner prior swirl and stored as Extra. Both DoT snapshots occur at frame 81, before this Q initial slash at frame 82.",
+    "scope": "C0/C1 ordinary direct damage only. Swirl/other reaction entities are not included. C2+ is blocked. C1 resets E cooldown and adds no Q direct hit.",
+    "crossVariantMeaning": "Same gcsim implementation chain, not independent mechanism evidence. Only asc.go differs: the a7 variant subscribes to stellar swirl cryo."
+  }
+}

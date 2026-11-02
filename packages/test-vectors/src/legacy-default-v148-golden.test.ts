@@ -22,6 +22,7 @@ import { describe, expect, it } from "vitest";
 
 import frozenV147 from "../fixtures/legacy-default-120s-1.47.golden.json";
 import { simulate } from "../../sim-core/src/simulator";
+import { historicalLegacyDefault } from "./historical-legacy-default";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
@@ -143,13 +144,14 @@ function legacyDamageEventsSha256(value: unknown): string {
     .digest("hex");
 }
 
-function runDefault() {
+function runDefault(source: 'historical' | 'current' = 'historical') {
+  const run = source === 'historical' ? historicalLegacyDefault : simulate;
   return projectSimulationResultV149ToV148(
     projectSimulationResultV150ToV149(
       projectSimulationResultV151ToV150(
         projectSimulationResultV152ToV151(
           projectSimulationResultV153ToV152(
-            simulate(withV152CompatibilityPolicies(durinMeltPreset), {
+            run(withV152CompatibilityPolicies(durinMeltPreset), {
               energyMode: "configured",
               critMode: "average",
               compatibilityMode: "legacy-v0.1",
@@ -376,4 +378,13 @@ describe("default 1.48 reaction-owned application Golden", () => {
       expect(frozen).toEqual(generated);
     },
   );
+});
+
+describe('current default V148 consumer boundary',()=>{
+ it('keeps current combat compatibility while refusing equality with frozen audit bytes',()=>{
+  const result=runDefault('current');expect(simulationResultV148Schema.parse(result)).toEqual(result);expect(assertTrustedSimulationResultV148(result)).toBe(result);expect(v147CompatibilityProjection(result)).toEqual(frozenV147CompatibilityProjection());
+  expect(result.hitResolutionLog).toHaveLength(269);expect(result.hitResolutionLog.every(row=>row.eventPriority===3&&row.intraEventSequence===0)).toBe(true);
+  const before=structuredClone(result),generated=makeFixture(result);
+  expect(generated).not.toEqual(JSON.parse(readFileSync(FIXTURE_URL,'utf8')));expect(result).toStrictEqual(before);expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
+ });
 });

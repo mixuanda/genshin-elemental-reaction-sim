@@ -285,7 +285,7 @@ export function resolveArtifactSetEffects(input: { setId: string; pieces: number
       result.sourceRefs.push(...nonDamage.sourceRefs);
       result.assumptions.push(`${label}：来源值=${nonDamage.value}，适用对象=装备者，属性=${nonDamage.property}${nonDamage.elements ? `，元素=${nonDamage.elements.join(",")}` : ""}。${nonDamage.explanation}`);
       result.effectBlockers.push(nonDamage.execution === "utility-replay"
-        ? `${label}：玩家生存效果由独立圣遗物事件重放执行；本输出伤害配装解析器不读取受击或治疗事件。来源文案：${effect.description}`
+        ? `${label}：玩家生存效果由独立圣遗物事件重放执行；在本输出伤害配装解析器中未计入可执行套装覆盖，该解析器不读取受击或治疗事件；不能据此否定独立生存重放的支持。来源文案：${effect.description}`
         : `${label}：仅保留来源说明，${nonDamage.property}机制尚未执行；未计入可执行套装覆盖。来源文案：${effect.description}`);
     } else if (effect.pieces === 2 && set.slug === "scrolloftheheroofcindercity") {
       result.sourceRefs.push(`${gcsimRoot}/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go`);

@@ -1,14 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { defineConfig, type Plugin } from "vite";
 
-interface CachedShowcase {
-  data: unknown;
-  fetchedAt: string;
-  expiresAt: number;
-}
-
-const showcaseCache = new Map<string, CachedShowcase>();
-
 function sendJson(
   response: ServerResponse,
   statusCode: number,
@@ -20,7 +12,7 @@ function sendJson(
   response.end(JSON.stringify(body));
 }
 
-function enkaShowcaseProxy(): Plugin {
+export function enkaShowcaseProxy(): Plugin {
   const install = (middlewares: {
     use: (
       handler: (
@@ -49,20 +41,13 @@ function enkaShowcaseProxy(): Plugin {
           return;
         }
 
-        const cached = showcaseCache.get(uid);
-        if (cached && cached.expiresAt > Date.now()) {
-          sendJson(response, 200, {
-            data: cached.data,
-            fetchedAt: cached.fetchedAt,
-            cache: "hit"
-          });
-          return;
-        }
-
         try {
           const upstream = await fetch(
             `https://enka.network/api/uid/${uid}/`,
             {
+              credentials: "omit",
+              redirect: "error",
+              cache: "no-store",
               headers: {
                 Accept: "application/json",
                 "User-Agent":
@@ -84,29 +69,14 @@ function enkaShowcaseProxy(): Plugin {
             return;
           }
           const fetchedAt = new Date().toISOString();
-          const ttl =
-            typeof data === "object" &&
-            data !== null &&
-            "ttl" in data &&
-            typeof data.ttl === "number"
-              ? Math.max(30, Math.min(300, data.ttl))
-              : 60;
-          showcaseCache.set(uid, {
-            data,
-            fetchedAt,
-            expiresAt: Date.now() + ttl * 1000
-          });
           sendJson(response, 200, {
             data,
             fetchedAt,
-            cache: "miss"
+            cache: "disabled"
           });
-        } catch (error) {
+        } catch {
           sendJson(response, 502, {
-            error:
-              error instanceof Error
-                ? `展示柜服务不可用：${error.message}`
-                : "展示柜服务不可用。"
+            error: "展示柜服务不可用。"
           });
         }
       })();

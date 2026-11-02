@@ -8,7 +8,7 @@ import type { SourceHostStartupJob } from "./source-host-startup-analysis";
 
 export interface SourceHostBatchJob { id: string; request: SourceHostRunRequest; baseConfig: string; addedRecharge: number; actorKey: string | null }
 export interface SourceHostBatchRun extends SourceHostBatchJob { result: SourceHostResult; elapsedMs: number }
-export interface SourceHostWorkerRequest extends SourceHostRunRequest { jobs?: SourceHostBatchJob[]; startupJobs?: SourceHostStartupJob[]; reexecutionTarget?: SourceHostResult }
+export interface SourceHostWorkerRequest extends SourceHostRunRequest { jobs?: SourceHostBatchJob[]; startupJobs?: SourceHostStartupJob[]; reexecutionTarget?: SourceHostResult; monteCarloJobs?: import("./source-host-monte-carlo").SourceMonteJob[] }
 const esc = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 const format = (value: number | null) => value === null ? "未知" : value.toLocaleString("zh-CN", { maximumFractionDigits: 3 });
 

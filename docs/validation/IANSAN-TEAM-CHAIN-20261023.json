@@ -1,0 +1,490 @@
+{
+  "goal": "/goal 伊安珊真实Swift/Q/夜魂/能量与队伍受益人一致性",
+  "startCommit": "a9c7be1a520ab34e4fd2a3088e590cdb0448d98f",
+  "branch": "cloud/player-import-integration-20261021",
+  "repository": "https://github.com/mixuanda/genshin-elemental-reaction-sim.git",
+  "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "e607f7cfe90b778cbd95ba4fa1d0184c00464ac187f2bc8f65a20834ec0fbc45",
+    "bytes": 72153797
+  },
+  "previousWasm": {
+    "path": "source-host.wasm",
+    "bytes": 72152682,
+    "sha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c"
+  },
+  "build": {
+    "verifiedBlobCount": 4283,
+    "goVersion": "go1.27.1",
+    "goArchive": {
+      "filename": "go1.27.1.linux-amd64.tar.gz",
+      "sha256": "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445",
+      "bytes": 70553950
+    },
+    "goCompiler": {
+      "path": "bin/go",
+      "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+      "bytes": 17142188
+    },
+    "phasePatches": [
+      {
+        "path": "138-iansan-swift-normal-talent.patch",
+        "sha256": "cd87c0e4a78f758ec24eaf7e4f3008035cde1abc538177ded20d24d9e8270538",
+        "bytes": 536
+      },
+      {
+        "path": "139-iansan-c1-consumption-threshold.patch",
+        "sha256": "6f61d4f4ee3478b8b55ce4097c5ac35e6719a79188bb34126263444227b12e79",
+        "bytes": 879
+      },
+      {
+        "path": "140-iansan-c2-active-recipient.patch",
+        "sha256": "c934782c1fd12de571290b3a19477631b015dc48bf3d4dc4d24a9d0c95e6345f",
+        "bytes": 457
+      }
+    ],
+    "compilations": 1,
+    "initialBuildExit": 1,
+    "initialFailure": "WASM compilation completed; inventory tool requested missing Go1.25 archive and go.dev connection was refused.",
+    "recovery": "Official generate-inventory.mjs succeeded after linking the existing checksum-verified Go1.25 cache. Only exact manifest/file-copy finalization was resumed; WASM was not rebuilt.",
+    "recoveryScript": "/tmp/GIDPS-iansan-team-20261023/finalize-staged.mjs",
+    "recoveryScriptSha256": "d57270d957a5b2608713cf6ce1a8dc9002707df554cad11f92d8f1ff1ace6a05"
+  },
+  "native": {
+    "seed": "20261023",
+    "fps": 60,
+    "swift": [
+      {
+        "case": "na1-e10-c0",
+        "before": {
+          "expectedNormalTalent": 1,
+          "expectedCoefficient": 0.84194,
+          "observedCoefficient": 1.6643,
+          "observedIndex": {
+            "schemaVersion": 1,
+            "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+            "indices": [
+              9
+            ],
+            "indexSources": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 10,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 9
+              }
+            ],
+            "value": 1.6643,
+            "actorIndex": 0,
+            "frame": 138,
+            "siteId": "internal/characters/iansan/charge.go:95:21"
+          },
+          "atkAtSnapshot": 347.5045443968,
+          "defenseMultiplier": 0.5,
+          "resistanceMultiplier": 0.9,
+          "expectedNonCrit": 131.6600892492488,
+          "actual": 260.2583159578174,
+          "frame": 163
+        },
+        "after": {
+          "expectedNormalTalent": 1,
+          "expectedCoefficient": 0.84194,
+          "observedCoefficient": 0.84194,
+          "observedIndex": {
+            "schemaVersion": 1,
+            "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+            "indices": [
+              0
+            ],
+            "indexSources": [
+              {
+                "position": 0,
+                "kind": "attack",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": -1,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ],
+            "value": 0.84194,
+            "actorIndex": 0,
+            "frame": 138,
+            "siteId": "internal/characters/iansan/charge.go:98:21"
+          },
+          "atkAtSnapshot": 347.5045443968,
+          "defenseMultiplier": 0.5,
+          "resistanceMultiplier": 0.9,
+          "expectedNonCrit": 131.6600892492488,
+          "actual": 131.6600892492488,
+          "frame": 163
+        },
+        "randomnessAndFrameScheduleUnchanged": true,
+        "originalEHitUnchanged": true,
+        "oneSwiftApplication": true
+      },
+      {
+        "case": "na10-e1-c0",
+        "before": {
+          "expectedNormalTalent": 10,
+          "expectedCoefficient": 1.6643,
+          "observedCoefficient": 0.84194,
+          "observedIndex": {
+            "schemaVersion": 1,
+            "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+            "indices": [
+              0
+            ],
+            "indexSources": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ],
+            "value": 0.84194,
+            "actorIndex": 0,
+            "frame": 138,
+            "siteId": "internal/characters/iansan/charge.go:95:21"
+          },
+          "atkAtSnapshot": 347.5045443968,
+          "defenseMultiplier": 0.5,
+          "resistanceMultiplier": 0.9,
+          "expectedNonCrit": 260.2583159578174,
+          "actual": 131.6600892492488,
+          "frame": 163
+        },
+        "after": {
+          "expectedNormalTalent": 10,
+          "expectedCoefficient": 1.6643,
+          "observedCoefficient": 1.6643,
+          "observedIndex": {
+            "schemaVersion": 1,
+            "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+            "indices": [
+              9
+            ],
+            "indexSources": [
+              {
+                "position": 0,
+                "kind": "attack",
+                "baseTalent": 10,
+                "constellation": 0,
+                "constellationUnlock": -1,
+                "passiveTagValue": 0,
+                "value": 9
+              }
+            ],
+            "value": 1.6643,
+            "actorIndex": 0,
+            "frame": 138,
+            "siteId": "internal/characters/iansan/charge.go:98:21"
+          },
+          "atkAtSnapshot": 347.5045443968,
+          "defenseMultiplier": 0.5,
+          "resistanceMultiplier": 0.9,
+          "expectedNonCrit": 260.2583159578174,
+          "actual": 260.2583159578174,
+          "frame": 163
+        },
+        "randomnessAndFrameScheduleUnchanged": true,
+        "originalEHitUnchanged": true,
+        "oneSwiftApplication": true
+      },
+      {
+        "case": "na10-e10-c3",
+        "before": {
+          "expectedNormalTalent": 10,
+          "expectedCoefficient": 1.6643,
+          "observedCoefficient": 2.01674,
+          "observedIndex": {
+            "schemaVersion": 1,
+            "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+            "indices": [
+              12
+            ],
+            "indexSources": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 10,
+                "constellation": 3,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 12
+              }
+            ],
+            "value": 2.01674,
+            "actorIndex": 0,
+            "frame": 138,
+            "siteId": "internal/characters/iansan/charge.go:95:21"
+          },
+          "atkAtSnapshot": 347.5045443968,
+          "defenseMultiplier": 0.5,
+          "resistanceMultiplier": 0.9,
+          "expectedNonCrit": 260.2583159578174,
+          "actual": 315.37184169006105,
+          "frame": 163
+        },
+        "after": {
+          "expectedNormalTalent": 10,
+          "expectedCoefficient": 1.6643,
+          "observedCoefficient": 1.6643,
+          "observedIndex": {
+            "schemaVersion": 1,
+            "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
+            "indices": [
+              9
+            ],
+            "indexSources": [
+              {
+                "position": 0,
+                "kind": "attack",
+                "baseTalent": 10,
+                "constellation": 3,
+                "constellationUnlock": -1,
+                "passiveTagValue": 0,
+                "value": 9
+              }
+            ],
+            "value": 1.6643,
+            "actorIndex": 0,
+            "frame": 138,
+            "siteId": "internal/characters/iansan/charge.go:98:21"
+          },
+          "atkAtSnapshot": 347.5045443968,
+          "defenseMultiplier": 0.5,
+          "resistanceMultiplier": 0.9,
+          "expectedNonCrit": 260.2583159578174,
+          "actual": 260.2583159578174,
+          "frame": 163
+        },
+        "randomnessAndFrameScheduleUnchanged": true,
+        "originalEHitUnchanged": true,
+        "oneSwiftApplication": true
+      }
+    ],
+    "zeroEnergy": {
+      "hostSha256": "e607f7cfe90b778cbd95ba4fa1d0184c00464ac187f2bc8f65a20834ec0fbc45",
+      "request": "/tmp/GIDPS-iansan-team-20261023/after/zero-energy-e-q.request.json",
+      "c1BeforeFrame": 70,
+      "c1AfterFrame": 64,
+      "fixedRefund": 15,
+      "particleFrame": 110,
+      "particleEnergy": 12,
+      "totalEnergy": 27,
+      "qCost": 70,
+      "qExecuted": false,
+      "reason": "insufficient_energy",
+      "windowFrames": [
+        0,
+        180
+      ]
+    },
+    "team": {
+      "sourceBaseAtk": 280.24560032,
+      "sourceNonExtra": 403.55366446079995,
+      "swiftFrame": 207,
+      "swiftNonCrit": 479.7987986125569,
+      "expectedSwiftNonCrit": 479.7987986125569,
+      "qUpdateAtSwift": {
+        "frame": 201,
+        "state": {
+          "nonExtraAtk": 403.55366446079995,
+          "pointsRate": 43.599999999999966,
+          "pointsThreshold": 43.599999999999966,
+          "talentLevel": 12
+        },
+        "value": 108.95948940441599
+      },
+      "energyConsumption": [
+        {
+          "id": 1,
+          "calculationId": 8,
+          "frame": 7,
+          "actorIndex": 0,
+          "actorKey": "iansan",
+          "source": "iansan-burst-energy-drain",
+          "operation": "consume",
+          "energyBefore": 70,
+          "energyAfter": 0,
+          "requestedAmount": 70,
+          "energyMax": 70
+        }
+      ],
+      "perActor": {
+        "iansan": 3245.9170362926643,
+        "kaeya": 306.61628962794583
+      },
+      "observationWindow": {
+        "policy": "duration-or-native",
+        "configuredEndFrame": 1200,
+        "actualEndFrame": 1200,
+        "endReason": "duration"
+      },
+      "totalDamage": 3552.53332592061,
+      "standaloneSwiftMatchesNative": true,
+      "kaeya": [
+        {
+          "frame": 231,
+          "attack": 404.4833829523071,
+          "attackPercent": 0.3,
+          "qFlatAttack": 84.34271587230712,
+          "damageBonus": 0
+        },
+        {
+          "frame": 1140,
+          "attack": 246.2620516,
+          "attackPercent": 0,
+          "qFlatAttack": 0,
+          "damageBonus": 0
+        }
+      ]
+    }
+  },
+  "ui": {
+    "viewport": [
+      1440,
+      390
+    ],
+    "status": "passed",
+    "actualNonCrit": 2565.102375,
+    "expectedNonCrit": 2565.102375,
+    "c6UnknownBlocked": true,
+    "includedUnknownBlocked": true,
+    "inactiveDropsOnlyC6": true,
+    "alreadyIncludedNotDuplicated": true,
+    "exportedAndReopened": true,
+    "errors": [],
+    "scope": "Linux Chromium local UI with a controlled panel; not native team or Windows verification"
+  },
+  "libraryScreenshot": {
+    "library_file_id": "libfile_f8953b2a35a48191a55d4fa555dc79d4",
+    "file_id": "file_00000000ae5881f59bcae4a2b122667c",
+    "file_name": "GIDPS-Iansan-C6-local-20261023.png"
+  },
+  "validation": [
+    {
+      "name": "native-before",
+      "path": "/tmp/GIDPS-iansan-team-before-results.json",
+      "sha256": "a5be9351980a085d2f2936ea53e03a32bfb63df8d1092464f84d0bd896323811",
+      "passed": 0,
+      "failed": 3,
+      "notSelected": 0
+    },
+    {
+      "name": "native-before-energy",
+      "path": "/tmp/GIDPS-iansan-team-before-energy-results.json",
+      "sha256": "551f87c2c2afdaf356bb45d8b271c487a30cc80ebbadb2d765235a2114478d60",
+      "passed": 0,
+      "failed": 1,
+      "notSelected": 3
+    },
+    {
+      "name": "native-first-after",
+      "path": "/tmp/GIDPS-iansan-team-20261023/native-after-tests.json",
+      "sha256": "2bf7b3451e9e0bae967f91641119f6892c3bc7ab7b54c8db9f53e03635968e53",
+      "passed": 1,
+      "failed": 4,
+      "notSelected": 0
+    },
+    {
+      "name": "native-after-sentinel",
+      "path": "/tmp/GIDPS-iansan-team-20261023/native-after-sentinel-tests.json",
+      "sha256": "7a5ec4d277fa168451f8e131dfbdeac3c509f9d4361e0326786b1c878f1d9c2b",
+      "passed": 4,
+      "failed": 0,
+      "notSelected": 1
+    },
+    {
+      "name": "root-integration",
+      "path": "/tmp/GIDPS-iansan-team-20261023/root-integration-tests.json",
+      "sha256": "cb312892a00f7719a85c500b1ae0d00738b441add5455de960b258069e93d960",
+      "passed": 9,
+      "failed": 0,
+      "notSelected": 0
+    },
+    {
+      "name": "historical-after-registry",
+      "path": "/tmp/GIDPS-iansan-team-20261023/historical-after-registry-tests.json",
+      "sha256": "01d2173136e89f11cb8f8d7482aca6deb5b0c60f2bc4b125e9febe3f750a12ea",
+      "passed": 3,
+      "failed": 0,
+      "notSelected": 13
+    },
+    {
+      "name": "go-before",
+      "path": "/tmp/GIDPS-iansan-team-20261023/go-before.log",
+      "sha256": "73e867416e16ad980d47e5fb24e13f47b2703d54d40e8747d9e3cecd1b935b16"
+    },
+    {
+      "name": "go-after",
+      "path": "/tmp/GIDPS-iansan-team-20261023/go-after.log",
+      "sha256": "d14045590e17c34977d2196d775fc8865273ce5566ef4dc256744a88ff972d9f"
+    },
+    {
+      "name": "typecheck",
+      "path": "/tmp/GIDPS-iansan-team-20261023/typecheck.log",
+      "sha256": "a335af3d948aa795f09046e2e7e7a6d2e7fc3b42cb557030c183a51c175f75a4"
+    },
+    {
+      "name": "web-build",
+      "path": "/tmp/GIDPS-iansan-team-20261023/web-build.log",
+      "sha256": "987540eccfb849f6a321fe0f447b388ee3e25f53147c7de8f04fb1237d1f8ae6"
+    },
+    {
+      "name": "inventory-resume",
+      "path": "/tmp/GIDPS-iansan-team-20261023/inventory-resume-cached.log",
+      "sha256": "0774d190e5ed9314b42d5eed742fd72c64f52d45d2841015b4431928270e7f07"
+    },
+    {
+      "name": "build-initial",
+      "path": "/tmp/GIDPS-iansan-team-20261023/build.log",
+      "sha256": "cf8b5ca965cbb1561bcc39eda99425f010ec53e564d986851492c3d3cd56f880"
+    },
+    {
+      "name": "finalized",
+      "path": "/tmp/GIDPS-iansan-team-20261023/finalized.json",
+      "sha256": "eb54ca44c1c7681235fb26731b528dc2402c473d25d67f88cd0458360f45c2a6"
+    },
+    {
+      "name": "registry",
+      "path": "/tmp/GIDPS-iansan-team-20261023/generate-registry.log",
+      "sha256": "80ac8f3b16fd7e12558b7b31c0127ae657c6c8754a8bce33d93194288ddafe3e"
+    }
+  ],
+  "preservation": {
+    "goldensEdited": false,
+    "originalSourceArchivesEdited": false,
+    "legacyResultsOverwritten": false,
+    "rootLicenceChanged": false
+  },
+  "fullSuite": {
+    "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerunThisBatch": false
+  },
+  "release": {
+    "productionAttempted": false,
+    "productionPublished": false,
+    "reason": "Prior production deployment denial remains paused; no retry/channel change. Work-branch pushes only."
+  },
+  "limits": [
+    "Iansan exists in pinned Stellar a7; Classic b4 is not claimed to support Iansan.",
+    "Controlled 3-second cases and one real two-character 20-second sequence, not a new 120-second repeatable rotation or a player/graduation build.",
+    "C4 teammate-Q/overflow restoration and movement-driven energy sustainability are not fully independently validated in this batch.",
+    "Standalone Swift consumes actual Q refresh/A1/C6 observations; it does not invent those histories from current points or Q on/off.",
+    "Fixed community-source/provisional mechanics, no new in-game capture, real Windows run, real player UID or login acceptance.",
+    "Production corresponding-source/distribution scope must be regenerated for the then-current release commit; existing deployed source/licence materials remain unchanged."
+  ]
+}

@@ -11,6 +11,7 @@ type RunLog = {
 };
 
 test('real source cooldown and effect countdowns follow the frame cursor; local team plans survive reload', async ({ page }) => {
+  test.setTimeout(90_000); // Real WASM run plus five playback rates and persistence reloads.
   const pageErrors: string[] = [];
   page.on('pageerror', error => pageErrors.push(error.message));
 
@@ -31,6 +32,15 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   await builder.locator('[data-action-params="0"]').fill('hold=1');
   await builder.locator('[data-run-direct]').click();
   await expect(page.locator('#source-host-status')).toContainText('本次运行完成', { timeout: 45_000 });
+  await expect(page.locator('[data-source-host-result-overview]')).toBeVisible();
+  await expect(page.locator('[data-source-host-result-details]')).not.toHaveAttribute('open');
+  await expect(page.locator('#source-host-target-summary')).toBeHidden();
+  await expect(page.locator('[data-runtime-details]')).not.toHaveAttribute('open');
+  await expect(page.locator('[data-source-record-details]')).not.toHaveAttribute('open');
+  await page.locator('[data-source-host-result-details] > summary').click();
+  await expect(page.locator('#source-host-target-summary')).toBeVisible();
+  await expect(page.locator('[data-source-host-incoming-ledger]')).toBeVisible();
+  await page.locator('[data-source-host-result-details] > summary').click();
 
   await page.locator('#source-host-export').evaluate(button => { button.closest('details')!.open = true; });
   const downloadPromise = page.waitForEvent('download');
@@ -39,6 +49,13 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   const filePath = await download.path();
   if (!filePath) throw new Error('来源运行结果没有可读取的下载文件。');
   const result = JSON.parse(await readFile(filePath, 'utf8')) as SourceHostResult;
+  await page.locator('[data-source-curve] > summary').click();
+  await expect(page.locator('[data-curve-svg]')).toBeVisible();
+  const total = Number(await page.locator('[data-source-host-overview-total]').getAttribute('data-value'));
+  for (const dimension of ['actor', 'source', 'element', 'reaction']) {
+    const sum = await page.locator(`[data-curve-table="${dimension}"] tbody tr`).evaluateAll(rows => rows.reduce((sum, row) => sum + Number((row as HTMLElement).dataset.damage), 0));
+    expect(sum).toBeCloseTo(total, 6);
+  }
   const logs = result.logs as unknown as RunLog[];
   const zhongliIndex = logs.find(row => {
     if (row.event !== 'character') return false;
@@ -81,9 +98,25 @@ test('real source cooldown and effect countdowns follow the frame cursor; local 
   const statusCursor = linkedStatus!.createdFrame + 1;
   await moveCursor(statusCursor);
   const statusLedger = builder.locator('[data-runtime-effects]');
+  await builder.locator('[data-runtime-details] > summary').click();
   await expect(statusLedger).toContainText(linkedStatus!.statusKey);
   await expect(statusLedger).toContainText('剩余');
   await expect(actionRowSummary).toContainText(linkedStatus!.statusKey);
+
+  // Playback consumes the stored result only; speed never starts another simulation.
+  for (const speed of ['1', '2', '4', '8', '16']) {
+    await builder.locator('[data-playback-speed]').selectOption(speed);
+    await moveCursor(0);
+    await builder.locator('[data-playback-toggle]').click();
+    await expect.poll(async () => Number(await slider.inputValue())).toBeGreaterThan(0);
+    await builder.locator('[data-playback-end]').click();
+    expect(Number(await slider.inputValue())).toBe(Number(await slider.getAttribute('max')));
+    await expect(builder.locator('[data-playback-toggle]')).toHaveText('播放回放');
+  }
+  const secondDownload = page.waitForEvent('download');
+  await page.locator('#source-host-export').click();
+  const secondFile = await (await secondDownload).path();
+  expect(JSON.parse(await readFile(secondFile!, 'utf8'))).toEqual(result);
 
   await page.goto('/team');
   const planName = `Codex 本机保存刷新验收 ${Date.now()}`;

@@ -146,7 +146,8 @@ export const batchCompleteProjectileMappings: SourceHitMapping[] = [
 export const replacedBatchCompleteProjectilePartialMappingIds = new Set([
   "klee-skill-jumpy-hit", "klee-skill-mine-hit",
   "chevreuse-burst-burst-hit", "chevreuse-burst-burstsecondary-hit",
-  "neuvillette-skill-hit", "neuvillette-skill-thorn-hit",
+  // Keep the HP waterfall independently selectable; the ATK thorn remains in its own full branch.
+  "neuvillette-skill-thorn-hit",
   "freminet-skill-skillthrust-hit", "freminet-skill-skillbreath-hit",
   "chevreuse-skill-skillpress-hit", "chevreuse-skill-skillhold-hit",
   "chevreuse-skill-skillovercharged-hit", "chevreuse-skill-arkhe-hit",

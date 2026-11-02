@@ -1,3 +1,4 @@
+import { reactionDeliveryReferencesWithSteps, type ReactionStepPositions } from './schema';
 import { weaponHitStackLogEntrySchema, weaponHitStackCapturedStateSchema } from "./weapon-hit-stack-model";
 import { sourceNormalChainLogEntrySchema, sourceNormalChainStateSchema } from "./source-normal-chain";
 import { playerShieldLogEntrySchema, playerShieldStateSchema } from "./player-shield-schema";
@@ -2758,6 +2759,8 @@ export const simulationResultV142ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -2917,6 +2920,8 @@ export const simulationResultV144ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -3076,6 +3081,8 @@ export const simulationResultV145ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -3238,6 +3245,8 @@ export const simulationResultV146ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -3400,6 +3409,8 @@ export const simulationResultV147ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -5117,6 +5128,8 @@ export const simulationResultV148ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -5275,6 +5288,8 @@ export const simulationResultV149ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -5558,6 +5573,8 @@ export const simulationResultV150ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -6487,6 +6504,8 @@ export const simulationResultV151ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -6763,6 +6782,8 @@ export const simulationResultV152ValueSchema = z
   })
   .strict()
   .superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const issue = (
       path: Array<string | number>,
       message: string
@@ -7255,7 +7276,7 @@ export const timelineExecutionV153Schema = timelineExecutionV142Schema.extend({
   }))
 });
 
-export const simulationResultV153ValueSchema = z
+const simulationResultV153LeafSchema = z
   .object({
     ...simulationResultV152ValueSchema.shape,
     schemaVersion: z.literal(CALLBACK_BUS_SCHEMA_VERSION),
@@ -7332,8 +7353,13 @@ export const simulationResultV153ValueSchema = z
     ),
     callbackDeliveryLog: z.array(callbackDeliveryLogEntryV153Schema)
   })
-  .strict()
-  .superRefine((result, context) => {
+  .strict();
+
+/** New envelope parser supplies positions only after strict witness replay. */
+export function resultValueSchemaWithSteps(stepPositions?:ReactionStepPositions) {
+ return simulationResultV153LeafSchema.superRefine((result, context) => {
+    // Zod 4.6 continues after unknown keys; do not hash a stripped invalid wire.
+    if (context.issues.some(issue => issue.code === "unrecognized_keys")) return;
     const frozenReferenceView =
       projectV150ResultForFrozenReferenceFacets(
         result as unknown as SimulationResultForV150
@@ -7359,7 +7385,7 @@ export const simulationResultV153ValueSchema = z
     );
     validateFacet(
       "reaction delivery references",
-      reactionDeliveryResultReferencesSchema,
+      stepPositions ? reactionDeliveryReferencesWithSteps(stepPositions) : reactionDeliveryResultReferencesSchema,
       result
     );
     validateFacet(
@@ -7414,6 +7440,10 @@ export const simulationResultV153ValueSchema = z
       context
     );
   });
+}
+export const simulationResultV153ValueSchema = resultValueSchemaWithSteps();
+/** Leaf validation precedes witness replay; not a complete result validator. */
+export const simulationResultEventStepLeaves = simulationResultV153LeafSchema;
 
 export const simulationResultV153Schema = z.preprocess(
   rejectNonPlainJsonWire("SimulationResult 1.53"),

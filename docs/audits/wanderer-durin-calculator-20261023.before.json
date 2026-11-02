@@ -1,0 +1,134 @@
+[
+  {
+    "character": "character:10000075",
+    "skillId": "idle-wanderer-skill-c0",
+    "skill": "羽画·E初击C0–C6／完整空居C0",
+    "scope": "single-hit",
+    "hits": [
+      {
+        "id": "idle-wanderer-skill-c0-initial",
+        "kind": "ordinary",
+        "label": "羽画·施放伤害 · 独立已发生命中",
+        "tag": "skill"
+      }
+    ],
+    "status": "blocked",
+    "blockers": [
+      "idle-stance:idle-wanderer-skill-c0-initial：本击需要明确施放时没有元素吸收，且实际面板未包含未触发的30%攻击或20%暴击增益；这只要求已发生的起手状态。"
+    ],
+    "requirements": [
+      {
+        "field": "gameContext.idleStanceCast.wanderer.noAbsorption",
+        "selector": "select[data-source-cast-state-field=\"gameContext.idleStanceCast.wanderer.noAbsorption\"]",
+        "label": "本次 E 没有水／火／冰／雷元素吸收"
+      },
+      {
+        "field": "gameContext.idleStanceCast.wanderer.panelExcludesAbsorptionBonuses",
+        "selector": "select[data-source-cast-state-field=\"gameContext.idleStanceCast.wanderer.panelExcludesAbsorptionBonuses\"]",
+        "label": "输入面板没有未触发的吸收攻击／暴击增益"
+      }
+    ]
+  },
+  {
+    "character": "character:10000123",
+    "skillId": "durin-confirmation-of-purity",
+    "skill": "转变·白化之是",
+    "scope": "single-hit",
+    "hits": [
+      {
+        "id": "durin-white-e",
+        "kind": "ordinary",
+        "label": "白 E",
+        "tag": "skill"
+      }
+    ],
+    "status": "blocked",
+    "blockers": [
+      "durin-skill:durin-white-e：请填写本击快照时C2的50%火伤是否实际有效；选择反应不证明此前已触发该增益。；请填写本击增伤输入是否已包含C2的50%火伤，不能默认未含或重复加入。"
+    ],
+    "requirements": [
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-white-e.c2PyroBonusActive",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-white-e.c2PyroBonusActive\"]",
+        "label": "本击的 C2 火伤增益仍在生效"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-white-e.c2PyroBonusIncluded",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-white-e.c2PyroBonusIncluded\"]",
+        "label": "本击的增伤输入已经计入 C2 火伤"
+      }
+    ]
+  },
+  {
+    "character": "character:10000123",
+    "skillId": "durin-denial-of-darkness",
+    "skill": "转变·黑度之否",
+    "scope": "one-cast",
+    "hits": [
+      {
+        "id": "durin-black-e-1",
+        "kind": "ordinary",
+        "label": "黑 E 第 1 段",
+        "tag": "skill"
+      },
+      {
+        "id": "durin-black-e-2",
+        "kind": "ordinary",
+        "label": "黑 E 第 2 段",
+        "tag": "skill"
+      },
+      {
+        "id": "durin-black-e-3",
+        "kind": "ordinary",
+        "label": "黑 E 第 3 段",
+        "tag": "skill"
+      }
+    ],
+    "status": "blocked",
+    "blockers": [
+      "durin-skill:conditions：黑E多段合计需要明确各击其他面板、装备及目标条件稳定；C2火伤状态仍逐击填写。",
+      "durin-skill:durin-black-e-1：请填写本击快照时C2的50%火伤是否实际有效；选择反应不证明此前已触发该增益。；请填写本击增伤输入是否已包含C2的50%火伤，不能默认未含或重复加入。",
+      "durin-skill:conditions：黑E多段合计需要明确各击其他面板、装备及目标条件稳定；C2火伤状态仍逐击填写。",
+      "durin-skill:durin-black-e-2：请填写本击快照时C2的50%火伤是否实际有效；选择反应不证明此前已触发该增益。；请填写本击增伤输入是否已包含C2的50%火伤，不能默认未含或重复加入。",
+      "durin-skill:conditions：黑E多段合计需要明确各击其他面板、装备及目标条件稳定；C2火伤状态仍逐击填写。",
+      "durin-skill:durin-black-e-3：请填写本击快照时C2的50%火伤是否实际有效；选择反应不证明此前已触发该增益。；请填写本击增伤输入是否已包含C2的50%火伤，不能默认未含或重复加入。"
+    ],
+    "requirements": [
+      {
+        "field": "gameContext.durinSkill.statsStableAcrossHits",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.statsStableAcrossHits\"]",
+        "label": "这几击的其余面板、装备和目标状态保持不变"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-black-e-1.c2PyroBonusActive",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-black-e-1.c2PyroBonusActive\"]",
+        "label": "本击的 C2 火伤增益仍在生效"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-black-e-1.c2PyroBonusIncluded",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-black-e-1.c2PyroBonusIncluded\"]",
+        "label": "本击的增伤输入已经计入 C2 火伤"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-black-e-2.c2PyroBonusActive",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-black-e-2.c2PyroBonusActive\"]",
+        "label": "本击的 C2 火伤增益仍在生效"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-black-e-2.c2PyroBonusIncluded",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-black-e-2.c2PyroBonusIncluded\"]",
+        "label": "本击的增伤输入已经计入 C2 火伤"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-black-e-3.c2PyroBonusActive",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-black-e-3.c2PyroBonusActive\"]",
+        "label": "本击的 C2 火伤增益仍在生效"
+      },
+      {
+        "field": "gameContext.durinSkill.hitStates.durin-black-e-3.c2PyroBonusIncluded",
+        "selector": "select[data-source-cast-state-field=\"gameContext.durinSkill.hitStates.durin-black-e-3.c2PyroBonusIncluded\"]",
+        "label": "本击的增伤输入已经计入 C2 火伤"
+      }
+    ]
+  }
+]

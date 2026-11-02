@@ -1,0 +1,351 @@
+{
+  "provenance": {
+    "capture": "/tmp/GIDPS-team-closure-20261023/head-5b43-real-ui/run.result.json",
+    "captureSha256": "da061210ea6d43d1554e761f3428c84dfd9cf65be34f1e4f6e25e47ed1ff6d1e",
+    "captureContract": {
+      "kind": "head-5b43-real-ui-610",
+      "bytes": 119455012,
+      "capturedAtHead": "5b43d99"
+    },
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "publicConfigSha256": "4fed915e08373c9a25cdb28ef7fe0a9c63f36f5cae39808aa2f581c2c4c93059",
+    "publicManifestSha256": "a1227b856daffaea61b62a76872fec76741958a713e4e9b729a001fe20130440",
+    "head": "0a83163bf9d8e296a943e12a6b4b0a95c8569906",
+    "oldCaptureReusedWithoutNewHeadNativeRun": false,
+    "sources": [
+      {
+        "path": "pkg/target/icd.go",
+        "sha256": "6accec4e8c186c1b9d5c0875a763b30cd7a09fd51d5082fa98cbbb1b15574815",
+        "gitBlobSha1": "44cb6dc2560dfbd485f535b4c7d43498444ae5b7"
+      },
+      {
+        "path": "pkg/core/attacks/icd_groups.dm.go",
+        "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4",
+        "gitBlobSha1": "1b423f2c537fba74458d39358d19cc61b00cc562"
+      },
+      {
+        "path": "pkg/core/attacks/icd_tags.dm.go",
+        "sha256": "aa0e0ed56ed0713cdf81be7df1ee9686050d1b35b28ccc7e35425bd5fbcea85e",
+        "gitBlobSha1": "bd914e453eb73796e30e63b864d56b7a4cc23c89"
+      },
+      {
+        "path": "pkg/reactable/reactable.go",
+        "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307",
+        "gitBlobSha1": "3013e769f024a4d2622029a6393232ba0d71bf9e"
+      },
+      {
+        "path": "pkg/reactable/swirl.go",
+        "sha256": "193ef982ca4cb06623f942089d06dd47407d97988c67ccf898917b14cbf9f369",
+        "gitBlobSha1": "6cfbd7c3316e189fa461e4bfa8553025a5f87671"
+      },
+      {
+        "path": "pkg/enemy/attack.go",
+        "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+        "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+      },
+      {
+        "path": "pkg/enemy/hitlag.go",
+        "sha256": "fbb1af44cd1da3e41c96110c12890c34f21e213c8fdbbe0040563de3d57cdfda",
+        "gitBlobSha1": "dd8fd2bea28622989069d981f4aaafb1eef2c221"
+      },
+      {
+        "path": "pkg/core/core.go",
+        "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+        "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+      },
+      {
+        "path": "pkg/core/combat/combat.go",
+        "sha256": "54dc23a14ec8e4b7a72d8f8a316948e4fe86f03473ff669dc5f225c3341bba41",
+        "gitBlobSha1": "e7d73d942b7cdee1f9e7536317b71fb24c535695"
+      },
+      {
+        "path": "pkg/core/task/task.go",
+        "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+        "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+      },
+      {
+        "path": "pkg/core/info/reaction.go",
+        "sha256": "e7eed4ea1a6e26dbb18e3b99ba3360110827270eb88e7a26c1f47e4050dc26be",
+        "gitBlobSha1": "0b537e34fcf1ff08d6872844653066ddd588d24b"
+      },
+      {
+        "path": "internal/characters/wanderer/attack.go",
+        "sha256": "f9d407581c920c4909e9577742126f68ac47a6021fa1c2b463527a8833f6efa5",
+        "gitBlobSha1": "72e36762e68d56527ca8d394a364b0397e9d79e5"
+      },
+      {
+        "path": "internal/characters/wanderer/cons.go",
+        "sha256": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371",
+        "gitBlobSha1": "711fd1dfc2707bc2fd4321410f45b507814d2543"
+      },
+      {
+        "path": "internal/characters/wanderer/skill.go",
+        "sha256": "0d0c449c12770964407d081f26fdbde5822a73f19616f61136a3b824f0d1eba1",
+        "gitBlobSha1": "7e04db88622a87fc3ab3808a29829e827002cb1b"
+      },
+      {
+        "path": "internal/characters/wanderer/charge.go",
+        "sha256": "39a59af65e63e53aefaea2def40b5d2bca8359fab7016ad91674b7d31212feb4",
+        "gitBlobSha1": "7c24d221b6699e9345286bb60914b15996130f69"
+      },
+      {
+        "path": "internal/characters/wanderer/burst.go",
+        "sha256": "7e5d27192b504c64c6ae77c28044f200deb42edacb766993fba557af31b1f5cd",
+        "gitBlobSha1": "49e1c296b02cc3bb7d337405b6d4654965084344"
+      },
+      {
+        "path": "internal/characters/faruzan/skill.go",
+        "sha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+        "gitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b"
+      },
+      {
+        "path": "internal/characters/faruzan/aimed.go",
+        "sha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+        "gitBlobSha1": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644"
+      },
+      {
+        "path": "internal/characters/faruzan/burst.go",
+        "sha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+        "gitBlobSha1": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf"
+      },
+      {
+        "path": "internal/characters/nicole/skill.go",
+        "sha256": "1d8a9dc47fa15ae4ca87e6f90c8cd3188d9c33684f5511c22570d3bfb0e91823",
+        "gitBlobSha1": "30937d393aa544ec7cbbbaec2db6e8dab7693a3b"
+      },
+      {
+        "path": "internal/characters/nicole/burst.go",
+        "sha256": "4c23d0f594b2309677629233fbe99ab1d3365899ba277aa472a2ef34fd67bf72",
+        "gitBlobSha1": "6f27ad88ff02547334f7e550658d83d673b7ec62"
+      },
+      {
+        "path": "internal/characters/nicole/cons.go",
+        "sha256": "b2e16ca7ada85446c2c37eead77aad0190a19e786302d5058a25366b576293ff",
+        "gitBlobSha1": "ae44f334a2bb1b7848b5ce314836f0a98a49c891"
+      },
+      {
+        "path": "internal/characters/durin/skill.go",
+        "sha256": "14bded4b59a93b25f2ee7a49b7fa2bef2598054eddd411790ae7fd87120c256c",
+        "gitBlobSha1": "f168c51ee7a58a05327d19e894513665e3380bcd"
+      },
+      {
+        "path": "internal/characters/durin/burst.go",
+        "sha256": "1677ee3803d7da93ce283a77188eff52c0bb755c8aa6ad1cb25514315a068516",
+        "gitBlobSha1": "fc86070225f212a346829ca24659ba24d8f0938f"
+      },
+      {
+        "path": "internal/characters/durin/asc.go",
+        "sha256": "8e7fd4a8022ce67b80955fa95ace832746e5ff9bb01a9320c5482c14b273d972",
+        "gitBlobSha1": "78ea926df4db86c4ea9a7deed9e8fc8363a2f587"
+      },
+      {
+        "path": "internal/characters/durin/cons.go",
+        "sha256": "9c41cc8fef8675e31b508d789ddbe2c663ca8c2dbc80517285e2d01f0fbc8146",
+        "gitBlobSha1": "ca453ed612e19919e761e587da00b7590fde7a2a"
+      }
+    ]
+  },
+  "audit": {
+    "status": "passed",
+    "actualHits": 610,
+    "independentIcdChecks": 393,
+    "independentAuraApplications": 222,
+    "postGaugeChecks": 610,
+    "maxPostGaugeAbsoluteError": 1.2079226507921703e-13,
+    "auraComparisons": "Exact equality of source 3-decimal before/after strings; not a looser new tolerance.",
+    "icdSequenceSha256": "60682528435590cdfddeb53046fe3ce61b0e84adafd18452120d4e87b5951e25",
+    "auraSequenceSha256": "de76807ce17aec33c44ec50e191de50c7713251ee858e55162b3784efb99afe2",
+    "byAbility": [
+      {
+        "ability": "Arcane Projection",
+        "actualHits": 22,
+        "applicationAdmissions": 0,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Arcane Projection: Unity",
+        "actualHits": 19,
+        "applicationAdmissions": 0,
+        "timerStarts": 0
+      },
+      {
+        "ability": "As the Light Shifts",
+        "actualHits": 18,
+        "applicationAdmissions": 6,
+        "timerStarts": 6
+      },
+      {
+        "ability": "Charge Attack (Windfavored)",
+        "actualHits": 5,
+        "applicationAdmissions": 5,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Confirmation of Purity",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 6
+      },
+      {
+        "ability": "Dragon of White Flame",
+        "actualHits": 104,
+        "applicationAdmissions": 52,
+        "timerStarts": 52
+      },
+      {
+        "ability": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Hanega: Song of the Wind",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+        "actualHits": 25,
+        "applicationAdmissions": 10,
+        "timerStarts": 5
+      },
+      {
+        "ability": "Normal 0 (Windfavored)",
+        "actualHits": 30,
+        "applicationAdmissions": 15,
+        "timerStarts": 5
+      },
+      {
+        "ability": "Normal 1 (Windfavored)",
+        "actualHits": 30,
+        "applicationAdmissions": 10,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Normal 2 (Windfavored)",
+        "actualHits": 60,
+        "applicationAdmissions": 20,
+        "timerStarts": 15
+      },
+      {
+        "ability": "Pressurized Collapse",
+        "actualHits": 42,
+        "applicationAdmissions": 42,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Revelation: Ladder of Divine Ascent",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Revelation: Uncreated Light",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Shugen: The Curtains’ Melancholic Sway",
+        "actualHits": 120,
+        "applicationAdmissions": 20,
+        "timerStarts": 20
+      },
+      {
+        "ability": "The Wind's Secret Ways",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 0
+      },
+      {
+        "ability": "Wind Realm of Nasamjnin",
+        "actualHits": 6,
+        "applicationAdmissions": 6,
+        "timerStarts": 0
+      },
+      {
+        "ability": "swirl-pyro",
+        "actualHits": 93,
+        "applicationAdmissions": 0,
+        "timerStarts": 0
+      }
+    ],
+    "fireDepletions": 46,
+    "anemoNoAuraCount": 47,
+    "representativeHits": [
+      {
+        "calculationId": 520,
+        "attackId": 32,
+        "frame": 638,
+        "ability": "Normal 0 (Windfavored)",
+        "admitted": true,
+        "reacted": true,
+        "postGauge": 0.0
+      },
+      {
+        "calculationId": 574,
+        "attackId": 36,
+        "frame": 646,
+        "ability": "Shugen: The Curtains’ Melancholic Sway",
+        "admitted": true,
+        "reacted": true,
+        "postGauge": 10.771929824561402
+      },
+      {
+        "calculationId": 623,
+        "attackId": 39,
+        "frame": 654,
+        "ability": "Normal 1 (Windfavored)",
+        "admitted": false,
+        "reacted": false,
+        "postGauge": 0
+      },
+      {
+        "calculationId": 670,
+        "attackId": 40,
+        "frame": 662,
+        "ability": "Shugen: The Curtains’ Melancholic Sway",
+        "admitted": false,
+        "reacted": false,
+        "postGauge": 0
+      }
+    ],
+    "sameFrameResetHitBoundaries": 0,
+    "durinWhiteIntervals": [
+      [
+        341,
+        1571
+      ],
+      [
+        1662,
+        2892
+      ],
+      [
+        2983,
+        4213
+      ],
+      [
+        4304,
+        5534
+      ],
+      [
+        5625,
+        6855
+      ],
+      [
+        6946,
+        8176
+      ]
+    ],
+    "independentlyQualifiedDurinSwirls": 99,
+    "durinReactionModifierRefreshes": 990,
+    "durinRefreshSequenceSha256": "afde328888e34e9d892c2f9122faab7118143bf3c59952c9d77723fc5f286b08",
+    "remainingInputs": [
+      "actual delivered hits/collision and frames",
+      "shared native calculation/application ordering",
+      "fixed-source rules, not an independent game measurement"
+    ]
+  }
+}

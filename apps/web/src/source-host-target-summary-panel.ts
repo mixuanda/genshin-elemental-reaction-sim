@@ -72,14 +72,20 @@ export function renderSourceHostTargetSummaryPanel(
     : "";
   const scopeNote = scoped
     ? `<p data-target-summary-scope>仅统计当前关联的 ${summary.applicationIds.length} 个实际应用编号：${summary.applicationIds.length ? summary.applicationIds.map(id => `#${esc(id)}`).join("、") : "无"}。此关联范围不显示 DPS 或伤害率。</p>`
-    : `<p data-target-summary-scope>汇总全部 ${summary.applicationIds.length} 条实际应用；原始公式伤害、来源记账伤害与目标 HP 损失分别列示，不混为同一个总量。</p>`;
+    : `<p data-target-summary-scope>汇总${fixedWindow ? `完整观察窗 [0,${summary.observationWindow!.configuredEndFrame}) 内的` : "全部"} ${summary.applicationIds.length} 条实际应用；原始公式伤害、来源记账伤害与目标 HP 损失分别列示，不混为同一个总量。</p>`;
+  const excludedIds = new Set(summary.excludedApplicationIds);
+  const includedIds = new Set(summary.applicationIds);
+  const rawAppliedDamage = result.applications.filter(application => includedIds.has(application.id) || excludedIds.has(application.id)).reduce((sum, application) => sum + application.appliedDamage, 0);
+  const nativeWindowNote = summary.excludedApplicationIds.length
+    ? `<details data-target-summary-native-window><summary>原始窗外记录（${summary.excludedApplicationIds.length} 条）</summary><p>上述统计与曲线均使用 [0,${summary.observationWindow!.configuredEndFrame})。原始应用合计 ${amount(rawAppliedDamage)}；其中窗外伤害 ${amount(summary.excludedAppliedDamage)}，应用编号 ${summary.excludedApplicationIds.map(id => `#${esc(id)}`).join("、")}。完整导出保留这些原始记录。</p></details>`
+    : "";
   const sceneNote = scene
     ? `<p>目标场景回执记录 ${scene.targets.length} 个声明目标；统计主目标为目标 ${summary.primaryTargetIndex === undefined ? "未知" : summary.primaryTargetIndex + 1}（声明下标 ${esc(summary.primaryTargetIndex ?? "未知")}），按原生回执映射到 key ${esc(summary.primaryTargetKey ?? "未知")}。初始默认目标 key ${esc(summary.initialDefaultTargetKey ?? "未记录")} 单独标记。</p>`
     : `<p>此旧结果没有目标场景回执。仅显示实际应用所含的目标键；不补造未命中目标数、初始目标或几何信息。</p>`;
 
   root.innerHTML = `<section class="card" data-source-host-target-summary>
     <h3>多目标伤害汇总</h3>
-    ${scopeNote}${sceneNote}
+    ${scopeNote}${sceneNote}${nativeWindowNote}
     <section data-target-total><h4>${scoped ? "当前关联范围合计" : "全应用合计"}</h4>
       <p>原始公式伤害 ${amount(total.rawDamage)}；来源记账伤害 ${amount(total.appliedDamage)}；目标 HP 损失 ${amount(total.hpLoss)}；已结算命中 ${total.hitCount}。</p>${totalRates}
     </section>

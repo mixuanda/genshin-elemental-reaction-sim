@@ -48,3 +48,9 @@ describe('source host result overview', () => {
     expect(html).toContain('本次没有已结算伤害记录。');
   });
 });
+
+it('excludes the exact fixed-window endpoint consistently with curve and Monte Carlo totals',()=>{
+ const html=renderSourceHostResultOverview(fixture({observationWindow:{endReason:'duration',actualEndFrame:7200,configuredEndFrame:7200},applications:[{id:1,calculationId:10,frame:7199,appliedDamage:100},{id:2,calculationId:10,frame:7200,appliedDamage:500}]}));
+ expect(html).toContain('data-source-host-overview-total data-value=100>100');
+ expect(html).toContain('data-source-host-overview-duration>120 秒');
+});

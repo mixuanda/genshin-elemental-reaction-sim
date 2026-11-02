@@ -459,12 +459,17 @@ function stringList(values: unknown, label: string): asserts values is string[] 
   for (const value of values) nonempty(value, label);
 }
 
+const immutableTraceNodes = new WeakSet<object>();
+/** Recognizes only objects cloned and recursively frozen by this module, including their children; never arbitrary frozen inputs. */
+export function isImmutableTraceNode(value: object): boolean { return immutableTraceNodes.has(value); }
+
 function immutableClone<T>(value: T): T {
   const copy = structuredClone(value);
   const freeze = (object: unknown): void => {
     if (object !== null && typeof object === "object") {
       for (const child of Object.values(object)) freeze(child);
       Object.freeze(object);
+      immutableTraceNodes.add(object);
     }
   };
   freeze(copy);
@@ -475,17 +480,61 @@ function immutableClone<T>(value: T): T {
  * Executes nodes in dependency order. childIds must name already executed nodes.
  * Returned arrays are snapshots, and nodes are immutable to prevent stale traces.
  */
+// Locale and precision are fixed; reuse at most 16 stateless formatters.
+const traceNumberFormatters = new Map<number, Intl.NumberFormat>();
+function traceNumberFormatter(digits: number): Intl.NumberFormat {
+  let formatter = traceNumberFormatters.get(digits);
+  if (!formatter) { formatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: digits }); traceNumberFormatters.set(digits, formatter); }
+  return formatter;
+}
+
 export class TraceBuilder {
   private readonly traceNodes: CalculationTraceNode[] = [];
+  private readonly executedIds = new Set<string>();
   private readonly sourceRefs: string[];
 
   constructor(sourceRefs: string[] = []) {
     stringList(sourceRefs, "Trace source references");
-    this.sourceRefs = [...sourceRefs];
+    this.sourceRefs = immutableClone(sourceRefs);
   }
 
   get nodes(): CalculationTraceNode[] {
     return [...this.traceNodes];
+  }
+
+  /** Bind an already evaluated invariant recipe to this builder's namespace.
+   * Only this module's recursively immutable nodes are accepted. Mutable or
+   * imported data cannot bypass add()/formula validation via Object.freeze.
+   * The caller must key its recipe by all validated numeric and source inputs.
+   */
+  appendImmutable(nodes: readonly CalculationTraceNode[], fromPrefix: string, toPrefix: string): void {
+    nonempty(fromPrefix, "Trace template source namespace");
+    nonempty(toPrefix, "Trace template target namespace");
+    const rename = (id: string) => id === fromPrefix ? toPrefix
+      : id.startsWith(fromPrefix + ".") ? toPrefix + id.slice(fromPrefix.length) : id;
+    const own = <T extends object>(value: T): T => {
+      Object.freeze(value); immutableTraceNodes.add(value); return value;
+    };
+    for (const node of nodes) {
+      if (!immutableTraceNodes.has(node)) throw new Error("Trace template must contain privately owned immutable nodes");
+      if (node.id !== fromPrefix && !node.id.startsWith(fromPrefix + ".")) throw new Error("Trace template node is outside its namespace");
+      const id = rename(node.id);
+      if (this.executedIds.has(id)) throw new Error(`Duplicate trace node id: ${id}`);
+      const childIds = own(node.childIds.map(rename));
+      for (const childId of childIds) {
+        if (!this.executedIds.has(childId)) throw new Error(`Unknown or unexecuted trace child: ${childId}`);
+      }
+      const inputs = own(node.inputs.map(input => {
+        if (typeof input.origin === "string" || input.origin.reference === undefined) return input;
+        const reference = rename(input.origin.reference);
+        return reference === input.origin.reference ? input
+          : own({ ...input, origin: own({ ...input.origin, reference }) });
+      }));
+      const rebound = own({ ...node, id, ruleId: rename(node.ruleId), childIds, inputs, sourceRefs: this.sourceRefs,
+        ...(node.parentId === undefined ? {} : { parentId: rename(node.parentId) }) });
+      this.traceNodes.push(rebound);
+      this.executedIds.add(id);
+    }
   }
 
   add(
@@ -497,7 +546,7 @@ export class TraceBuilder {
   ): number {
     nonempty(id, "Trace node id");
     nonempty(titleKey, "Trace titleKey");
-    if (this.traceNodes.some((node) => node.id === id)) throw new Error(`Duplicate trace node id: ${id}`);
+    if (this.executedIds.has(id)) throw new Error(`Duplicate trace node id: ${id}`);
     if (typeof options !== "object" || options === null || Array.isArray(options)) throw new Error("Trace options must be an object");
     const ruleId = options.ruleId ?? id;
     const explanationKey = options.explanationKey ?? titleKey;
@@ -516,7 +565,7 @@ export class TraceBuilder {
     stringList(warnings, "Trace warnings");
     if (new Set(childIds).size !== childIds.length) throw new Error("Trace childIds must not contain duplicates");
     for (const childId of childIds) {
-      if (!this.traceNodes.some((node) => node.id === childId)) throw new Error(`Unknown or unexecuted trace child: ${childId}`);
+      if (!this.executedIds.has(childId)) throw new Error(`Unknown or unexecuted trace child: ${childId}`);
     }
     if (!Array.isArray(inputs)) throw new Error("Trace inputs must be an array");
     const values: Record<string, number> = Object.create(null) as Record<string, number>;
@@ -534,7 +583,7 @@ export class TraceBuilder {
     }
     const result: TraceValue = {
       value,
-      display: new Intl.NumberFormat("zh-CN", { maximumFractionDigits: displayDigits }).format(value),
+      display: traceNumberFormatter(displayDigits).format(value),
       unit,
     };
     const node: CalculationTraceNode = {
@@ -555,6 +604,7 @@ export class TraceBuilder {
       ...(options.applicabilityReason !== undefined ? { applicabilityReason: options.applicabilityReason } : {}),
     };
     this.traceNodes.push(immutableClone(node));
+    this.executedIds.add(id);
     return value;
   }
 }

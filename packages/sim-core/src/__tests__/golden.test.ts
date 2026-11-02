@@ -44,6 +44,7 @@ import {
   type SimConfig,
   type SimConfigV146,
   type SimulationRunManifestV146,
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_ROOT,
@@ -67,7 +68,10 @@ import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.js
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { withV152CompatibilityPolicies } from "../../../test-vectors/src/v152-compatibility-config";
+import { historicalLegacyDefault, HISTORICAL_DEFAULT_SHA256 } from "../../../test-vectors/src/historical-legacy-default";
 import { simulate } from "../simulator";
+import { parseSimulationHit, replaySimulationHit } from "../calculator-bridge";
+import { expectCurrentBurningContract, expectHistoricalBurningProvenance, readHistoricalBurning } from "./burning-foundation-contract";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const LEGACY_V130_REPRODUCIBILITY_KEY = "gdl-d1a42700";
@@ -1724,6 +1728,17 @@ describe("1.44 identity migration release gate", () => {
 });
 
 describe("Vanilla v0.1 golden compatibility", () => {
+  it("authenticates the separately verified original Vanilla default consumer", () => {
+    const bytes = readFileSync(new URL("../../../test-vectors/src/fixtures/historical-vanilla-default-shared-proof.json", import.meta.url));
+    expect(byteSha256(bytes)).toBe("36c146607435fcf6f33e28091e5a3760496a0c29bfd06652910dc932cc1184ad");
+    const proof = JSON.parse(bytes.toString("utf8"));
+    expect(proof.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(proof.archiveSha256).toBe(HISTORICAL_DEFAULT_SHA256);
+    expect([proof.originalPassedTests, proof.intentionallyFilteredTests, proof.observedCalls]).toEqual([1, 17, 2]);
+    expect(proof.caseId).toBe("compat-v152");
+    expect(proof.sourceWireSha256).toBe("6276e7b69129da6555737d2665582b50212c995f1c968715d795cca5450b4d36");
+  });
+
   it("matches the full default 120-second baseline", () => {
     const options = {
       energyMode: "configured",
@@ -1740,6 +1755,33 @@ describe("Vanilla v0.1 golden compatibility", () => {
       options,
     );
     expect(repeated).toEqual(result);
+    // Only the frozen digest below receives authentic historical wire. Every
+    // original live mechanic/numeric/reference assertion still uses result.
+    const historical = historicalLegacyDefault(withV152CompatibilityPolicies(durinMeltPreset), options);
+    const expectedCurrent = structuredClone(historical);
+    expect(expectedCurrent.hitResolutionLog).toHaveLength(269);
+    const seenDamage = new Set<number>();
+    for (const hit of expectedCurrent.hitResolutionLog) {
+      expect(hit.damageEventId).not.toBeNull();
+      const damage = expectedCurrent.damageEvents[hit.damageEventId!]!;
+      expect(damage.id).toBe(hit.damageEventId);
+      expect(damage.kind).toBe("direct");
+      expect(damage.eventPriority).toBe(3);
+      expect([damage.frame, damage.hitId, damage.targetId, damage.sourceActorId])
+        .toEqual([hit.frame, hit.hitId, hit.targetId, hit.sourceActorId]);
+      for (const field of ["eventPriority", "eventSequence", "intraEventSequence"])
+        expect(hit).not.toHaveProperty(field);
+      Object.assign(hit, { eventPriority: 3, eventSequence: damage.eventSequence, intraEventSequence: 0 });
+      seenDamage.add(damage.id);
+    }
+    expect(seenDamage.size).toBe(269);
+    expect(result).toStrictEqual(expectedCurrent);
+    // Independent arithmetic for the unchanged provisional legacy-v0.1 preset,
+    // not a claim of canonical flat-stat semantics or verified game balance.
+    const firstDamage = (1180 * 2.28 + 920) * 2.2 * 2.05 *
+      (190 / (190 + 210 * .6)) * 1.075 * (1 + .85 * 1.85);
+    expect(result.damageEvents[0]?.frame).toBe(18);
+    expect(result.damageEvents[0]?.finalDamage).toBeCloseTo(firstDamage, 8);
     expect(playerDamageResultReferencesSchema.parse(result)).toEqual(result);
     expect(playerDamageResultReferencesSchema.parse(repeated)).toEqual(
       repeated,
@@ -2075,12 +2117,16 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expect(
       sha256(
         v130CompatibilityResult(
-          result,
+          historical,
           LEGACY_V130_REPRODUCIBILITY_KEY,
-          projectCurrentConfigToFrozenV146(result.config),
+          projectCurrentConfigToFrozenV146(historical.config),
         ),
       ),
     ).toBe(LEGACY_V130_COMPATIBILITY_SHA256);
+    const beforeCompatibility = structuredClone(result);
+    expect(sha256(v130CompatibilityResult(result, LEGACY_V130_REPRODUCIBILITY_KEY,
+      projectCurrentConfigToFrozenV146(result.config)))).not.toBe(LEGACY_V130_COMPATIBILITY_SHA256);
+    expect(result).toStrictEqual(beforeCompatibility);
     expectNoDendroCoreOutput(result);
     expectContiguousTargetStateTimelineIds(result);
     expect(result.actorPoses).toEqual([]);
@@ -2337,7 +2383,12 @@ describe("Burning aura-v4 provisional golden", () => {
       engineVersion: "1.30.0-burning-reaction",
       reactionEngine: { mode: "aura-v4" },
     });
-    const result = simulate(input, options);
+    // Frozen identity belongs to the authentic pinned producer, not a current
+    // result with its canonical marker or causal positions erased.
+    const captured = readHistoricalBurning("golden");
+    expect(captured.input).toEqual(input);
+    expect(captured.options).toEqual(options);
+    const result = captured.result;
     const frozenV146Config = projectCurrentConfigToFrozenV146(
       result.config,
       input,
@@ -2604,11 +2655,67 @@ describe("Burning aura-v4 provisional golden", () => {
       burningGolden.curve.cumulativeBurning,
     );
 
-    const repeated = simulate(makeBurningGoldenConfig(), options);
+    const repeated = readHistoricalBurning("golden").result;
     expect(repeated.reproducibilityKey).toBe(result.reproducibilityKey);
     expect(repeated.damageEvents).toEqual(result.damageEvents);
     expect(repeated.burningStateLog).toEqual(result.burningStateLog);
     expect(repeated.targetStateTimeline).toEqual(result.targetStateTimeline);
     expectContiguousTargetStateTimelineIds(repeated);
+  });
+});
+
+
+const currentBurningOptions = {
+  energyMode: "configured", critMode: "noCrit", compatibilityMode: "legal-frame-v1",
+  randomSeed: burningGolden.options.randomSeed,
+} as const;
+const hostileBurningFoundationCases: Array<{ name: string; mutate: (result: SimulationResult) => void }> = [
+  { name: "Burning amount detached from its resolution", mutate: (r) => { r.damageEvents[1]!.finalDamage += 1; } },
+  { name: "Burning cadence detached from its references", mutate: (r) => { r.damageEvents[1]!.frame += 1; } },
+  { name: "negative fuel gauge", mutate: (r) => { r.burningStateLog[0]!.fuelGaugeUnitsAfter = -1; } },
+  { name: "unknown Burning owner", mutate: (r) => { r.burningStateLog[0]!.damageSourceActorId = "missing-owner"; } },
+  { name: "missing first Burning damage event", mutate: (r) => { r.damageEvents.splice(1, 1); } },
+  { name: "dangling application damage backlink", mutate: (r) => { r.elementalApplicationIcdLog[1]!.damageEventId = 9999; } },
+  { name: "dangling application resolution backlink", mutate: (r) => { r.elementalApplicationIcdLog[1]!.hitResolutionLogId = 9999; } },
+  { name: "contradictory application ICD decision", mutate: (r) => { r.elementalApplicationIcdLog[1]!.decision.allowed = false; } },
+  { name: "dangling Aura timeline damage edge", mutate: (r) => { r.targetStateTimeline.points[1]!.primaryDamageEventId = 9999; } },
+  { name: "duplicated Aura timeline point identity", mutate: (r) => { r.targetStateTimeline.points[1]!.id = 0; } },
+  { name: "negative causal queue position", mutate: (r) => { r.targetStateTimeline.points[1]!.eventSequence = -1; } },
+  { name: "unversioned application decision field", mutate: (r) => { Object.assign(r.elementalApplicationIcdLog[1]!.decision, { unversionedField: true }); } },
+];
+
+describe("current Burning foundation contract", () => {
+  it("preserves full lifecycle, exact causal positions and independent damage replay", () => {
+    const input = makeBurningGoldenConfig();
+    const result = simulate(input, currentBurningOptions);
+    expect(simulate(input, currentBurningOptions)).toStrictEqual(result);
+    expectCurrentBurningContract(result, "golden", input, currentBurningOptions);
+    const frozenConfig = projectCurrentConfigToFrozenV146(result.config, input);
+    expect(() => projectCurrentManifestToFrozenV146(result, frozenConfig)).toThrow(/flatStatBuffSemantics/);
+    for (const eventId of [1, 15]) {
+      const replay = replaySimulationHit({ schemaVersion: "calculator-event-v1", eventId, sourceResult: result });
+      expect(replay.reproducedDamage).toBeCloseTo(1446.8535 * 0.25 * (1 + 16 * 100 / 2100 + 0.2) * 0.9, 10);
+      expect(replay.difference).toBe(0);
+      expect(replay.reactionProvenance).toBe("automatic-engine");
+    }
+  });
+  it("pins authentic semantic capture and explicitly unsuccessful historical timing", () => {
+    expectHistoricalBurningProvenance();
+    readHistoricalBurning("golden");
+  });
+  it.each(hostileBurningFoundationCases)("rejects $name at public parsing and real capture import", ({ mutate }) => {
+    const result = simulate(makeBurningGoldenConfig(), currentBurningOptions);
+    const before = JSON.stringify(result);
+    const capture = { schemaVersion: "calculator-event-v1", eventId: 1, sourceResult: result };
+    expect(parseSimulationHit(JSON.stringify(capture)).sourceResult).toEqual(result);
+    const forged = structuredClone(result); mutate(forged);
+    expect(JSON.stringify(forged)).not.toBe(before);
+    const parsed = simulationResultSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("Forged Burning foundation result unexpectedly parsed");
+    expect(() => parseSimulationHit(JSON.stringify({ ...capture, sourceResult: forged }))).toThrow(parsed.error.message);
+    // The actual untrusted ingress validates every public facet before the
+    // internal trusted helper; no standalone arbitrary-JSON promise is invented.
+    expect(JSON.stringify(result)).toBe(before);
   });
 });

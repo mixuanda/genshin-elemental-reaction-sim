@@ -1,0 +1,30 @@
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const [stageArg, targetArg] = process.argv.slice(2);
+if (!stageArg || !targetArg) throw Error('Usage: node deployment/vercel/make-upload.mjs STAGE_DIRECTORY UPLOAD_DIRECTORY');
+const stage = resolve(stageArg), target = resolve(targetArg);
+if (existsSync(target)) throw Error('Refusing to overwrite an upload directory');
+const readiness = JSON.parse(readFileSync(join(stage, 'readiness.json')));
+if (!readiness.publishReady) throw Error('Release not finalized');
+mkdirSync(target, { recursive: true });
+const archivePath = join(target, 'prebuilt.tgz');
+const tar = spawnSync('tar', ['-czf', archivePath, '.vercel/output'], { cwd: stage, stdio: 'inherit' });
+if (tar.status !== 0) throw Error('Could not archive verified build output');
+const data = readFileSync(archivePath);
+const digest = (algorithm, bytes) => createHash(algorithm).update(bytes).digest('hex');
+const parts = [];
+for (let offset = 0; offset < data.length; offset += 2 * 1024 * 1024) {
+  const bytes = data.subarray(offset, Math.min(data.length, offset + 2 * 1024 * 1024));
+  const file = `gidps-upload-${String(parts.length).padStart(3, '0')}.part`;
+  writeFileSync(join(target, file), bytes);
+  parts.push({ file, size: bytes.length, sha1: digest('sha1', bytes), sha256: digest('sha256', bytes) });
+}
+const manifest = { applicationCommit: readiness.applicationCommit, size: data.length, sha256: digest('sha256', data), parts };
+writeFileSync(join(target, 'upload-parts.json'), JSON.stringify(manifest, null, 2));
+copyFileSync(join(dirname(fileURLToPath(import.meta.url)), 'install-prebuilt.mjs'), join(target, 'install-prebuilt.mjs'));
+writeFileSync(join(target, 'package.json'), JSON.stringify({ name: 'gidps-verified-prebuilt', private: true, version: '1.0.0', engines: { node: '24.x' }, scripts: { build: 'node install-prebuilt.mjs' } }, null, 2));
+writeFileSync(join(target, 'vercel.json'), JSON.stringify({ framework: null, buildCommand: 'node install-prebuilt.mjs', installCommand: 'echo verified-prebuilt-no-dependencies' }, null, 2));
+console.log(JSON.stringify({ target, bytes: data.length, parts: parts.length, sha256: manifest.sha256 }, null, 2));

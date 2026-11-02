@@ -7,6 +7,8 @@ import {
 } from "@genshin-dps-lab/icd-profiles";
 import {
   canonicalStringify,
+  simulationResultSchema,
+  assertTrustedSimulationResult,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   CURRENT_ENGINE_VERSION,
@@ -583,7 +585,9 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
         resolvedGlobalFrame: scenarioRun.expectedCleanupGlobalFrame,
         resolvedTargetFrame: 1,
       });
-      scenarioMap.set(scenarioRun.id, projectScenarioToFrozenV140(first));
+      // Only the frozen projection receives authentic old input; all preceding
+      // current simulation, repeat, application and cleanup assertions stay live.
+      scenarioMap.set(scenarioRun.id, projectScenarioToFrozenV140(historicalCleanup(scenarioRun.hitlagFrames)));
     }
     expect([...scenarioMap.keys()].sort()).toEqual(
       [...CLEANUP_GOLDEN_SCENARIO_IDS].sort(),
@@ -643,4 +647,67 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
       })),
     ).toEqual([{ globalFrame: 0, extensionFrames: 5 }]);
   });
+});
+
+const HISTORICAL_CLEANUP_URL=new URL('../../../test-vectors/src/fixtures/historical-electro-charged-cleanup-v153-84ff5cd.json',import.meta.url);
+const historicalCleanupArchive=JSON.parse(readFileSync(HISTORICAL_CLEANUP_URL,'utf8')) as {source:{commit:string};cases:{caseId:string;sourceWireText:string;sourceWireSha256:string}[]};
+function byteHash(bytes:Uint8Array|string){return createHash('sha256').update(bytes).digest('hex');}
+function historicalCleanup(hitlagFrames?:number):SimulationResult{
+ const id=makeCleanupGoldenConfig(hitlagFrames).randomSeed;
+ const row=historicalCleanupArchive.cases.find(r=>r.caseId===id);if(!row)throw Error(`Missing authentic cleanup input ${id}`);
+ expect(byteHash(row.sourceWireText)).toBe(row.sourceWireSha256);return JSON.parse(row.sourceWireText) as SimulationResult;
+}
+function expectedCurrentCleanup(hitlagFrames?:number):SimulationResult{
+ const result=historicalCleanup(hitlagFrames);
+ expect(result.resolvedRuntimeOptions).not.toHaveProperty('flatStatBuffSemantics');expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty('flatStatBuffSemantics');
+ Object.assign(result.resolvedRuntimeOptions,{flatStatBuffSemantics:'canonical-v1'});Object.assign(result.runManifest.resolvedRuntimeOptions,{flatStatBuffSemantics:'canonical-v1'});
+ const key=hitlagFrames===undefined?'gdl-v2-fnv1a32-717d6e3f':'gdl-v2-fnv1a32-af99d7de';result.reproducibilityKey=key;result.runManifest.reproducibilityKey=key;
+ for(const index of [1,2]){const point=result.targetStateTimeline.points[index]!;expect(point.intraEventSequence).toBe(0);point.intraEventSequence=1;}
+ if(hitlagFrames!==undefined){expect(hitlagFrames).toBe(5);const row=result.targetHitlagLog[0]!;expect(row.intraEventSequence).toBe(1);row.intraEventSequence=2;return result;}
+ // Exact disabled-clock allocation correspondence, including all seven push
+ // sites. Future Quicken expiry+decay(600/300), periodic expiry+decay(540)
+ // and core expiry330 are retained; every old complete event payload and
+ // order remains identical under these finite sequence labels. Clocked F6
+ // does not use that retention branch. Actual output is never rewritten.
+ for(const list of [result.damageEvents,result.hitEvents,result.hitResolutionLog]){expect(list[2]!.eventSequence).toBe(10);list[2]!.eventSequence=16;}
+ expect(result.dendroCoreLog[0]!.eventSequence).toBe(4);result.dendroCoreLog[0]!.eventSequence=6;
+ expect(result.dendroCoreLog[1]!.eventSequence).toBe(8);result.dendroCoreLog[1]!.eventSequence=14;
+ expect(result.dendroCoreTimeline.points[0]!.eventSequence).toBe(8);result.dendroCoreTimeline.points[0]!.eventSequence=14;
+ expect(result.reactionDamageLog[0]!.damageGroupDecisions[0]!.damageGroupTaskSequence).toBe(10);result.reactionDamageLog[0]!.damageGroupDecisions[0]!.damageGroupTaskSequence=16;
+ expect(result.reactionTaskLog[0]!.eventSequence).toBe(4);result.reactionTaskLog[0]!.eventSequence=6;
+ for(const [index,oldSequence,newSequence] of [[3,4,6],[4,6,10],[5,5,9],[6,10,16]] as const){const point=result.targetStateTimeline.points[index]!;expect(point.eventSequence).toBe(oldSequence);point.eventSequence=newSequence;}
+ return result;
+}
+describe('current EC cleanup full-wire and independent mechanics',()=>{
+ it('preserves authentic full inputs and immutable frozen140 bytes',()=>{
+  expect(byteHash(readFileSync(HISTORICAL_CLEANUP_URL))).toBe('a25a5f9f32e77f3695810f081f61de175f5adcb967b35122e5611070a59862ad');
+  expect(historicalCleanupArchive.source.commit).toBe('84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5');expect(historicalCleanupArchive.cases).toHaveLength(2);
+  expect(byteHash(readFileSync(FIXTURE_URL))).toBe('bc1fb0bec7b526c1f3046ef81bb3aac5d947410fc013fbcc8d6fd2c6731563e0');
+ });
+ for(const hitlag of [undefined,5])it(`preserves cleanup at targetF1/globalF${hitlag===undefined?1:6} and queued F10 damage`,()=>{
+  const r=simulate(makeCleanupGoldenConfig(hitlag),{critMode:'noCrit'});
+  expect(simulationResultSchema.parse(r)).toEqual(r);expect(assertTrustedSimulationResult(r)).toBe(r);
+  expect(r).toStrictEqual(expectedCurrentCleanup(hitlag));
+  // Independent profile.ts level90=1446.8535; Aggravate1.15 through
+  // equal-level DEF.5 and RES.9; EC2 ignores DEF. Both use actual EM0.
+  const aggravate=1446.8535*1.15*.5*.9,ec=1446.8535*2*.9;
+  expect(r.damageEvents.map(d=>[d.frame,d.reaction])).toEqual([[0,'quicken'],[0,'aggravate'],[10,'electroCharged']]);
+  expect(r.damageEvents[0]!.finalDamage).toBe(0);expect(r.damageEvents[1]!.finalDamage).toBeCloseTo(aggravate,9);expect(r.damageEvents[2]!.finalDamage).toBeCloseTo(ec,9);expect(r.totalDamage).toBeCloseTo(aggravate+ec,9);
+  expect(r.periodicReactionLog.map(v=>[v.operation,v.frame])).toEqual([['start',0],['stop',hitlag===undefined?1:6],['tick',10]]);
+  expect(r.periodicReactionLog[1]!.nextTickFrame).toBeNull();
+  expect(r.reactionTaskLog[0]!.electroChargedCleanup).toMatchObject({outcome:'stop',requestedTargetFrame:0,deadlineTargetFrame:1,resolvedTargetFrame:1,resolvedGlobalFrame:hitlag===undefined?1:6,targetStateTimelinePointId:4,periodicReactionLogId:1});
+  expect(r.targetStateTimeline.points[4]).toMatchObject({cause:'electro-charged-cleanup',eventSequence:hitlag===undefined?10:6,intraEventSequence:0});
+  if(hitlag===undefined)expect(r.targetHitlagLog).toEqual([]);else expect(r.targetHitlagLog).toMatchObject([{globalFrame:0,targetFrame:0,haltFrames:5,nextTargetAdvanceGlobalFrame:6,intraEventSequence:2}]);
+ });
+ const mutations:{name:string;mutate:(r:SimulationResult)=>void}[]=[
+  {name:'deadline drift',mutate:r=>{r.reactionTaskLog[0]!.electroChargedCleanup!.deadlineTargetFrame=2;}},
+  {name:'resolved target frame drift',mutate:r=>{r.reactionTaskLog[0]!.electroChargedCleanup!.resolvedTargetFrame=2;}},
+  {name:'missing cleanup timeline backlink',mutate:r=>{r.reactionTaskLog[0]!.electroChargedCleanup!.targetStateTimelinePointId=999;}},
+  {name:'missing periodic cleanup backlink',mutate:r=>{r.reactionTaskLog[0]!.electroChargedCleanup!.periodicReactionLogId=999;}},
+ ];
+ for(const hitlag of [undefined,5])for(const mutation of mutations)it(`rejects ${mutation.name} for ${hitlag??0} Hitlag`,()=>{
+  const valid=simulate(makeCleanupGoldenConfig(hitlag),{critMode:'noCrit'}),before=structuredClone(valid);expect(simulationResultSchema.parse(valid)).toEqual(valid);
+  const forged=structuredClone(valid);mutation.mutate(forged);expect(simulationResultSchema.safeParse(forged).success).toBe(false);
+  expect(()=>expect(forged).toStrictEqual(expectedCurrentCleanup(hitlag))).toThrow();expect(valid).toStrictEqual(before);
+ });
 });

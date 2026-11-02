@@ -1,0 +1,963 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "iansan-kaeya-favonius-recharge-20261023",
+  "evidence": "Legal sourced battery candidate; no native simulation or recharge-sufficiency claim.",
+  "baselineRequestSha256": "db8382760f42c0570ecea28e9f4eae9f34f2d13aa3192638982da8cc8683346c",
+  "equipmentSha256": "f158fd30624f692c1c893329592724c2ef3de745e396220de24ec5a77c817a99",
+  "candidateRequestSha256": "e9a3524c097cf110faad849a444680d27a032d633299a27f07bd0faa0cbb1413",
+  "candidateGcslSha256": "046ecf61765f3494b64a00c814d1b37b4e2b42b277eb22c14d2fa35ca5715916",
+  "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "artifactStatSource": {
+    "schemaVersion": "1.0.0",
+    "id": "artifact-stats-go-180a0a1",
+    "source": "genshin-optimizer",
+    "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+    "retrievedAt": "2026-09-23T06:25:48.778084+00:00",
+    "license": "MIT",
+    "gameVersion": "not-certified",
+    "releaseStatus": "unknown",
+    "numericEvidenceStatus": "unchecked",
+    "notes": "Fixed-source stat tables and legal slot/roll rules; no interpolation. Common rarity 1-5 data; not evidence of current live roster completeness. Runtime uses unrounded source decimals in binary64; no claim of matching all game float32 display rounding.",
+    "files": [
+      {
+        "file": "artifact_main.json",
+        "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+        "sha256": "b4ac7d336caa5298e6f78921e2790042592f8ae70ff2e2428f2a23d594783ab4"
+      },
+      {
+        "file": "artifact_sub.json",
+        "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+        "sha256": "5507dff48dc632ee6401adc518a6290d4607264738624ec51308ac7a2cb7e3e8"
+      },
+      {
+        "file": "consts-artifact.ts.txt",
+        "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+        "sha256": "704ea84c1555e999ad6057e822e29922c58cfbc0cd7d8c52a616af9d5fc35781"
+      },
+      {
+        "file": "artifactMeta.ts.txt",
+        "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts",
+        "sha256": "2c916c6b73b2213129b24d20e74ca9d2eacdbe3b7a20112c1744984bc77855f3"
+      },
+      {
+        "file": "LICENSE",
+        "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+        "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c"
+      }
+    ]
+  },
+  "sourceFileSha256": {
+    "packages/game-data/sources/artifacts/artifact_main.json": "b4ac7d336caa5298e6f78921e2790042592f8ae70ff2e2428f2a23d594783ab4",
+    "packages/game-data/sources/artifacts/artifact_sub.json": "5507dff48dc632ee6401adc518a6290d4607264738624ec51308ac7a2cb7e3e8",
+    "packages/game-data/sources/artifacts/manifest.json": "2849110c3ebb54eada468426f52d7b4b88b1b1863f8cf3ecd27f8d933dcfd647",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "packages/game-data/src/artifact-build.ts": "d34cbc1aea3efd9dd8d451c910137ec70e4ed5fb092e7d42edb1349b7e795c16",
+    "packages/game-data/src/equipment-build.ts": "80176fcc325b7e1c44271332a73d5f91211de44db7139478e2b2f7f24602b67a",
+    "apps/web/src/source-team-builder.ts": "4c4e7d1d8362bf70cebbf405e584e48c95cd3c498b4a19596163959df29e17e0",
+    "apps/web/public/source-host-stellar/manifest.json": "0c8bf23de678d04b348b50b8cd84889e2423be65d36cfeef7eb35205f87bdf02",
+    "apps/web/public/source-host-stellar/inventory-metadata.json": "35e9b36785df3c9dd51c38307be1a925e56d63a8b01ff78020887598ad3adbea"
+  },
+  "unchangedPolicy": {
+    "protocol": "gidps-source-host-v1",
+    "seed": "20261023",
+    "stopAtDuration": true,
+    "executionMode": "auto-wait",
+    "initialEnergy": {
+      "mode": "full"
+    },
+    "phaseObservation": {
+      "warmupFrames": 0,
+      "maxPeriod": 4,
+      "requiredConsecutivePeriods": 3,
+      "maxObservations": 32
+    }
+  },
+  "unchangedNonEquipmentConfigSha256": "6401c743b37f2c64dd708edbe70acdab88dfcb48ed051cc8cf5a78f73ec33eaf",
+  "builds": [
+    {
+      "actor": "iansan",
+      "inputSha256": "c87c8870f6fb5c6ca3df3f3fcbeb9cd39002e5bf77ed671d53e36f5023669c5b",
+      "legalBudget": [
+        {
+          "slot": "flower",
+          "setId": "artifact-set:14001",
+          "mainStat": "hp",
+          "mainValue": 4780,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "exactValues": [
+                0.035,
+                0.035,
+                0.035,
+                0.035,
+                0.035
+              ],
+              "total": 0.17500000000000002
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0648,
+                0.0648
+              ],
+              "total": 0.1296
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                0.0583
+              ],
+              "total": 0.0583
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "plume",
+          "setId": "artifact-set:14002",
+          "mainStat": "atk",
+          "mainValue": 311,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0389,
+                0.0389,
+                0.0389,
+                0.0389
+              ],
+              "total": 0.1556
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0648,
+                0.0648,
+                0.0648
+              ],
+              "total": 0.1944
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                0.0583
+              ],
+              "total": 0.0583
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "sands",
+          "setId": "artifact-set:14003",
+          "mainStat": "enerRech_",
+          "mainValue": 0.518,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0389,
+                0.0389,
+                0.0389,
+                0.0389
+              ],
+              "total": 0.1556
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1749
+            },
+            {
+              "stat": "hp",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                298.75
+              ],
+              "total": 298.75
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "goblet",
+          "setId": "artifact-set:14004",
+          "mainStat": "atk_",
+          "mainValue": 0.466,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0389,
+                0.0389,
+                0.0389,
+                0.0389
+              ],
+              "total": 0.1556
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0648,
+                0.0648,
+                0.0648
+              ],
+              "total": 0.1944
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                19.45
+              ],
+              "total": 19.45
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "circlet",
+          "setId": "artifact-set:15001",
+          "mainStat": "critRate_",
+          "mainValue": 0.311,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0648,
+                0.0648,
+                0.0648
+              ],
+              "total": 0.1944
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583,
+                0.0583,
+                0.0583
+              ],
+              "total": 0.2332
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                19.45
+              ],
+              "total": 19.45
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        }
+      ],
+      "totalRolls": 45,
+      "artifactStats": {
+        "hp": 5078.75,
+        "cr": 0.9528000000000001,
+        "er": 1.2308,
+        "atk%": 0.9907000000000001,
+        "def": 115.75,
+        "atk": 349.9
+      },
+      "nonArtifactEnergyRechargeBonus": 0.30626819800000005,
+      "sourcedTotalEnergyRecharge": 2.5370681979999996,
+      "sourcedRawCritRate": 1.0028000000000001,
+      "clampedCritRate": 1,
+      "staticAttackWithoutPassives": 2183.054293152904,
+      "statSourceRefs": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/iansan",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/favoniuslance",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/getdata.js",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/favoniuslance.json#/r5",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/blizzardstrayer.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/maidenbeloved.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gladiatorsfinale.json"
+      ],
+      "derivedStats": [
+        {
+          "id": "characterBaseAtk",
+          "label": "角色基础攻击力",
+          "base": 21.54768,
+          "curve": 8.349,
+          "promotion": 77.09902,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/iansan;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_ATTACK_S4"
+        },
+        {
+          "id": "weaponBaseAtk",
+          "label": "武器基础攻击力",
+          "base": 43.7349,
+          "curve": 9.356,
+          "promotion": 155.6,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/favoniuslance;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json#/90/GROW_CURVE_ATTACK_202"
+        },
+        {
+          "id": "baseHp",
+          "label": "角色基础生命值",
+          "base": 893.5552,
+          "curve": 8.349,
+          "promotion": 3197.1245,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/iansan;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_HP_S4"
+        },
+        {
+          "id": "baseDef",
+          "label": "角色基础防御力",
+          "base": 53.505375,
+          "curve": 8.349,
+          "promotion": 191.44125,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/iansan;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_HP_S4"
+        },
+        {
+          "id": "weaponSecondary",
+          "label": "武器副属性",
+          "base": 0.066667,
+          "curve": 4.594,
+          "promotion": 0,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/favoniuslance;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json#/90/GROW_CURVE_CRITICAL_201"
+        }
+      ],
+      "setCounts": {
+        "artifact-set:14001": 1,
+        "artifact-set:14002": 1,
+        "artifact-set:14003": 1,
+        "artifact-set:14004": 1,
+        "artifact-set:15001": 1
+      },
+      "validationScope": "Static equipment resolution only; native owns all character/Favonius procs and resource changes."
+    },
+    {
+      "actor": "kaeya",
+      "inputSha256": "40bbd22a8b1b9c716ee625482d31fc635d560de426107db9d61094481059849f",
+      "legalBudget": [
+        {
+          "slot": "flower",
+          "setId": "artifact-set:14001",
+          "mainStat": "hp",
+          "mainValue": 4780,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "exactValues": [
+                0.035,
+                0.035,
+                0.035,
+                0.035,
+                0.035
+              ],
+              "total": 0.17500000000000002
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                2,
+                2
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1166
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                0.0583
+              ],
+              "total": 0.0583
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "plume",
+          "setId": "artifact-set:14002",
+          "mainStat": "atk",
+          "mainValue": 311,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0389,
+                0.0389,
+                0.0389,
+                0.0389
+              ],
+              "total": 0.1556
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                2,
+                2
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1166
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1166
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "sands",
+          "setId": "artifact-set:14003",
+          "mainStat": "enerRech_",
+          "mainValue": 0.518,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0389,
+                0.0389,
+                0.0389,
+                0.0389
+              ],
+              "total": 0.1556
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1749
+            },
+            {
+              "stat": "hp",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                298.75
+              ],
+              "total": 298.75
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "goblet",
+          "setId": "artifact-set:14004",
+          "mainStat": "cryo_dmg_",
+          "mainValue": 0.466,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0389,
+                0.0389,
+                0.0389,
+                0.0389
+              ],
+              "total": 0.1556
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                2
+              ],
+              "exactValues": [
+                0.0583
+              ],
+              "total": 0.0583
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1749
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        },
+        {
+          "slot": "circlet",
+          "setId": "artifact-set:15001",
+          "mainStat": "critRate_",
+          "mainValue": 0.311,
+          "totalRolls": 9,
+          "substats": [
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                2,
+                2
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583
+              ],
+              "total": 0.1166
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "exactValues": [
+                0.0583,
+                0.0583,
+                0.0583,
+                0.0583,
+                0.0583
+              ],
+              "total": 0.2915
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                19.45
+              ],
+              "total": 19.45
+            },
+            {
+              "stat": "def",
+              "rolls": [
+                3
+              ],
+              "exactValues": [
+                23.15
+              ],
+              "total": 23.15
+            }
+          ]
+        }
+      ],
+      "totalRolls": 45,
+      "artifactStats": {
+        "hp": 5078.75,
+        "cr": 0.9528000000000001,
+        "er": 0.9261,
+        "atk%": 0.8162000000000001,
+        "def": 115.75,
+        "atk": 330.45,
+        "cryo%": 0.466
+      },
+      "nonArtifactEnergyRechargeBonus": 0.8792318020000001,
+      "sourcedTotalEnergyRecharge": 2.8053318020000004,
+      "sourcedRawCritRate": 1.0028000000000001,
+      "clampedCritRate": 1,
+      "staticAttackWithoutPassives": 1560.7079266864205,
+      "statSourceRefs": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/kaeya",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/favoniussword",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/getdata.js",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/favoniussword.json#/r5",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/blizzardstrayer.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/maidenbeloved.json",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gladiatorsfinale.json"
+      ],
+      "derivedStats": [
+        {
+          "id": "characterBaseAtk",
+          "label": "角色基础攻击力",
+          "base": 18.6984,
+          "curve": 8.349,
+          "promotion": 66.90411,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/kaeya;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_ATTACK_S4"
+        },
+        {
+          "id": "weaponBaseAtk",
+          "label": "武器基础攻击力",
+          "base": 41.0671,
+          "curve": 7.275,
+          "promotion": 155.6,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/favoniussword;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json#/90/GROW_CURVE_ATTACK_204"
+        },
+        {
+          "id": "baseHp",
+          "label": "角色基础生命值",
+          "base": 975.6164,
+          "curve": 8.349,
+          "promotion": 3490.7378,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/kaeya;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_HP_S4"
+        },
+        {
+          "id": "baseDef",
+          "label": "角色基础防御力",
+          "base": 66.381,
+          "curve": 8.349,
+          "promotion": 237.51,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/characters.json#/kaeya;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/characters.json#/90/GROW_CURVE_HP_S4"
+        },
+        {
+          "id": "weaponSecondary",
+          "label": "武器副属性",
+          "base": 0.133333,
+          "curve": 4.594,
+          "promotion": 0,
+          "sourceRef": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/weapons.json#/favoniussword;https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/curve/weapons.json#/90/GROW_CURVE_CRITICAL_201"
+        }
+      ],
+      "setCounts": {
+        "artifact-set:14001": 1,
+        "artifact-set:14002": 1,
+        "artifact-set:14003": 1,
+        "artifact-set:14004": 1,
+        "artifact-set:15001": 1
+      },
+      "validationScope": "Static equipment resolution only; native owns all character/Favonius procs and resource changes."
+    }
+  ],
+  "exportedMembers": [
+    {
+      "id": "iansan",
+      "characterKey": "iansan",
+      "level": 90,
+      "levelCap": 90,
+      "constellation": 6,
+      "talents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "weapon": {
+        "key": "favoniuslance",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 5
+      },
+      "artifactSets": [
+        {
+          "key": "blizzardstrayer",
+          "count": 1
+        },
+        {
+          "key": "thundersoother",
+          "count": 1
+        },
+        {
+          "key": "lavawalker",
+          "count": 1
+        },
+        {
+          "key": "maidenbeloved",
+          "count": 1
+        },
+        {
+          "key": "gladiatorsfinale",
+          "count": 1
+        }
+      ],
+      "artifactStats": {
+        "hp": 5078.75,
+        "cr": 0.9528000000000001,
+        "er": 1.2308,
+        "atk%": 0.9907000000000001,
+        "def": 115.75,
+        "atk": 349.9
+      }
+    },
+    {
+      "id": "kaeya",
+      "characterKey": "kaeya",
+      "level": 90,
+      "levelCap": 90,
+      "constellation": 0,
+      "talents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "weapon": {
+        "key": "favoniussword",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 5
+      },
+      "artifactSets": [
+        {
+          "key": "blizzardstrayer",
+          "count": 1
+        },
+        {
+          "key": "thundersoother",
+          "count": 1
+        },
+        {
+          "key": "lavawalker",
+          "count": 1
+        },
+        {
+          "key": "maidenbeloved",
+          "count": 1
+        },
+        {
+          "key": "gladiatorsfinale",
+          "count": 1
+        }
+      ],
+      "artifactStats": {
+        "hp": 5078.75,
+        "cr": 0.9528000000000001,
+        "er": 0.9261,
+        "atk%": 0.8162000000000001,
+        "def": 115.75,
+        "atk": 330.45,
+        "cryo%": 0.466
+      }
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "main/sub ER collision",
+      "passed": true
+    },
+    {
+      "name": "tenth roll",
+      "passed": true
+    },
+    {
+      "name": "nonexistent tier",
+      "passed": true
+    },
+    {
+      "name": "wrong weapon class",
+      "passed": true
+    }
+  ],
+  "exportedStatAccounting": "Only resolveArtifactBuild contributions enter add stats. Native char/weapon declarations own character ascension and weapon secondary exactly once.",
+  "favoniusScope": "R5 proc chance after an eligible crit is 100%, but still needs actual on-field enemy contact and the native cooldown; high CR is not a scheduled particle guarantee.",
+  "nativeRunPerformed": false
+}

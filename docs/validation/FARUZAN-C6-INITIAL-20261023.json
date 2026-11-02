@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "production": "paused-not-deployed",
+  "moduleTests": 9,
+  "publicIntegrationTests": 2,
+  "browser": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "nativeRuns": 0,
+    "independentFixture": true,
+    "constellation": 6,
+    "effectiveQTLevel": 13,
+    "totals": {
+      "nonCritical": 10182.942,
+      "critical": 24439.060799999996,
+      "expected": 17311.001399999997
+    },
+    "unknownOrFalseConditionBlocks": true,
+    "correctingConditionRestoresCalculation": true,
+    "savedReopenedContextAndDamageUnchanged": true,
+    "desktopAndNarrow": true,
+    "errors": []
+  },
+  "baselineFullSuite": {
+    "commit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerun": false
+  },
+  "originalFailure": "/tmp/GIDPS-specified-team-20261023/faruzan-browser-diagnostic/failure.json"
+}

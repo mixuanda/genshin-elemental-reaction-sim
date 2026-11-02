@@ -1,0 +1,148 @@
+{
+  "schema": "stellar-wanderer-c2-source-evidence-v1",
+  "baselineCommit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+  "stellarSourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "upstreamPath": "/workspace/GIDPS-cloud/source-build-cache/upstream/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/source",
+  "patchedSourcePath": "/workspace/GIDPS-cloud/source-build-cache/stellar-build-BLHabY/source",
+  "scratchPath": "/tmp/GIDPS-stellar-wanderer-c2-evidence-20261023",
+  "sourceTree": {
+    "gzipSha256": "bcb46806f070ef718086792c0b4f3f1a8ec1caecdb8266a404071bdc6709467a",
+    "jsonSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+    "truncated": false,
+    "verifiedSelectedBlobCount": 8
+  },
+  "upstreamFiles": {
+    "internal/characters/wanderer/wanderer.go": {
+      "gitBlobSha1": "4d2bc8068319ae2ecd6a84516d603ee203252928",
+      "sha256": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd"
+    },
+    "internal/characters/wanderer/cons.go": {
+      "gitBlobSha1": "711fd1dfc2707bc2fd4321410f45b507814d2543",
+      "sha256": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371"
+    },
+    "internal/characters/wanderer/burst.go": {
+      "gitBlobSha1": "49e1c296b02cc3bb7d337405b6d4654965084344",
+      "sha256": "7e5d27192b504c64c6ae77c28044f200deb42edacb766993fba557af31b1f5cd"
+    },
+    "internal/characters/wanderer/skill.go": {
+      "gitBlobSha1": "7e04db88622a87fc3ab3808a29829e827002cb1b",
+      "sha256": "0d0c449c12770964407d081f26fdbde5822a73f19616f61136a3b824f0d1eba1"
+    },
+    "internal/characters/wanderer/attack.go": {
+      "gitBlobSha1": "f5ce544c505ec991d9a4c0d28de12fa473a855e9",
+      "sha256": "897ca6abe19bf6f901af26ccc9df12a4a20f6e0e1e4c2879c64454142879bcd5"
+    },
+    "internal/template/character/character.go": {
+      "gitBlobSha1": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8"
+    },
+    "pkg/core/attack.go": {
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a"
+    },
+    "pkg/core/player/character/character.go": {
+      "gitBlobSha1": "af46b23318605e1d47c6295428b24f9f2a1a0635",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf"
+    }
+  },
+  "originalPatchedFiles": {
+    "internal/characters/wanderer/wanderer.go": "5b99342d4adb30f912712499fe973b11bde4b9466d80ebf7b16363990c6d8051",
+    "internal/characters/wanderer/cons.go": "b9eb5043728a3585f9eed1fd8033a47ce431add22f0cc847f7cfc08de11a996f",
+    "internal/characters/wanderer/burst.go": "503d903e4add652d7ff8d06497f8d5ef326a875dad41c95f4dc527cbd08e4f63",
+    "internal/characters/wanderer/skill.go": "a1b5e3ca7e56afcfe8e41c3c089a22d48df9b80f6bfd26efd4587b0ca20fa4bf",
+    "internal/characters/wanderer/attack.go": "f6f123c75bc782da30da170d1a280a0dddb1e68cfc2ee626f0a716469cb83d8b",
+    "internal/template/character/character.go": "5121db33058b67eac75620e2f74f3cd1b318d248e1b52dba870d7d5f5cf4103f",
+    "pkg/core/attack.go": "1e176e0a67b17f2f88acbdad11a40ab8bba1e0fe4cf9a7e242afaacc6814dac9",
+    "pkg/core/player/character/character.go": "ec110e40097bb5efbec5d7be02bc32f434c60243b4fd08c93a937ad1f78a6f2b",
+    "pkg/core/player/character/stats.go": "174ee0916a26019e44b611964e37322f11b1366cdedcb09beab877034bbf8da1",
+    "pkg/core/sourcehost/character_modifier.go": "3391e7d751d2e77e8adbf4aa05916aaa6bd7b56783ad65806a8ac6cf0e564d26",
+    "go.mod": "d8d1db9461f09f5d86e1461c7ed92eb34a6161d9b5faba38c6b874fe2e030f08",
+    "go.sum": "57557ca36a1aa6dff6ab5559463cf7c104d0ee87aaa533a0c87db8f6b8d58896"
+  },
+  "afterPatchedFiles": {
+    "internal/characters/wanderer/wanderer.go": "33a617c2a8e3431365ac5c81d2f6d0445e3db65195d3d44295760ee30dad232d",
+    "internal/characters/wanderer/cons.go": "74baea99401a8ac4df625b6d0fa44533724100f03500326dd737394505cded78",
+    "internal/characters/wanderer/burst.go": "503d903e4add652d7ff8d06497f8d5ef326a875dad41c95f4dc527cbd08e4f63",
+    "internal/characters/wanderer/skill.go": "a1b5e3ca7e56afcfe8e41c3c089a22d48df9b80f6bfd26efd4587b0ca20fa4bf",
+    "internal/characters/wanderer/attack.go": "f6f123c75bc782da30da170d1a280a0dddb1e68cfc2ee626f0a716469cb83d8b",
+    "internal/template/character/character.go": "5121db33058b67eac75620e2f74f3cd1b318d248e1b52dba870d7d5f5cf4103f",
+    "pkg/core/attack.go": "1e176e0a67b17f2f88acbdad11a40ab8bba1e0fe4cf9a7e242afaacc6814dac9",
+    "pkg/core/player/character/character.go": "ec110e40097bb5efbec5d7be02bc32f434c60243b4fd08c93a937ad1f78a6f2b",
+    "pkg/core/player/character/stats.go": "174ee0916a26019e44b611964e37322f11b1366cdedcb09beab877034bbf8da1",
+    "pkg/core/sourcehost/character_modifier.go": "3391e7d751d2e77e8adbf4aa05916aaa6bd7b56783ad65806a8ac6cf0e564d26",
+    "go.mod": "d8d1db9461f09f5d86e1461c7ed92eb34a6161d9b5faba38c6b874fe2e030f08",
+    "go.sum": "57557ca36a1aa6dff6ab5559463cf7c104d0ee87aaa533a0c87db8f6b8d58896"
+  },
+  "unchangedFilesAfter137": [
+    "internal/characters/wanderer/burst.go",
+    "internal/characters/wanderer/skill.go",
+    "internal/characters/wanderer/attack.go",
+    "internal/template/character/character.go",
+    "pkg/core/attack.go",
+    "pkg/core/player/character/character.go",
+    "pkg/core/player/character/stats.go",
+    "pkg/core/sourcehost/character_modifier.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "oldBuildCriticalHashesUnchanged": true,
+  "sharedPatch": {
+    "path": "packages/source-host/patches/137-wanderer-c2-burst-snapshot-scope.patch",
+    "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+    "changed": false,
+    "gitApplyCheckExit": 0,
+    "gitApplyExit": 0
+  },
+  "toolchain": {
+    "executable": "/workspace/GIDPS-cloud/source-build-cache/go1.27.1/linux-amd64/go/bin/go",
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "version": "go version go1.27.1 linux/amd64",
+    "expectedOfficialArchiveSha256": "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445",
+    "archiveReverifiedThisTurn": false
+  },
+  "tests": {
+    "before": {
+      "exitCode": 1,
+      "numericalFailures": 2,
+      "observedDmgP": 2,
+      "expectedDmgP": 0,
+      "buildFailure": false
+    },
+    "after": {
+      "exitCode": 0,
+      "topLevelTestsPassed": 4,
+      "coverage": [
+        "same compatible non-Q regression",
+        "five real Snapshot reads at frame55",
+        "stored C2 after live resource reset",
+        "exact145f expiry",
+        "ordinary/C6/projections excluded",
+        "resource coefficient/cap boundaries",
+        "C0/C1 unchanged",
+        "outside E no newly created C2",
+        "nested Snapshot restores prior context",
+        "panic restores either prior bool value"
+      ]
+    },
+    "sameNegativeTestSha256": "37b6ab56690604545fa70396b8f5242642b0b54c6f3b8b836befadf3181ad8d5"
+  },
+  "sourceTimingContract": {
+    "snapshotDelayFrames": 55,
+    "firstHitFrames": 92,
+    "hitIntervalFrames": 6,
+    "hitCount": 5,
+    "c2LifetimeFrames": 145,
+    "C6DelayFrames": 8,
+    "burstAndSkillFilesChanged": false
+  },
+  "receiptHashes": {
+    "stellar-wanderer-c2-go-test-before.log": "37980cc0753965bda7f908f5284596ed66f3c677963432f9acf85479d94597ef",
+    "stellar-wanderer-c2-go-test-after.log": "04a46e1f49baf1d7ec159190784bae29b79cc2ebdea4c4aef0c9067b0ceb6969",
+    "stellar-wanderer-c2-go-test-commands.json": "a606d44ce1c006ba425314cc3816f0631b9fb336b8977bb2e656296d2d2bee76",
+    "stellar-wanderer-c2-patch-apply.json": "a72260adfd411577111deb161a5486129c626c8f6389cd32e1066e40a547b3b7"
+  },
+  "native120RunsByThisAgent": 0,
+  "wasmBuildsByThisAgent": 0,
+  "stellarBuildRegistrationChangedByThisAgent": false,
+  "qualification": "Source compatibility and directed Go tests only. WASM rebuild/actual short-axis comparison remain root-owned; upstream timing TODOs are not game-certified."
+}

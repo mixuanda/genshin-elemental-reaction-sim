@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -11,7 +12,7 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -23,17 +24,18 @@ async function waitForSimulation(page: Page): Promise<void> {
 
 test("Yanfei charged cast conditions A4 on main critical probability and preserves independent hit context in JSON", async ({ page }) => {
   await page.goto("/calculator");
-  await page.locator("#calc-character").selectOption("character:10000048");
+  await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000048");
   await expect(page.locator("#calc-skill")).toBeEnabled();
   const charged = await page.locator("#calc-skill option").filter({ hasText: "火漆制印·一次重击" }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(charged!);
-  await page.locator("#calc-talent-level").fill("1");
-  await page.locator("#calc-talent-level").press("Tab");
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(charged!);
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
+  await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
   await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(1);
-  await page.locator('[data-field="build.stats.atk"]').fill("1000");
-  await page.locator('[data-field="build.stats.critRate"]').fill("0.5");
-  await page.locator('[data-field="build.stats.critDamage"]').fill("1");
-  await page.locator('[data-field="gameContext.yanfeiCharged.scarletSeals"]').fill("3");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("1000");
+  await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.5");
+  await (await revealControl(page.locator('[data-field="build.stats.critDamage"]'))).fill("1");
+  await (await revealControl(page.locator('[data-field="gameContext.yanfeiCharged.scarletSeals"]'))).fill("3");
   const initial = await audit(page);
   expect(initial.document.gameContext).toMatchObject({ skillId: "yanfei-charged-cast", effectiveTalentLevel: 1, scopeCoverage: "complete-cast" });
   expect(initial.result.status).toBe("calculated");
@@ -50,48 +52,48 @@ test("Yanfei charged cast conditions A4 on main critical probability and preserv
   const occurrence = initial.result.hits[1]!.trace.find(node => node.id === "occurrence.expected")!;
   expect(occurrence.result!.value).toBeCloseTo(310.5, 9);
   expect(occurrence.substitution).toContain("0.5");
-  await page.locator('#calc-results [data-detail-id="hit-card:yanfei-charged-cast-a4"] > summary').click();
+  await (await revealControl(page.locator('#calc-results [data-detail-id="hit-card:yanfei-charged-cast-a4"] > summary'))).click();
   await expect(page.locator('#calc-results [data-trace-node="occurrence.expected"]')).toContainText("310.5");
-  await page.locator('[data-field="build.stats.critRate"]').fill("0.25");
+  await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.25");
   const quarter = await audit(page);
   expect(quarter.result.totals!.nonCritical).toBeCloseTo(mainNonCrit, 9);
   expect(quarter.result.totals!.expected).toBeCloseTo(mainNonCrit * 1.25 + 0.25 * a4NonCrit * 1.25, 9);
   expect(quarter.result.hits[1]!.castContribution!.triggerProbability).toBe(0.25);
 
-  await page.locator('[data-field="build.stats.critRate"]').fill("0.5");
-  await page.locator("#calc-scope").selectOption("single-hit");
-  await page.locator('[data-hit-id="yanfei-charged-cast-a4"]').check();
+  await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.5");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
+  await (await revealControl(page.locator('[data-hit-id="yanfei-charged-cast-a4"]'))).check();
   const actualA4 = await audit(page);
   expect(actualA4.result.totals!.expected).toBeCloseTo(621, 9);
   expect(actualA4.result.hits[0]!.castContribution).toBeUndefined();
   expect(actualA4.result.hits[0]!.trace.find(node => node.id === "conditionedOccurrence")!.status).toBe("assumed");
-  await page.locator("#calc-scope").selectOption("one-cast");
-  await page.locator("#calc-constellation").selectOption("2");
-  await page.locator('[data-field="gameContext.yanfeiCharged.mainEnemyHpFraction"]').fill("0.5");
-  await page.locator('[data-field="gameContext.yanfeiCharged.a4EnemyHpFraction"]').fill("0.49");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("one-cast");
+  await (await revealControl(page.locator("#calc-constellation"))).selectOption("2");
+  await (await revealControl(page.locator('[data-field="gameContext.yanfeiCharged.mainEnemyHpFraction"]'))).fill("0.5");
+  await (await revealControl(page.locator('[data-field="gameContext.yanfeiCharged.a4EnemyHpFraction"]'))).fill("0.49");
   const c2 = await audit(page);
   expect(c2.result.hits.map(hit => hit.effectiveCritRate)).toEqual([0.5, 0.7]);
   expect(c2.result.hits[1]!.castContribution!.expected).toBeCloseTo(351.9, 9);
 
   // Both manual bonus inputs already contain an old 10% A1. The new 15% replaces it.
-  await page.locator('[data-field="hits.0.damageBonus"]').fill("0.1");
-  await page.locator('[data-field="hits.1.damageBonus"]').fill("0.1");
-  await page.locator('[data-field="gameContext.yanfeiCharged.priorA1BonusIncluded"]').fill("0.1");
+  await (await revealControl(page.locator('[data-field="hits.0.damageBonus"]'))).fill("0.1");
+  await (await revealControl(page.locator('[data-field="hits.1.damageBonus"]'))).fill("0.1");
+  await (await revealControl(page.locator('[data-field="gameContext.yanfeiCharged.priorA1BonusIncluded"]'))).fill("0.1");
   expect((await audit(page)).result.totals).toEqual(c2.result.totals);
-  await page.locator('[data-field="gameContext.yanfeiCharged.brilliance.effectiveTalentLevel"]').fill("1");
-  await page.locator("#calc-yanfei-brilliance-main").selectOption("1");
-  await page.locator("#calc-yanfei-brilliance-a4").selectOption("0");
+  await (await revealControl(page.locator('[data-field="gameContext.yanfeiCharged.brilliance.effectiveTalentLevel"]'))).fill("1");
+  await (await revealControl(page.locator("#calc-yanfei-brilliance-main"))).selectOption("1");
+  await (await revealControl(page.locator("#calc-yanfei-brilliance-a4"))).selectOption("0");
   const q1 = await audit(page);
   expect(q1.result.hits[0]!.nonCritical).toBeCloseTo(1000 * 1.502332 * (1.15 + 0.334) * 0.5 * 0.9, 9);
   expect(q1.result.hits[1]!.nonCritical).toBeCloseTo(414, 9);
-  await page.locator('[data-field="gameContext.yanfeiCharged.brilliance.effectiveTalentLevel"]').fill("10");
+  await (await revealControl(page.locator('[data-field="gameContext.yanfeiCharged.brilliance.effectiveTalentLevel"]'))).fill("10");
   const q10 = await audit(page);
   expect(q10.document.gameContext!.effectiveTalentLevel).toBe(1);
   expect(q10.result.hits[0]!.nonCritical).toBeCloseTo(1000 * 1.502332 * (1.15 + 0.544) * 0.5 * 0.9, 9);
   expect(q10.result.hits[1]!.nonCritical).toBeCloseTo(414, 9);
   expect(q10.result.hits[1]!.castContribution!.expected).toBeCloseTo(351.9, 9);
   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name: "yanfei-ca-conditional-a4.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "yanfei-ca-conditional-a4.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   const restored = await audit(page);
   expect(restored.document.gameContext).toEqual(q10.document.gameContext);
@@ -141,13 +143,16 @@ function expectTwoSampleDistribution(distribution: StochasticDistribution, value
 test("Finite stochastic startup runs four continuous trajectories and exports paired samples and boundary energy", async ({ page }) => {
   const config = syntheticStartup();
   await page.goto("/results");
-  await page.locator("#critModeInput").selectOption("seeded-random-v1");
-  await page.locator("#importInput").setInputFiles({ name: "stochastic-startup.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("seeded-random-v1");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "stochastic-startup.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator("#analysis-stochastic-samples").fill("2");
-  await page.locator("#analysis-stochastic-cycles").fill("1");
-  await page.locator("#analysis-stochastic-run").click();
+  await (await revealControl(page.locator('.tab[data-tab="overview"]'))).click();
+  await expect(page.locator("#overviewPanel")).toBeVisible();
+  await (await revealControl(page.locator("#analysis-stochastic-samples"))).fill("2");
+  await (await revealControl(page.locator("#analysis-stochastic-cycles"))).fill("1");
+  await (await revealControl(page.locator("#analysis-stochastic-run"))).click();
   await expect(page.locator("#analysis-stochastic-run")).toBeEnabled();
   await expect(page.locator("#analysis-stochastic-cancel")).toBeHidden();
   await expect(page.locator("#analysis-stochastic-output")).toContainText("诊断已完成");

@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -7,7 +8,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -42,37 +43,38 @@ function syntheticWeaponProcInputs() {
 test("Team weapon proc declarations create independent single-target and HP-area hits with complete replay and record restore", async ({ page }) => {
   const config = syntheticWeaponProcInputs();
   await page.goto("/results");
-  await page.locator("#critModeInput").selectOption("seeded-random-v1");
-  await page.locator("#importInput").setInputFiles({ name: "independent-weapon-procs.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("seeded-random-v1");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "independent-weapon-procs.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#weaponProcModelEnabled")).not.toBeChecked();
-  await page.locator("#weaponProcModelEnabled").check();
+  await (await revealControl(page.locator("#weaponProcModelEnabled"))).check();
   const declarations = [
     { actorId: "halberd-owner", weaponId: "halberd", refinement: 1, physicalDamageBonus: 0.5 },
     { actorId: "horn-owner", weaponId: "ashgravendrinkinghorn", refinement: 1, physicalDamageBonus: 0.5 },
     { actorId: "bow-owner", weaponId: "sequenceofsolitude", refinement: 5, physicalDamageBonus: 0 },
   ] as const;
   for (const declaration of declarations) {
-    await page.locator(`[data-weapon-proc-weapon="${declaration.actorId}"]`).selectOption(declaration.weaponId);
-    await page.locator(`[data-weapon-proc-refinement="${declaration.actorId}"]`).selectOption(String(declaration.refinement));
-    await page.locator(`[data-weapon-proc-physical-bonus="${declaration.actorId}"]`).fill(String(declaration.physicalDamageBonus));
+    await (await revealControl(page.locator(`[data-weapon-proc-weapon="${declaration.actorId}"]`))).selectOption(declaration.weaponId);
+    await (await revealControl(page.locator(`[data-weapon-proc-refinement="${declaration.actorId}"]`))).selectOption(String(declaration.refinement));
+    await (await revealControl(page.locator(`[data-weapon-proc-physical-bonus="${declaration.actorId}"]`))).fill(String(declaration.physicalDamageBonus));
   }
-  await page.locator("#weaponProcModelControls > details > summary").filter({ hasText: "逐命中攻击标签声明" }).click();
+  await (await revealControl(page.locator("#weaponProcModelControls > details > summary").filter({ hasText: "逐命中攻击标签声明" }))).click();
   for (let index = 0; index < declarations.length; index++) {
-    await page.locator(`[data-weapon-proc-tag][data-proc-action-index="${index}"][data-proc-hit-index="0"]`).selectOption("normal");
+    await (await revealControl(page.locator(`[data-weapon-proc-tag][data-proc-action-index="${index}"][data-proc-hit-index="0"]`))).selectOption("normal");
   }
-  await page.locator("#team-apply").click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await (await revealControl(page.locator("#team-apply"))).click();
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.weaponProcModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: declarations });
   expect(saved.characters).toEqual(config.characters);
   expect(saved.rotation.map(action => action.hits?.map(hit => hit.attackTag))).toEqual([["normal"], ["normal"], ["normal"]]);
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#runButton").click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#runButton"))).click();
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig).toEqual(saved);
   expect(record.options.execution?.criticalSampling).toBe("seeded-random-v1");
   const result = record.result;
@@ -129,19 +131,19 @@ test("Team weapon proc declarations create independent single-target and HP-area
     ["atk", 1000, 0.6], ["hp", 20000, 0.7], ["hp", 20000, 0.7], ["hp", 10000, 0], ["hp", 10000, 0],
   ]);
 
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   await expect(page.locator("#weaponProcAudit [data-weapon-proc-id]")).toHaveCount(8);
   const horn = decisions[1]!;
   const edgeHit = children.find(event => event.actorId === "horn-owner" && event.targetId === "edge")!;
-  await page.locator(`#weaponProcAudit [data-weapon-proc-detail="${horn.id}"] > summary`).click();
-  await page.locator(`#weaponProcAudit [data-weapon-proc-hit-detail="${edgeHit.id}"] > summary`).click();
+  await (await revealControl(page.locator(`#weaponProcAudit [data-weapon-proc-detail="${horn.id}"] > summary`))).click();
+  await (await revealControl(page.locator(`#weaponProcAudit [data-weapon-proc-hit-detail="${edgeHit.id}"] > summary`))).click();
   await expect(page.locator(`#weaponProcAudit [data-weapon-proc-replay="${edgeHit.id}"]`)).toContainText("差值 0");
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${edgeHit.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${edgeHit.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(sourceTrace.length).toBeGreaterThan(0);
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   const restoredTrace = await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(restoredTrace).toEqual(sourceTrace);
@@ -149,27 +151,27 @@ test("Team weapon proc declarations create independent single-target and HP-area
   expect(captured.eventId).toBe(edgeHit.id);
   expect(captured.sourceResult).toEqual(result);
 
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "independent-weapon-proc-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "independent-weapon-proc-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record.wire)) });
+  await expectReadonlyRecord(page, record);
   await expect(page.locator("#randomSeedInput")).toHaveValue(record.options.randomSeed);
-  await waitForSimulation(page);
-  const replayed = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const replayed = await downloadSimulationRecord(page);
   expect(replayed.sourceConfig).toEqual(record.sourceConfig);
   expect(replayed.options).toEqual(record.options);
   expect(replayed.result).toEqual(record.result);
 
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#weaponProcModelEnabled")).toBeChecked();
-  await page.locator("#weaponProcModelEnabled").uncheck();
-  await page.locator("#team-apply").click();
+  await (await revealControl(page.locator("#weaponProcModelEnabled"))).uncheck();
+  await (await revealControl(page.locator("#team-apply"))).click();
   const disabled = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   const { weaponProcModel: _removed, ...withoutProcModel } = record.sourceConfig;
   expect(disabled).toEqual(withoutProcModel);
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#runButton").click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#runButton"))).click();
   await waitForSimulation(page);
-  const legacyShape = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const legacyShape = await downloadSimulationRecord(page);
   expect(legacyShape.sourceConfig.weaponProcModel).toBeUndefined();
   expect(legacyShape.result.weaponProcLog).toBeUndefined();
   expect(legacyShape.result.damageEvents).toHaveLength(3);

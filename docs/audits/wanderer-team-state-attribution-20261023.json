@@ -1,0 +1,1496 @@
+{
+  "status": "passed",
+  "failures": [],
+  "applications": 619,
+  "totalDamage": 29547632.435022317,
+  "nativeTotalDamage": 29547632.435022313,
+  "arithmeticNote": "Python compensated sum and original sequential JS sum can differ by a few nanounits; all 619 individual values are unchanged.",
+  "actors": {
+    "nicole": 847019.1448446361,
+    "durin": 4840322.575347667,
+    "faruzan": 1888537.7128709191,
+    "wanderer": 21971753.00195909
+  },
+  "skills": {
+    "nicole/Revelation: Uncreated Light": 191671.74798076434,
+    "nicole/Arcane Projection: Unity": 205040.68477791833,
+    "nicole/Revelation: Ladder of Divine Ascent": 450306.7120859534,
+    "durin/Confirmation of Purity": 148754.92183896585,
+    "durin/Arcane Projection": 428805.26231077017,
+    "durin/As the Light Shifts": 461766.2336167349,
+    "faruzan/Wind Realm of Nasamjnin": 116356.08922445634,
+    "faruzan/swirl-pyro": 41235.324749999956,
+    "durin/Dragon of White Flame": 3328936.238403631,
+    "faruzan/Fully-Charged Aimed Shot (Hurricane Arrow)": 129615.79810514042,
+    "faruzan/Arcane Projection": 90485.44036228207,
+    "faruzan/Arcane Projection: Unity": 67368.6964187148,
+    "faruzan/Pressurized Collapse": 852167.2729059616,
+    "faruzan/The Wind's Secret Ways": 591309.0911043653,
+    "wanderer/Hanega: Song of the Wind": 381210.9301831997,
+    "wanderer/swirl-pyro": 68709.04742999996,
+    "wanderer/Charge Attack (Windfavored)": 645125.3257107993,
+    "wanderer/Normal 0 (Windfavored)": 3415272.322534301,
+    "wanderer/Shugen: The Curtains’ Melancholic Sway": 5430984.296640682,
+    "wanderer/Normal 1 (Windfavored)": 3055944.5246126396,
+    "wanderer/Arcane Projection": 562584.1358960946,
+    "wanderer/Normal 2 (Windfavored)": 4802546.866410344,
+    "wanderer/Arcane Projection: Unity": 2062841.216498795,
+    "wanderer/Kyougen: Five Ceremonial Plays (Windfavored)": 1546534.3360422384,
+    "durin/Arcane Projection: Unity": 472059.91917756305
+  },
+  "seconds": 120,
+  "offFieldApplicationIds": [
+    86,
+    102,
+    108,
+    124,
+    169,
+    235,
+    308,
+    499,
+    822,
+    1075,
+    1188,
+    1521,
+    1853,
+    2118,
+    2189,
+    2503,
+    2820,
+    3117,
+    3136,
+    3453,
+    3619,
+    3798,
+    3835,
+    3901,
+    3921,
+    3938,
+    3960,
+    3963,
+    4020,
+    4029,
+    4053,
+    4059,
+    4077,
+    4135,
+    4250,
+    4267,
+    4448,
+    4771,
+    5142,
+    5206,
+    5217,
+    5478,
+    5810,
+    6147,
+    6244,
+    6465,
+    6772,
+    7083,
+    7250,
+    7257,
+    7416,
+    7491,
+    7523,
+    7540,
+    7558,
+    7561,
+    7618,
+    7627,
+    7651,
+    7657,
+    7679,
+    7737,
+    7851,
+    7868,
+    8049,
+    8371,
+    8743,
+    8807,
+    8818,
+    9078,
+    9410,
+    9747,
+    9843,
+    10065,
+    10371,
+    10683,
+    10849,
+    10856,
+    11015,
+    11183,
+    11371,
+    11438,
+    11468,
+    11480,
+    11497,
+    11521,
+    11526,
+    11529,
+    11594,
+    11620,
+    11626,
+    11644,
+    11694,
+    11757,
+    11814,
+    11831,
+    12012,
+    12344,
+    12706,
+    12770,
+    12781,
+    13042,
+    13364,
+    13709,
+    13806,
+    14027,
+    14335,
+    14657,
+    14815,
+    14822,
+    14981,
+    15148,
+    15327,
+    15401,
+    15431,
+    15443,
+    15468,
+    15490,
+    15493,
+    15550,
+    15559,
+    15583,
+    15589,
+    15607,
+    15657,
+    15781,
+    15798,
+    15979,
+    16302,
+    16673,
+    16737,
+    16748,
+    17009,
+    17341,
+    17678,
+    17774,
+    17996,
+    18302,
+    18614,
+    18781,
+    18788,
+    18947,
+    19022,
+    19054,
+    19071,
+    19089,
+    19092,
+    19149,
+    19158,
+    19182,
+    19188,
+    19210,
+    19260,
+    19374,
+    19391,
+    19582,
+    19907,
+    20281,
+    20345,
+    20356,
+    20618
+  ],
+  "swirlParentChains": 93,
+  "projections": [
+    {
+      "applicationId": 26,
+      "attackId": 2,
+      "frame": 45,
+      "owner": "nicole",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Revelation: Uncreated Light",
+      "damage": 81808.96329883329
+    },
+    {
+      "applicationId": 66,
+      "attackId": 5,
+      "frame": 254,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Confirmation of Purity",
+      "damage": 47326.54527949415
+    },
+    {
+      "applicationId": 143,
+      "attackId": 17,
+      "frame": 488,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 13043.347552610985
+    },
+    {
+      "applicationId": 144,
+      "attackId": 18,
+      "frame": 488,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 43477.82517536996
+    },
+    {
+      "applicationId": 710,
+      "attackId": 41,
+      "frame": 669,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "swirl-pyro",
+      "damage": 47406.2595645798
+    },
+    {
+      "applicationId": 1768,
+      "attackId": 66,
+      "frame": 852,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Normal 0 (Windfavored)",
+      "damage": 55629.31570172315
+    },
+    {
+      "applicationId": 1769,
+      "attackId": 67,
+      "frame": 852,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Normal 0 (Windfavored)",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 3826,
+      "attackId": 123,
+      "frame": 1291,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "damage": 196980.87272355004
+    },
+    {
+      "applicationId": 3985,
+      "attackId": 135,
+      "frame": 1547,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Dragon of White Flame",
+      "damage": 76295.7434062552
+    },
+    {
+      "applicationId": 4029,
+      "attackId": 138,
+      "frame": 1692,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "As the Light Shifts",
+      "damage": 118014.97979439076
+    },
+    {
+      "applicationId": 4109,
+      "attackId": 149,
+      "frame": 1809,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 20506.86997098198
+    },
+    {
+      "applicationId": 4659,
+      "attackId": 172,
+      "frame": 1990,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "swirl-pyro",
+      "damage": 47406.2595645798
+    },
+    {
+      "applicationId": 5065,
+      "attackId": 180,
+      "frame": 2060,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 5716,
+      "attackId": 198,
+      "frame": 2173,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Normal 0 (Windfavored)",
+      "damage": 55629.31570172315
+    },
+    {
+      "applicationId": 7122,
+      "attackId": 235,
+      "frame": 2428,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 7583,
+      "attackId": 258,
+      "frame": 2750,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Dragon of White Flame",
+      "damage": 76295.7434062552
+    },
+    {
+      "applicationId": 7627,
+      "attackId": 261,
+      "frame": 2894,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "As the Light Shifts",
+      "damage": 118014.97979439076
+    },
+    {
+      "applicationId": 7711,
+      "attackId": 272,
+      "frame": 3011,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 7960.741448362571
+    },
+    {
+      "applicationId": 8259,
+      "attackId": 295,
+      "frame": 3192,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "swirl-pyro",
+      "damage": 47406.2595645798
+    },
+    {
+      "applicationId": 8666,
+      "attackId": 303,
+      "frame": 3262,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 9316,
+      "attackId": 321,
+      "frame": 3375,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Normal 0 (Windfavored)",
+      "damage": 55629.31570172315
+    },
+    {
+      "applicationId": 10722,
+      "attackId": 358,
+      "frame": 3630,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 11521,
+      "attackId": 388,
+      "frame": 4025,
+      "owner": "nicole",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Revelation: Ladder of Divine Ascent",
+      "damage": 123231.72147908506
+    },
+    {
+      "applicationId": 11551,
+      "attackId": 394,
+      "frame": 4070,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Dragon of White Flame",
+      "damage": 76295.7434062552
+    },
+    {
+      "applicationId": 11668,
+      "attackId": 407,
+      "frame": 4332,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 7960.741448362571
+    },
+    {
+      "applicationId": 11757,
+      "attackId": 418,
+      "frame": 4392,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "The Wind's Secret Ways",
+      "damage": 23890.87124334483
+    },
+    {
+      "applicationId": 12222,
+      "attackId": 431,
+      "frame": 4513,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "swirl-pyro",
+      "damage": 47406.2595645798
+    },
+    {
+      "applicationId": 13280,
+      "attackId": 456,
+      "frame": 4696,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Normal 0 (Windfavored)",
+      "damage": 55629.31570172315
+    },
+    {
+      "applicationId": 13621,
+      "attackId": 465,
+      "frame": 4759,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Normal 2 (Windfavored)",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 15355,
+      "attackId": 517,
+      "frame": 5135,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "damage": 196980.87272355004
+    },
+    {
+      "applicationId": 15515,
+      "attackId": 529,
+      "frame": 5391,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Dragon of White Flame",
+      "damage": 76295.7434062552
+    },
+    {
+      "applicationId": 15559,
+      "attackId": 532,
+      "frame": 5536,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "As the Light Shifts",
+      "damage": 118014.97979439076
+    },
+    {
+      "applicationId": 15631,
+      "attackId": 543,
+      "frame": 5653,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 20506.86997098198
+    },
+    {
+      "applicationId": 16190,
+      "attackId": 566,
+      "frame": 5834,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "swirl-pyro",
+      "damage": 47406.2595645798
+    },
+    {
+      "applicationId": 16596,
+      "attackId": 574,
+      "frame": 5904,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 17247,
+      "attackId": 592,
+      "frame": 6017,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Normal 0 (Windfavored)",
+      "damage": 55629.31570172315
+    },
+    {
+      "applicationId": 18654,
+      "attackId": 629,
+      "frame": 6272,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    },
+    {
+      "applicationId": 19114,
+      "attackId": 652,
+      "frame": 6594,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Dragon of White Flame",
+      "damage": 76295.7434062552
+    },
+    {
+      "applicationId": 19158,
+      "attackId": 655,
+      "frame": 6738,
+      "owner": "durin",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "As the Light Shifts",
+      "damage": 118014.97979439076
+    },
+    {
+      "applicationId": 19234,
+      "attackId": 666,
+      "frame": 6855,
+      "owner": "faruzan",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "Fully-Charged Aimed Shot (Hurricane Arrow)",
+      "damage": 20506.86997098198
+    },
+    {
+      "applicationId": 19795,
+      "attackId": 689,
+      "frame": 7036,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-burst-hook",
+      "parentAbility": "swirl-pyro",
+      "damage": 47406.2595645798
+    },
+    {
+      "applicationId": 20203,
+      "attackId": 697,
+      "frame": 7106,
+      "owner": "wanderer",
+      "provider": "nicole",
+      "producer": "nicole-c1",
+      "parentAbility": "Shugen: The Curtains’ Melancholic Sway",
+      "damage": 185431.05233907717
+    }
+  ],
+  "recursiveProjectionParents": 6,
+  "durinA4": {
+    "ticks": 104,
+    "boosted": 58,
+    "unboosted": 46,
+    "consumers": [
+      {
+        "frame": 400,
+        "actionSequence": 7,
+        "tick": 1,
+        "stacksBefore": 10,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 458,
+        "actionSequence": 7,
+        "tick": 2,
+        "stacksBefore": 9,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 517,
+        "actionSequence": 7,
+        "tick": 3,
+        "stacksBefore": 8,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 576,
+        "actionSequence": 7,
+        "tick": 4,
+        "stacksBefore": 7,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 635,
+        "actionSequence": 7,
+        "tick": 5,
+        "stacksBefore": 6,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 694,
+        "actionSequence": 7,
+        "tick": 6,
+        "stacksBefore": 5,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 752,
+        "actionSequence": 7,
+        "tick": 7,
+        "stacksBefore": 4,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 811,
+        "actionSequence": 7,
+        "tick": 8,
+        "stacksBefore": 3,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 870,
+        "actionSequence": 7,
+        "tick": 9,
+        "stacksBefore": 2,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 929,
+        "actionSequence": 7,
+        "tick": 10,
+        "stacksBefore": 1,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 988,
+        "actionSequence": 7,
+        "tick": 11,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 1046,
+        "actionSequence": 7,
+        "tick": 12,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 1105,
+        "actionSequence": 7,
+        "tick": 13,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 1164,
+        "actionSequence": 7,
+        "tick": 14,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 1223,
+        "actionSequence": 7,
+        "tick": 15,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 2845.3556290476204
+      },
+      {
+        "frame": 1282,
+        "actionSequence": 7,
+        "tick": 16,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 2845.3556290476204
+      },
+      {
+        "frame": 1340,
+        "actionSequence": 7,
+        "tick": 17,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 1399,
+        "actionSequence": 7,
+        "tick": 18,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 1458,
+        "actionSequence": 7,
+        "tick": 19,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 1517,
+        "actionSequence": 7,
+        "tick": 20,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3959.282518286965
+      },
+      {
+        "frame": 1721,
+        "actionSequence": 44,
+        "tick": 1,
+        "stacksBefore": 10,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 1779,
+        "actionSequence": 44,
+        "tick": 2,
+        "stacksBefore": 9,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 1838,
+        "actionSequence": 44,
+        "tick": 3,
+        "stacksBefore": 8,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 1897,
+        "actionSequence": 44,
+        "tick": 4,
+        "stacksBefore": 7,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 1956,
+        "actionSequence": 44,
+        "tick": 5,
+        "stacksBefore": 6,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2015,
+        "actionSequence": 44,
+        "tick": 6,
+        "stacksBefore": 5,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2073,
+        "actionSequence": 44,
+        "tick": 7,
+        "stacksBefore": 4,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2132,
+        "actionSequence": 44,
+        "tick": 8,
+        "stacksBefore": 3,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2191,
+        "actionSequence": 44,
+        "tick": 9,
+        "stacksBefore": 2,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2250,
+        "actionSequence": 44,
+        "tick": 10,
+        "stacksBefore": 1,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2309,
+        "actionSequence": 44,
+        "tick": 11,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2367,
+        "actionSequence": 44,
+        "tick": 12,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2426,
+        "actionSequence": 44,
+        "tick": 13,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2485,
+        "actionSequence": 44,
+        "tick": 14,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 2544,
+        "actionSequence": 44,
+        "tick": 15,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 2603,
+        "actionSequence": 44,
+        "tick": 16,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 2661,
+        "actionSequence": 44,
+        "tick": 17,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 2720,
+        "actionSequence": 44,
+        "tick": 18,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3959.282518286965
+      },
+      {
+        "frame": 2923,
+        "actionSequence": 81,
+        "tick": 1,
+        "stacksBefore": 10,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 2981,
+        "actionSequence": 81,
+        "tick": 2,
+        "stacksBefore": 9,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 3040,
+        "actionSequence": 81,
+        "tick": 3,
+        "stacksBefore": 8,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3099,
+        "actionSequence": 81,
+        "tick": 4,
+        "stacksBefore": 7,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3158,
+        "actionSequence": 81,
+        "tick": 5,
+        "stacksBefore": 6,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3217,
+        "actionSequence": 81,
+        "tick": 6,
+        "stacksBefore": 5,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3275,
+        "actionSequence": 81,
+        "tick": 7,
+        "stacksBefore": 4,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3334,
+        "actionSequence": 81,
+        "tick": 8,
+        "stacksBefore": 3,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3393,
+        "actionSequence": 81,
+        "tick": 9,
+        "stacksBefore": 2,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3452,
+        "actionSequence": 81,
+        "tick": 10,
+        "stacksBefore": 1,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3511,
+        "actionSequence": 81,
+        "tick": 11,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3569,
+        "actionSequence": 81,
+        "tick": 12,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3628,
+        "actionSequence": 81,
+        "tick": 13,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3687,
+        "actionSequence": 81,
+        "tick": 14,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 3746,
+        "actionSequence": 81,
+        "tick": 15,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 2845.3556290476204
+      },
+      {
+        "frame": 3805,
+        "actionSequence": 81,
+        "tick": 16,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 2845.3556290476204
+      },
+      {
+        "frame": 3863,
+        "actionSequence": 81,
+        "tick": 17,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 3922,
+        "actionSequence": 81,
+        "tick": 18,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 3981,
+        "actionSequence": 81,
+        "tick": 19,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 4040,
+        "actionSequence": 81,
+        "tick": 20,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3959.282518286965
+      },
+      {
+        "frame": 4244,
+        "actionSequence": 118,
+        "tick": 1,
+        "stacksBefore": 10,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 4302,
+        "actionSequence": 118,
+        "tick": 2,
+        "stacksBefore": 9,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 4361,
+        "actionSequence": 118,
+        "tick": 3,
+        "stacksBefore": 8,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4420,
+        "actionSequence": 118,
+        "tick": 4,
+        "stacksBefore": 7,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4479,
+        "actionSequence": 118,
+        "tick": 5,
+        "stacksBefore": 6,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4538,
+        "actionSequence": 118,
+        "tick": 6,
+        "stacksBefore": 5,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4596,
+        "actionSequence": 118,
+        "tick": 7,
+        "stacksBefore": 4,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4655,
+        "actionSequence": 118,
+        "tick": 8,
+        "stacksBefore": 3,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4714,
+        "actionSequence": 118,
+        "tick": 9,
+        "stacksBefore": 2,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4773,
+        "actionSequence": 118,
+        "tick": 10,
+        "stacksBefore": 1,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4832,
+        "actionSequence": 118,
+        "tick": 11,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4890,
+        "actionSequence": 118,
+        "tick": 12,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 4949,
+        "actionSequence": 118,
+        "tick": 13,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5008,
+        "actionSequence": 118,
+        "tick": 14,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5067,
+        "actionSequence": 118,
+        "tick": 15,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 2845.3556290476204
+      },
+      {
+        "frame": 5126,
+        "actionSequence": 118,
+        "tick": 16,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 2845.3556290476204
+      },
+      {
+        "frame": 5184,
+        "actionSequence": 118,
+        "tick": 17,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 5243,
+        "actionSequence": 118,
+        "tick": 18,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 5302,
+        "actionSequence": 118,
+        "tick": 19,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 5361,
+        "actionSequence": 118,
+        "tick": 20,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3959.282518286965
+      },
+      {
+        "frame": 5565,
+        "actionSequence": 155,
+        "tick": 1,
+        "stacksBefore": 10,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 5623,
+        "actionSequence": 155,
+        "tick": 2,
+        "stacksBefore": 9,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 5682,
+        "actionSequence": 155,
+        "tick": 3,
+        "stacksBefore": 8,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5741,
+        "actionSequence": 155,
+        "tick": 4,
+        "stacksBefore": 7,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5800,
+        "actionSequence": 155,
+        "tick": 5,
+        "stacksBefore": 6,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5859,
+        "actionSequence": 155,
+        "tick": 6,
+        "stacksBefore": 5,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5917,
+        "actionSequence": 155,
+        "tick": 7,
+        "stacksBefore": 4,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 5976,
+        "actionSequence": 155,
+        "tick": 8,
+        "stacksBefore": 3,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6035,
+        "actionSequence": 155,
+        "tick": 9,
+        "stacksBefore": 2,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6094,
+        "actionSequence": 155,
+        "tick": 10,
+        "stacksBefore": 1,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6153,
+        "actionSequence": 155,
+        "tick": 11,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6211,
+        "actionSequence": 155,
+        "tick": 12,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6270,
+        "actionSequence": 155,
+        "tick": 13,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6329,
+        "actionSequence": 155,
+        "tick": 14,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6388,
+        "actionSequence": 155,
+        "tick": 15,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 6447,
+        "actionSequence": 155,
+        "tick": 16,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 6505,
+        "actionSequence": 155,
+        "tick": 17,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 6564,
+        "actionSequence": 155,
+        "tick": 18,
+        "stacksBefore": 0,
+        "multiplier": 1,
+        "snapshotAtk": 3959.282518286965
+      },
+      {
+        "frame": 6767,
+        "actionSequence": 192,
+        "tick": 1,
+        "stacksBefore": 10,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 6825,
+        "actionSequence": 192,
+        "tick": 2,
+        "stacksBefore": 9,
+        "multiplier": 1.75,
+        "snapshotAtk": 3659.282518286965
+      },
+      {
+        "frame": 6884,
+        "actionSequence": 192,
+        "tick": 3,
+        "stacksBefore": 8,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 6943,
+        "actionSequence": 192,
+        "tick": 4,
+        "stacksBefore": 7,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 7002,
+        "actionSequence": 192,
+        "tick": 5,
+        "stacksBefore": 6,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 7061,
+        "actionSequence": 192,
+        "tick": 6,
+        "stacksBefore": 5,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 7119,
+        "actionSequence": 192,
+        "tick": 7,
+        "stacksBefore": 4,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      },
+      {
+        "frame": 7178,
+        "actionSequence": 192,
+        "tick": 8,
+        "stacksBefore": 3,
+        "multiplier": 1.75,
+        "snapshotAtk": 3850.259167926965
+      }
+    ]
+  },
+  "scope": "Saved fixed-source Classic capture only. No new run, aura/collision simulation, full upstream ATK rederivation or game certification.",
+  "negativeProbes": [
+    {
+      "mutation": "boost exhausted A4 tick",
+      "rejected": true
+    },
+    {
+      "mutation": "move Swirl owner to provider",
+      "rejected": true
+    },
+    {
+      "mutation": "duplicate actual hit",
+      "rejected": true
+    },
+    {
+      "mutation": "swap same-frame Q/C1 events",
+      "rejected": true
+    }
+  ],
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceHashes": {
+    "internal/characters/nicole/cons.go": "b2e16ca7ada85446c2c37eead77aad0190a19e786302d5058a25366b576293ff",
+    "internal/characters/nicole/burst.go": "4c23d0f594b2309677629233fbe99ab1d3365899ba277aa472a2ef34fd67bf72",
+    "internal/characters/durin/asc.go": "8e7fd4a8022ce67b80955fa95ace832746e5ff9bb01a9320c5482c14b273d972",
+    "internal/characters/durin/burst.go": "1677ee3803d7da93ce283a77188eff52c0bb755c8aa6ad1cb25514315a068516",
+    "internal/characters/durin/zz_durin.dm.go": "56cf2f82f6c60d8ad8810fc9deb3d833a1fa2d67140119493a04282bb80c8cdc"
+  },
+  "captureSha256": "5d737b64f5e5f73fe22508a3bc0ad38e50525be9c74b875a482e0936b89587e8"
+}

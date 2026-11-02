@@ -1,0 +1,20 @@
+=== RUN   TestIansanC2RejectsOffFieldRecipient
+--- PASS: TestIansanC2RejectsOffFieldRecipient (0.00s)
+=== RUN   TestIansanC2ActiveRecipientAndOwner
+=== RUN   TestIansanC2ActiveRecipientAndOwner/C2
+=== RUN   TestIansanC2ActiveRecipientAndOwner/C6
+--- PASS: TestIansanC2ActiveRecipientAndOwner (0.00s)
+    --- PASS: TestIansanC2ActiveRecipientAndOwner/C2 (0.00s)
+    --- PASS: TestIansanC2ActiveRecipientAndOwner/C6 (0.00s)
+=== RUN   TestIansanC2RecipientUnlocks
+--- PASS: TestIansanC2RecipientUnlocks (0.00s)
+=== RUN   TestIansanC2RecipientA1ExpiryAndExit
+=== RUN   TestIansanC2RecipientA1ExpiryAndExit/existingA1ExpiryGate
+=== RUN   TestIansanC2RecipientA1ExpiryAndExit/actualNightsoulExitRemovesA1
+--- PASS: TestIansanC2RecipientA1ExpiryAndExit (0.00s)
+    --- PASS: TestIansanC2RecipientA1ExpiryAndExit/existingA1ExpiryGate (0.00s)
+    --- PASS: TestIansanC2RecipientA1ExpiryAndExit/actualNightsoulExitRemovesA1 (0.00s)
+=== RUN   TestIansanC2RecipientPreservesAlreadyMadeSnapshot
+--- PASS: TestIansanC2RecipientPreservesAlreadyMadeSnapshot (0.00s)
+PASS
+ok  	github.com/genshinsim/gcsim/internal/characters/iansan	0.005s

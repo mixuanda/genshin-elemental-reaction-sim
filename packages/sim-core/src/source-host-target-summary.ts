@@ -1,5 +1,6 @@
 import { expr, TraceBuilder, traceInput, type CalculationTraceNode, type TraceInput } from "./calculation-trace";
 import type { SourceHostApplication, SourceHostNativeResult, SourceHostTargetScene } from "./source-host-wire";
+import { sourceHostFixedDamageWindow } from "./source-host-observation-window";
 
 export interface SourceHostTargetSummaryMetrics {
   rawDamage: number;
@@ -27,6 +28,8 @@ export interface SourceHostTargetSummary {
   scope: "all-applications" | "selected-applications";
   showRates: boolean;
   applicationIds: number[];
+  excludedApplicationIds: number[];
+  excludedAppliedDamage: number;
   damageMode?: boolean;
   primaryTargetIndex?: number;
   primaryTargetKey?: number;
@@ -114,7 +117,10 @@ export function summarizeSourceHostTargets(
     const unknown = [...selectedIds].filter(id => !seenApplicationIds.has(id));
     if (unknown.length) throw new Error(`来源目标汇总引用了不存在的应用记录：${unknown.join(", " )}。`);
   }
-  const applications = selectedIds ? allApplications.filter(application => selectedIds.has(application.id)) : allApplications;
+  const scopedApplications = selectedIds ? allApplications.filter(application => selectedIds.has(application.id)) : allApplications;
+  const window = sourceHostFixedDamageWindow(result);
+  const applications = window ? scopedApplications.filter(application => application.frame >= 0 && application.frame < window.endFrame) : scopedApplications;
+  const excludedApplications = window ? scopedApplications.filter(application => application.frame < 0 || application.frame >= window.endFrame) : [];
   const showRates = options.showRates ?? true;
   const scene = result.targetScene;
   const receiptByKey = new Map<number, TargetReceipt>();
@@ -211,6 +217,8 @@ export function summarizeSourceHostTargets(
     scope: selectedIds ? "selected-applications" : "all-applications",
     showRates,
     applicationIds: applications.map(application => application.id),
+    excludedApplicationIds: excludedApplications.map(application => application.id),
+    excludedAppliedDamage: excludedApplications.reduce((sum, application) => sum + application.appliedDamage, 0),
     ...(scene ? { damageMode: scene.damageMode, primaryTargetIndex: scene.primaryTargetIndex, primaryTargetKey: primary!.targetKey,
       initialDefaultTargetKey: scene.initialDefaultTargetKey } : {}),
     ...(result.observationWindow ? { observationWindow: result.observationWindow } : {}),

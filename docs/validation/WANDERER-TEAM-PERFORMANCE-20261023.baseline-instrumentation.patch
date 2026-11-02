@@ -1,0 +1,148 @@
+diff --git a/apps/web/src/source-host-worker-client.ts b/apps/web/src/source-host-worker-client.ts
+index 22d8ffc..55e9bfa 100644
+--- a/apps/web/src/source-host-worker-client.ts
++++ b/apps/web/src/source-host-worker-client.ts
+@@ -4,6 +4,7 @@ import type { SourceHostReexecutionReceipt } from "../../../packages/sim-core/sr
+ import { SOURCE_HOST_COMMIT, SOURCE_HOST_STELLAR_COMMIT } from "../../../packages/sim-core/src/source-host-wire";
+ import type { SourceHostWorkerRequest, SourceHostBatchRun } from "./source-host-batch";
+ import type { SourceHostStartupRun } from "./source-host-startup-analysis";
++import type { SourceHostFormulaProfile } from "../../../packages/sim-core/src/source-host-formula";
+ 
+ export type SourceHostWorkerStage = "request" | "load-manifest" | "load-wasm" | "instantiate-wasm" | "execute" | "batch" | "reexecution" | "response" | "worker";
+ export type SourceHostFailureKind = "runtime-error" | "worker-error" | "message-error" | "timeout" | "post-message-error";
+@@ -37,7 +38,7 @@ export type SourceHostWorkerMessage =
+   | { type: "monte-trial"; trial: import("./source-host-monte-carlo").SourceMonteTrial }
+   | { type: "monte-done" }
+   | { type: "progress"; message: string; stage?: SourceHostWorkerStage }
+-  | { type: "result"; result: SourceHostResult; elapsedMs: number; timing?: { setupMs: number; nativeMs: number; parseMs: number; validateMs: number; postedAt: number; workerBootstrapMs?: number } }
++  | { type: "result"; result: SourceHostResult; elapsedMs: number; timing?: { setupMs: number; nativeMs: number; parseMs: number; validateMs: number; postedAt: number; workerBootstrapMs?: number; requestSerializeMs?: number; nativeResultChars?: number; formulaProfile?: SourceHostFormulaProfile } }
+   | { type: "reexecution-result"; receipt: SourceHostReexecutionReceipt; elapsedMs: number }
+   | { type: "batch-result"; runs: SourceHostBatchRun[]; elapsedMs: number }
+   | { type: "startup-result"; startupRuns: SourceHostStartupRun[]; elapsedMs: number }
+diff --git a/apps/web/src/source-host-worker.ts b/apps/web/src/source-host-worker.ts
+index f6b1534..428488d 100644
+--- a/apps/web/src/source-host-worker.ts
++++ b/apps/web/src/source-host-worker.ts
+@@ -1,5 +1,5 @@
+ import { summarizeSourceMonteTrial } from "./source-host-monte-carlo";
+-import { createSourceHostFormulaResolver } from "../../../packages/sim-core/src/source-host-formula";
++import { createSourceHostFormulaResolver, type SourceHostFormulaProfile } from "../../../packages/sim-core/src/source-host-formula";
+ import { createSourceHostResult } from "../../../packages/sim-core/src/source-host-capture";
+ import { sourceHostReexecutionRequest, assertSourceHostReexecutionArtifact, verifySourceHostReexecution, type SourceHostReexecutionReceipt } from "../../../packages/sim-core/src/source-host-reexecution";
+ import { assertSourceHostTargetPhases } from "../../../packages/sim-core/src/source-host-target-phase";
+@@ -62,13 +62,17 @@ scope.onmessage = event => { void (async () => {
+     });
+     progress("execute", "正在运行角色、装备与反应事件；伤害由共享公式结算…");
+     const started = performance.now();
+-    let lastTiming = { nativeMs: 0, parseMs: 0, validateMs: 0 };
++    let lastTiming: { nativeMs: number; parseMs: number; validateMs: number; requestSerializeMs: number; nativeResultChars: number; formulaProfile?: SourceHostFormulaProfile } = {
++      nativeMs: 0, parseMs: 0, validateMs: 0, requestSerializeMs: 0, nativeResultChars: 0,
++    };
+     const execute = (request: SourceHostRunRequest): SourceHostResult => {
+       stage = event.data.jobs || event.data.startupJobs || event.data.monteCarloJobs ? "batch" : target ? "reexecution" : "execute";
+       if ((request.hostVariant === "stellar") !== stellar) throw new Error("一次对照必须使用同一来源执行器。");
+-      const resolver = createSourceHostFormulaResolver();
++      const resolver = createSourceHostFormulaResolver({ profile: new URL(location.href).searchParams.get("gidps-profile") === "1" });
++      const serializeStart = performance.now();
++      const requestText = JSON.stringify(request);
+       const nativeStart = performance.now();
+-      const nativeText = runtime.gidpsSourceHostRun(JSON.stringify(request), resolver.resolve);
++      const nativeText = runtime.gidpsSourceHostRun(requestText, resolver.resolve);
+       const parseStart = performance.now();
+       const native = JSON.parse(nativeText) as unknown;
+       const validateStart = performance.now();
+@@ -77,7 +81,9 @@ scope.onmessage = event => { void (async () => {
+         throw new Error(native.error);
+       }
+       const result = createSourceHostResult(native, resolver.calculations);
+-      lastTiming = { nativeMs: parseStart - nativeStart, parseMs: validateStart - parseStart, validateMs: performance.now() - validateStart };
++      lastTiming = { nativeMs: parseStart - nativeStart, parseMs: validateStart - parseStart, validateMs: performance.now() - validateStart,
++        requestSerializeMs: nativeStart - serializeStart, nativeResultChars: nativeText.length,
++        ...(resolver.profile ? { formulaProfile: resolver.profile } : {}) };
+       if (result.sourceCommit !== expectedCommit) throw new Error("执行结果与所选来源版本不匹配。");
+       if ((result.executionMode ?? "auto-wait") !== (request.executionMode ?? "auto-wait")) throw new Error("执行器未采用请求的动作执行模式，请重新构建对应来源。");
+       if (request.stopAtDuration === true && result.observationWindow?.policy !== "duration-or-native") throw new Error("执行器未采用请求的观察时长截止策略，请重新构建对应来源。");
+diff --git a/packages/sim-core/src/source-host-formula.ts b/packages/sim-core/src/source-host-formula.ts
+index 53405f3..6487652 100644
+--- a/packages/sim-core/src/source-host-formula.ts
++++ b/packages/sim-core/src/source-host-formula.ts
+@@ -1227,13 +1227,29 @@ export function resolveSourceHostRequest(raw: unknown, components: SourceHostCal
+   return result;
+ }
+ 
++export interface SourceHostFormulaProfile {
++  calls: number;
++  requestChars: number;
++  parseMs: number;
++  calculateMs: number;
++  captureMs: number;
++  responseMs: number;
++  totalMs: number;
++  traceNodeReferences: number;
++  byKind: Record<string, { calls: number; totalMs: number }>;
++}
++
+ /** One resolver per run. The returned number is used by Go for actual callbacks/HP. */
+-export function createSourceHostFormulaResolver(options: { memoize?: boolean } = {}) {
++export function createSourceHostFormulaResolver(options: { memoize?: boolean; profile?: boolean } = {}) {
+   const calculations: SourceHostCalculation[] = [];
+   const records = new Map<number, SourceHostCalculationRecord>();
+   const drainMemo = new Map<number, SourceHostCalculation>();
+   const memo = new WeakMap<object, SourceHostCalculation>();
+   const frozen = new WeakSet<object>();
++  const profile: SourceHostFormulaProfile | undefined = options.profile ? {
++    calls: 0, requestChars: 0, parseMs: 0, calculateMs: 0, captureMs: 0,
++    responseMs: 0, totalMs: 0, traceNodeReferences: 0, byKind: {},
++  } : undefined;
+   const freeze = (value: unknown): void => {
+     if (value === null || typeof value !== "object" || frozen.has(value) || isImmutableTraceNode(value)) return;
+     frozen.add(value);
+@@ -1243,12 +1259,20 @@ export function createSourceHostFormulaResolver(options: { memoize?: boolean } =
+   if (options.memoize !== false) liveResolverMemos.set(records, memo);
+   return {
+     calculations,
++    profile,
+     resolve(requestJson: string): string {
+       let id: number | null = null;
++      let kind = "error";
++      const started = profile ? performance.now() : 0;
+       try {
+         const request: unknown = JSON.parse(requestJson);
++        const parsed = profile ? performance.now() : 0;
++        if (profile) profile.parseMs += parsed - started;
+         if (typeof request === "object" && request !== null && "id" in request && typeof request.id === "number") id = request.id;
+         const result = resolveSourceHostRequest(request, records, { drainMemo });
++        const calculated = profile ? performance.now() : 0;
++        if (profile) profile.calculateMs += calculated - parsed;
++        kind = result.request.kind;
+         if (records.has(result.request.id)) throw new Error(`重复来源计算 ID ${result.request.id}`);
+         if (options.memoize !== false) {
+           freeze(result);
+@@ -1256,9 +1280,26 @@ export function createSourceHostFormulaResolver(options: { memoize?: boolean } =
+         }
+         calculations.push(result);
+         records.set(result.request.id, result);
+-        return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });
++        const captured = profile ? performance.now() : 0;
++        const response = JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id: result.request.id, value: result.value });
++        if (profile) {
++          profile.captureMs += captured - calculated;
++          profile.responseMs += performance.now() - captured;
++          profile.traceNodeReferences += result.trace.length;
++        }
++        return response;
+       } catch (error) {
+         return JSON.stringify({ protocol: SOURCE_HOST_PROTOCOL, id, error: error instanceof Error ? error.message : String(error) });
++      } finally {
++        if (profile) {
++          const elapsed = performance.now() - started;
++          profile.calls++;
++          profile.requestChars += requestJson.length;
++          profile.totalMs += elapsed;
++          const group = profile.byKind[kind] ??= { calls: 0, totalMs: 0 };
++          group.calls++;
++          group.totalMs += elapsed;
++        }
+       }
+     },
+   };

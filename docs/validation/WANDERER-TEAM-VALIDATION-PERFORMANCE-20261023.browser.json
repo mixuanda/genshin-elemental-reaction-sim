@@ -1,0 +1,194 @@
+{
+  "status": "passed",
+  "gitHead": "d86563f403792b6b6fd3ccd51c7ec5073861e41b",
+  "startedAt": "2026-10-23T19:04:04.258Z",
+  "endedAt": "2026-10-23T19:05:08.006Z",
+  "actualNativeRuns": 1,
+  "applicationPatchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "browserTiming": {
+    "setupMs": 444.6000000089407,
+    "nativeMs": 23854,
+    "parseMs": 225.20000000298023,
+    "validateMs": 3673.4000000059605,
+    "requestSerializeMs": 0,
+    "nativeResultChars": 49677378,
+    "formulaProfile": {
+      "calls": 19602,
+      "requestChars": 40644264,
+      "parseMs": 326.60000029206276,
+      "calculateMs": 10303.400000795722,
+      "captureMs": 1981.0999999791384,
+      "responseMs": 37.000000178813934,
+      "totalMs": 12653.700001299381,
+      "traceNodeReferences": 557747,
+      "byKind": {
+        "character-modifier": {
+          "calls": 9894,
+          "totalMs": 2201.200000077486
+        },
+        "artifact-scalar": {
+          "calls": 8023,
+          "totalMs": 1442.900000989437
+        },
+        "character-cooldown": {
+          "calls": 92,
+          "totalMs": 134.29999995231628
+        },
+        "character-shield": {
+          "calls": 6,
+          "totalMs": 77.79999999701977
+        },
+        "character-energy": {
+          "calls": 647,
+          "totalMs": 1367.7000001072884
+        },
+        "damage": {
+          "calls": 610,
+          "totalMs": 5248.000000089407
+        },
+        "character-flat": {
+          "calls": 12,
+          "totalMs": 62.79999999701977
+        },
+        "character-additive": {
+          "calls": 225,
+          "totalMs": 1783.6000000983477
+        },
+        "transformative-base": {
+          "calls": 93,
+          "totalMs": 335.3999999910593
+        }
+      }
+    },
+    "postedAt": 1792782276628.1,
+    "workerBootstrapMs": 301.79999999701977,
+    "transferAndQueueMs": 833.39990234375,
+    "renderMs": 988.0999999940395,
+    "preRenderMs": 2.4000000059604645,
+    "elapsedMs": 27753.09999999404,
+    "userClickAt": 1792782248128,
+    "resultRenderedAt": 1792782278451.4001,
+    "paintedAt": 1792782278578.5,
+    "clickToRenderMs": 30323.400146484375,
+    "clickToPaintMs": 30450.5
+  },
+  "worker": "real WebAssembly and shared TS callbacks, pass-through observer only",
+  "browser": "154.0.8037.57",
+  "seed": "20261022",
+  "sampleKind": "one random seeded trial, not an estimate of the population mean",
+  "frames": 7200,
+  "hits": 610,
+  "total": 27069474.337322712,
+  "dps": 225578.9528110226,
+  "byActor": {
+    "nicole": 921151.0747939858,
+    "durin": 4621465.1979512945,
+    "faruzan": 1851300.261779438,
+    "wanderer": 19675557.80279801
+  },
+  "byActorAbility": {
+    "nicole|Revelation: Uncreated Light": 191671.74798076434,
+    "nicole|Arcane Projection: Unity": 328272.4062570034,
+    "nicole|Revelation: Ladder of Divine Ascent": 401206.9205562181,
+    "durin|Confirmation of Purity": 148754.92183896585,
+    "durin|Arcane Projection": 428805.26231077017,
+    "durin|As the Light Shifts": 461766.2336167349,
+    "faruzan|Wind Realm of Nasamjnin": 116356.08922445634,
+    "faruzan|swirl-pyro": 40150.18462499996,
+    "durin|Dragon of White Flame": 3228093.84080165,
+    "faruzan|Fully-Charged Aimed Shot (Hurricane Arrow)": 192476.75214063784,
+    "faruzan|Arcane Projection": 103031.56888490147,
+    "faruzan|Arcane Projection: Unity": 128911.58074157106,
+    "faruzan|Pressurized Collapse": 880484.9794058737,
+    "faruzan|The Wind's Secret Ways": 389889.10675699933,
+    "wanderer|Hanega: Song of the Wind": 335933.215818795,
+    "wanderer|swirl-pyro": 69713.93294999996,
+    "wanderer|Charge Attack (Windfavored)": 537976.2972096285,
+    "wanderer|Normal 0 (Windfavored)": 3013271.527989731,
+    "wanderer|Shugen: The Curtains’ Melancholic Sway": 4575923.896390347,
+    "wanderer|Normal 1 (Windfavored)": 2796118.799776033,
+    "wanderer|Arcane Projection": 511825.6817640463,
+    "wanderer|Normal 2 (Windfavored)": 4018077.992389938,
+    "wanderer|Arcane Projection: Unity": 1533536.7735166259,
+    "wanderer|Kyougen: Five Ceremonial Plays (Windfavored)": 2283179.6849928997,
+    "durin|Arcane Projection: Unity": 354044.9393831723
+  },
+  "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+  "resultSha256": "e122d548b348db78d27567056755d629ab847cfab02bc9abdcca07e670d14e04",
+  "reopenedSha256": "e122d548b348db78d27567056755d629ab847cfab02bc9abdcca07e670d14e04",
+  "clickToResultMs": 30482,
+  "workerReceipt": {
+    "type": "result",
+    "elapsedMs": 27753.09999999404,
+    "timing": {
+      "setupMs": 444.6000000089407,
+      "nativeMs": 23854,
+      "parseMs": 225.20000000298023,
+      "validateMs": 3673.4000000059605,
+      "requestSerializeMs": 0,
+      "nativeResultChars": 49677378,
+      "formulaProfile": {
+        "calls": 19602,
+        "requestChars": 40644264,
+        "parseMs": 326.60000029206276,
+        "calculateMs": 10303.400000795722,
+        "captureMs": 1981.0999999791384,
+        "responseMs": 37.000000178813934,
+        "totalMs": 12653.700001299381,
+        "traceNodeReferences": 557747,
+        "byKind": {
+          "character-modifier": {
+            "calls": 9894,
+            "totalMs": 2201.200000077486
+          },
+          "artifact-scalar": {
+            "calls": 8023,
+            "totalMs": 1442.900000989437
+          },
+          "character-cooldown": {
+            "calls": 92,
+            "totalMs": 134.29999995231628
+          },
+          "character-shield": {
+            "calls": 6,
+            "totalMs": 77.79999999701977
+          },
+          "character-energy": {
+            "calls": 647,
+            "totalMs": 1367.7000001072884
+          },
+          "damage": {
+            "calls": 610,
+            "totalMs": 5248.000000089407
+          },
+          "character-flat": {
+            "calls": 12,
+            "totalMs": 62.79999999701977
+          },
+          "character-additive": {
+            "calls": 225,
+            "totalMs": 1783.6000000983477
+          },
+          "transformative-base": {
+            "calls": 93,
+            "totalMs": 335.3999999910593
+          }
+        }
+      },
+      "postedAt": 1792782276628.1,
+      "workerBootstrapMs": 301.79999999701977
+    },
+    "receivedAt": 1792782277433,
+    "seed": "20261022",
+    "actualHits": 610,
+    "artifact": {
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "wasmBytes": 47084886
+    }
+  },
+  "configSha256": "4fed915e08373c9a25cdb28ef7fe0a9c63f36f5cae39808aa2f581c2c4c93059",
+  "publicPresetClickToRealResult": true,
+  "savedNewResultReopenedWithoutAnotherNativeRun": true,
+  "frameAndActorCurveConserved": true,
+  "errors": []
+}

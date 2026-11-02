@@ -1,0 +1,14 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ ✓ apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Kuki's Q cast HP, keeps the 50% boundary exact, and never guesses a duration 93ms
+ ✓ apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > does not ask an independent early Q hit for later duration or stable multi-hit conditions 11ms
+ ✓ apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Kuki's complete ring and C6 EM accounting without inventing HP-triggered history 48ms
+ ✓ apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links Charlotte's actual team count, accepts a real zero and keeps mark conditions scoped to a full cast 36ms
+ ✓ apps/web/src/calculator-conditional-cast-requirements.test.ts > conditional character casts expose the model's actual missing inputs > links only the selected Charlotte C2 snapshot and requires white ATK only for an actual difference 12ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  19:53:08
+   Duration  9.64s (transform 7.08s, setup 0ms, import 9.32s, tests 202ms, environment 0ms)
+

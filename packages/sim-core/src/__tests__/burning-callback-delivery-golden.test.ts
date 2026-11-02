@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   assertTrustedSimulationResult,
   canonicalStringify,
@@ -19,6 +21,8 @@ import {
   type SimConfigV144,
   type SimulationResult,
   type SimulationRunManifestV144,
+  type TargetPhaseV3Delivery,
+  type TargetPhaseV3TargetTask,
   type TargetPhaseV3DeliveryAttempt,
   type TargetPhaseV3LogEntry,
   type TargetStateTimelinePoint,
@@ -29,6 +33,7 @@ import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
+import { parseSimulationHit } from "../calculator-bridge";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -345,13 +350,10 @@ function projectAttempt(
   };
 }
 
-/**
- * The callback fixture is an exact 1.44 wire. Current simulations run under
- * 1.47 and bind all fixed mechanics profiles in config and run manifest, so
- * compare their unchanged callback semantics through an explicit frozen-1.44
- * identity projection instead of rewriting the historical fixture.
+/** Only genuine pre-marker historical input may enter the frozen 1.44 projection.
+ * The current canonical identity is validated separately, never relabelled.
  */
-function projectCurrentConfigToFrozenV144(config: SimConfig): SimConfigV144 {
+function projectHistoricalConfigToFrozenV144(config: SimConfig): SimConfigV144 {
   const {
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
@@ -387,7 +389,7 @@ function projectCurrentConfigToFrozenV144(config: SimConfig): SimConfigV144 {
   });
 }
 
-function projectCurrentManifestToFrozenV144(
+function projectHistoricalManifestToFrozenV144(
   result: SimulationResult,
   frozenConfig: SimConfigV144,
 ): SimulationRunManifestV144 {
@@ -408,8 +410,8 @@ function projectCurrentManifestToFrozenV144(
 }
 
 function projectBurningCallbackScenario(result: SimulationResult) {
-  const frozenConfig = projectCurrentConfigToFrozenV144(result.config);
-  const frozenManifest = projectCurrentManifestToFrozenV144(
+  const frozenConfig = projectHistoricalConfigToFrozenV144(result.config);
+  const frozenManifest = projectHistoricalManifestToFrozenV144(
     result,
     frozenConfig,
   );
@@ -641,7 +643,7 @@ function serializeJsonFixture(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-function byteSha256(value: string): string {
+function byteSha256(value: string | Uint8Array): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
@@ -786,100 +788,328 @@ function expectCallbackBacklinks(
   );
 }
 
-describe("Burning callback delivery 1.44 Golden", () => {
-  it("freezes callback provenance, registration-order attempts, backlinks, F+1 Overload, and deterministic identity", () => {
-    const config = makeBurningCallbackGoldenConfig();
-    const first = simulate(config, { critMode: "noCrit" });
-    const repeated = simulate(config, {
-      critMode: "noCrit",
-    });
-    expect(repeated).toStrictEqual(first);
-    expect(simulationResultSchema.parse(first)).toEqual(first);
-    expect(assertTrustedSimulationResult(first)).toBe(first);
-    const frozenV149TargetPhaseFacet = projectSimulationResultV150ToV149(
-      projectSimulationResultV151ToV150(
-        projectSimulationResultV152ToV151(
-          projectSimulationResultV153ToV152(first),
-        ),
+function expectHistoricalBurningGolden(): void {
+  const first = historicalBurningResult();
+  const repeated = historicalBurningResult();
+  expect(repeated).toStrictEqual(first);
+  expect(simulationResultSchema.parse(first)).toEqual(first);
+  expect(assertTrustedSimulationResult(first)).toBe(first);
+  const frozenV149TargetPhaseFacet = projectSimulationResultV150ToV149(
+    projectSimulationResultV151ToV150(
+      projectSimulationResultV152ToV151(
+        projectSimulationResultV153ToV152(first),
       ),
-    );
-    expect(
-      targetPhaseV3ResultReferencesSchema.safeParse(frozenV149TargetPhaseFacet)
-        .success,
-    ).toBe(true);
+    ),
+  );
+  expect(
+    targetPhaseV3ResultReferencesSchema.safeParse(frozenV149TargetPhaseFacet)
+      .success,
+  ).toBe(true);
 
-    const scenario = projectBurningCallbackScenario(first);
-    const generated: BurningCallbackGoldenFixture = {
-      fixtureVersion: "burning-callback-delivery-1.44",
-      description:
-        "Deterministic exact-1.44 target-phase-v3 Golden for synchronous multi-target Burning callback delivery and a positive-delay nested Overload child.",
-      provenance: {
-        mechanicsDataStatus: "fixed-gcsim-provisional",
-        referenceProject: "genshinsim/gcsim",
-        referenceCommit: "ef41805d855a60b9e1035293584b85c085dc69e7",
-        officialServerTruth: false,
-        completeGcsimParity: false,
-        capturedAt: "2026-07-31",
-        scope:
-          "Burning owner callback order, explicit cross-target delivery attempts, cross-log backlinks, and separation of zero-delay callback work from positive-delay child reactions.",
-        limitations: [
-          "This fixture is fixed-code regression evidence, not an official server measurement.",
-          "The pinned gcsim reference informs the provisional callback boundary; this fixture does not claim complete gcsim or game-mechanics parity.",
-          "Only the modeled Aura-v9, target-phase-v3, and deferred positive-delay delivery boundary is frozen here.",
-        ],
-      },
-      commonConfig: {
-        schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
-        engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
-        reactionEngine: { mode: "aura-v9" },
-        targetClockModel: { mode: "disabled" },
-        targetTaskModel: { mode: "target-phase-v3" },
-        reactionDeliveryModel: {
-          mode: "deferred-event-heap-v1",
-        },
-        timeline: { mode: "legal-frame-v1", fps: 60 },
-      },
-      scenario,
-      scenarioSha256: semanticHash(scenario),
-    };
-    const updateRequested = process.env[UPDATE_FLAG] === "1";
-    const generatedBytes = serializeJsonFixture(generated);
-    const frozenBytes = updateRequested
-      ? generatedBytes
-      : readFileSync(FIXTURE_URL, "utf8");
-    const fixture = updateRequested
-      ? generated
-      : (JSON.parse(frozenBytes) as BurningCallbackGoldenFixture);
-
-    expect(fixture).toStrictEqual(generated);
-    expect(fixture.provenance).toMatchObject({
+  const scenario = projectBurningCallbackScenario(first);
+  const generated: BurningCallbackGoldenFixture = {
+    fixtureVersion: "burning-callback-delivery-1.44",
+    description:
+      "Deterministic exact-1.44 target-phase-v3 Golden for synchronous multi-target Burning callback delivery and a positive-delay nested Overload child.",
+    provenance: {
       mechanicsDataStatus: "fixed-gcsim-provisional",
+      referenceProject: "genshinsim/gcsim",
       referenceCommit: "ef41805d855a60b9e1035293584b85c085dc69e7",
       officialServerTruth: false,
       completeGcsimParity: false,
-    });
-    expect(semanticHash(fixture.scenario)).toBe(fixture.scenarioSha256);
-    expect(fixture.scenario.identity).toMatchObject({
-      schemaVersion: "1.44.0",
-      engineVersion: "1.44.0-burning-callback-delivery",
-      dataVersion: "burning-callback-delivery-provisional-1",
-      randomSeed: "burning-callback-delivery-golden-seed",
-    });
-    expectCallbackBacklinks(fixture.scenario);
-    expect(fixture.scenario.summary.damageCurveEnd).toMatchObject({
-      cumulativeDamage: fixture.scenario.summary.totalDamage,
-    });
-    expect(
-      byteSha256(generatedBytes),
-      "generated Burning callback fixture bytes",
-    ).toBe(FROZEN_FIXTURE_SHA256);
-    expect(
-      byteSha256(frozenBytes),
-      "frozen Burning callback fixture bytes",
-    ).toBe(FROZEN_FIXTURE_SHA256);
+      capturedAt: "2026-07-31",
+      scope:
+        "Burning owner callback order, explicit cross-target delivery attempts, cross-log backlinks, and separation of zero-delay callback work from positive-delay child reactions.",
+      limitations: [
+        "This fixture is fixed-code regression evidence, not an official server measurement.",
+        "The pinned gcsim reference informs the provisional callback boundary; this fixture does not claim complete gcsim or game-mechanics parity.",
+        "Only the modeled Aura-v9, target-phase-v3, and deferred positive-delay delivery boundary is frozen here.",
+      ],
+    },
+    commonConfig: {
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+      reactionEngine: { mode: "aura-v9" },
+      targetClockModel: { mode: "disabled" },
+      targetTaskModel: { mode: "target-phase-v3" },
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1",
+      },
+      timeline: { mode: "legal-frame-v1", fps: 60 },
+    },
+    scenario,
+    scenarioSha256: semanticHash(scenario),
+  };
+  const updateRequested = process.env[UPDATE_FLAG] === "1";
+  const generatedBytes = serializeJsonFixture(generated);
+  const frozenBytes = updateRequested
+    ? generatedBytes
+    : readFileSync(FIXTURE_URL, "utf8");
+  const fixture = updateRequested
+    ? generated
+    : (JSON.parse(frozenBytes) as BurningCallbackGoldenFixture);
 
-    if (updateRequested) {
-      atomicCreateJsonFixture(FIXTURE_URL, generated);
+  expect(fixture).toStrictEqual(generated);
+  expect(fixture.provenance).toMatchObject({
+    mechanicsDataStatus: "fixed-gcsim-provisional",
+    referenceCommit: "ef41805d855a60b9e1035293584b85c085dc69e7",
+    officialServerTruth: false,
+    completeGcsimParity: false,
+  });
+  expect(semanticHash(fixture.scenario)).toBe(fixture.scenarioSha256);
+  expect(fixture.scenario.identity).toMatchObject({
+    schemaVersion: "1.44.0",
+    engineVersion: "1.44.0-burning-callback-delivery",
+    dataVersion: "burning-callback-delivery-provisional-1",
+    randomSeed: "burning-callback-delivery-golden-seed",
+  });
+  expectCallbackBacklinks(fixture.scenario);
+  expect(fixture.scenario.summary.damageCurveEnd).toMatchObject({
+    cumulativeDamage: fixture.scenario.summary.totalDamage,
+  });
+  expect(
+    byteSha256(generatedBytes),
+    "generated Burning callback fixture bytes",
+  ).toBe(FROZEN_FIXTURE_SHA256);
+  expect(
+    byteSha256(frozenBytes),
+    "frozen Burning callback fixture bytes",
+  ).toBe(FROZEN_FIXTURE_SHA256);
+
+  if (updateRequested) {
+    atomicCreateJsonFixture(FIXTURE_URL, generated);
+  }
+}
+
+const historicalBurningBytes = readFileSync(new URL(
+  "../../../test-vectors/src/fixtures/historical-burning-callback-v153-84ff5cd.json", import.meta.url,
+));
+const historicalBurningArchive = JSON.parse(historicalBurningBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string }; sourceWireSha256: string; sourceWireText: string;
+};
+function historicalBurningResult(): SimulationResult {
+  expect(byteSha256(historicalBurningArchive.sourceWireText)).toBe(historicalBurningArchive.sourceWireSha256);
+  const result = JSON.parse(historicalBurningArchive.sourceWireText) as SimulationResult;
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
+
+function burningMechanics(result: SimulationResult) {
+  const { runManifest: _manifest, resolvedRuntimeOptions: _options, reproducibilityKey: _key, ...mechanics } = result;
+  return mechanics;
+}
+function currentBurningDeliveries(result: SimulationResult): Array<{
+  phase: TargetPhaseV3LogEntry; task: TargetPhaseV3TargetTask; delivery: TargetPhaseV3Delivery;
+}> {
+  return result.targetPhaseLog.flatMap((phase) => phase.model !== "target-phase-v3" ? []
+    : phase.targetTasks.flatMap((task) => task.kind !== "burning-tick" || task.delivery === null ? []
+      : [{ phase, task, delivery: task.delivery }]));
+}
+
+function expectCurrentBurningContract(result: SimulationResult): void {
+  const before = JSON.stringify(result);
+  const historical = historicalBurningResult();
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.resolvedRuntimeOptions).toEqual({ ...historical.resolvedRuntimeOptions, flatStatBuffSemantics: "canonical-v1" });
+  expect(result.runManifest.resolvedRuntimeOptions).toEqual(result.resolvedRuntimeOptions);
+  expect(result.runManifest.reproducibilityKey).toBe(result.reproducibilityKey);
+  expect(result.reproducibilityKey).not.toBe(historical.reproducibilityKey);
+  const { reproducibilityKey: _oldKey, resolvedRuntimeOptions: _oldOptions, ...oldManifest } = historical.runManifest;
+  const { reproducibilityKey: _key, resolvedRuntimeOptions: _options, ...manifest } = result.runManifest;
+  expect(manifest).toEqual(oldManifest);
+  expect(simulationResultSchema.parse(JSON.parse(before))).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+
+  // Full expected mechanics, not a wire converter. The only changed causal
+  // field is this exact starter application substep; hit resolution owns I0.
+  // All queues, callbacks, attempts, clock fields, IDs and backlinks stay exact.
+  const expected = structuredClone(burningMechanics(historical));
+  expect(expected.hitResolutionLog[0]).toMatchObject({ id: 0, frame: 0, eventPriority: 3,
+    eventSequence: 1, intraEventSequence: 0, targetId: OWNER_ID, damageEventId: 0 });
+  const starter = expected.targetStateTimeline.points[5]!;
+  expect(starter).toMatchObject({ id: 5, frame: 0, cause: "direct-hit-application", eventType: "hit",
+    targetId: OWNER_ID, eventPriority: 3, eventSequence: 1, intraEventSequence: 0, primaryDamageEventId: 0 });
+  expect(expected.targetStateTimeline.points.filter((point) => point.cause === "direct-hit-application").map((point) => point.id)).toEqual([5]);
+  starter.intraEventSequence = 1;
+  expect(burningMechanics(result)).toStrictEqual(expected);
+
+  // Independent fixed-profile level90 / EM100 / bonus20% / resistance10%
+  // arithmetic. Transformative damage ignores DEF and never crits.
+  const masteryBonus = 16 * 100 / (100 + 2000);
+  const burningDamage = 1446.8535 * 0.25 * (1 + masteryBonus + 0.2) * 0.9;
+  const overloadDamage = 1446.8535 * 2.75 * (1 + masteryBonus + 0.2) * 0.9;
+  const burning = result.damageEvents.filter((event) => event.kind === "transformative-reaction" && event.reaction === "burning");
+  const overload = result.damageEvents.filter((event) => event.reaction === "overload");
+  expect(burning).toHaveLength(12);
+  expect(overload).toHaveLength(3);
+  expect(result.damageEvents).toHaveLength(16);
+  expect(result.damageEvents[0]).toMatchObject({ id: 0, frame: 0, kind: "direct", finalDamage: 0, targetId: OWNER_ID });
+  expect(burning.map((event) => event.frame)).toEqual([15, 15, 15, 30, 30, 30, 45, 45, 45, 60, 60, 60]);
+  expect(overload.map((event) => event.frame)).toEqual([16, 16, 16]);
+  for (const [events, damage] of [[burning, burningDamage], [overload, overloadDamage]] as const) {
+    events.forEach((event, index) => {
+      expect(event.targetId).toBe([ELECTRO_RECIPIENT_ID, OWNER_ID, PLAIN_RECIPIENT_ID][index % 3]);
+      expect([event.sourceActorId, event.scalingOwnerId, event.creditOwnerId]).toEqual(Array(3).fill("burning-driver"));
+      expect(event.finalDamage).toBeCloseTo(damage, 10);
+      expect(event.displayDamage).toBe(Math.round(damage));
+    });
+  }
+  const total = 12 * burningDamage + 3 * overloadDamage;
+  expect(result.totalDamage).toBeCloseTo(total, 9);
+  expect(result.dps).toBeCloseTo(total, 9);
+  expect(result.byCharacter["burning-driver"]).toBeCloseTo(total, 9);
+  expect(result.damageCurve.at(-1)!.cumulativeDamage).toBeCloseTo(total, 9);
+
+  const deliveries = currentBurningDeliveries(result);
+  expect(deliveries.map(({ phase }) => phase.globalFrame)).toEqual([15, 30, 45, 60]);
+  expect(deliveries.map(({ task }) => task.eventSequence)).toEqual([7, 11, 24, 31]);
+  expect(deliveries.map(({ delivery }) => delivery.eventSequence)).toEqual([10, 23, 30, 37]);
+  const callbackHitIds: number[] = [];
+  for (const [index, { phase, task, delivery }] of deliveries.entries()) {
+    const frame = 15 * (index + 1);
+    const damageIds = [1, 7, 10, 13][index]!;
+    const reactionId = [0, 2, 3, 4][index]!;
+    expect(phase).toMatchObject({ targetId: OWNER_ID, targetOrder: 1, targetFrame: frame });
+    expect(task).toMatchObject({ status: "applied", generation: 1, tickIndex: index + 1, deadlineTargetFrame: frame });
+    // Owner registration index1 among five targets; root runs between its
+    // callback and its Reactable.Tick boundary, never as a later P5 task.
+    const ownerPriority = 0.5 + 0.5 / 6;
+    expect(task.eventPriority).toBe(ownerPriority);
+    expect(delivery.eventPriority).toBe(ownerPriority + (0.5 / 6) * 0.25);
+    expect(delivery).toMatchObject({ model: "burning-callback-zero-delay-v1", reactionDamageLogId: reactionId });
+    expect(delivery.attempts.map((attempt) => [attempt.order, attempt.targetId, attempt.targetOrder, attempt.applicationPhase, attempt.outcome])).toEqual([
+      [0, ELECTRO_RECIPIENT_ID, 0, "after-reactable-tick", "landed"],
+      [1, OWNER_ID, 1, "before-reactable-tick", "landed"],
+      [2, PLAIN_RECIPIENT_ID, 2, "before-reactable-tick", "landed"],
+      [3, OUTSIDE_RADIUS_ID, 3, "before-reactable-tick", "miss"],
+      [4, UNRESOLVED_POSITION_ID, 4, "before-reactable-tick", "unresolved"],
+    ]);
+    expect(result.reactionDamageLog[reactionId]).toMatchObject({ id: reactionId, reaction: "burning", damageFrame: frame,
+      triggerDamageEventId: index === 0 ? 0 : 2, damageEventIds: [damageIds, damageIds + 1, damageIds + 2] });
+    const state = result.burningStateLog[task.burningStateLogId!]!;
+    expect(state).toMatchObject({ operation: "tick", frame, reactionDamageLogId: reactionId, fuelDecayPerFrame: 0.4 / 60,
+      fuelExpiresAtFrame: 121, nextTickFrame: frame + 15, applicationAllowed: index === 0 });
+    // Aura fuel skips decay through attachmentFrame+1 (here F1); this
+    // callback observes F−1 before Reactable.Tick advances through F. Thus
+    // fuel has F−2 then F−1 decay steps, while existing Dendro has F steps.
+    expect(state.fuelGaugeUnitsBefore).toBeCloseTo(0.8 - (frame - 2) * 0.4 / 60, 10);
+    expect(state.fuelGaugeUnitsAfter).toBe(state.fuelGaugeUnitsBefore);
+    expect(phase.reactableTick.auraAfter.find((entry) => entry.element === "burningFuel")!.gaugeUnits)
+      .toBeCloseTo(0.8 - (frame - 1) * 0.4 / 60, 10);
+    expect(phase.reactableTick.auraAfter.find((entry) => entry.element === "dendro")!.gaugeUnits)
+      .toBeCloseTo(0.8 - frame * 0.4 / 60, 10);
+    for (const attempt of delivery.attempts) {
+      if (attempt.outcome === "unresolved") {
+        expect([attempt.hitResolutionLogId, attempt.damageEventId, attempt.elementalApplicationIcdLogId, attempt.targetStateTimelinePointId]).toEqual([null, null, null, null]);
+        continue;
+      }
+      const hit = result.hitResolutionLog[attempt.hitResolutionLogId!]!;
+      callbackHitIds.push(hit.id);
+      expect(hit).toMatchObject({ frame, targetId: attempt.targetId, outcome: attempt.outcome, damageEventId: attempt.damageEventId });
+      const application = result.elementalApplicationIcdLog[attempt.elementalApplicationIcdLogId!]!;
+      expect(application).toMatchObject({ sourceKind: "burning-tick", reactionDamageLogId: reactionId,
+        hitResolutionLogId: hit.id, damageEventId: attempt.damageEventId, targetId: attempt.targetId,
+        frame, eventSequence: delivery.eventSequence, deliveryPhase: attempt.applicationPhase });
+      if (attempt.outcome === "miss") {
+        expect([attempt.damageEventId, attempt.targetStateTimelinePointId]).toEqual([null, null]);
+        continue;
+      }
+      expect(application).toMatchObject({ effectiveGaugeUnits: index === 0 ? 1 : 0, decision: { allowed: index === 0 } });
+      expect(result.damageEvents[attempt.damageEventId!]!).toMatchObject({ targetId: attempt.targetId, targetResolutionId: hit.id,
+        frame, eventPriority: delivery.eventPriority, eventSequence: delivery.eventSequence });
+      const point = result.targetStateTimeline.points[attempt.targetStateTimelinePointId!]!;
+      expect(point).toMatchObject({ frame, targetId: attempt.targetId, primaryDamageEventId: attempt.damageEventId,
+        eventPriority: delivery.eventPriority, eventSequence: delivery.eventSequence, intraEventSequence: attempt.order });
+      expect(point.links).toContainEqual({ kind: "reaction-damage-log", id: reactionId });
+      expect(point.links).toContainEqual({ kind: "damage-event", id: attempt.damageEventId });
     }
+  }
+  const phaseOwnedHits = result.targetPhaseLog.flatMap((phase) => phase.hitResolutionLogIds);
+  expect(phaseOwnedHits).toEqual([0, 5, 6, 7, 8]);
+  expect(callbackHitIds.every((id) => !phaseOwnedHits.includes(id))).toBe(true);
+  expect(result.reactionDamageLog[1]).toMatchObject({ id: 1, reaction: "overload", triggerDamageEventId: 1,
+    triggerFrame: 15, damageFrame: 16, damageEventIds: [4, 5, 6] });
+  expect(result.damageEvents[1]!.reactionAudit).toMatchObject({ reaction: "overload", auraAfter: [] });
+  const consumed = result.damageEvents[1]!.reactionAudit.auraConsumed;
+  if (consumed === null) throw new Error("The landed Burning callback must expose its Electro consumption audit");
+  expect(consumed).toHaveLength(1);
+  expect(consumed[0]!.element).toBe("electro");
+  expect(consumed[0]!.gaugeUnits).toBeCloseTo(0.8 * (1 - 15 / 570), 10);
+  expect(overload.map((event) => [event.parentDamageEventId, event.eventPriority, event.eventSequence])).toEqual([[1, 5, 17], [1, 5, 17], [1, 5, 17]]);
+  expect(result.auraEndStates.find((entry) => entry.targetId === ELECTRO_RECIPIENT_ID)!.aura).toEqual([]);
+  expect(JSON.stringify(result)).toBe(before);
+}
+
+const hostileBurningCases: Array<{ name: string; mutate: (result: SimulationResult) => void }> = [
+  { name: "coordinated registration-order swap", mutate: (result) => {
+    const attempts = currentBurningDeliveries(result)[0]!.delivery.attempts;
+    [attempts[0], attempts[1]] = [attempts[1]!, attempts[0]!]; attempts[0]!.order = 0; attempts[1]!.order = 1;
+  } },
+  { name: "earlier recipient falsely claims pre-Reactable application", mutate: (result) => {
+    currentBurningDeliveries(result)[0]!.delivery.attempts[0]!.applicationPhase = "before-reactable-tick";
+  } },
+  { name: "delivery queue detached from its root", mutate: (result) => { currentBurningDeliveries(result)[0]!.delivery.eventSequence += 1; } },
+  { name: "dangling callback lifecycle row", mutate: (result) => { currentBurningDeliveries(result)[0]!.task.burningStateLogId = 999; } },
+  { name: "recipient damage aliases owner damage", mutate: (result) => { currentBurningDeliveries(result)[0]!.delivery.attempts[0]!.damageEventId = 2; } },
+  { name: "recipient ICD witness aliases owner witness", mutate: (result) => { currentBurningDeliveries(result)[0]!.delivery.attempts[0]!.elementalApplicationIcdLogId = 2; } },
+  { name: "missing root timeline backlink", mutate: (result) => {
+    result.targetStateTimeline.points[7]!.links = result.targetStateTimeline.points[7]!.links.filter((link) => link.kind !== "reaction-damage-log");
+  } },
+  { name: "positive-delay Overload collapses to callback frame", mutate: (result) => { result.reactionDamageLog[1]!.damageFrame = 15; } },
+  { name: "Overload trigger aliases the owner instead of Electro recipient", mutate: (result) => { result.reactionDamageLog[1]!.triggerDamageEventId = 2; } },
+  { name: "unresolved recipient forges a hit witness", mutate: (result) => { currentBurningDeliveries(result)[0]!.delivery.attempts[4]!.hitResolutionLogId = 4; } },
+  { name: "outside-radius geometry falsely claims contact", mutate: (result) => { result.hitResolutionLog[4]!.geometryDistance = 0; } },
+  { name: "recipient phase claims a callback-owned hit", mutate: (result) => {
+    const phase = result.targetPhaseLog.find((entry) => entry.globalFrame === 15 && entry.targetId === ELECTRO_RECIPIENT_ID)!;
+    phase.hitResolutionLogIds = [1];
+  } },
+];
+
+describe("Burning callback delivery 1.44 Golden", () => {
+  it("authentically freezes callback provenance, registration-order attempts, backlinks, F+1 Overload, and historical identity", expectHistoricalBurningGolden);
+  it("pins original Golden bytes and genuine pre-marker source provenance", () => {
+    expect(byteSha256(historicalBurningBytes)).toBe("1af808be55007b574469be930f10fe3e1208a4fb1d84e2bf8d79149b72cffb27");
+    expect(historicalBurningArchive).toMatchObject({ fixtureVersion: "historical-burning-callback-v153-84ff5cd-v1",
+      source: { commit: "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5", tree: "72bd69a8c54a3e115685c7ee52f5862064c70f55" } });
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(FROZEN_FIXTURE_SHA256);
+  });
+  it("refuses opt-in replacement of the existing frozen Golden", () => {
+    const before = readFileSync(FIXTURE_URL);
+    const previous = process.env[UPDATE_FLAG]; process.env[UPDATE_FLAG] = "1";
+    try { expect(expectHistoricalBurningGolden).toThrow(/Refusing to overwrite frozen fixture/); }
+    finally { if (previous === undefined) delete process.env[UPDATE_FLAG]; else process.env[UPDATE_FLAG] = previous; }
+    expect(readFileSync(FIXTURE_URL)).toEqual(before);
+  });
+});
+
+describe("current Burning callback contract", () => {
+  it("preserves the full live wire, independent damage and Aura, callback ownership, and positive-delay child", () => {
+    const config = makeBurningCallbackGoldenConfig();
+    const result = simulate(config, { critMode: "noCrit" });
+    expect(simulate(config, { critMode: "noCrit" })).toStrictEqual(result);
+    expectCurrentBurningContract(result);
+    // The frozen projector must continue rejecting the new identity marker.
+    expect(() => projectSimulationResultV153ToV152(result)).toThrow(/flatStatBuffSemantics/);
+  });
+  it.each(hostileBurningCases)("rejects $name at public parsing and real capture import", ({ mutate }) => {
+    const result = simulate(makeBurningCallbackGoldenConfig(), { critMode: "noCrit" });
+    const before = JSON.stringify(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
+    const capture = { schemaVersion: "calculator-event-v1", eventId: 0, sourceResult: result };
+    expect(parseSimulationHit(JSON.stringify(capture)).sourceResult).toEqual(result);
+    const forged = structuredClone(result); mutate(forged);
+    expect(JSON.stringify(forged)).not.toBe(before);
+    const parsed = simulationResultSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("Forged Burning callback result unexpectedly parsed");
+    expect(() => parseSimulationHit(JSON.stringify({ ...capture, sourceResult: forged }))).toThrow(parsed.error.message);
+    // The public ingress, not a trusted-only helper with internal preconditions,
+    // owns validation of arbitrary JSON and all version-specific facets.
+    expect(JSON.stringify(result)).toBe(before);
   });
 });

@@ -1,0 +1,150 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/GIDPS-cloud/player-import-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "calculator-native-result-reopen.spec.ts",
+      "--config",
+      "/tmp/GIDPS-neuv-formula-scope-20261023/playwright.config.mjs",
+      "--workers",
+      "1",
+      "--output",
+      "/tmp/GIDPS-native-result-reopen-20261023/before-artifacts",
+      "--reporter=json"
+    ],
+    "configFile": "/tmp/GIDPS-neuv-formula-scope-20261023/playwright.config.mjs",
+    "rootDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/GIDPS-native-result-reopen-20261023/before-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "calculator-native-result-reopen.spec.ts",
+      "file": "calculator-native-result-reopen.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "native result restores exact input and original bytes without a Worker; zero-energy save never borrows old Q",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13167,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-single-status]')\nExpected substring: \u001b[32m\"已打开保存的单动作结果\"\u001b[39m\nReceived string:    \u001b[31m\"导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-single-status]')\u001b[22m\n\u001b[2m    2 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-single-status=\"\">已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。</p>\u001b[22m\n\u001b[2m      - unexpected value \"已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。\"\u001b[22m\n\u001b[2m    12 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-single-status=\"\">导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。</p>\u001b[22m\n\u001b[2m       - unexpected value \"导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-single-status]')\nExpected substring: \u001b[32m\"已打开保存的单动作结果\"\u001b[39m\nReceived string:    \u001b[31m\"导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-single-status]')\u001b[22m\n\u001b[2m    2 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-single-status=\"\">已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。</p>\u001b[22m\n\u001b[2m      - unexpected value \"已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。\"\u001b[22m\n\u001b[2m    12 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-single-status=\"\">导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。</p>\u001b[22m\n\u001b[2m       - unexpected value \"导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。\"\u001b[22m\n\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-native-result-reopen.spec.ts:42:54",
+                    "location": {
+                      "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-native-result-reopen.spec.ts",
+                      "column": 54,
+                      "line": 42
+                    },
+                    "snippet": "  40 |   await openPanel(page); const beforeImport = await workerCount(page);\n  41 |   await importText(page, original);\n> 42 |   await expect(page.locator(\"[data-single-status]\")).toContainText(\"已打开保存的单动作结果\");\n     |                                                      ^\n  43 |   expect(await workerCount(page)).toBe(beforeImport);\n  44 |   await expect(page.locator(\"[data-single-action]\")).toHaveValue(\"burst\");\n  45 |   await expect(page.locator(\"[data-single-startup]\")).toHaveValue(\"full\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-native-result-reopen.spec.ts",
+                        "column": 54,
+                        "line": 42
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-single-status]')\nExpected substring: \u001b[32m\"已打开保存的单动作结果\"\u001b[39m\nReceived string:    \u001b[31m\"导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-single-status]')\u001b[22m\n\u001b[2m    2 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-single-status=\"\">已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。</p>\u001b[22m\n\u001b[2m      - unexpected value \"已载入所选角色的本地参考构筑与动作；请核对配装、初始能量及观察条件后运行。\"\u001b[22m\n\u001b[2m    12 × locator resolved to <p role=\"status\" aria-live=\"polite\" data-single-status=\"\">导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。</p>\u001b[22m\n\u001b[2m       - unexpected value \"导入失败：文件既不是受支持的 GOOD 导出、Enka 展示柜响应，也不是来源队伍草稿 JSON。\"\u001b[22m\n\n\n  40 |   await openPanel(page); const beforeImport = await workerCount(page);\n  41 |   await importText(page, original);\n> 42 |   await expect(page.locator(\"[data-single-status]\")).toContainText(\"已打开保存的单动作结果\");\n     |                                                      ^\n  43 |   expect(await workerCount(page)).toBe(beforeImport);\n  44 |   await expect(page.locator(\"[data-single-action]\")).toHaveValue(\"burst\");\n  45 |   await expect(page.locator(\"[data-single-startup]\")).toHaveValue(\"full\");\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-native-result-reopen.spec.ts:42:54"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T21:01:41.989Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/GIDPS-native-result-reopen-20261023/before-artifacts/calculator-native-result-r-aa000-gy-save-never-borrows-old-Q/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-native-result-reopen.spec.ts",
+                    "column": 54,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "394ff04c6ea62a0e9e40-97866a5372effe3a5c24",
+          "file": "calculator-native-result-reopen.spec.ts",
+          "line": 20,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T21:01:41.346Z",
+    "duration": 14119.581,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

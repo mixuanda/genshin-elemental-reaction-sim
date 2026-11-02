@@ -13,6 +13,7 @@ import {
   type LunarArtifactBonus,
   type SerialSkillCooldownState,
   type WeaponProcLifecycleState,
+  type AngularGeometrySemantics,
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
@@ -1776,6 +1777,8 @@ export interface SimulationOptions {
   compatibilityMode?: CompatibilityMode;
   randomSeed?: string;
   execution?: SimulationExecutionOptions | undefined;
+  /** Explicit new angular algorithm; omission preserves historical native Math. */
+  angularGeometrySemantics?: AngularGeometrySemantics | undefined;
 }
 
 /** Opt-in diagnostics and stochastic execution; absence preserves legacy output. */
@@ -1872,6 +1875,8 @@ export interface ResolvedSimulationRuntimeOptions extends FrozenSimulationRuntim
   execution?: SimulationExecutionOptions | undefined;
   /** Absent historical results retain the original flat-stat compatibility keys. */
   flatStatBuffSemantics?: "canonical-v1" | undefined;
+  /** Part of the hashed run identity; never inferred for a saved result. */
+  angularGeometrySemantics?: AngularGeometrySemantics | undefined;
 }
 
 /** Exact final ordinary formula input after damage-modifier plugins. */

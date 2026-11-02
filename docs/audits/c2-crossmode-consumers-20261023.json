@@ -1,0 +1,372 @@
+{
+  "scope": "Shared TypeScript C2 consumer audit; existing capture read only; no native simulation or WASM rebuild",
+  "baseCommit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+  "formulaRule": "char-dyn-wanderer-c2",
+  "sourceCommits": [
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  ],
+  "reproduction": {
+    "beforePassed": 4,
+    "beforeFailed": 4,
+    "beforeReceipt": "before-corrected-test.json",
+    "afterNewTestsPassed": 14,
+    "afterNewTestsFailed": 0,
+    "afterReceipt": "after-final.json",
+    "finalTestsPassed": 19,
+    "finalTestsFailed": 0,
+    "finalReceipt": "focused-tests-derived-final.json",
+    "nonDamageBeforeFailed": 2,
+    "nonDamageBeforeReceipt": "before-nondamage.json",
+    "newCrossModeTests": 18,
+    "existingAdjacentTests": 1,
+    "derivedHelperBeforeFailed": 2,
+    "derivedHelperBeforeReceipt": "before-derived-helper.json"
+  },
+  "legacySource": {
+    "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before/run.result.json",
+    "sha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+    "bytes": 9599369,
+    "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "savedExecutionArtifact": {
+      "wasmSha256": "0f8bcdebdc4195e1c5c971335dc8f3725fd122ec9a29647755bd9113299eca55",
+      "wasmBytes": 72165834
+    },
+    "sourceSnapshot": "Saved metadata only; no binary re-execution or fresh artifact verification performed here."
+  },
+  "legacyProbe": {
+    "source": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before/run.result.json",
+    "sourceSha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+    "mode": "readonly-c2-defect",
+    "currentNumericValidation": "failed",
+    "warning": "旧结果包含流浪者 C2 作用范围缺陷，未通过当前数值重放。原文可只读查看和原样导出，不能作为本次验证或独立重放通过证明。其他数值未因此获得新验证。流浪者 C2 二命创建公式 #3438 只能由持有者自己的元素爆发快照消费（命中计算 #3472）。",
+    "originalTextExact": true,
+    "sourceIdentityUnchanged": true,
+    "measurements": [
+      {
+        "attackId": 109,
+        "applicationId": 3477,
+        "replay": "rejected-c2-scope",
+        "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+        "creationCalculationId": 3438,
+        "consumerCalculationId": 3475
+      },
+      {
+        "attackId": 110,
+        "applicationId": 3476,
+        "replay": "rejected-c2-scope",
+        "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+        "creationCalculationId": 3438,
+        "consumerCalculationId": 3472
+      },
+      {
+        "attackId": 122,
+        "applicationId": 3787,
+        "replay": "rejected-c2-scope",
+        "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+        "creationCalculationId": 3438,
+        "consumerCalculationId": 3786
+      },
+      {
+        "attackId": 111,
+        "applicationId": 3686,
+        "replay": "passed",
+        "difference": 0,
+        "value": 115009.35811691318
+      },
+      {
+        "attackId": 112,
+        "applicationId": 3705,
+        "replay": "passed",
+        "difference": 0,
+        "value": 102692.6949798774
+      },
+      {
+        "attackId": 113,
+        "applicationId": 3729,
+        "replay": "passed",
+        "difference": 0,
+        "value": 102692.6949798774
+      },
+      {
+        "attackId": 114,
+        "applicationId": 3746,
+        "replay": "passed",
+        "difference": 0,
+        "value": 102692.6949798774
+      },
+      {
+        "attackId": 115,
+        "applicationId": 3763,
+        "replay": "passed",
+        "difference": 0,
+        "value": 102692.6949798774
+      }
+    ],
+    "originalFileUnchanged": true
+  },
+  "observedC2Hits": [
+    {
+      "id": 3472,
+      "attackId": 110,
+      "frame": 1169,
+      "sourceFrame": 1161,
+      "snapshotFrame": 1169,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "attackTag": 1,
+      "attackTagName": "AttackTag(1)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 41685.58831971607
+    },
+    {
+      "id": 3475,
+      "attackId": 109,
+      "frame": 1169,
+      "sourceFrame": 1124,
+      "snapshotFrame": 1164,
+      "ability": "Normal 2 (Windfavored)",
+      "attackTag": 1,
+      "attackTagName": "AttackTag(1)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 104213.9707992902
+    },
+    {
+      "id": 3685,
+      "attackId": 111,
+      "frame": 1254,
+      "sourceFrame": 1162,
+      "snapshotFrame": 1217,
+      "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "attackTag": 6,
+      "attackTagName": "AttackTag(6)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 115009.35811691318
+    },
+    {
+      "id": 3704,
+      "attackId": 112,
+      "frame": 1260,
+      "sourceFrame": 1162,
+      "snapshotFrame": 1217,
+      "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "attackTag": 6,
+      "attackTagName": "AttackTag(6)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 102692.6949798774
+    },
+    {
+      "id": 3728,
+      "attackId": 113,
+      "frame": 1266,
+      "sourceFrame": 1162,
+      "snapshotFrame": 1217,
+      "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "attackTag": 6,
+      "attackTagName": "AttackTag(6)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 102692.6949798774
+    },
+    {
+      "id": 3745,
+      "attackId": 114,
+      "frame": 1272,
+      "sourceFrame": 1162,
+      "snapshotFrame": 1217,
+      "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "attackTag": 6,
+      "attackTagName": "AttackTag(6)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 102692.6949798774
+    },
+    {
+      "id": 3762,
+      "attackId": 115,
+      "frame": 1278,
+      "sourceFrame": 1162,
+      "snapshotFrame": 1217,
+      "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+      "attackTag": 6,
+      "attackTagName": "AttackTag(6)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 102692.6949798774
+    },
+    {
+      "id": 3786,
+      "attackId": 122,
+      "frame": 1284,
+      "sourceFrame": 1284,
+      "snapshotFrame": 1284,
+      "ability": "Arcane Projection: Unity",
+      "attackTag": 0,
+      "attackTagName": "AttackTag(0)",
+      "C2": 2,
+      "supportIds": [
+        3438
+      ],
+      "creationIds": [
+        3438
+      ],
+      "value": 196980.87272355004
+    }
+  ],
+  "compatibility": {
+    "strictEntry": "createSourceHostResult/replaySourceHostHit/independent calculator",
+    "readonlyEntry": "openSourceHostResultArchive(originalText)",
+    "mode": "readonly-c2-defect",
+    "preciseErrorCode": "SOURCE_HOST_WANDERER_C2_SCOPE",
+    "exportsExactOriginalText": true,
+    "rewritesHistoricalIdentity": false,
+    "uiOwner": "root",
+    "oldCandidateFilesChanged": false
+  },
+  "scopeChecks": {
+    "consumerContext": "original attack snapshotRead, including same-hit helpers that forward it; not a request.kind whitelist",
+    "numericAttackTag": 6,
+    "attackTagNames": [
+      "AttackTagElementalBurst",
+      "AttackTag(6)"
+    ],
+    "consumerAndReadActor": "creation holder",
+    "creationWithoutConsumption": "still accepted",
+    "separateGeneralGetterWithBurstLabel": "rejected"
+  },
+  "derivedHelperCorrection": {
+    "priorCommit": "52b381da621defa414ae2c9d7140a23688f30e2d",
+    "priorMistake": "request.kind damage incorrectly excluded a forwarded original Q snapshot in character-additive",
+    "nativeRerun": false,
+    "scope": "Offline complete saved-result parse and selected hit replay; no native simulation",
+    "measurements": [
+      {
+        "lane": "stellar-before",
+        "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-before/run.result.json",
+        "sha256": "a553a11ab38ee7cb5e5ec405972daeabc545e2fcfb668ece30687aabd7e98533",
+        "bytes": 9599369,
+        "mode": "readonly-c2-defect",
+        "currentNumericValidation": "failed",
+        "calculations": 3781,
+        "applications": 111,
+        "originalTextExact": true,
+        "originalFileUnchanged": true,
+        "badHits": [
+          {
+            "attackId": 109,
+            "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+            "consumerCalculationId": 3475
+          },
+          {
+            "attackId": 110,
+            "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+            "consumerCalculationId": 3472
+          },
+          {
+            "attackId": 122,
+            "code": "SOURCE_HOST_WANDERER_C2_SCOPE",
+            "consumerCalculationId": 3786
+          }
+        ]
+      },
+      {
+        "lane": "stellar-after",
+        "path": "/tmp/GIDPS-c2-crossmode-20261023/stellar-after/run.result.json",
+        "sha256": "f04d3e16c349adcd2ccb12cbd5f4010dd69740e8e87ef3ff9c00999465ebf1ce",
+        "bytes": 9598502,
+        "mode": "replayed",
+        "currentNumericValidation": "passed",
+        "calculations": 3781,
+        "applications": 111,
+        "originalTextExact": true,
+        "originalFileUnchanged": true,
+        "helper": {
+          "id": 3681,
+          "kind": "character-additive",
+          "ability": "Kyougen: Five Ceremonial Plays (Windfavored)",
+          "attackTag": 6,
+          "attackTagName": "AttackTag(6)",
+          "ruleId": "char-add-faruzan-a4",
+          "snapshotReadId": "actor-0-read-2045",
+          "snapshotFrame": 1217,
+          "separateStatReadActor": 1,
+          "expected": 208.26577763200004,
+          "replayed": 208.26577763200004,
+          "difference": 0
+        },
+        "qHits": [
+          {
+            "attackId": 111,
+            "difference": 0
+          },
+          {
+            "attackId": 112,
+            "difference": 0
+          },
+          {
+            "attackId": 113,
+            "difference": 0
+          },
+          {
+            "attackId": 114,
+            "difference": 0
+          },
+          {
+            "attackId": 115,
+            "difference": 0
+          }
+        ]
+      }
+    ],
+    "bridgeSources": [
+      {
+        "path": "packages/source-host/go/pkg/core/sourcehost/character_additive.go",
+        "sha256": "d2d606c62a2149c6e46803f33429c20d55a0b89e01c3e2b6f08d751ae5f38ae7",
+        "transfers": "Request from atk.Info; SourceFrame, SnapshotFrame, AttackID, SnapshotStats and SnapshotFields from the same AttackEvent"
+      },
+      {
+        "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/character_additive.go",
+        "sha256": "d2d606c62a2149c6e46803f33429c20d55a0b89e01c3e2b6f08d751ae5f38ae7",
+        "transfers": "Request from atk.Info; SourceFrame, SnapshotFrame, AttackID, SnapshotStats and SnapshotFields from the same AttackEvent"
+      }
+    ]
+  }
+}

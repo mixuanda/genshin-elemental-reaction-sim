@@ -1,4 +1,5 @@
 import { compileIdleStanceSchedule, idleStanceCastContextSchema, type CalculatorDocument, type IdleStanceCastKind } from "@genshin-dps-lab/sim-core";
+import { isWandererInitialSingleHit } from "../../../packages/sim-core/src/idle-stance-formulas";
 import { idleStanceTemplates } from "../../../packages/game-data/src/character-mappings/idle-stance-mappings";
 
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -54,7 +55,9 @@ export function renderIdleStanceControls(document: CalculatorDocument): string {
     state("statsStableAcrossHits", "除逐击明确差异外，完整过程的基础面板与装备稳定", context.statsStableAcrossHits) : "";
   const accounting = ["zhongli", "yanfei", "chiori", "nilou", "alhaitham"].includes(slug) ? `<details open><summary>共同实际状态</summary><div class="calculator-fields">${accountingFields("sharedState", context.sharedState ?? {}, slug, !complete, false)}</div><p class="calculator-hint">共同状态供未逐击覆盖的字段使用。已含份额未知时留空，明确未含才填 0；填写最终抗性的命中不再重复补减抗。起手 HP／EM 优先使用明确数值或 scaling:0 快照，不能从后续面板猜测。</p></details><details><summary>逐击实际状态与已含份额</summary>${document.hits.filter(hit => hit.kind === "ordinary").map(hit => `<fieldset data-idle-hit-context="${esc(hit.id)}"><legend>${esc(hit.label)} · ${selected.has(hit.id) ? "已选" : "未选"}${hit.finalSnapshot ? " · 已有最终快照" : ""}</legend><div class="calculator-fields">${accountingFields(`hitStates.${hit.id}`, context.hitStates?.[hit.id] ?? {}, slug, !complete, hit.effectiveResistance !== undefined)}</div></fieldset>`).join("")}</details>` : "";
   const contacts = complete ? `<details open><summary>候选攻击的实际接触 · ${schedule.candidates.length} 次机会</summary><p class="calculator-hint">命中、落空与未知分别记录；落空不会生成伤害。完整分支须确认全部候选。下列帧数由固定来源计算；修改点按／长按或实际延迟后会更新。</p><div class="calculator-fields">${schedule.candidates.map(hit => state(`targetContacts.${hit.id}`, `${roleNames[hit.templateRole] ?? hit.templateRole} · ${hit.id} · 命中 ${hit.frame}f / 取样 ${hit.snapshotFrame}f${hit.scalingSnapshotFrame === undefined ? "" : ` / 基数 ${hit.scalingSnapshotFrame}f`}：是否命中所选敌人`, context.targetContacts?.[hit.id])).join("")}</div><p class="calculator-hint">当前来源窗口至少覆盖第 ${schedule.requiredObservedThroughFrame} 帧；这只是所选分支的要求，不会替你填写实际观察值。</p></details>` : "<p class=\"calculator-hint\">独立已发生命中不要求未来生命周期或后续输入；下方只填写本击实际条件。</p>";
-  return `<fieldset data-source-cast-controls="idle-stance"><legend>${esc(cast.label)}：实际输入与完整观察</legend><div class="calculator-fields">${common}${specificControls(context, slug, complete)}</div>${contacts}${accounting}${renderIdleStanceDraft(document)}<p class="calculator-hint">当前分支只覆盖明确 C0 的有限输入过程，未经实机确认。完整施放包括自主攻击及尾段；不等于任意普攻连招或团队轮转。未知保留为空，不默认为零、否或没有事件。</p></fieldset>`;
+  const initialOnly = document.selectedHitIds.length === 1 && document.hits.some(hit => selected.has(hit.id) && isWandererInitialSingleHit(document, hit));
+  const scopeHint = initialOnly ? "本入口支持 C0–C6 的已发生 E 初击；仅计算本击，不包括空居普攻与命座追加。" : "当前完整姿态分支只覆盖明确 C0 的有限输入过程，不等于任意连招或团队轮转。";
+  return `<fieldset data-source-cast-controls="idle-stance"><legend>${esc(cast.label)}：实际输入与完整观察</legend><div class="calculator-fields">${common}${specificControls(context, slug, complete)}</div>${contacts}${accounting}${renderIdleStanceDraft(document)}<p class="calculator-hint">${scopeHint}未知条件保留为空，请按本次实际情况填写。</p></fieldset>`;
 }
 
 type DraftRow = Record<string, string>;

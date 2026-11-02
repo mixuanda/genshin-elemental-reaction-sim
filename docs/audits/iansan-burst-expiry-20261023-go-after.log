@@ -1,0 +1,24 @@
+=== RUN   TestIansanBurstExpiryEndsPositiveNightsoul
+=== RUN   TestIansanBurstExpiryEndsPositiveNightsoul/C4_12seconds
+=== RUN   TestIansanBurstExpiryEndsPositiveNightsoul/C6_15seconds
+--- PASS: TestIansanBurstExpiryEndsPositiveNightsoul (0.00s)
+    --- PASS: TestIansanBurstExpiryEndsPositiveNightsoul/C4_12seconds (0.00s)
+    --- PASS: TestIansanBurstExpiryEndsPositiveNightsoul/C6_15seconds (0.00s)
+=== RUN   TestIansanBurstExpiryFollowsActualHitlagExtension
+--- PASS: TestIansanBurstExpiryFollowsActualHitlagExtension (0.00s)
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry/beforeEnd
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry/sameFrameAsEnd
+=== RUN   TestIansanBurstExpiryDoesNotKillLaterSkillEntry/afterEnd
+--- PASS: TestIansanBurstExpiryDoesNotKillLaterSkillEntry (0.00s)
+    --- PASS: TestIansanBurstExpiryDoesNotKillLaterSkillEntry/beforeEnd (0.00s)
+    --- PASS: TestIansanBurstExpiryDoesNotKillLaterSkillEntry/sameFrameAsEnd (0.00s)
+    --- PASS: TestIansanBurstExpiryDoesNotKillLaterSkillEntry/afterEnd (0.00s)
+=== RUN   TestIansanBurstExpiryStaleInstanceIsInert
+=== RUN   TestIansanBurstExpiryStaleInstanceIsInert/exitThenSkill
+=== RUN   TestIansanBurstExpiryStaleInstanceIsInert/laterQInstance
+--- PASS: TestIansanBurstExpiryStaleInstanceIsInert (0.00s)
+    --- PASS: TestIansanBurstExpiryStaleInstanceIsInert/exitThenSkill (0.00s)
+    --- PASS: TestIansanBurstExpiryStaleInstanceIsInert/laterQInstance (0.00s)
+PASS
+ok  	github.com/genshinsim/gcsim/internal/characters/iansan	0.006s

@@ -1,0 +1,2144 @@
+{
+  "status": "passed",
+  "normalDamageReads": 240,
+  "normalParents": 120,
+  "c6DamageReads": 120,
+  "generatedGains": [
+    {
+      "frame": 597,
+      "kind": "timer",
+      "stacks": 1
+    },
+    {
+      "frame": 638,
+      "kind": "normal",
+      "stacks": 3
+    },
+    {
+      "frame": 657,
+      "kind": "timer",
+      "stacks": 4
+    },
+    {
+      "frame": 662,
+      "kind": "normal",
+      "stacks": 6
+    },
+    {
+      "frame": 701,
+      "kind": "normal",
+      "stacks": 8
+    },
+    {
+      "frame": 717,
+      "kind": "timer",
+      "stacks": 9
+    },
+    {
+      "frame": 730,
+      "kind": "normal",
+      "stacks": 10
+    },
+    {
+      "frame": 1918,
+      "kind": "timer",
+      "stacks": 1
+    },
+    {
+      "frame": 1959,
+      "kind": "normal",
+      "stacks": 3
+    },
+    {
+      "frame": 1978,
+      "kind": "timer",
+      "stacks": 4
+    },
+    {
+      "frame": 1983,
+      "kind": "normal",
+      "stacks": 6
+    },
+    {
+      "frame": 2022,
+      "kind": "normal",
+      "stacks": 8
+    },
+    {
+      "frame": 2038,
+      "kind": "timer",
+      "stacks": 9
+    },
+    {
+      "frame": 2051,
+      "kind": "normal",
+      "stacks": 10
+    },
+    {
+      "frame": 3239,
+      "kind": "timer",
+      "stacks": 1
+    },
+    {
+      "frame": 3280,
+      "kind": "normal",
+      "stacks": 3
+    },
+    {
+      "frame": 3299,
+      "kind": "timer",
+      "stacks": 4
+    },
+    {
+      "frame": 3304,
+      "kind": "normal",
+      "stacks": 6
+    },
+    {
+      "frame": 3343,
+      "kind": "normal",
+      "stacks": 8
+    },
+    {
+      "frame": 3359,
+      "kind": "timer",
+      "stacks": 9
+    },
+    {
+      "frame": 3372,
+      "kind": "normal",
+      "stacks": 10
+    },
+    {
+      "frame": 4560,
+      "kind": "timer",
+      "stacks": 1
+    },
+    {
+      "frame": 4601,
+      "kind": "normal",
+      "stacks": 3
+    },
+    {
+      "frame": 4620,
+      "kind": "timer",
+      "stacks": 4
+    },
+    {
+      "frame": 4625,
+      "kind": "normal",
+      "stacks": 6
+    },
+    {
+      "frame": 4664,
+      "kind": "normal",
+      "stacks": 8
+    },
+    {
+      "frame": 4680,
+      "kind": "timer",
+      "stacks": 9
+    },
+    {
+      "frame": 4693,
+      "kind": "normal",
+      "stacks": 10
+    },
+    {
+      "frame": 5881,
+      "kind": "timer",
+      "stacks": 1
+    },
+    {
+      "frame": 5922,
+      "kind": "normal",
+      "stacks": 3
+    },
+    {
+      "frame": 5941,
+      "kind": "timer",
+      "stacks": 4
+    },
+    {
+      "frame": 5946,
+      "kind": "normal",
+      "stacks": 6
+    },
+    {
+      "frame": 5985,
+      "kind": "normal",
+      "stacks": 8
+    },
+    {
+      "frame": 6001,
+      "kind": "timer",
+      "stacks": 9
+    },
+    {
+      "frame": 6014,
+      "kind": "normal",
+      "stacks": 10
+    }
+  ],
+  "stackDistributionBeforeDamage": {
+    "1": 5,
+    "3": 10,
+    "4": 5,
+    "6": 5,
+    "8": 10,
+    "9": 10,
+    "10": 195
+  },
+  "belowFullStackHits": 45,
+  "nonNormalHitsRejected": 112,
+  "predictions": [
+    {
+      "attackId": 32,
+      "frame": 638,
+      "stacksBeforeDamage": 1,
+      "expectedBonus": 0.096,
+      "actualBonus": 0.096,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 36,
+      "frame": 646,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 39,
+      "frame": 654,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 40,
+      "frame": 662,
+      "stacksBeforeDamage": 4,
+      "expectedBonus": 0.384,
+      "actualBonus": 0.384,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 43,
+      "frame": 701,
+      "stacksBeforeDamage": 6,
+      "expectedBonus": 0.5760000000000001,
+      "actualBonus": 0.5760000000000001,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 45,
+      "frame": 709,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 44,
+      "frame": 709,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 46,
+      "frame": 717,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 47,
+      "frame": 730,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 49,
+      "frame": 738,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 50,
+      "frame": 746,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 52,
+      "frame": 754,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 53,
+      "frame": 793,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 57,
+      "frame": 801,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 56,
+      "frame": 801,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 60,
+      "frame": 809,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 62,
+      "frame": 822,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 63,
+      "frame": 830,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 64,
+      "frame": 838,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 65,
+      "frame": 846,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 69,
+      "frame": 885,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 71,
+      "frame": 893,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 70,
+      "frame": 893,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 72,
+      "frame": 901,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 73,
+      "frame": 914,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 77,
+      "frame": 922,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 78,
+      "frame": 930,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 80,
+      "frame": 938,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 81,
+      "frame": 977,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 83,
+      "frame": 985,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 82,
+      "frame": 985,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 85,
+      "frame": 993,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 86,
+      "frame": 1006,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 87,
+      "frame": 1014,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 88,
+      "frame": 1022,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 91,
+      "frame": 1030,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 93,
+      "frame": 1069,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 95,
+      "frame": 1077,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 94,
+      "frame": 1077,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 98,
+      "frame": 1085,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 99,
+      "frame": 1098,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 102,
+      "frame": 1106,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 103,
+      "frame": 1114,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 104,
+      "frame": 1122,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 105,
+      "frame": 1161,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 110,
+      "frame": 1169,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 109,
+      "frame": 1169,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 111,
+      "frame": 1177,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 163,
+      "frame": 1959,
+      "stacksBeforeDamage": 1,
+      "expectedBonus": 0.096,
+      "actualBonus": 0.096,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 167,
+      "frame": 1967,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 170,
+      "frame": 1975,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 171,
+      "frame": 1983,
+      "stacksBeforeDamage": 4,
+      "expectedBonus": 0.384,
+      "actualBonus": 0.384,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 174,
+      "frame": 2022,
+      "stacksBeforeDamage": 6,
+      "expectedBonus": 0.5760000000000001,
+      "actualBonus": 0.5760000000000001,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 176,
+      "frame": 2030,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 175,
+      "frame": 2030,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 177,
+      "frame": 2038,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 178,
+      "frame": 2051,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 179,
+      "frame": 2059,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 181,
+      "frame": 2067,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 183,
+      "frame": 2075,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 187,
+      "frame": 2114,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 191,
+      "frame": 2122,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 190,
+      "frame": 2122,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 192,
+      "frame": 2130,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 194,
+      "frame": 2143,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 195,
+      "frame": 2151,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 196,
+      "frame": 2159,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 197,
+      "frame": 2167,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 200,
+      "frame": 2206,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 202,
+      "frame": 2214,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 201,
+      "frame": 2214,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 203,
+      "frame": 2222,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 204,
+      "frame": 2235,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 207,
+      "frame": 2243,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 210,
+      "frame": 2251,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 212,
+      "frame": 2259,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 214,
+      "frame": 2298,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 216,
+      "frame": 2306,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 215,
+      "frame": 2306,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 218,
+      "frame": 2314,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 219,
+      "frame": 2327,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 220,
+      "frame": 2335,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 221,
+      "frame": 2343,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 224,
+      "frame": 2351,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 226,
+      "frame": 2390,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 228,
+      "frame": 2398,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 227,
+      "frame": 2398,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 231,
+      "frame": 2406,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 232,
+      "frame": 2419,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 234,
+      "frame": 2427,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 236,
+      "frame": 2435,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 237,
+      "frame": 2443,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 241,
+      "frame": 2482,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 246,
+      "frame": 2490,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 245,
+      "frame": 2490,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 247,
+      "frame": 2498,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 299,
+      "frame": 3280,
+      "stacksBeforeDamage": 1,
+      "expectedBonus": 0.096,
+      "actualBonus": 0.096,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 303,
+      "frame": 3288,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 306,
+      "frame": 3296,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 307,
+      "frame": 3304,
+      "stacksBeforeDamage": 4,
+      "expectedBonus": 0.384,
+      "actualBonus": 0.384,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 310,
+      "frame": 3343,
+      "stacksBeforeDamage": 6,
+      "expectedBonus": 0.5760000000000001,
+      "actualBonus": 0.5760000000000001,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 312,
+      "frame": 3351,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 311,
+      "frame": 3351,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 313,
+      "frame": 3359,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 314,
+      "frame": 3372,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 315,
+      "frame": 3380,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 316,
+      "frame": 3388,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 318,
+      "frame": 3396,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 322,
+      "frame": 3435,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 326,
+      "frame": 3443,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 325,
+      "frame": 3443,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 327,
+      "frame": 3451,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 329,
+      "frame": 3464,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 330,
+      "frame": 3472,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 331,
+      "frame": 3480,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 332,
+      "frame": 3488,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 335,
+      "frame": 3527,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 337,
+      "frame": 3535,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 336,
+      "frame": 3535,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 338,
+      "frame": 3543,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 339,
+      "frame": 3556,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 343,
+      "frame": 3564,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 346,
+      "frame": 3572,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 348,
+      "frame": 3580,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 350,
+      "frame": 3619,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 352,
+      "frame": 3627,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 351,
+      "frame": 3627,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 354,
+      "frame": 3635,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 355,
+      "frame": 3648,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 356,
+      "frame": 3656,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 357,
+      "frame": 3664,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 360,
+      "frame": 3672,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 362,
+      "frame": 3711,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 364,
+      "frame": 3719,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 363,
+      "frame": 3719,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 367,
+      "frame": 3727,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 368,
+      "frame": 3740,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 370,
+      "frame": 3748,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 371,
+      "frame": 3756,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 372,
+      "frame": 3764,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 376,
+      "frame": 3803,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 381,
+      "frame": 3811,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 380,
+      "frame": 3811,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 382,
+      "frame": 3819,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 434,
+      "frame": 4601,
+      "stacksBeforeDamage": 1,
+      "expectedBonus": 0.096,
+      "actualBonus": 0.096,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 438,
+      "frame": 4609,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 441,
+      "frame": 4617,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 442,
+      "frame": 4625,
+      "stacksBeforeDamage": 4,
+      "expectedBonus": 0.384,
+      "actualBonus": 0.384,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 445,
+      "frame": 4664,
+      "stacksBeforeDamage": 6,
+      "expectedBonus": 0.5760000000000001,
+      "actualBonus": 0.5760000000000001,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 447,
+      "frame": 4672,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 446,
+      "frame": 4672,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 448,
+      "frame": 4680,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 449,
+      "frame": 4693,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 450,
+      "frame": 4701,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 452,
+      "frame": 4709,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 454,
+      "frame": 4717,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 458,
+      "frame": 4756,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 462,
+      "frame": 4764,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 461,
+      "frame": 4764,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 463,
+      "frame": 4772,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 465,
+      "frame": 4785,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 466,
+      "frame": 4793,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 467,
+      "frame": 4801,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 468,
+      "frame": 4809,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 471,
+      "frame": 4848,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 473,
+      "frame": 4856,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 472,
+      "frame": 4856,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 474,
+      "frame": 4864,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 475,
+      "frame": 4877,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 478,
+      "frame": 4885,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 481,
+      "frame": 4893,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 483,
+      "frame": 4901,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 485,
+      "frame": 4940,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 487,
+      "frame": 4948,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 486,
+      "frame": 4948,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 489,
+      "frame": 4956,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 490,
+      "frame": 4969,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 491,
+      "frame": 4977,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 492,
+      "frame": 4985,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 495,
+      "frame": 4993,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 497,
+      "frame": 5032,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 499,
+      "frame": 5040,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 498,
+      "frame": 5040,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 502,
+      "frame": 5048,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 503,
+      "frame": 5061,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 505,
+      "frame": 5069,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 507,
+      "frame": 5077,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 508,
+      "frame": 5085,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 512,
+      "frame": 5124,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 517,
+      "frame": 5132,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 516,
+      "frame": 5132,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 518,
+      "frame": 5140,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 570,
+      "frame": 5922,
+      "stacksBeforeDamage": 1,
+      "expectedBonus": 0.096,
+      "actualBonus": 0.096,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 574,
+      "frame": 5930,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 577,
+      "frame": 5938,
+      "stacksBeforeDamage": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 578,
+      "frame": 5946,
+      "stacksBeforeDamage": 4,
+      "expectedBonus": 0.384,
+      "actualBonus": 0.384,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 581,
+      "frame": 5985,
+      "stacksBeforeDamage": 6,
+      "expectedBonus": 0.5760000000000001,
+      "actualBonus": 0.5760000000000001,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 583,
+      "frame": 5993,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 582,
+      "frame": 5993,
+      "stacksBeforeDamage": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 584,
+      "frame": 6001,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 585,
+      "frame": 6014,
+      "stacksBeforeDamage": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 586,
+      "frame": 6022,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 587,
+      "frame": 6030,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 589,
+      "frame": 6038,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 593,
+      "frame": 6077,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 597,
+      "frame": 6085,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 596,
+      "frame": 6085,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 598,
+      "frame": 6093,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 600,
+      "frame": 6106,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 601,
+      "frame": 6114,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 602,
+      "frame": 6122,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 603,
+      "frame": 6130,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 606,
+      "frame": 6169,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 608,
+      "frame": 6177,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 607,
+      "frame": 6177,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 609,
+      "frame": 6185,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 610,
+      "frame": 6198,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 614,
+      "frame": 6206,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 617,
+      "frame": 6214,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 619,
+      "frame": 6222,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 621,
+      "frame": 6261,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 623,
+      "frame": 6269,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 622,
+      "frame": 6269,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 625,
+      "frame": 6277,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 626,
+      "frame": 6290,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 627,
+      "frame": 6298,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 628,
+      "frame": 6306,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 631,
+      "frame": 6314,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 633,
+      "frame": 6353,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 635,
+      "frame": 6361,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 634,
+      "frame": 6361,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 638,
+      "frame": 6369,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 639,
+      "frame": 6382,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 0 (Windfavored)"
+    },
+    {
+      "attackId": 641,
+      "frame": 6390,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 642,
+      "frame": 6398,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 1 (Windfavored)"
+    },
+    {
+      "attackId": 643,
+      "frame": 6406,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 647,
+      "frame": 6445,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 652,
+      "frame": 6453,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    },
+    {
+      "attackId": 651,
+      "frame": 6453,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Normal 2 (Windfavored)"
+    },
+    {
+      "attackId": 653,
+      "frame": 6461,
+      "stacksBeforeDamage": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "ability": "Shugen: The Curtains’ Melancholic Sway"
+    }
+  ],
+  "capture": "/tmp/GIDPS-team-closure-20261023/head-5b43-real-ui/run.result.json",
+  "captureSha256": "da061210ea6d43d1554e761f3428c84dfd9cf65be34f1e4f6e25e47ed1ff6d1e",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+  "weaponFileSha256": "c15c2113a635e8fe64e9d9d0a985349458b7d414dc20d09f7e2aaa929345c271",
+  "scope": "fixed stationary single-target axis; no game certification or generalized callback-order claim",
+  "negativeChecks": [
+    {
+      "case": "backfill-new-stacks",
+      "rejected": true,
+      "reason": "Tulay amount at attack 32 f638: 0.28800000000000003 != 0.096"
+    },
+    {
+      "case": "timer-one-frame-late",
+      "rejected": true,
+      "reason": "independently generated gain frames/stacks differ"
+    },
+    {
+      "case": "duplicate-hit",
+      "rejected": true,
+      "reason": "duplicated actual attack"
+    },
+    {
+      "case": "bonus-on-burst",
+      "rejected": true,
+      "reason": "Tulay amount at attack 113 f1261: 0.96 != 0"
+    }
+  ]
+}

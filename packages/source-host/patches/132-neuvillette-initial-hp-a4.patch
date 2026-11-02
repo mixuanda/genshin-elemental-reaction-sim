@@ -1,0 +1,15 @@
+--- a/internal/characters/neuvillette/asc.go
++++ b/internal/characters/neuvillette/asc.go
+@@ -109,7 +109,11 @@
+ 		c.updateA4()
+ 	}, "neuv-a4-update-on-heal")
+ 
+-	c.updateA4()
++	// InitializeTeam sets starting HP after character Init. Sample only after
++	// the whole team is initialized; keep the existing drain/heal updates.
++	c.Core.Events.Subscribe(event.OnInitialize, func(args ...any) {
++		c.updateA4()
++	}, "neuv-a4-update-on-initialize")
+ }
+ 
+ func (c *char) updateA4() {

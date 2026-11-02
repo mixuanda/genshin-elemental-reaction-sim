@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark light" />
-  <title>提瓦特伤害实验室</title>
+  <title>GIDPS · Damage Lab</title>
   <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
@@ -12,8 +12,8 @@
     <header class="topbar">
       <div>
         <div class="eyebrow">GENSHIN DAMAGE LABORATORY</div>
-        <h1>提瓦特伤害实验室</h1>
-        <p>独立技能计算 · 逐步公式解释 · 可审计的团队模拟</p>
+        <h1>GIDPS · Damage Lab</h1>
+        <p>Explore your build. Understand your damage.</p>
       </div>
       <div class="top-actions" id="simulationActions">
         <label class="select-label">预设
@@ -28,17 +28,20 @@
       </div>
     </header>
 
-    <nav class="product-nav" aria-label="主导航">
-      <a href="/calculator">技能计算器</a>
-      <a href="/examples">演算示例</a>
-      <a href="/builds">配装预设</a>
-      <a href="/team">队伍配置</a>
-      <a href="/rotation">行动编辑</a>
-      <a href="/results">模拟结果</a>
-      <a href="/source-simulation">来源队伍模拟</a>
-      <a href="/compare">结果比较</a>
-      <a href="/data">数据浏览</a>
-      <a href="/updates">更新状态</a>
+    <nav class="product-nav" aria-label="Main navigation">
+      <a href="/calculator">Skill calculator</a>
+      <a href="/source-simulation">Team DPS</a>
+      <a href="/team-candidates">Team candidates</a>
+      <a href="/builds">Builds</a>
+      <details class="product-nav-more"><summary>More tools</summary>
+        <a href="/examples">Examples</a>
+        <a href="/team">Legacy teams</a>
+        <a href="/rotation">Legacy rotations</a>
+        <a href="/results">Legacy results</a>
+        <a href="/compare">Compare</a>
+        <a href="/data">Data catalog</a>
+        <a href="/updates">Data status</a>
+      </details>
     </nav>
     <div id="independentWorkspace" hidden></div>
     <div id="simulationWorkspace">
@@ -74,6 +77,7 @@
           </select>
         </label>
         <label>种子<input id="randomSeedInput" /></label>
+        <label>并行线程<select id="threadInput"><option value="1">1（默认）</option><option value="2">2</option><option value="4">4</option></select></label>
         <label>种子迭代次数<input id="iterationInput" type="number" min="1" max="10000" step="1" value="1" /></label>
         <label><input id="checkpointInput" type="checkbox" />记录周期稳态检查点</label>
         <label><input id="detailedTraceInput" type="checkbox" />随结果保存所有逐击公式轨迹</label>
@@ -87,6 +91,7 @@
         <button class="tab active" data-tab="overview">总览</button>
         <button class="tab" data-tab="timeline">时间轴</button>
         <button class="tab" data-tab="hits">逐段伤害</button>
+        <button class="tab" data-tab="special">月／星反应</button>
         <button class="tab" data-tab="showcase">账号展示柜</button>
         <button class="tab" data-tab="config">高级配置</button>
       </nav>
@@ -107,7 +112,6 @@
           <div id="energyStatus" class="energy-grid"></div>
         </article>
         <div id="simulationAnalysis"></div>
-        <div id="lunarSimulationHost"></div>
         <article class="card legal-timeline-card" id="legalTimelineCard" hidden>
           <div class="section-title">
             <h2>合法帧行动队列</h2>
@@ -154,6 +158,10 @@
             </div>
           </div>
         </article>
+      </section>
+
+      <section class="tab-panel" id="specialPanel">
+        <div id="lunarSimulationHost"></div>
       </section>
 
       <section class="tab-panel" id="timelinePanel">

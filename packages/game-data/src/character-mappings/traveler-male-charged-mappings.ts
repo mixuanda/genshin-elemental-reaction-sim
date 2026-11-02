@@ -49,7 +49,7 @@ export const travelerMaleChargedMappings: SourceHitMapping[] = travelerMaleCharg
     sourceCoefficientValues: cast.roles[role].values, coefficientTolerance: 0,
     sourceRepository: "frzyc/genshin-optimizer", sourceCommit: TRAVELER_MALE_CHARGED_OPTIMIZER_REVISION, sourcePaths: paths(cast.element),
     assumptions: [
-      "C0；男性专属 Optimizer 参数 auto[5]/auto[6]，由窄入口精确核对共享目录的性别差异，不覆盖荧的参数。",
+      `${cast.element === "anemo" ? "风形态基础物理重击C0–C6；其他元素高命座不因此开放" : "C0"}；男性专属 Optimizer 参数 auto[5]/auto[6]，由窄入口精确核对共享目录的性别差异，不覆盖荧的参数。`,
       "从合法普攻后的重击就绪状态开始；默认体力消耗20，明确两次来源机会第9/20帧的接触记录及各自命中时快照。",
       "无外部附魔与特殊剧情重击；实际剧情、装备和队友属性变化已准确恢复到每击面板且不重复加入。",
       "冰分支另需无生效E、无恒星转化状态、无特殊重击层数；完整范围由核心依据显式状态确认，映射行本身只是两段模板。",

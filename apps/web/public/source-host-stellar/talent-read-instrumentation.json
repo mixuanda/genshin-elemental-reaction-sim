@@ -4835,18 +4835,18 @@
       ]
     },
     {
-      "siteId": "internal/characters/iansan/charge.go:95:21",
+      "siteId": "internal/characters/iansan/charge.go:98:21",
       "path": "internal/characters/iansan/charge.go",
-      "line": 95,
+      "line": 98,
       "column": 21,
       "tableId": "internal/characters/iansan/zz_iansan.dm.go#swift",
       "indexExpressions": [
-        "c.TalentLvlSkill()"
+        "c.TalentLvlAttack()"
       ],
       "talentLevelIndices": [
         {
           "position": 0,
-          "kind": "skill"
+          "kind": "attack"
         }
       ]
     },
@@ -14215,9 +14215,9 @@
       "reason": "Mult is not a direct index of a numeric generated table"
     },
     {
-      "siteId": "internal/characters/wanderer/cons.go:98:16",
+      "siteId": "internal/characters/wanderer/cons.go:101:16",
       "path": "internal/characters/wanderer/cons.go",
-      "line": 98,
+      "line": 101,
       "column": 16,
       "tableId": "",
       "indexExpressions": [],

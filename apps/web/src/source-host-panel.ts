@@ -1,5 +1,8 @@
+import { renderSourceMonteCarloPanel } from "./source-host-monte-carlo-panel";
 import { renderSourceHostTargetSummaryPanel } from "./source-host-target-summary-panel";
 import { renderSourceHostResultOverview } from "./source-host-result-overview";
+import { renderWandererScenarioPanel } from "./source-wanderer-scenario-panel";
+import { openSourceHostResultArchive } from "../../../packages/sim-core/src/source-host-result-archive";
 import { renderSourceHostTargetPhasePanel } from "./source-host-target-phase-panel";
 import { normalizeSourceHostTargetPhases, sourceHostTargetPhaseRequestSchema } from "../../../packages/sim-core/src/source-host-target-phase";
 import phaseDeterministicExampleConfig from "../../../packages/source-host/phase-deterministic-example.gcsl?raw";
@@ -13,7 +16,7 @@ import stellarConductExampleConfig from "../../../packages/source-host/stellar-o
 import lunarExampleConfig from "../../../packages/source-host/lunar-example.gcsl?raw";
 import { SOURCE_HOST_PROTOCOL, type SourceHostResult, type SourceHostExecutionMode } from "../../../packages/sim-core/src/source-host-wire";
 import { SOURCE_HOST_RNG_ALGORITHM, SOURCE_HOST_SEED_NORMALIZATION } from "../../../packages/sim-core/src/source-host-randomness";
-import { captureSourceHostHit, createSourceHostResult, replaySourceHostHit, type SourceHostHitCapture } from "../../../packages/sim-core/src/source-host-capture";
+import { captureSourceHostHit, replaySourceHostHit, type SourceHostHitCapture } from "../../../packages/sim-core/src/source-host-capture";
 import { sourceHostReexecutionRequest, type SourceHostReexecutionReceipt } from "../../../packages/sim-core/src/source-host-reexecution";
 import { captureSourceHostPlayerIncoming, replaySourceHostPlayerIncoming, type SourceHostPlayerIncomingCapture } from "../../../packages/sim-core/src/source-host-incoming-capture";
 import type { SourceHostEnergyCapture } from "../../../packages/sim-core/src/source-host-energy-capture";
@@ -101,6 +104,7 @@ function sourceScriptWithPracticalSwap(script: string): string {
   return lines.join("\n");
 }
 let savedConfig = exampleConfig, savedSeed = "1", savedResult: SourceHostResult | null = null;
+let savedReadOnlyArchive: { originalText: string; filename: string } | null = null;
 let savedHostVariant: SourceHostVariant = "classic";
 let savedPhaseObservation: SourceHostPhaseObservationRequest | undefined;
 let savedExecutionMode: SourceHostExecutionMode = "auto-wait";
@@ -108,8 +112,14 @@ let savedStopAtDuration = false;
 let savedPrimaryTargetIndex = 0;
 let savedTargetPhasesText = "";
 let activeWorkerRun: SourceHostWorkerRunHandle | null = null;
+let montePanel: ReturnType<typeof renderSourceMonteCarloPanel> | undefined;
 let disposeInventory: (() => void) | undefined;
 const teamDrafts: Partial<Record<SourceHostVariant, SourceTeamDraft>> = {};
+/** Read-only handoff for the candidate view; selecting it must not replace real equipment. */
+export function getCurrentSourceTeamDraft(): SourceTeamDraft | undefined {
+  const draft = teamDrafts[savedHostVariant];
+  return draft ? structuredClone(draft) : undefined;
+}
 let teamBuilder: ReturnType<typeof import("./source-team-builder").renderSourceTeamBuilder> | undefined;
 let builderGeneration = 0;
 export async function addSourceTeamRoster(members: SourceTeamMember[], inventory: SourceTeamInventory, mode: "merge" | "replace"): Promise<void> {
@@ -121,17 +131,22 @@ export async function addSourceTeamRoster(members: SourceTeamMember[], inventory
   savedHostVariant = variant;
 }
 
-export function stopSourceHostRun(): void { activeWorkerRun?.cancel(); activeWorkerRun = null; }
+let pendingTemplateId: string | undefined;
+/** User selected an existing candidate; the builder still validates its actual source inventory. */
+export function requestSourceTeamTemplate(templateId: string): void { pendingTemplateId = templateId; }
+export function stopSourceHostRun(): void { montePanel?.cancel(); activeWorkerRun?.cancel(); activeWorkerRun = null; }
 export function disposeSourceHostPanel(): void { stopSourceHostRun(); disposeInventory?.(); disposeInventory = undefined; builderGeneration++; teamBuilder?.dispose(); teamBuilder = undefined; }
 
 export function renderSourceHostPanel(root: HTMLElement, openCalculator: (capture: SourceHostHitCapture | SourceHostPlayerIncomingCapture | SourceHostEnergyCapture | SourceHostCooldownCapture | SourceHostHealingCapture | SourceHostCharacterShieldCapture | SourceHostDrainCapture | SourceHostActionCollection | SourceHostEventCollection) => void): void {
+  montePanel?.cancel(); montePanel = undefined;
   disposeInventory?.();
   teamBuilder?.dispose(); teamBuilder = undefined;
   const mountedGeneration = ++builderGeneration;
-  root.innerHTML = `<article class="card"><h2>来源队伍模拟</h2><p>固定版本的来源执行器运行角色、装备、快照、粒子、附着与回调，共享公式核心返回实际使用的出伤结果。原有队伍编辑与独立技能计算继续可用。</p>
-    <p class="notice">来源机制为暂定。共用出伤核心支持普通、增幅、激化、经典剧变，以及直接月伤害、多人月感电／月结晶；月绽放资源事件另列。星辉另由 a7dc4bf 执行器运行；其源码与指南的分歧保留，尚未游戏验证。任意属性转换的前置解释仍不完整，不支持任意帧断点恢复或据此宣称稳态。</p>
-    <label>来源规则版本<select id="source-host-variant"><option value="classic">b4ae769 · 普通/月曜、逐项属性、共享玩家受击</option><option value="stellar">a7dc4bf · 星辉来源规则（暂定、AGPL）</option></select></label><p>配队卡、装备名册与生成脚本使用所选来源；两个来源分别保留队伍草稿。星辉来源的新增角色也可自由配队。切换不会改动正式或预览数据集。</p>
-    <div id="source-team-builder"></div>
+  root.innerHTML = `<article class="card"><h2>队伍 DPS 模拟</h2><p>选队伍 → 点 E / Q / A 编排动作 → 运行动作轴。结果显示总伤、DPS、角色贡献和逐帧伤害。</p>
+    <details><summary>机制版本与支持范围</summary><p>固定来源机制仍有未验证项；具体缺口随角色、动作和结果列出。</p>
+    <label>来源规则版本<select id="source-host-variant"><option value="classic">普通／月曜 · b4ae769</option><option value="stellar">星辉 · a7dc4bf</option></select></label><p>两版本分别保留队伍草稿。特殊反应由执行器依实际队伍与事件判断；不是所有角色、分支均已核验。</p></details>
+    <div id="source-wanderer-scenario"></div><div id="source-team-builder"></div>
+    <div class="editor-actions" data-source-result-files aria-label="计算结果文件"><label class="file-button">打开计算结果<input type="file" id="source-host-import" accept="application/json"></label><button id="source-host-export" ${savedResult ? "" : "disabled"}>保存完整结果</button><button id="source-host-cancel" disabled>取消计算</button></div>
     <details><summary>高级：示例脚本与来源运行参数</summary>
     <div class="editor-actions"><button type="button" data-source-host-example="ordinary">载入单角色动作示例</button><button type="button" data-source-host-example="lunar">载入月曜机制示例</button><button type="button" data-source-host-example="incoming">载入玩家受击示例</button><button type="button" data-source-host-example="stellar">载入星扩散示例</button><button type="button" data-source-host-example="conduct">载入星导示例</button></div>
     <details><summary>高级：完整 GCSL 脚本（可选）</summary><label>完整 GCSL 队伍与行动脚本<textarea id="source-host-config" rows="18" spellcheck="false">${esc(savedConfig)}</textarea></label></details>
@@ -144,17 +159,17 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     <label>动作执行模式<select id="source-host-execution-mode"><option value="auto-wait">自动等待 · 未就绪时按帧重试</option><option value="strict">严格 · 首次未就绪即停止</option></select></label>
     <p>两种模式都沿用来源的动画排队、隐式切人和显式等待。严格模式在实际排队后首次遇到动画、切人、冷却、能量或体力未就绪时停止，不补时间也不跳过动作；允许排队不代表此时已能施放。可先用自动等待查看实际排队与执行差，再编辑等待或动作。它们是本工具的执行政策，不能代替游戏机制验证。</p>
     <fieldset id="source-host-phase-controls"><legend>观察轮转相位</legend><button type="button" id="source-host-phase-example">载入随机循环示例</button><button type="button" id="source-host-phase-deterministic-example">载入确定性伤害循环示例</button><label><input id="source-host-phase-enabled" type="checkbox"${savedPhaseObservation ? " checked" : ""}>记录原生相位并检查周期状态</label><p>在同一轮转的开头写入 <code>phase("rotation");</code>，并在重复循环中保留这个位置。观察标记不推进时间。系统同时比较实际脚本位置、完整状态与周期伤害；有未知回调或私有状态时会列出缺口，不给稳态 DPS。</p><div class="form-grid"><label>预热帧数<input id="source-host-phase-warmup" type="number" min="0" step="1" value="${savedPhaseObservation?.warmupFrames ?? 0}"></label><label>允许的最长周期（轮）<input id="source-host-phase-period" type="number" min="1" max="8" step="1" value="${savedPhaseObservation?.maxPeriod ?? 4}"></label><label>连续比较周期数<input id="source-host-phase-repeats" type="number" min="2" max="8" step="1" value="${savedPhaseObservation?.requiredConsecutivePeriods ?? 3}"></label><label>最多记录边界<input id="source-host-phase-limit" type="number" min="2" max="256" step="1" value="${savedPhaseObservation?.maxObservations ?? 64}"></label></div></fieldset>
-    <div class="editor-actions"><button class="primary" id="source-host-run">运行来源队伍</button><button id="source-host-cancel" disabled>取消</button><button id="source-host-export" ${savedResult ? "" : "disabled"}>导出完整结果</button><label class="file-button">导入来源结果<input type="file" id="source-host-import" accept="application/json"></label></div>
+    <div class="editor-actions"><button class="primary" id="source-host-run">运行来源队伍</button></div>
     </details>
     <p id="source-host-status" role="status" aria-live="polite"></p>
     <section id="source-host-worker-diagnostic" class="card" role="alert" hidden><p data-diagnostic-message></p><div class="editor-actions"><button type="button" id="source-host-diagnostic-retry">按原输入安全重试</button><button type="button" id="source-host-diagnostic-export">导出安全诊断回执</button></div><details><summary>错误阶段与技术信息</summary><pre data-diagnostic-json></pre></details></section>
     <details><summary>高级：复跑核对与结果导出</summary>
-    <div class="editor-actions"><button id="source-host-reexecute" ${savedResult ? "" : "disabled"}>从头复跑核对当前结果</button><button id="source-host-export-reexecution" disabled>导出复跑核对记录</button></div>
+    <div class="editor-actions"><button id="source-host-reexecute" ${savedResult && !savedReadOnlyArchive ? "" : "disabled"}>从头复跑核对当前结果</button><button id="source-host-export-reexecution" disabled>导出复跑核对记录</button></div>
     <p>导入会恢复共享公式与数值；「从头复跑核对」使用该结果保存的完整脚本、种子、动作政策和同一WASM，从初态重新运行机制，包含实际动作、能量、伤害和日志。它不使用上方尚未运行的编辑内容，也不是任意帧断点恢复或游戏验证。</p>
     <p id="source-host-reexecution-status" role="status">当前结果尚未在本页面完成从头复跑核对。</p>
     </details>
     <details><summary>来源与能力边界</summary><p>源码注册不等于通过游戏验证。源内 TODO、缺失人物及各机制限制仍保留。共享公式返回玩家受击、护盾消耗、穿透最小值与生命比例；来源运行时保留事件、护盾顺序与生命上下限处理。</p><a href="/source-host/manifest.json" target="_blank" rel="noopener">b4ae769 源码、构建哈希、名册及许可</a> · <a href="/source-host-stellar/manifest.json" target="_blank" rel="noopener">a7dc4bf 独立源码、哈希及许可</a></details></article>
-    <div id="source-host-batch"></div><div id="source-host-startup"></div><div id="source-host-result"></div><div id="source-host-inventory"></div>`;
+    <div id="source-host-result"></div><details><summary>多次模拟与统计对照</summary><div id="source-host-monte"></div><div id="source-host-batch"></div><div id="source-host-startup"></div></details><details><summary>来源名册与实现详情</summary><div id="source-host-inventory"></div></details>`;
   const config = root.querySelector<HTMLTextAreaElement>("#source-host-config")!, seed = root.querySelector<HTMLInputElement>("#source-host-seed")!;
   const hostVariant = root.querySelector<HTMLSelectElement>("#source-host-variant")!;
   const executionMode = root.querySelector<HTMLSelectElement>("#source-host-execution-mode")!;
@@ -174,6 +189,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   const swapWarning = root.querySelector<HTMLElement>("#source-host-swap-warning")!;
   const switchPracticalButton = root.querySelector<HTMLButtonElement>("#source-host-switch-practical")!;
   let swapBlocked = false, sourceRunBusy = false;
+  let wandererScenario: ReturnType<typeof renderWandererScenarioPanel> | undefined;
   const updateSwapGuard = (script = config.value) => {
     swapBlocked = sourceScriptNeedsPracticalSwap(script);
     swapWarning.hidden = !swapBlocked;
@@ -227,13 +243,14 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   const batch = renderSourceHostBatchControls(root.querySelector<HTMLElement>("#source-host-batch")!, {
     getRequest,
     onRun: jobs => startRun({ ...getRequest(), jobs }),
-    onOpenResult: result => { savedResult = result; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false; renderResult(result); status.textContent = `已打开对照结果：种子 ${result.seed}；结果中的脚本与源码身份单独保留。`; },
+    onOpenResult: result => { savedResult = result; savedReadOnlyArchive = null; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false; renderResult(result); status.textContent = `已打开对照结果：种子 ${result.seed}；结果中的脚本与源码身份单独保留。`; },
   });
   const startup = renderSourceHostStartupControls(root.querySelector<HTMLElement>("#source-host-startup")!, {
     getRequest,
     onRun: startupJobs => startRun({ ...getRequest(), startupJobs }),
-    onOpenResult: result => { savedResult = result; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false; renderResult(result); status.textContent = `已打开起步对照结果：种子 ${result.seed}；实际起步能量保存在本条结果中。`; },
+    onOpenResult: result => { savedResult = result; savedReadOnlyArchive = null; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false; renderResult(result); status.textContent = `已打开起步对照结果：种子 ${result.seed}；实际起步能量保存在本条结果中。`; },
   });
+  montePanel = renderSourceMonteCarloPanel(root.querySelector<HTMLElement>("#source-host-monte")!, { getRequest, onBusy: busy => setBusy(busy) });
   let builderMount = 0;
   function mountBuilder(): void {
     const attempt = ++builderMount, variant = savedHostVariant;
@@ -244,14 +261,17 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
       if (mountedGeneration !== builderGeneration || attempt !== builderMount) return;
       teamBuilder = renderSourceTeamBuilder(host, {
         hostVariant: variant,
+        ...(pendingTemplateId ? { initialTemplateId: pendingTemplateId } : {}),
         ...(teamDrafts[variant] ? { initialDraft: teamDrafts[variant] } : {}),
-        onDraftChange: draft => { teamDrafts[variant] = structuredClone(draft); },
+        onDraftChange: draft => { teamDrafts[variant] = structuredClone(draft); wandererScenario?.refresh(); },
         onApplyScript: (script, primaryTargetIndex, targetPhases) => {
+          wandererScenario?.invalidatePending();
           savedConfig = script; config.value = script; updateSwapGuard(); savedPrimaryTargetIndex = primaryTargetIndex; primaryTarget.value = String(primaryTargetIndex + 1); savedStopAtDuration = true; stopAtDuration.checked = true;
           savedTargetPhasesText = targetPhases === undefined ? "" : JSON.stringify(targetPhases, null, 2); targetPhasesInput.value = savedTargetPhasesText;
           status.textContent = `已从${variant === "stellar" ? "星辉" : "普通／月曜"}来源配队卡生成脚本。点击「运行来源队伍」，由实际机制检查动画、冷却与能量。`;
         },
         onRunScript: (script, primaryTargetIndex, targetPhases) => {
+          wandererScenario?.invalidatePending();
           savedConfig = script; config.value = script; updateSwapGuard(); savedPrimaryTargetIndex = primaryTargetIndex; primaryTarget.value = String(primaryTargetIndex + 1); savedStopAtDuration = true; stopAtDuration.checked = true;
           savedTargetPhasesText = targetPhases === undefined ? "" : JSON.stringify(targetPhases, null, 2); targetPhasesInput.value = savedTargetPhasesText;
           if (run.disabled) {
@@ -262,6 +282,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
           run.click();
         },
       });
+      pendingTemplateId = undefined;
       if (savedResult && (savedResult.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === variant) teamBuilder.renderExecutionLogs(savedResult.logs, savedResult.statusInstances, savedResult.observationWindow?.actualEndFrame ?? savedResult.lifecycleObservationFrame);
     }).catch(error => { if (mountedGeneration === builderGeneration && attempt === builderMount) host.textContent = `配队编辑器加载失败：${error}`; });
   }
@@ -272,6 +293,27 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     if (changed) mountBuilder();
   }
   mountBuilder();
+  wandererScenario = renderWandererScenarioPanel(root.querySelector<HTMLElement>("#source-wanderer-scenario")!, {
+    getRequest,
+    getDraft: () => teamDrafts[savedHostVariant],
+    apply: prepared => {
+      const request = prepared.exactRequest;
+      savedConfig = request.config; config.value = savedConfig; savedSeed = request.seed; seed.value = savedSeed;
+      savedExecutionMode = request.executionMode ?? "auto-wait"; executionMode.value = savedExecutionMode;
+      savedPrimaryTargetIndex = 0; primaryTarget.value = "1";
+      savedStopAtDuration = true; stopAtDuration.checked = true; clearTargetPhases();
+      savedPhaseObservation = request.phaseObservation;
+      root.querySelector<HTMLInputElement>("#source-host-phase-enabled")!.checked = Boolean(savedPhaseObservation);
+      if (savedPhaseObservation) for (const [id, value] of [["warmup", savedPhaseObservation.warmupFrames], ["period", savedPhaseObservation.maxPeriod], ["repeats", savedPhaseObservation.requiredConsecutivePeriods], ["limit", savedPhaseObservation.maxObservations]] as const) root.querySelector<HTMLInputElement>(`#source-host-phase-${id}`)!.value = String(value);
+      teamDrafts.classic = structuredClone(prepared.equipmentDraft);
+      const changed = savedHostVariant !== "classic";
+      selectHostVariant("classic");
+      if (!changed) teamBuilder?.setDraft(prepared.equipmentDraft);
+      updateSwapGuard();
+    },
+    run: request => startRun(request),
+  });
+  for (const event of ["input", "change"]) root.addEventListener(event, () => wandererScenario?.refresh());
 
   root.querySelectorAll<HTMLButtonElement>("[data-source-host-example]").forEach(button => {
     button.onclick = () => { clearTargetPhases(); savedPrimaryTargetIndex = 0; primaryTarget.value = "1"; const key = button.dataset.sourceHostExample; selectHostVariant(key === "stellar" || key === "conduct" ? "stellar" : "classic"); savedConfig = key === "stellar" ? stellarExampleConfig : key === "conduct" ? stellarConductExampleConfig : key === "lunar" ? lunarExampleConfig : key === "incoming" ? incomingExampleConfig : exampleConfig; config.value = savedConfig; updateSwapGuard(); status.textContent = "已载入可编辑示例。构筑为假设值，反应由实际执行状态决定。"; };
@@ -291,12 +333,27 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   });
   }
   mountInventory();
-  const setBusy = (busy: boolean) => { sourceRunBusy = busy; run.disabled = busy || swapBlocked; cancel.disabled = !busy; batch.setBusy(busy); startup.setBusy(busy); reexecuteButton.disabled = busy || !savedResult; importInput.disabled = busy; };
+  const setBusy = (busy: boolean) => { sourceRunBusy = busy; run.disabled = busy || swapBlocked; cancel.disabled = !busy; batch.setBusy(busy); startup.setBusy(busy); montePanel?.setBusy(busy); wandererScenario?.setBusy(busy); reexecuteButton.disabled = busy || !savedResult || Boolean(savedReadOnlyArchive); importInput.disabled = busy; };
+  const mountDamageCurve = (result: SourceHostResult) => {
+    const details = resultHost.querySelector<HTMLDetailsElement>("[data-source-curve]")!;
+    let started = false;
+    details.ontoggle = () => {
+      if (!details.open || started) return;
+      started = true;
+      const body = details.querySelector<HTMLElement>("[data-source-curve-body]")!;
+      void import("./source-damage-curve-panel").then(({ renderSourceDamageCurve }) => { if (body.isConnected) renderSourceDamageCurve(body, result, key => teamBuilder?.getCharacterName(key)); }).catch(error => { body.textContent = String(error); });
+    };
+  };
   const renderResult = (result: SourceHostResult): void => {
     teamBuilder?.renderExecutionLogs((result.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === savedHostVariant ? result.logs : undefined,
       (result.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === savedHostVariant ? result.statusInstances : undefined,
       (result.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic") === savedHostVariant ? result.observationWindow?.actualEndFrame ?? result.lifecycleObservationFrame : undefined);
     const overview = renderSourceHostResultOverview(result, key => teamBuilder?.getCharacterName(key));
+    if (savedReadOnlyArchive) {
+      resultHost.innerHTML = `<article class="card" data-source-readonly-archive><h3>历史结果（只读）</h3><p role="alert">旧记录把流浪者 Q 增伤用于了非 Q 命中。以下保留原值，未通过当前数值验证；可原样导出，或重新运行上方动作轴生成修正结果。</p>${overview}<details data-source-curve><summary>原记录伤害曲线与角色／来源贡献</summary><div data-source-curve-body>展开查看原记录，不重新计算。</div></details></article>`;
+      mountDamageCurve(result);
+      return;
+    }
     const incoming = result.playerApplications ?? [];
     const drains = result.drainApplications ?? [];
     const rng = result.randomness;
@@ -305,19 +362,34 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
       : `<p data-source-host-randomness>随机性回执：旧记录未提供原生 RNG 回执；种子 ${esc(result.seed)} 的初始化映射采用 ${SOURCE_HOST_SEED_NORMALIZATION}，算法为 ${SOURCE_HOST_RNG_ALGORITHM}。实际暴击触发效果及其他随机事件来源采样情况未知。</p>`;
     const window = result.observationWindow;
     const windowDetails = window ? `<p data-source-host-observation-window>终止政策：${window.policy === "duration-or-native" ? "配置时长上限与来源原生条件共同生效" : "来源原生条件"}；配置截止帧 ${window.configuredEndFrame}，实际结束帧 ${window.actualEndFrame}；结束原因：${{ duration: "达到配置时长", "targets-dead": "目标已全部死亡", "actions-exhausted": "击杀模式动作流已结束" }[window.endReason]}。${window.endReason === "duration" ? "" : "本次提前结束，伤害率使用实际时间，不称为完整固定窗口 DPS。"}</p>` : "<p>此旧结果没有终止条件回执，不从伤害或脚本推断结束原因。</p>";
-    resultHost.innerHTML = `<article class="card"><h3>本次来源队伍模拟</h3>${overview}<details data-source-host-run-info><summary>高级：来源与运行信息</summary><p>固定源码：<code>${esc(result.sourceCommit)}</code>；本次执行政策：${result.executionMode === "strict" ? "严格" : "自动等待"}${result.executionMode === undefined ? "（旧版本默认）" : ""}。</p>${randomnessDetails}${windowDetails}<p>记录 ${result.applications.length} 次已结算命中、${incoming.length} 次玩家受击、${result.calculations.length} 次共享核心计算。固定时长与击杀模式的统计、目标剩余生命截断分别保留。</p><p>执行器 SHA-256：<code>${esc(result.executionArtifact?.wasmSha256 ?? "旧记录未保存产物身份")}</code></p><p>数值状态 provisional；前置解释 partial。保存脚本与种子可从头再运行，逐击恢复无需 WASM。</p>
+    resultHost.innerHTML = `<article class="card"><h3>本次来源队伍模拟</h3>${overview}<details data-source-curve><summary>伤害曲线与角色／来源贡献</summary><div data-source-curve-body>展开后按实际事件生成；不增加模拟计算。</div></details><details data-source-host-run-info><summary>高级：来源与运行信息</summary><p>固定源码：<code>${esc(result.sourceCommit)}</code>；本次执行政策：${result.executionMode === "strict" ? "严格" : "自动等待"}${result.executionMode === undefined ? "（旧版本默认）" : ""}。</p>${randomnessDetails}${windowDetails}<p>记录 ${result.applications.length} 次已结算命中、${incoming.length} 次玩家受击、${result.calculations.length} 次共享核心计算。固定时长与击杀模式的统计、目标剩余生命截断分别保留。</p><p>执行器 SHA-256：<code>${esc(result.executionArtifact?.wasmSha256 ?? "旧记录未保存产物身份")}</code></p><p>数值状态 provisional；前置解释 partial。保存脚本与种子可从头再运行，逐击恢复无需 WASM。</p>
       ${result.startupState ? `<p data-source-host-startup-state>本次初能政策：${{ zero: "零能", full: "满能", custom: "逐角色自定义" }[result.startupState.mode]}；原生初始化后实际能量：${result.startupState.actors.map(actor => `${esc(actor.actorKey)} ${actor.energy}/${actor.maxEnergy}`).join("；")}。此政策只作用于初始化。</p>` : ""}</details>
-      <label>选择实际命中<input type="number" id="source-host-hit-index" min="0" max="${Math.max(0, result.applications.length - 1)}" step="1" value="0"></label><button id="source-host-open-calculator" ${result.applications.length ? "" : "disabled"}>在独立计算器中恢复并编辑</button><div id="source-host-hit"></div>
+      <details data-source-host-result-details><summary>高级：逐击、目标与生命记录</summary><label>选择实际命中<input type="number" id="source-host-hit-index" min="0" max="${Math.max(0, result.applications.length - 1)}" step="1" value="0"></label><button id="source-host-open-calculator" ${result.applications.length ? "" : "disabled"}>在独立计算器中恢复并编辑</button><div id="source-host-hit"></div>
       <div id="source-host-target-summary"></div><div id="source-host-target-phase-result"></div><div id="source-host-action-origins"></div>
       <section data-source-host-incoming-ledger><h4>玩家实际受击账本</h4><p>${incoming.length ? `共 ${incoming.length} 次。原始伤害、护盾吸收与 Drain 返回量分别来自来源运行回执。` : "本次没有玩家受击记录；旧版结果也可能未提供此账本。"}</p>${incoming.length ? `<label>选择玩家受击<input type="number" id="source-host-incoming-index" min="0" max="${incoming.length - 1}" step="1" value="0"></label><button type="button" id="source-host-open-incoming-calculator">在独立计算器中恢复玩家受击</button><div id="source-host-incoming-hit"></div>` : ""}</section>
       <section data-source-host-drain-ledger><h4>角色生命扣除账本</h4><p>${drains.length ? `共 ${drains.length} 次原生 Drain 调用，含技能自耗、受击与可能的零值事件。每次记录本次要求扣除的 HP、扣除前生命和写回比例；生命门槛与上限由来源角色和模板执行。` : "本次没有 Drain 应用记录；旧版结果也可能未保存这条账本，不能据此断定没有扣血。"}</p>${drains.length ? `<label>选择扣血事件<input type="number" id="source-host-drain-index" min="0" max="${drains.length - 1}" step="1" value="0"></label><button type="button" id="source-host-open-drain-calculator">送到独立扣血计算器</button><div id="source-host-drain-hit" role="status"></div><div class="table-wrap"><table><thead><tr><th>编号</th><th>帧</th><th>角色</th><th>来源动作</th><th>请求扣血</th><th>写回生命比例</th></tr></thead><tbody>${drains.slice(0, 120).map((row, index) => `<tr data-source-host-drain-row="${index}"><td>${index}</td><td>${row.frame}</td><td>${esc(row.actorKey)}</td><td>${esc(row.ability)}</td><td>${row.amount}</td><td>${row.resultRatio}</td></tr>`).join("")}</tbody></table></div>` : ""}</section>
-      <div id="source-host-phase-result"></div><div id="source-host-energy"></div><div id="source-host-helper-formulas"></div><details><summary>完整来源事件日志</summary><p>包括动作、能量、装备、反应和其他来源消息；日志保持原始字段，不能把调试文本当作已解释公式。</p><label>日志起始行<input type="number" id="source-host-log-offset" min="0" step="50" value="0"></label><pre id="source-host-log"></pre></details></article>`;
+      <div id="source-host-phase-result"></div><div id="source-host-energy"></div><div id="source-host-helper-formulas"></div><details><summary>完整来源事件日志</summary><p>包括动作、能量、装备、反应和其他来源消息；日志保持原始字段，不能把调试文本当作已解释公式。</p><label>日志起始行<input type="number" id="source-host-log-offset" min="0" step="50" value="0"></label><pre id="source-host-log"></pre></details></details></article>`;
+    mountDamageCurve(result);
     renderSourceHostTargetSummaryPanel(resultHost.querySelector<HTMLElement>("#source-host-target-summary")!, result, { showRates: true });
     renderSourceHostTargetPhasePanel(resultHost.querySelector<HTMLElement>("#source-host-target-phase-result")!, result);
     renderSourceHostPhasePanel(resultHost.querySelector<HTMLElement>("#source-host-phase-result")!, result);
-    renderSourceHostOriginPanel(resultHost.querySelector<HTMLElement>("#source-host-action-origins")!, result, openCalculator);
-    renderSourceHostEnergyPanel(resultHost.querySelector<HTMLElement>("#source-host-energy")!, result, openCalculator);
-    renderSourceHostHelperFormulaPanel(resultHost.querySelector<HTMLElement>("#source-host-helper-formulas")!, result, { openCooldown: openCalculator, openHealing: openCalculator, openShield: openCalculator });
+    // Capturing an explanation validates the complete saved result. Defer that
+    // work until requested; execution and result validation remain unchanged.
+    const deferredPanel = (selector: string, title: string, render: (body: HTMLElement) => void) => {
+      const host = resultHost.querySelector<HTMLElement>(selector)!;
+      host.innerHTML = `<details data-source-deferred="${esc(selector.slice(1))}"><summary>${esc(title)}</summary><div>展开后生成解释与核对。</div></details>`;
+      const details = host.querySelector<HTMLDetailsElement>("details")!;
+      let rendered = false;
+      details.addEventListener("toggle", () => {
+        if (!details.open || rendered) return;
+        rendered = true;
+        const body = details.querySelector<HTMLElement>("div")!;
+        try { render(body); } catch (error) { body.textContent = `详情生成失败：${String(error)}`; }
+      });
+    };
+    deferredPanel("#source-host-action-origins", "动作来源与逐击归属详情", body => renderSourceHostOriginPanel(body, result, openCalculator));
+    deferredPanel("#source-host-energy", "能量账本与公式详情", body => renderSourceHostEnergyPanel(body, result, openCalculator));
+    deferredPanel("#source-host-helper-formulas", "冷却、治疗与护盾公式详情", body => renderSourceHostHelperFormulaPanel(body, result, { openCooldown: openCalculator, openHealing: openCalculator, openShield: openCalculator }));
     resultHost.querySelector<HTMLElement>("[data-source-host-result-overview]")?.scrollIntoView({ block: "start", behavior: "smooth" });
     const select = resultHost.querySelector<HTMLInputElement>("#source-host-hit-index")!, hitHost = resultHost.querySelector<HTMLElement>("#source-host-hit")!;
     const chosen = () => result.applications[select.valueAsNumber];
@@ -328,7 +400,12 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
         hitHost.innerHTML = `<h4>${esc(replay.request.actorKey)} · ${esc(replay.request.ability)} · 第 ${replay.request.frame} 帧</h4><p>原始公式伤害 ${replay.originalRawDamage}；公式重放 ${replay.reproducedRawDamage}。来源实际记账 ${replay.originalDamage}；应用重放 ${replay.reproducedDamage}；记账差值 ${replay.difference}。目标 HP 损失 ${application.hpBefore - application.hpAfter}。</p><p>共享公式按此条保存输入重放；来源机制仍属暂定。本视图恢复单次命中，不支持任意帧状态断点。</p>${renderSourceHostBasePanelProvenance(replay.request.snapshot?.statProvenance?.snapshotRead)}${replay.warnings.map(warning => `<p class="calculator-hint">${esc(warning)}</p>`).join("")}${renderTraceHtml(replay.trace)}`;
       } catch (error) { hitHost.textContent = String(error); }
     };
-    select.oninput = showHit; showHit();
+    select.oninput = showHit;
+    hitHost.textContent = "逐击解释按需生成；选择命中或点击查看，不改变已结算伤害。";
+    const explainButton = document.createElement("button");
+    explainButton.type = "button"; explainButton.textContent = "查看本击公式";
+    explainButton.dataset.sourceExplainHit = "true"; explainButton.onclick = showHit;
+    hitHost.before(explainButton);
     resultHost.querySelector<HTMLButtonElement>("#source-host-open-calculator")!.onclick = () => { const row = chosen(); if (row) openCalculator(captureSourceHostHit(result, row.id)); };
     if (incoming.length) {
       const incomingSelect = resultHost.querySelector<HTMLInputElement>("#source-host-incoming-index")!;
@@ -382,7 +459,10 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     const showLog = () => { const start = Math.max(0, offset.valueAsNumber || 0); resultHost.querySelector<HTMLElement>("#source-host-log")!.textContent = `共 ${logs.length} 行；显示 ${start}–${Math.min(start + 50, logs.length)}\n${JSON.stringify(logs.slice(start, start + 50), null, 2)}`; };
     offset.oninput = showLog; showLog();
   };
-  if (savedResult) renderResult(savedResult);
+  if (savedResult) {
+    renderResult(savedResult);
+    if (!savedReadOnlyArchive && !teamDrafts[savedHostVariant] && savedConfig === savedResult.config && savedSeed === savedResult.seed) void wandererScenario.restoreResult(savedResult).catch(() => { /* Saved numerical result remains available even if its editable preset cannot be restored. */ });
+  }
   config.oninput = () => { savedConfig = config.value; updateSwapGuard(); }; seed.oninput = () => { savedSeed = seed.value; };
   updateSwapGuard();
   function startRun(request: SourceHostWorkerRequest): void {
@@ -413,13 +493,13 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
           status.textContent = sourceHostDiagnosticMessage(diagnostic);
           if (request.reexecutionTarget) {
             reexecutionStatus.textContent = `复跑核对失败（${diagnostic.failure.code}）；原结果保留。可以按原输入安全重试。`;
-            exportButton.disabled = reexecuteButton.disabled = !savedResult;
-          } else if (failureLogs !== undefined) {
+            exportButton.disabled = !savedResult; reexecuteButton.disabled = !savedResult || Boolean(savedReadOnlyArchive);
+          } else if (failureLogs !== undefined && !savedReadOnlyArchive) {
             teamBuilder?.renderExecutionLogs(failureLogs);
             savedResult = null; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = true;
             resultHost.innerHTML = '<article class="card"><h3>本次运行已中止</h3><p>上方动作账本保留中止前的实际记录；未生成完整观察窗结果，不显示本次总伤或 DPS。</p></article>';
           } else if (savedResult) {
-            exportButton.disabled = reexecuteButton.disabled = true;
+            exportButton.disabled = !savedReadOnlyArchive; reexecuteButton.disabled = true;
             if (!resultHost.querySelector("[data-previous-result]")) {
               const note = document.createElement("p"); note.dataset.previousResult = "true"; note.className = "notice";
               note.textContent = "以下数值来自之前成功的输入，不能作为本次运行结果。";
@@ -428,6 +508,8 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
           }
         },
         onMessage: message => {
+          if (message.type === "monte-start" || message.type === "monte-trial" || message.type === "monte-done") return;
+          const handlerStarted = performance.now();
           activeWorkerRun = null; setBusy(false); diagnosticHost.hidden = true;
           if (message.type === "reexecution-result") {
             reexecutionReceipt = message.receipt; exportReexecution.disabled = false;
@@ -445,8 +527,12 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
             catch (error) { status.textContent = `起步对照分析失败：${error}`; }
             return;
           }
-          savedResult = message.result; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false;
+          const receivedAt = performance.timeOrigin + performance.now();
+          savedResult = message.result; savedReadOnlyArchive = null; resetReexecution(); exportButton.disabled = reexecuteButton.disabled = false;
+          const renderStarted = performance.now();
           renderResult(savedResult); status.textContent = `本次运行完成，耗时 ${message.elapsedMs.toFixed(1)} ms。`;
+          const timing = { ...message.timing, transferAndQueueMs: message.timing ? receivedAt - message.timing.postedAt : null, renderMs: performance.now() - renderStarted, preRenderMs: renderStarted - handlerStarted, elapsedMs: message.elapsedMs };
+          root.dispatchEvent(new CustomEvent("source-host-timing", { bubbles: true, detail: timing }));
         },
       });
     } catch (error) {
@@ -460,7 +546,7 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
   };
   cancel.onclick = () => { stopSourceHostRun(); setBusy(false); status.textContent = "已取消本次运行。"; if (!reexecutionReceipt) reexecutionStatus.textContent = "本次未完成从头复跑核对。"; };
   reexecuteButton.onclick = () => {
-    if (!savedResult) return;
+    if (!savedResult || savedReadOnlyArchive) return;
     resetReexecution();
     try {
       const request = sourceHostReexecutionRequest(savedResult);
@@ -469,18 +555,28 @@ export function renderSourceHostPanel(root: HTMLElement, openCalculator: (captur
     } catch (error) { reexecutionStatus.textContent = `不能复跑核对：${error}。原始数值仍可查看。`; }
   };
   exportReexecution.onclick = () => { if (savedResult && reexecutionReceipt) downloadSourceHostJson({ schemaVersion: "source-host-reexecution-record-v1", receipt: reexecutionReceipt, result: savedResult }, "source-host-reexecution.json"); };
-  exportButton.onclick = () => { if (savedResult) downloadSourceHostJson(savedResult, "source-host-result.json"); };
+  exportButton.onclick = () => {
+    if (savedReadOnlyArchive) {
+      const url = URL.createObjectURL(new Blob([savedReadOnlyArchive.originalText], { type: "application/json" }));
+      const anchor = document.createElement("a"); anchor.href = url; anchor.download = `archived-${savedReadOnlyArchive.filename}`; anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } else if (savedResult) downloadSourceHostJson(savedResult, "source-host-result.json");
+  };
   importInput.onchange = event => {
     const input = event.target as HTMLInputElement, file = input.files?.[0]; if (!file) return;
     const generation = ++importGeneration;
+    wandererScenario?.invalidatePending();
     void file.text().then(text => {
       if (generation !== importGeneration || mountedGeneration !== builderGeneration) return;
-      const imported = JSON.parse(text);
-      savedResult = createSourceHostResult(imported?.schemaVersion === "source-host-reexecution-record-v1" ? imported.result : imported);
+      const archive = openSourceHostResultArchive(text);
+      savedResult = archive.result;
+      savedReadOnlyArchive = archive.mode === "readonly-c2-defect" ? { originalText: archive.originalText, filename: file.name } : null;
       savedPhaseObservation = savedResult.phaseObservation;
       root.querySelector<HTMLInputElement>("#source-host-phase-enabled")!.checked = Boolean(savedPhaseObservation);
       if (savedPhaseObservation) for (const [id, value] of [["warmup", savedPhaseObservation.warmupFrames], ["period", savedPhaseObservation.maxPeriod], ["repeats", savedPhaseObservation.requiredConsecutivePeriods], ["limit", savedPhaseObservation.maxObservations]] as const) root.querySelector<HTMLInputElement>(`#source-host-phase-${id}`)!.value = String(value);
-      resetReexecution(); selectHostVariant(savedResult.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic"); savedConfig = savedResult.config; savedSeed = savedResult.seed; savedTargetPhasesText = savedResult.targetPhases ? JSON.stringify({ policy: savedResult.targetPhases.policy, phases: normalizeSourceHostTargetPhases(savedResult.targetPhases) }, null, 2) : ""; targetPhasesInput.value = savedTargetPhasesText; savedExecutionMode = savedResult.executionMode ?? "auto-wait"; savedPrimaryTargetIndex = savedResult.targetScene?.primaryTargetIndex ?? 0; primaryTarget.value = String(savedPrimaryTargetIndex + 1); savedStopAtDuration = savedResult.observationWindow?.policy === "duration-or-native"; stopAtDuration.checked = savedStopAtDuration; executionMode.value = savedExecutionMode; config.value = savedConfig; updateSwapGuard(); seed.value = savedSeed; renderResult(savedResult); exportButton.disabled = reexecuteButton.disabled = false; status.textContent = "已导入并重算来源结果的共享数值；尚未从头复跑机制。导入的历史核对记录不作为本次通过证明。";
+      resetReexecution(); selectHostVariant(savedResult.sourceCommit.startsWith("a7dc4bf") ? "stellar" : "classic"); savedConfig = savedResult.config; savedSeed = savedResult.seed; savedTargetPhasesText = savedResult.targetPhases ? JSON.stringify({ policy: savedResult.targetPhases.policy, phases: normalizeSourceHostTargetPhases(savedResult.targetPhases) }, null, 2) : ""; targetPhasesInput.value = savedTargetPhasesText; savedExecutionMode = savedResult.executionMode ?? "auto-wait"; savedPrimaryTargetIndex = savedResult.targetScene?.primaryTargetIndex ?? 0; primaryTarget.value = String(savedPrimaryTargetIndex + 1); savedStopAtDuration = savedResult.observationWindow?.policy === "duration-or-native"; stopAtDuration.checked = savedStopAtDuration; executionMode.value = savedExecutionMode; config.value = savedConfig; updateSwapGuard(); seed.value = savedSeed; renderResult(savedResult); exportButton.disabled = false; reexecuteButton.disabled = Boolean(savedReadOnlyArchive);
+      status.textContent = savedReadOnlyArchive ? "已只读打开历史结果，原值保留。可原样导出；需要修正数值请重新运行上方动作轴。" : "已导入并重算来源结果的共享数值；尚未从头复跑机制。导入的历史核对记录不作为本次通过证明。";
+      if (!savedReadOnlyArchive) void wandererScenario?.restoreResult(savedResult).catch(error => { if (generation === importGeneration) status.textContent += ` 配队未恢复：${error instanceof Error ? error.message : String(error)}；结果仍保留。`; });
     }).catch(error => { if (generation === importGeneration && mountedGeneration === builderGeneration) status.textContent = `导入失败：${error}`; }); input.value = "";
   };
 }

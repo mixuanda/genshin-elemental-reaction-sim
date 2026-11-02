@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   canonicalStringify,
+  assertTrustedSimulationResult,
+  simulationResultSchema,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   reactionDeliveryResultReferencesSchema,
@@ -322,7 +325,7 @@ function normalizeShatterIdentity(
   };
 }
 
-function expectShatterGolden(
+function expectHistoricalShatterGolden(
   scenarioId: ShatterGoldenScenarioId,
   result: SimulationResult,
 ): void {
@@ -367,11 +370,11 @@ function expectShatterGolden(
       .UPDATE_SHATTER_RECURSIVE_DELIVERY_GOLDEN === "1"
   ) {
     throw new Error(
-      "shatter-recursive-delivery-1.39.golden.json is frozen; compare current identity through normalization instead of overwriting history.",
+      "shatter-recursive-delivery-1.39.golden.json is frozen; validate authentic historical input separately from current execution instead of overwriting history.",
     );
   }
-  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.schemaVersion).toBe("1.53.0");
+  expect(result.engineVersion).toBe("1.53.0-callback-bus");
   expect(shatterGolden).toMatchObject({
     fixtureVersion: "shatter-recursive-delivery-1.39",
     provenance: {
@@ -407,6 +410,192 @@ function expectShatterGolden(
     sha256(shatterGolden.scenarios[scenarioId]),
   ).toBe(shatterGolden.hashes[scenarioId]);
 }
+
+
+const historicalBytes = readFileSync(new URL(
+  "../../../test-vectors/src/fixtures/historical-shatter-recursive-v153-84ff5cd.json", import.meta.url,
+));
+const historicalArchive = JSON.parse(historicalBytes.toString("utf8")) as {
+  fixtureVersion: string; source: { commit: string };
+  cases: Array<{ caseId: ShatterGoldenScenarioId; sourceWireSha256: string; sourceWireText: string }>;
+};
+const byteSha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalShatter(scenarioId: ShatterGoldenScenarioId): SimulationResult {
+  const row = historicalArchive.cases.find((entry) => entry.caseId === scenarioId);
+  if (!row) throw new Error(`Missing authentic historical Shatter input ${scenarioId}`);
+  expect(byteSha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResult;
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  return result;
+}
+
+// This is an expected-value comparison only, never a historical/current wire
+// converter. Retain complete arrays, IDs, ownership, parent/backlink edges and
+// order, including fields that the older V146 digest could not express.
+function shatterMechanics(result: SimulationResult) {
+  return {
+    config: result.config, dataVersion: result.dataVersion, randomSeed: result.randomSeed,
+    totalDamage: result.totalDamage, dps: result.dps, byCharacter: result.byCharacter,
+    damageEvents: result.damageEvents, reactionDamageLog: result.reactionDamageLog,
+    frozenStateLog: result.frozenStateLog, damageCurve: result.damageCurve,
+    hitEvents: result.hitEvents, hitResolutionLog: result.hitResolutionLog,
+    elementalApplicationIcdLog: result.elementalApplicationIcdLog,
+    freezeBrokenAttackLog: result.freezeBrokenAttackLog,
+    auraTimeline: result.auraTimeline, auraEndStates: result.auraEndStates,
+    targetStateTimeline: result.targetStateTimeline,
+  };
+}
+
+interface ShatterCurrentOrder {
+  queuePairs: ReadonlyArray<readonly [oldSequence: number, currentSequence: number]>;
+  directResolutions: ReadonlyArray<readonly [id: number, currentSequence: number]>;
+  timelineSteps: ReadonlyArray<readonly [id: number, oldStep: number, currentStep: number]>;
+  damageFrames: readonly number[];
+}
+// Current legal-frame execution retains the initially scheduled Frozen expiry
+// at F176 as queue 4 even outside this 60/120-frame observation window. The
+// old engine dropped it; later queue entries therefore shift, not their IDs.
+// Direct hit resolution now reserves step 0 before Shatter/Aura callbacks.
+const CURRENT_SHATTER_ORDER: Record<ShatterGoldenScenarioId, ShatterCurrentOrder> = {
+  directPhysical: {
+    queuePairs: [[3, 3], [4, 5]], directResolutions: [[0, 3], [1, 5]],
+    timelineSteps: [[1, 0, 1], [2, 0, 1], [3, 3, 4]], damageFrames: [0, 2, 2],
+  },
+  directGeo: {
+    queuePairs: [[3, 3], [4, 5]], directResolutions: [[0, 3], [1, 5]],
+    timelineSteps: [[1, 0, 1], [2, 0, 1], [3, 3, 4]], damageFrames: [0, 2, 2],
+  },
+  nestedOverload: {
+    queuePairs: [[3, 3], [4, 5], [5, 6], [6, 7]],
+    directResolutions: [[0, 3], [1, 5], [2, 6]],
+    timelineSteps: [[2, 0, 1], [3, 0, 1]], damageFrames: [0, 2, 3, 3, 3],
+  },
+  gcdBlocked: {
+    queuePairs: [[3, 3], [4, 5], [5, 6], [6, 7], [7, 8]],
+    directResolutions: [[0, 3], [1, 5], [3, 6], [4, 7], [5, 8]],
+    timelineSteps: [[1, 0, 1], [2, 0, 1], [3, 3, 4], [4, 0, 1], [5, 0, 1], [6, 0, 1], [7, 2, 3]],
+    damageFrames: [0, 2, 2, 5, 6, 8],
+  },
+  poiseDepleted: {
+    queuePairs: [[3, 3], [4, 5]], directResolutions: [[0, 3], [1, 5]],
+    timelineSteps: [[1, 0, 1], [2, 0, 1], [3, 2, 3]], damageFrames: [0, 2],
+  },
+};
+
+function expectCurrentShatterContract(scenarioId: ShatterGoldenScenarioId, result: SimulationResult): void {
+  const before = JSON.stringify(result);
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+  expect(result.runManifest.resolvedRuntimeOptions).toEqual(result.resolvedRuntimeOptions);
+  expect(simulationResultSchema.parse(JSON.parse(before))).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
+  const historical = historicalShatter(scenarioId);
+  expect(result.runManifest.configHash).toBe(historical.runManifest.configHash);
+  expect(result.reproducibilityKey).not.toBe(historical.reproducibilityKey);
+  const { reproducibilityKey: _oldKey, resolvedRuntimeOptions: _oldOptions, ...oldManifest } = historical.runManifest;
+  const { reproducibilityKey: _currentKey, resolvedRuntimeOptions: _currentOptions, ...currentManifest } = result.runManifest;
+  expect(currentManifest).toEqual(oldManifest);
+  expect(result.resolvedRuntimeOptions).toEqual({ ...historical.resolvedRuntimeOptions, flatStatBuffSemantics: "canonical-v1" });
+
+  const order = CURRENT_SHATTER_ORDER[scenarioId];
+  const sequenceMap = new Map(order.queuePairs);
+  expect(sequenceMap.size).toBe(order.queuePairs.length);
+  expect(new Set(sequenceMap.values()).size).toBe(sequenceMap.size);
+  expect([...sequenceMap.keys()]).toEqual([...sequenceMap.keys()].sort((a, b) => a - b));
+  expect([...sequenceMap.values()]).toEqual([...sequenceMap.values()].sort((a, b) => a - b));
+  const currentSequence = (oldSequence: number | null | undefined): number => {
+    const next = oldSequence == null ? undefined : sequenceMap.get(oldSequence);
+    if (next === undefined) throw new Error(`Unreviewed Shatter queue position ${oldSequence}`);
+    return next;
+  };
+  const expected = structuredClone(shatterMechanics(historical));
+  for (const event of expected.damageEvents) event.eventSequence = currentSequence(event.eventSequence);
+  for (const event of expected.hitEvents) event.eventSequence = currentSequence(event.eventSequence);
+  for (const event of expected.auraTimeline) event.eventSequence = currentSequence(event.eventSequence);
+  for (const log of expected.reactionDamageLog) {
+    for (const decision of log.damageGroupDecisions) {
+      decision.damageGroupTaskSequence = currentSequence(decision.damageGroupTaskSequence);
+    }
+  }
+  for (const row of expected.freezeBrokenAttackLog) {
+    row.triggerEventSequence = currentSequence(row.triggerEventSequence);
+    if (scenarioId !== "nestedOverload") {
+      expect(row.intraEventSequence).toBe(1);
+      row.intraEventSequence = 2;
+    }
+  }
+  const directResolutions = new Map(order.directResolutions);
+  expect(expected.hitResolutionLog.filter((row) => row.reactionDamageLogId === null).map((row) => row.id)).toEqual([...directResolutions.keys()]);
+  for (const row of expected.hitResolutionLog) {
+    if (directResolutions.has(row.id)) {
+      expect(row).not.toHaveProperty("eventSequence");
+      expect(row).not.toHaveProperty("eventPriority");
+      expect(row).not.toHaveProperty("intraEventSequence");
+      row.eventSequence = directResolutions.get(row.id)!;
+      row.eventPriority = 3;
+      row.intraEventSequence = 0;
+    } else {
+      row.eventSequence = currentSequence(row.eventSequence);
+      if (scenarioId !== "nestedOverload") {
+        expect(row.id).toBe(2);
+        expect(row.intraEventSequence).toBe(2);
+        row.intraEventSequence = 3;
+      }
+    }
+  }
+  for (const point of expected.targetStateTimeline.points) {
+    if (point.eventSequence !== null) point.eventSequence = currentSequence(point.eventSequence);
+  }
+  for (const [id, oldStep, currentStep] of order.timelineSteps) {
+    const point = expected.targetStateTimeline.points[id]!;
+    expect(point.id).toBe(id);
+    expect(point.intraEventSequence).toBe(oldStep);
+    point.intraEventSequence = currentStep;
+  }
+  expect(shatterMechanics(result)).toStrictEqual(expected);
+
+  // Independent arithmetic: no production formula helper or fixture total.
+  const base = 1446.8535;
+  const emFactor = 1 + 16 * 100 / (2000 + 100);
+  const direct = 1000 * 0.5 * (1 - 0.25);
+  const shatter = base * 3 * (emFactor + 0.2) * (1 - 0.25);
+  const overload = base * 2.75 * emFactor * (1 - 0.1);
+  const nestedShatter = base * 3 * emFactor * (1 - 0.1);
+  const damage = scenarioId === "nestedOverload"
+    ? [450, 450, overload, nestedShatter, overload]
+    : scenarioId === "gcdBlocked" ? [direct, shatter, direct, direct, direct, direct]
+    : scenarioId === "poiseDepleted" ? [direct, direct] : [direct, shatter, direct];
+  expect(result.damageEvents.map((event) => event.id)).toEqual(damage.map((_, id) => id));
+  expect(result.damageEvents.map((event) => event.frame)).toEqual(order.damageFrames);
+  result.damageEvents.forEach((event, index) => {
+    expect(event.finalDamage).toBeCloseTo(damage[index]!, 9);
+    expect(event.displayDamage).toBe(Math.round(damage[index]!));
+  });
+  const total = damage.reduce((sum, value) => sum + value, 0);
+  expect(result.totalDamage).toBeCloseTo(total, 9);
+  expect(result.dps).toBeCloseTo(total / result.config.duration, 9);
+  for (const [actorId, contribution] of Object.entries(result.byCharacter)) {
+    expect(contribution).toBeCloseTo(result.damageEvents.filter((event) => event.sourceActorId === actorId).reduce((sum, event) => sum + event.finalDamage, 0), 9);
+  }
+  expect(JSON.stringify(result)).toBe(before);
+}
+
+describe("frozen Shatter 1.39 semantics from authentic historical input", () => {
+  it("pins original Golden bytes and the independently captured source archive", () => {
+    expect(byteSha256(readFileSync(new URL("../../../test-vectors/fixtures/shatter-recursive-delivery-1.39.golden.json", import.meta.url)))).toBe("a83ff459e5753ddef1082d923b6476bdbe5392dc9f574ac3d462e357df322579");
+    expect(byteSha256(historicalBytes)).toBe("54659df05d03516357003a0e8865702aef684099c509c0c07c92a1fe0945ecdb");
+    expect(historicalArchive.fixtureVersion).toBe("historical-shatter-recursive-v153-84ff5cd-v1");
+    expect(historicalArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalArchive.cases.map((entry) => entry.caseId)).toEqual(shatterGoldenScenarioIds);
+  });
+  it.each(shatterGoldenScenarioIds)("retains every original frozen comparison for %s", (scenarioId) => {
+    expectHistoricalShatterGolden(scenarioId, historicalShatter(scenarioId));
+  });
+});
 
 function makeDirectShatterConfig(options?: {
   deliveryMode?: DeliveryMode;
@@ -772,7 +961,7 @@ describe("recursive zero-delay Shatter delivery", () => {
         first.damageEvents.map((event) => event.id),
       );
       expect(second).toStrictEqual(first);
-      expectShatterGolden(
+      expectCurrentShatterContract(
         element === "physical"
           ? "directPhysical"
           : "directGeo",
@@ -822,7 +1011,7 @@ describe("recursive zero-delay Shatter delivery", () => {
       "overload",
       "shatter",
     ]);
-    expectShatterGolden("nestedOverload", result);
+    expectCurrentShatterContract("nestedOverload", result);
   });
 
   it("keeps the target-phase-v1 wake hit parent-first while damage settles child-first", () => {
@@ -896,7 +1085,7 @@ describe("recursive zero-delay Shatter delivery", () => {
         .filter((entry) => entry.operation === "shatter-consume")
         .map((entry) => entry.frame),
     ).toEqual([2, 8]);
-    expectShatterGolden("gcdBlocked", result);
+    expectCurrentShatterContract("gcdBlocked", result);
   });
 
   it("does not recurse when blunt poise depletes Frozen first", () => {
@@ -917,7 +1106,7 @@ describe("recursive zero-delay Shatter delivery", () => {
     expect(
       result.damageEvents.some((event) => event.reaction === "shatter"),
     ).toBe(false);
-    expectShatterGolden("poiseDepleted", result);
+    expectCurrentShatterContract("poiseDepleted", result);
   });
 
   it("fails closed if a parent application newly crosses the mechanics-truncation boundary", () => {
@@ -1047,5 +1236,34 @@ describe("recursive zero-delay Shatter delivery", () => {
         ),
     );
     expect(recursiveRepeat).toStrictEqual(recursive);
+  });
+});
+
+
+describe("current Shatter causal rejection boundary", () => {
+  const cases: Array<[string, (result: SimulationResult) => void]> = [
+    ["missing child parent", (result) => { result.damageEvents[3]!.parentDamageEventId = null; }],
+    ["dangling parent", (result) => { result.damageEvents[3]!.parentDamageEventId = 9999; }],
+    ["parent cycle", (result) => { result.damageEvents[4]!.parentDamageEventId = 3; }],
+    ["child delivered after parent", (result) => { [result.damageEvents[3], result.damageEvents[4]] = [result.damageEvents[4]!, result.damageEvents[3]!]; }],
+    ["wrong child target", (result) => { result.damageEvents[3]!.targetId = "enemy-0"; }],
+    ["wrong child owner", (result) => { result.damageEvents[3]!.sourceActorId = "hydro"; }],
+    ["broken delivery backlink", (result) => { result.reactionDamageLog[1]!.damageEventIds = []; }],
+    ["child queue split from parent", (result) => { result.damageEvents[3]!.eventSequence += 1; }],
+    ["false task sequence", (result) => { result.reactionDamageLog[1]!.damageGroupDecisions[0]!.damageGroupTaskSequence! += 1; }],
+    ["dangling Shatter timeline backlink", (result) => {
+      const point = result.targetStateTimeline.points.find((entry) => entry.cause === "reaction-damage-shatter")!;
+      point.links.find((link) => link.kind === "reaction-damage-log")!.id = 9999;
+    }],
+  ];
+  it.each(cases)("rejects %s without mutating authentic output", (_label, mutate) => {
+    const result = simulate(makeNestedOverloadShatterConfig("shatter-recursive-zero-delay-v1"), { critMode: "noCrit" });
+    const before = JSON.stringify(result);
+    const forged = structuredClone(result);
+    mutate(forged);
+    expect(JSON.stringify(forged)).not.toBe(before);
+    expect(simulationResultSchema.safeParse(forged).success).toBe(false);
+    expect(() => assertTrustedSimulationResult(forged)).toThrow();
+    expect(JSON.stringify(result)).toBe(before);
   });
 });

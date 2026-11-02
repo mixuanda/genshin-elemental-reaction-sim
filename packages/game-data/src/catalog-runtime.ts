@@ -36,34 +36,48 @@ export function findRuntimeWeaponByItemId(itemId: number) {
 
 export function findRuntimeTalentSetForCharacter(
   character: GameDataRuntimeIndex["characters"][number],
-  mapping: GameDataRuntimeIndex["enkaCharacterMappings"][number] | null
+  mapping: GameDataRuntimeIndex["enkaCharacterMappings"][number] | null,
+  catalog: GameDataRuntimeIndex = gameDataRuntimeIndex
 ) {
+  const talentSet = (id: string) => catalog === gameDataRuntimeIndex
+    ? talentSetById.get(id)
+    : catalog.talentSets.find(entry => entry.id === id);
   if (character.talentSetIds.length === 1) {
-    return talentSetById.get(character.talentSetIds[0]!) ?? null;
+    return talentSet(character.talentSetIds[0]!) ?? null;
   }
-  if (mapping?.element === "unknown") return null;
-  return (
-    character.talentSetIds
-      .map((id) => talentSetById.get(id))
-      .find((entry) => entry?.id.endsWith(`traveler${mapping?.element}`)) ??
-    null
-  );
+  if (mapping === null || mapping.avatarId !== character.avatarId || mapping.element === "unknown") return null;
+  const candidates = character.talentSetIds
+    .map(talentSet)
+    .filter(entry => entry?.id === `talent-set:traveler${mapping.element}`);
+  return candidates.length === 1 ? candidates[0] ?? null : null;
 }
 
 export function findRuntimeEnkaCharacterMapping(
   avatarId: number,
-  skillIds: readonly string[] = []
+  skillIds: readonly string[] = [],
+  catalog: GameDataRuntimeIndex = gameDataRuntimeIndex
 ) {
-  const candidates = enkaMappingsByAvatarId.get(avatarId) ?? [];
-  if (candidates.length <= 1 || skillIds.length === 0) {
+  const candidates = catalog === gameDataRuntimeIndex
+    ? enkaMappingsByAvatarId.get(avatarId) ?? []
+    : catalog.enkaCharacterMappings.filter(entry => entry.avatarId === avatarId);
+  const character = catalog === gameDataRuntimeIndex
+    ? findRuntimeCharacterByAvatarId(avatarId)
+    : catalog.characters.find(entry => entry.avatarId === avatarId);
+  if (candidates.length <= 1 && character?.element !== "unknown") {
     return candidates[0] ?? null;
   }
-  const requested = new Set(skillIds.map(Number));
-  return (
-    [...candidates].sort((left, right) => {
-      const score = (entry: (typeof candidates)[number]) =>
-        entry.skillOrder.filter((skillId) => requested.has(skillId)).length;
-      return score(right) - score(left);
-    })[0] ?? null
-  );
+  // A multi-element identity needs actual skill evidence. Never pick the first
+  // catalog row when there are no positive matches or equally plausible variants.
+  const requested = new Set(skillIds);
+  const scored = candidates.map(mapping => ({
+    mapping,
+    score: mapping.skillOrder.filter(id => requested.has(String(id))).length
+  }));
+  const bestScore = Math.max(0, ...scored.map(entry => entry.score));
+  if (bestScore === 0) return null;
+  const best = scored.filter(entry => entry.score === bestScore);
+  if (best.length !== 1) return null;
+  const mapping = best[0]!.mapping;
+  // Mixed elements/genders and unknown IDs cannot identify a single variant.
+  return skillIds.every(id => mapping.skillOrder.some(known => String(known) === id)) ? mapping : null;
 }

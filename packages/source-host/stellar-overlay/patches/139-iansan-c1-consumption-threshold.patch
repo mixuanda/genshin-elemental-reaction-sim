@@ -1,0 +1,34 @@
+--- a/internal/characters/iansan/cons.go
++++ b/internal/characters/iansan/cons.go
+@@ -15,14 +15,16 @@
+ )
+ 
+ func (c *char) c1(points float64) {
+-	if c.Base.Cons < 1 {
++	if c.Base.Cons < 1 || points <= 0 {
+ 		return
+ 	}
+ 	if c.StatusIsActive(c1ICDKey) {
+ 		return
+ 	}
+ 	c.c1Points += points
+-	if c.c1Points < 6 {
++	// Absorb only rounding from this bounded consumption sum, not other Nightsoul gates.
++	const consumptionRoundingTolerance = 1e-12
++	if c.c1Points < 6-consumptionRoundingTolerance {
+ 		return
+ 	}
+ 
+--- a/internal/characters/iansan/skill.go
++++ b/internal/characters/iansan/skill.go
+@@ -100,8 +100,9 @@
+ }
+ 
+ func (c *char) reduceNightsoulPoints(points float64) {
++	before := c.nightsoulState.Points()
+ 	c.nightsoulState.ConsumePoints(points)
+-	c.c1(points)
++	c.c1(before - c.nightsoulState.Points())
+ 	if c.nightsoulState.Points() <= 0.2 {
+ 		c.exitNightsoul()
+ 	}

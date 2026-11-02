@@ -1,12 +1,7 @@
 import {
-  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
-  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
-  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResultV144,
   assertTrustedSimulationResult,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
-  simulationResultV144Schema,
   simulationResultSchema,
   type SimulationResult,
   type SimConfig,
@@ -184,44 +179,6 @@ function cloneResult(result: SimulationResult): SimulationResult {
   return cloned;
 }
 
-function projectApplicationsToFrozenWire(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map(projectApplicationsToFrozenWire);
-  }
-  if (value === null || typeof value !== "object") {
-    return value;
-  }
-  const record = value as Record<string, unknown>;
-  if (
-    typeof record.gaugeUnits === "number" &&
-    record.icd !== null &&
-    typeof record.icd === "object"
-  ) {
-    const icd = record.icd as Record<string, unknown>;
-    if (icd.mode === "legacy-boolean-profile-v1") {
-      return {
-        gaugeUnits: record.gaugeUnits,
-        icdTag: icd.icdTag,
-        icdGroup: icd.profileId,
-      };
-    }
-    return {
-      gaugeUnits: record.gaugeUnits,
-      icdTag:
-        icd.mode === "fixed-gcsim-application-v1"
-          ? icd.icdTag
-          : "__no_icd_v1__",
-      icdGroup: "no-icd",
-    };
-  }
-  return Object.fromEntries(
-    Object.entries(record).map(([key, entry]) => [
-      key,
-      projectApplicationsToFrozenWire(entry),
-    ]),
-  );
-}
-
 function refreshReproducibilityIdentity(
   result: SimulationResult,
   configChanged = false,
@@ -242,160 +199,6 @@ function expectFormulaRejection(
 ): void {
   expect(simulationResultSchema.safeParse(result).success).toBe(false);
   expect(() => assertTrustedSimulationResult(result)).toThrow(trustedMessage);
-}
-
-function projectReactionDamageGroupDecisionToFrozenV144(
-  decision: Record<string, unknown>,
-): Record<string, unknown> {
-  return {
-    reaction: decision.reaction,
-    sourceActorId: decision.sourceActorId,
-    targetId: decision.targetId,
-    windowStartFrame: decision.windowStartFrame,
-    hitIndex: decision.hitIndex,
-    resetFrames: 30,
-    sequence:
-      decision.icdGroup === "reaction-a" ? [true, true, false] : [true, false],
-    damageAllowed: decision.damageAllowed,
-    blockedReason: decision.blockedReason,
-  };
-}
-
-function projectToFrozenV144(result: SimulationResult): unknown {
-  const frozen = structuredClone(result) as unknown as Record<string, unknown>;
-  frozen.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
-  frozen.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
-  delete frozen.directDamageGroupLog;
-  delete frozen.elementalApplicationIcdLog;
-  delete frozen.reactionDamageGroupResetLog;
-  delete frozen.basicReactionSchedulerLog;
-  delete frozen.freezeBrokenAttackLog;
-  delete frozen.callbackRegistrationLog;
-  delete frozen.callbackDeliveryLog;
-  for (const collectionName of ["damageEvents", "hitEvents"] as const) {
-    const collection = frozen[collectionName];
-    if (!Array.isArray(collection)) continue;
-    for (const entry of collection) {
-      if (entry !== null && typeof entry === "object") {
-        delete (entry as Record<string, unknown>).elementalApplicationIcdLogId;
-      }
-    }
-  }
-  const hitResolutionLog = frozen.hitResolutionLog;
-  if (Array.isArray(hitResolutionLog)) {
-    for (const entry of hitResolutionLog) {
-      if (entry === null || typeof entry !== "object") continue;
-      const record = entry as Record<string, unknown>;
-      delete record.reactionDamageLogId;
-      delete record.elementalApplicationIcdLogId;
-    }
-  }
-  const reactionDamageLog = frozen.reactionDamageLog;
-  if (Array.isArray(reactionDamageLog)) {
-    for (const entry of reactionDamageLog) {
-      if (entry === null || typeof entry !== "object") continue;
-      const record = entry as Record<string, unknown>;
-      const damageGroupDecisions = record.damageGroupDecisions;
-      if (Array.isArray(damageGroupDecisions)) {
-        record.damageGroupDecisions = damageGroupDecisions.map((decision) =>
-          projectReactionDamageGroupDecisionToFrozenV144(
-            decision as Record<string, unknown>,
-          ),
-        );
-      }
-      delete record.hitResolutionLogIds;
-      delete record.elementalApplicationIcdLogIds;
-    }
-  }
-  const playerDamageEvents = frozen.playerDamageEvents;
-  if (Array.isArray(playerDamageEvents)) {
-    for (const event of playerDamageEvents) {
-      if (event === null || typeof event !== "object") continue;
-      const damageFactors = (event as Record<string, unknown>).damageFactors;
-      if (
-        damageFactors === null ||
-        typeof damageFactors !== "object" ||
-        !("damageGroupDecision" in damageFactors)
-      ) {
-        continue;
-      }
-      const factors = damageFactors as Record<string, unknown>;
-      if (factors.damageGroupDecision !== null) {
-        factors.damageGroupDecision =
-          projectReactionDamageGroupDecisionToFrozenV144(
-            factors.damageGroupDecision as Record<string, unknown>,
-          );
-      }
-    }
-  }
-  const targetPhaseLog = frozen.targetPhaseLog;
-  if (Array.isArray(targetPhaseLog)) {
-    for (const phase of targetPhaseLog) {
-      if (phase === null || typeof phase !== "object") continue;
-      const targetTasks = (phase as Record<string, unknown>).targetTasks;
-      if (!Array.isArray(targetTasks)) continue;
-      for (const task of targetTasks) {
-        if (task === null || typeof task !== "object") continue;
-        const delivery = (task as Record<string, unknown>).delivery;
-        if (delivery === null || typeof delivery !== "object") continue;
-        const attempts = (delivery as Record<string, unknown>).attempts;
-        if (!Array.isArray(attempts)) continue;
-        for (const attempt of attempts) {
-          if (attempt !== null && typeof attempt === "object") {
-            delete (attempt as Record<string, unknown>)
-              .elementalApplicationIcdLogId;
-          }
-        }
-      }
-    }
-  }
-  const config = projectApplicationsToFrozenWire(frozen.config) as Record<
-    string,
-    unknown
-  >;
-  frozen.config = config;
-  config.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
-  config.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
-  delete config.reactionFormulaModel;
-  delete config.directDamageGroupModel;
-  delete config.elementalApplicationIcdModel;
-  delete config.reactionOwnedElementalApplicationModel;
-  delete config.reactionDamageGroupModel;
-  delete config.basicReactionSchedulerModel;
-  delete config.freezeBrokenAttackModel;
-  delete config.callbackBusModel;
-  const manifest = frozen.runManifest as Record<string, unknown>;
-  manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
-  manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
-  manifest.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
-  delete manifest.reactionFormulaRoot;
-  delete manifest.directDamageGroupRoot;
-  delete manifest.elementalApplicationIcdRoot;
-  delete manifest.reactionOwnedElementalApplicationRoot;
-  delete manifest.reactionDamageGroupRoot;
-  delete manifest.basicReactionSchedulerRoot;
-  delete manifest.freezeBrokenAttackRoot;
-  delete manifest.callbackBusRoot;
-  delete manifest.pluginCapabilities;
-  delete manifest.pluginCallbackSubscriptions;
-  manifest.configHash = createSimulationConfigHash(config);
-  const { reproducibilityKey: _ignoredReproducibilityKey, ...identity } =
-    manifest;
-  const key = createSimulationReproducibilityKey(
-    identity as Parameters<typeof createSimulationReproducibilityKey>[0],
-  );
-  manifest.reproducibilityKey = key;
-  frozen.reproducibilityKey = key;
-  return frozen;
-}
-
-function expectFrozenV144Accepts(currentResult: SimulationResult): void {
-  const parsed = simulationResultV144Schema.parse(
-    projectToFrozenV144(currentResult),
-  );
-  expect(
-    assertTrustedSimulationResultV144(parsed as unknown as SimulationResult),
-  ).toBe(parsed);
 }
 
 function updatePotentialDamage(
@@ -434,9 +237,13 @@ describe("current SimulationResult reaction-formula root integrity", () => {
       critMode: "noCrit",
     });
 
+    expect(result.totalDamage).toBe(0);
+    const melt = result.damageEvents.find(event => event.reaction === "melt")!;
+    // Independent no-crit potential: ATK 1000, DEF .5, RES .9, EM 100,
+    // reaction bonus .2 and forward Melt base 2; target immunity applies last.
+    expect(melt.potentialDamage).toBeCloseTo(1000 * .5 * .9 * 2 * (1 + 2.78 * 100 / 1500 + .2), 10);
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
-    expectFrozenV144Accepts(result);
   });
 
   it("rejects a coordinated Superconduct level-base rewrite", () => {
@@ -466,9 +273,6 @@ describe("current SimulationResult reaction-formula root integrity", () => {
       factors.preResistanceDamage * damageFormulaMultiplier(event),
     );
 
-    // This is a deliberately frozen 1.44 limitation, not a claim that the
-    // forged formula is trustworthy. The current boundary must reject it.
-    expectFrozenV144Accepts(result);
     expectFormulaRejection(result, /levelBaseDamage/);
   });
 
@@ -498,9 +302,6 @@ describe("current SimulationResult reaction-formula root integrity", () => {
       event.damageFactors.baseDamage * damageFormulaMultiplier(event),
     );
 
-    // This is a deliberately frozen 1.44 limitation, not a claim that the
-    // forged formula is trustworthy. The current boundary must reject it.
-    expectFrozenV144Accepts(result);
     expectFormulaRejection(result, /reactionBase/);
   });
 
@@ -550,16 +351,8 @@ describe("current SimulationResult reaction-formula root integrity", () => {
         event.damageFactors.baseDamage * damageFormulaMultiplier(event),
       );
 
-      if (forgedField === "levelBaseDamage") {
-        expectFrozenV144Accepts(result);
-      } else {
-        // The additive 1.15/1.25 multipliers were already fixed in the
-        // frozen 1.44 proof; current now derives the same value from the root.
-        expect(
-          simulationResultV144Schema.safeParse(projectToFrozenV144(result))
-            .success,
-        ).toBe(false);
-      }
+      // Historical V144 acceptance/rejection is checked against immutable
+      // original wires in reaction-formula-legacy-v144.test.ts.
       expectFormulaRejection(result, new RegExp(forgedField));
     },
   );

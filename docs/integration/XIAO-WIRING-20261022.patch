@@ -1,0 +1,165 @@
+diff --git a/apps/web/src/calculator-import.ts b/apps/web/src/calculator-import.ts
+index 268b7d4..28f5e4d 100644
+--- a/apps/web/src/calculator-import.ts
++++ b/apps/web/src/calculator-import.ts
+@@ -45,6 +45,11 @@ export function applyImportedCalculatorPanel(
+     ...(character.ascension === undefined || character.ascension === null ? {} : { ascension: character.ascension }),
+     stats: { atk: requireImportedNumber(character.stats.attack, "attack"), hp: requireImportedNumber(character.stats.maxHp, "maxHp"), def: requireImportedNumber(character.stats.defense, "defense"), em: requireImportedNumber(character.stats.elementalMastery, "elementalMastery"), critRate: requireImportedNumber(character.stats.critRate, "critRate"), critDamage: requireImportedNumber(character.stats.critDamage, "critDamage"), ...(character.stats.energyRecharge === null ? {} : { energyRecharge: character.stats.energyRecharge }) },
+   };
++  if (context.xiaoDamage && talentPolicy === "imported-effective") {
++    const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:xiao:combat3");
++    if (burst && hasKnownImportedTalent(burst)) context.xiaoDamage.burstTalentLevel = burst.effectiveLevel;
++    else delete context.xiaoDamage.burstTalentLevel;
++  }
+   if (context.noelleBurst) {
+     context.noelleBurst.accounting = "already-in-final-panel";
+     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:noelle:combat3");
+diff --git a/apps/web/src/calculator-requirements.ts b/apps/web/src/calculator-requirements.ts
+index 966f494..7f1394f 100644
+--- a/apps/web/src/calculator-requirements.ts
++++ b/apps/web/src/calculator-requirements.ts
+@@ -1,3 +1,4 @@
++import { xiaoRequirementAdapter } from "./calculator-xiao-controls";
+ import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
+
+ export interface CalculatorFieldRequirement {
+@@ -175,7 +176,7 @@ const durinAdapter: CalculatorRequirementAdapter = {
+ };
+
+ /** Extend with another sourced adapter and its existing control selectors. */
+-export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter];
++export const CALCULATOR_REQUIREMENT_ADAPTERS: readonly CalculatorRequirementAdapter[] = [keqingAdapter, xingqiuAdapter, wandererInitialAdapter, durinAdapter, xiaoRequirementAdapter];
+
+ /** Supplement the calculator's result blockers with concrete field links.
+  * Uncovered dependency/blocked-hit reasons stay explicit; this is not a
+diff --git a/apps/web/src/calculator-source-cast-controls.ts b/apps/web/src/calculator-source-cast-controls.ts
+index 9179d48..57dc738 100644
+--- a/apps/web/src/calculator-source-cast-controls.ts
++++ b/apps/web/src/calculator-source-cast-controls.ts
+@@ -2,6 +2,7 @@ import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
+ import { renderCoordinatedSchedule } from "./calculator-coordinated-schedule-controls";
+ import { renderHeldLifecycleCastControls } from "./calculator-held-lifecycle-controls";
+ import { renderFiniteFollowupCastControls } from "./calculator-finite-followup-controls";
++import { renderXiaoControls } from "./calculator-xiao-controls";
+ import { renderObservedEntityControls } from "./calculator-observed-entity-controls";
+ import { renderMaleTravelerChargedControls } from "./calculator-traveler-male-charged-controls";
+ import { renderPeriodicOrdinaryControls } from "./calculator-periodic-ordinary-controls";
+@@ -140,7 +141,7 @@ function durinControls(document: CalculatorDocument): string {
+
+ /** These controls record context only; all source formulas are rebuilt by sim-core. */
+ export function renderSourceCastControls(document: CalculatorDocument): string {
+-  return durinControls(document) + travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
++  return renderXiaoControls(document) + durinControls(document) + travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
+ }
+
+ /** Optional nested hit/shared maps are created only after the user supplies a value. */
+diff --git a/apps/web/src/calculator-ui.ts b/apps/web/src/calculator-ui.ts
+index bb3c0cf..c25b803 100644
+--- a/apps/web/src/calculator-ui.ts
++++ b/apps/web/src/calculator-ui.ts
+@@ -545,7 +545,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions
+     if (hit.attackAdjustment) formulas.unshift({ path: "attackAdjustment.formula", label: "本命中的来源攻击调整（由角色状态条件生成）", formula: hit.attackAdjustment.formula });
+     const accounting = hit.elementalMasteryAdjustment && !current?.gameContext?.kukiDamage && !current?.gameContext?.travelerCryo && !current?.gameContext?.travelerCryoStateCast && !current?.gameContext?.travelerCrossEntityCast && !current?.gameContext?.observedSpecialComponent && !current?.gameContext?.neferPhantasmCast && !current?.gameContext?.zibaiFiniteCast ? `<div class="calculator-full"><label>本命中精通增益与面板的关系<select data-em-accounting="${index}"><option value="already-in-final-panel"${hit.elementalMasteryAdjustment.accounting === "already-in-final-panel" ? " selected" : ""}>输入面板已包含此增益，不再加入</option><option value="add-to-panel"${hit.elementalMasteryAdjustment.accounting === "add-to-panel" ? " selected" : ""}>输入面板尚未包含，按下方本命中条件加入</option></select></label><p class="calculator-hint">本命中的实际精通同时用于技能缩放与精通反应。各段可以处于不同增益状态；转换为最终面板时保留这个逐段选择，不把某一段的增益加到整个角色。来源增益的生效状态与技能消耗资源分别填写。</p></div>` : "";
+     return accounting + formulas.map(({ path: formulaPath, label: formulaLabel, formula }) => {
+-      const sourceCastFormula = Boolean(current?.gameContext?.durinSkill) && formula.ruleId.startsWith("durin-c2-") || Boolean(current?.gameContext?.travelerCryo || current?.gameContext?.batchProjectileCast || current?.gameContext?.batchPeriodicCast || current?.gameContext?.batchFiniteCast || current?.gameContext?.coordinatedCast || current?.gameContext?.heldLifecycleCast || current?.gameContext?.finiteFollowupCast || current?.gameContext?.observedEntityCast || current?.gameContext?.travelerMaleChargedCast || current?.gameContext?.periodicOrdinaryCast || current?.gameContext?.idleStanceCast) && /^(traveler-cryo-|batch-|coordinated-|held-|finite-followup:|observed-|male-charged-|periodic-ordinary:|idle-stance-)/.test(formula.ruleId) || Boolean(current?.gameContext?.entityFollowupCast) && /^(jahoda-|nicole-)/.test(formula.ruleId) || Boolean(current?.gameContext?.mixedSourceCast) && formula.ruleId.startsWith("mixed-") || Boolean(current?.gameContext?.extendedStanceCast) && formula.ruleId.startsWith("extended-stance-") || Boolean(current?.gameContext?.travelerCryoStateCast) && formula.ruleId.startsWith("traveler-cryo-state") || Boolean(current?.gameContext?.travelerCrossEntityCast) && formula.ruleId.startsWith("traveler-cross-entity:") || Boolean(current?.gameContext?.travelerHydroResolvedCast) && formula.ruleId.startsWith("traveler-hydro-resolved:") || Boolean(current?.gameContext?.iansanSwiftResolvedCast) && formula.ruleId.startsWith("iansan-swift-resolved:") || Boolean(current?.gameContext?.zibaiFiniteCast) && formula.ruleId.startsWith("zibai-finite") || Boolean(current?.gameContext?.neferPhantasmCast) && formula.ruleId.startsWith("nefer-phantasm-") || Boolean(current?.gameContext?.observedCharacterResources) && formula.ruleId.startsWith("observed-lohen-resource:") || Boolean(current?.gameContext?.observedPlunge) && formula.ruleId.startsWith("observed-plunge:");
++      const sourceCastFormula = Boolean(current?.gameContext?.xiaoDamage) && formula.ruleId.startsWith("xiao-damage-") || Boolean(current?.gameContext?.durinSkill) && formula.ruleId.startsWith("durin-c2-") || Boolean(current?.gameContext?.travelerCryo || current?.gameContext?.batchProjectileCast || current?.gameContext?.batchPeriodicCast || current?.gameContext?.batchFiniteCast || current?.gameContext?.coordinatedCast || current?.gameContext?.heldLifecycleCast || current?.gameContext?.finiteFollowupCast || current?.gameContext?.observedEntityCast || current?.gameContext?.travelerMaleChargedCast || current?.gameContext?.periodicOrdinaryCast || current?.gameContext?.idleStanceCast) && /^(traveler-cryo-|batch-|coordinated-|held-|finite-followup:|observed-|male-charged-|periodic-ordinary:|idle-stance-)/.test(formula.ruleId) || Boolean(current?.gameContext?.entityFollowupCast) && /^(jahoda-|nicole-)/.test(formula.ruleId) || Boolean(current?.gameContext?.mixedSourceCast) && formula.ruleId.startsWith("mixed-") || Boolean(current?.gameContext?.extendedStanceCast) && formula.ruleId.startsWith("extended-stance-") || Boolean(current?.gameContext?.travelerCryoStateCast) && formula.ruleId.startsWith("traveler-cryo-state") || Boolean(current?.gameContext?.travelerCrossEntityCast) && formula.ruleId.startsWith("traveler-cross-entity:") || Boolean(current?.gameContext?.travelerHydroResolvedCast) && formula.ruleId.startsWith("traveler-hydro-resolved:") || Boolean(current?.gameContext?.iansanSwiftResolvedCast) && formula.ruleId.startsWith("iansan-swift-resolved:") || Boolean(current?.gameContext?.zibaiFiniteCast) && formula.ruleId.startsWith("zibai-finite") || Boolean(current?.gameContext?.neferPhantasmCast) && formula.ruleId.startsWith("nefer-phantasm-") || Boolean(current?.gameContext?.observedCharacterResources) && formula.ruleId.startsWith("observed-lohen-resource:") || Boolean(current?.gameContext?.observedPlunge) && formula.ruleId.startsWith("observed-plunge:");
+       return `<div class="calculator-full"><p class="calculator-hint">${esc(formula.label)} · 规则 ${esc(formula.ruleId)}。${formulaLabel}按来源表达式执行；面板变量由共享核心注入，资源、层数和其他贡献值在下方明确输入。${formula.requirements?.minimumAscension === undefined ? "" : `此公式要求突破阶段至少 ${formula.requirements.minimumAscension}，实际资格由核心判断。`}${formula.requirements?.minimumConstellation === undefined ? "" : `最低命座 C${formula.requirements.minimumConstellation}。`}${formula.requirements?.maximumConstellation === undefined ? "" : `最高适用命座 C${formula.requirements.maximumConstellation}。`}</p><div class="calculator-fields">${formula.inputs.map((input, ii) => {
+         const attributes = [sourceCastFormula || Boolean(current?.weaponProc) && formula.ruleId.startsWith("weapon-proc-") || formulaPath === "incomingThrillingTalesFormula" || !synthetic && (input.origin === "source-table" || formulaPath === "attackAdjustment.formula" || (current?.gameContext?.ittoCharged && formula.ruleId.startsWith("itto-")) || (current?.gameContext?.yanfeiCharged && formula.ruleId.startsWith("yanfei-")) || (current?.gameContext?.keqingBurst && formula.ruleId.startsWith("keqing-")) || (current?.gameContext?.xingqiuSkill && formula.ruleId.startsWith("xingqiu-")) || (current?.gameContext?.ningguangBurst && formula.ruleId.startsWith("ningguang-")) || (current?.gameContext?.kukiDamage && formula.ruleId.startsWith("kuki-")) || (current?.gameContext?.baizhuSkill && formula.ruleId.startsWith("baizhu-")) || (current?.gameContext?.charlotteSkill && formula.ruleId.startsWith("charlotte-"))) ? 'readonly aria-readonly="true"' : "", input.minimum === undefined ? "" : `min="${input.minimum}"`, input.maximum === undefined ? "" : `max="${input.maximum}"`, input.integer ? 'step="1"' : ""].filter(Boolean).join(" ");
+         const path = `hits.${index}.${formulaPath}.inputs.${ii}.value`;
+@@ -662,6 +662,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions
+     }
+     // The candidate is a fresh C0 definition and has no C2 context yet. Only
+     // restore this exact action's answers; another E branch cannot supply them.
++    if (next.gameContext?.xiaoDamage && actionDraft?.gameContext?.xiaoDamage) next.gameContext.xiaoDamage = clone(actionDraft.gameContext.xiaoDamage);
+     if (next.gameContext && actionDraft?.gameContext?.durinSkill) next.gameContext.durinSkill = clone(actionDraft.gameContext.durinSkill);
+     // An explicit schedule belongs to this exact action. Restore its generated
+     // hits before preparation so event snapshots, manual inputs and selection survive.
+@@ -689,6 +690,7 @@ export function mountCalculator(root: HTMLElement, options: CalculatorUiOptions
+       const burstId = talentSet?.abilities.find(ability => ability.kind === "burst")?.id;
+       const burstLevel = burstId ? equipmentTalentBinding.levels.get(burstId) : undefined;
+       if (burstLevel !== undefined) {
++        if (context.xiaoDamage) context.xiaoDamage.burstTalentLevel = burstLevel;
+         if (context.noelleBurst) context.noelleBurst.effectiveTalentLevel = burstLevel;
+         if (context.ittoCharged) context.ittoCharged.burst.effectiveTalentLevel = burstLevel;
+         if (context.yanfeiCharged) context.yanfeiCharged.brilliance.effectiveTalentLevel = burstLevel;
+diff --git a/apps/web/src/character-calculations.ts b/apps/web/src/character-calculations.ts
+index e57a9eb..c0406c3 100644
+--- a/apps/web/src/character-calculations.ts
++++ b/apps/web/src/character-calculations.ts
+@@ -1,3 +1,5 @@
++import { extendXiaoDocuments } from "./xiao-calculation-context";
++import { isXiaoDamageAction, XIAO_DAMAGE_SOURCE_REFS } from "../../../packages/sim-core/src/xiao-damage-formulas";
+ import { optimizerSpecialComponents } from "../../../packages/game-data/src/character-mappings/optimizer-special-components";
+ import { createObservedSpecialComponentDocument } from "../../../packages/sim-core/src/observed-special-component-formulas";
+ import { prepareSourceCastDocument } from "../../../packages/sim-core/src/source-cast-context";
+@@ -124,6 +126,9 @@ export function applyCharacterConstellationScope(document: CalculatorDocument, w
+       reason = allowed
+         ? "克洛琳德所选 Q 的基础倍率与 A1 公式已审阅 C0/C1；C1 追击为战技状态普攻相关，不归属于本次 Q。A1 层数与突破门仍独立检查。"
+         : "克洛琳德 C2+ 改变 A1 系数和上限，C4/C6 还引入生命之契增伤或状态暴击条件；本命中仅提供 C0/C1 公式，需相应命座公式后才能计算。";
++    } else if (isXiaoDamageAction(result)) {
++      allowed = true; sourceRefs = [...sourceRefs, ...XIAO_DAMAGE_SOURCE_REFS];
++      reason = "魈所选实际单击已核C0–C6：C1改E充能、C2后台充能、C4防御、C6后续E资格不改本击；C3/C5由有效E与独立有效Q等级处理。Q状态、A1时间、E前A4层数和已含份额仍须明确，不据此生成整轮或C6额外E。";
+     } else if (isDurinSkillAction(result)) {
+       allowed = context.constellation <= 2;
+       reason = allowed ? "杜林白E/黑E自身命中已核对C0–C2：C1不追加自身E，C2的50%火伤仍按实际快照和已含份额检查；不自动提供Q后台、队友伤害或A1反应状态。" : "杜林E当前仅审阅C0–C2，不以低命座代算更高命座。";
+@@ -268,5 +273,5 @@ export function getCharacterDocuments(characterId: string, talentLevel = 10, wor
+       documents.push(stampCalculatorWorkspaceEvidence(createObservedSpecialComponentDocument(base,component.id),workspace));
+     }
+   }
+-  return documents;
++  return extendXiaoDocuments(documents, workspace);
+ }
+diff --git a/packages/sim-core/src/calculator-model.ts b/packages/sim-core/src/calculator-model.ts
+index 4041553..7a03ac8 100644
+--- a/packages/sim-core/src/calculator-model.ts
++++ b/packages/sim-core/src/calculator-model.ts
+@@ -19,6 +19,7 @@ import { extendedStanceCastBaseSchema, extendedStanceEventSchema } from "./exten
+ import { entityFollowupCastBaseSchema, entityFollowupEventSchema } from "./entity-followup-context";
+ import { z } from "zod";
+ import { idleStanceCastBaseSchema, idleStanceEventSchema } from "./idle-stance-context";
++import { xiaoDamageContextSchema } from "./xiao-damage-context";
+ import { durinSkillContextSchema } from "./durin-skill-context";
+ import { observedEntityCastBaseSchema } from "./observed-entity-context";
+ import { kachinaCastBaseSchema } from "./kachina-cast-context";
+@@ -274,7 +275,7 @@ export const calculatorDocumentSchema = z.strictObject({
+   incomingThrillingTales:incomingThrillingTalesSchema.optional(),
+   weaponProc:weaponProcCalculatorContextSchema.optional(),
+   schemaVersion: z.literal(CALCULATOR_SCHEMA_VERSION), ruleVersion: z.literal(CALCULATOR_RULE_VERSION), id: text, label: text,
+-  gameContext:z.strictObject({durinSkill:durinSkillContextSchema.optional(),rawSourceState:rawSourceStateContextSchema.optional(),observedPlunge:observedPlungeContextSchema.optional(),observedCharacterResources:observedCharacterResourceContextSchema.optional(),observedAlyoshaLifecycle:alyoshaObservedContextSchema.optional(),observedNeferLifecycle:neferObservedContextSchema.optional(),observedLinneaLifecycle:linneaObservedContextSchema.optional(),sandroneObservedLifecycle:sandroneObservedLifecycleSchema.optional(),kachinaCast:kachinaCastContextSchema.optional(),observedZibaiResources:observedZibaiResourceContextSchema.optional(),observedSpecialComponent:observedSpecialComponentContextSchema.optional(),neferPhantasmCast:neferPhantasmCastContextSchema.optional(),iansanSwiftResolvedCast:iansanSwiftResolvedCastContextSchema.optional(),travelerHydroResolvedCast:travelerHydroResolvedCastContextSchema.optional(),zibaiFiniteCast:zibaiFiniteCastContextSchema.optional(),travelerCrossEntityCast:travelerCrossEntityCastContextSchema.optional(),travelerCryoStateCast:travelerCryoStateCastContextSchema.optional(),mixedSourceCast:mixedSourceCastContextSchema.optional(),noellePlungeCast:noellePlungeCastContextSchema.optional(),extendedStanceCast:extendedStanceCastContextSchema.optional(),entityFollowupCast:entityFollowupCastContextSchema.optional(),idleStanceCast:idleStanceCastContextSchema.optional(),observedEntityCast:observedEntityCastContextSchema.optional(),periodicOrdinaryCast:periodicOrdinaryCastContextSchema.optional(),travelerMaleChargedCast:travelerMaleChargedCastContextSchema.optional(),heldLifecycleCast:heldLifecycleCastContextSchema.optional(),finiteFollowupCast:finiteFollowupCastContextSchema.optional(),coordinatedCast:coordinatedCastContextSchema.optional(),travelerCryo:travelerCryoContextSchema.optional(),batchProjectileCast:batchProjectileCastSchema.optional(),batchPeriodicCast:batchPeriodicCastContextSchema.optional(),batchFiniteCast:batchFiniteCastContextSchema.optional(),colleiSkill:colleiSkillContextSchema.optional(),charlotteSkill:charlotteSkillContextSchema.optional(),baizhuSkill:baizhuSkillContextSchema.optional(),kukiDamage:kukiDamageContextSchema.optional(),ningguangBurst:ningguangBurstContextSchema.optional(),keqingBurst:keqingBurstContextSchema.optional(),xingqiuSkill:xingqiuSkillContextSchema.optional(),yanfeiCharged:yanfeiChargedContextSchema.optional(),ittoCharged:ittoChargedContextSchema.optional(),noelleBurst:noelleBurstContextSchema.optional(),characterId:text,characterName:text,variantId:text.optional(),variantName:text.optional(),abilityId:text,skillId:text,skillName:text,effectiveTalentLevel:z.number().int().min(1),ascension:z.number().int().min(0).max(6).optional(),constellation:z.number().int().min(0).max(6),scopeCoverage:z.enum(["single-hit","selected-components","complete-cast"]),attributionPolicy:text}).optional(),
++  gameContext:z.strictObject({xiaoDamage:xiaoDamageContextSchema.optional(),durinSkill:durinSkillContextSchema.optional(),rawSourceState:rawSourceStateContextSchema.optional(),observedPlunge:observedPlungeContextSchema.optional(),observedCharacterResources:observedCharacterResourceContextSchema.optional(),observedAlyoshaLifecycle:alyoshaObservedContextSchema.optional(),observedNeferLifecycle:neferObservedContextSchema.optional(),observedLinneaLifecycle:linneaObservedContextSchema.optional(),sandroneObservedLifecycle:sandroneObservedLifecycleSchema.optional(),kachinaCast:kachinaCastContextSchema.optional(),observedZibaiResources:observedZibaiResourceContextSchema.optional(),observedSpecialComponent:observedSpecialComponentContextSchema.optional(),neferPhantasmCast:neferPhantasmCastContextSchema.optional(),iansanSwiftResolvedCast:iansanSwiftResolvedCastContextSchema.optional(),travelerHydroResolvedCast:travelerHydroResolvedCastContextSchema.optional(),zibaiFiniteCast:zibaiFiniteCastContextSchema.optional(),travelerCrossEntityCast:travelerCrossEntityCastContextSchema.optional(),travelerCryoStateCast:travelerCryoStateCastContextSchema.optional(),mixedSourceCast:mixedSourceCastContextSchema.optional(),noellePlungeCast:noellePlungeCastContextSchema.optional(),extendedStanceCast:extendedStanceCastContextSchema.optional(),entityFollowupCast:entityFollowupCastContextSchema.optional(),idleStanceCast:idleStanceCastContextSchema.optional(),observedEntityCast:observedEntityCastContextSchema.optional(),periodicOrdinaryCast:periodicOrdinaryCastContextSchema.optional(),travelerMaleChargedCast:travelerMaleChargedCastContextSchema.optional(),heldLifecycleCast:heldLifecycleCastContextSchema.optional(),finiteFollowupCast:finiteFollowupCastContextSchema.optional(),coordinatedCast:coordinatedCastContextSchema.optional(),travelerCryo:travelerCryoContextSchema.optional(),batchProjectileCast:batchProjectileCastSchema.optional(),batchPeriodicCast:batchPeriodicCastContextSchema.optional(),batchFiniteCast:batchFiniteCastContextSchema.optional(),colleiSkill:colleiSkillContextSchema.optional(),charlotteSkill:charlotteSkillContextSchema.optional(),baizhuSkill:baizhuSkillContextSchema.optional(),kukiDamage:kukiDamageContextSchema.optional(),ningguangBurst:ningguangBurstContextSchema.optional(),keqingBurst:keqingBurstContextSchema.optional(),xingqiuSkill:xingqiuSkillContextSchema.optional(),yanfeiCharged:yanfeiChargedContextSchema.optional(),ittoCharged:ittoChargedContextSchema.optional(),noelleBurst:noelleBurstContextSchema.optional(),characterId:text,characterName:text,variantId:text.optional(),variantName:text.optional(),abilityId:text,skillId:text,skillName:text,effectiveTalentLevel:z.number().int().min(1),ascension:z.number().int().min(0).max(6).optional(),constellation:z.number().int().min(0).max(6),scopeCoverage:z.enum(["single-hit","selected-components","complete-cast"]),attributionPolicy:text}).optional(),
+   scope: z.enum(["single-hit", "one-cast"]), characterLevel: z.number().int().min(1).max(100),
+   build: calculatorBuildSchema,
+   enemy: z.strictObject({ level: z.number().int().min(1).max(999), resistance: num, defenseAdjustment: num.min(-1).max(0.9), defenseIgnore: num.min(0).max(1) }),
+diff --git a/packages/sim-core/src/source-cast-context.ts b/packages/sim-core/src/source-cast-context.ts
+index 7e618ad..5990d0c 100644
+--- a/packages/sim-core/src/source-cast-context.ts
++++ b/packages/sim-core/src/source-cast-context.ts
+@@ -1,3 +1,4 @@
++import { prepareXiaoDamageDocument, resetXiaoPanelAccounting, finalizeXiaoPanelAccounting } from "./xiao-damage-formulas";
+ import { prepareRawSourceStateDocument } from "./raw-source-state";
+ import { prepareDurinSkillDocument, resetDurinSkillPanelAccounting } from "./durin-skill-formulas";
+ import { prepareObservedPlungeDocument, resetObservedPlungePanelAccounting, finalizeObservedPlungePanelAccounting } from "./observed-plunge-formulas";
+@@ -34,6 +35,7 @@ import { prepareBatchFiniteCastDocument, resetBatchFinitePanelAccounting } from
+
+ /** Shared entry for UI, JSON and calculation; each source group applies only to its explicit actions. */
+ export function prepareSourceCastDocument(document: CalculatorDocument): CalculatorDocument {
++  document = prepareXiaoDamageDocument(document);
+   document = prepareDurinSkillDocument(document);
+   document = prepareRawSourceStateDocument(document);
+   document = prepareKachinaCastDocument(document);
+@@ -57,6 +59,7 @@ export function prepareSourceCastDocument(document: CalculatorDocument): Calcula
+   return prepareAlyoshaObservedDocument(prepareObservedCharacterResourceDocument(prepareObservedZibaiResourceDocument(prepared)));
+ }
+ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mode: "fresh-equipment" | "imported-final"): void {
++  resetXiaoPanelAccounting(document, mode);
+   resetDurinSkillPanelAccounting(document, mode);
+   resetObservedPlungePanelAccounting(document, mode);
+   resetKachinaCastPanelAccounting(document);
+@@ -87,6 +90,7 @@ export function resetSourceCastPanelAccounting(document: CalculatorDocument, mod
+ }
+ /** Only called after actually materializing offensive/target values, never after importing a character panel. */
+ export function finalizeSourceCastPanelAccounting(document: CalculatorDocument): void {
++  finalizeXiaoPanelAccounting(document);
+   finalizeObservedPlungePanelAccounting(document);
+   finalizeKachinaCastPanelAccounting(document);
+   finalizeTravelerHydroResolvedPanelAccounting(document);

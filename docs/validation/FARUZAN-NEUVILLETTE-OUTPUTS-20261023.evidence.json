@@ -1,0 +1,91 @@
+{
+  "scope": "Faruzan C0 E condition/talent wiring; Neuvillette native solo charge/Q bridge",
+  "baseCommit": "7649310c302bc63ad5e2aad02ee135697e68fe7f",
+  "codeCommits": [
+    "85edcc3b2d03c8d6764eac68ded81a224bde3d62",
+    "bcf6a4469acad13b1c8e3efac622f0590b3847be"
+  ],
+  "additionalCodeCommit": "367e931ffcc58eb11ef82424ed9a2f95503560dd",
+  "evidenceDirectory": "docs/validation/evidence/faruzan-neuvillette-20261023",
+  "uniqueUnitCases": 19,
+  "uniqueBrowserCases": 4,
+  "nativeSingleActionRunsInPassingBrowserCase": 2,
+  "fullRegression": "not rerun; historical 3196 passed / 79 failed / 1 skipped unchanged",
+  "production": "not queried or deployed; deployment and uploads remain paused",
+  "files": [
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/faruzan-c0-conditions.png",
+      "bytes": 776094,
+      "sha256": "6b83f1de502f3792625ed1f83ed3d4e2a5dfc04a61810c2c2a20818ad9a1167d"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/faruzan-declaration-browser.json",
+      "bytes": 3326,
+      "sha256": "ff19c52582df32c49f54f03a770f52a1aa7f3cb9dbdab36c24545e6816f004c0"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/faruzan-final-import-browser.json",
+      "bytes": 4380,
+      "sha256": "22de885445f44f8831e93ca6ec246e612e34190fbb06f5d9bc979b376e181ff9"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/faruzan-units.json",
+      "bytes": 4066,
+      "sha256": "462cf9a42f388729e3f9195859b97378f745915629462e1b2194ca0b368ab5c4"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/final-build.json",
+      "bytes": 8931,
+      "sha256": "fcb2ce645c2b3d13533a67dcebb908ecebc08333bca4ad9f22b118994bb7d3af"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/initial-failures-index.json",
+      "bytes": 14163,
+      "sha256": "897556d693758971b6ca2cb1b4aa2693f7e5e4249c91fbdd39ed777ba4dc3673"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/neuvillette-browser-final.json",
+      "bytes": 3303,
+      "sha256": "8db62f96f33fd638e6be43cc275cf434e2b2c021aee5472913fcdf0a61df202d"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/neuvillette-charge.png",
+      "bytes": 1116881,
+      "sha256": "fa61bc122f18b58287b2d09d6fa9de78b7282964ef589332a37305af857050c6"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/neuvillette-independent.json",
+      "bytes": 4834,
+      "sha256": "a976714edc430e101ec9ff7eaf61440944342240108b7eed33eccc920d28198f"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/neuvillette-q.png",
+      "bytes": 1103552,
+      "sha256": "d43038ce07dc22d8a906bc93549b773077db4fb53861c1abbab2ff2e0e921a1a"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/panel-declaration-agent-test.json",
+      "bytes": 412,
+      "sha256": "f4e830088e8a065ea44a7a573e38f21a91732a070f3e0da6ea28c466a9194ace"
+    },
+    {
+      "path": "docs/validation/evidence/faruzan-neuvillette-20261023/selection-registry-units.json",
+      "bytes": 4733,
+      "sha256": "5969a57b908229532ba4f5c6dd92eba93a0361b23ec573836f204517e1fc55e8"
+    }
+  ],
+  "localNativeRecords": [
+    {
+      "path": "/tmp/GIDPS-faruzan-neuv-20261023/neuvillette-browser-final-artifacts/calculator-neuvillette-nat-37de0-y-and-independent-equipment/neuvillette-burst-native.json",
+      "bytes": 162893,
+      "sha256": "99c293b267f93f1746b217b33aa28ef5cb3f89cd6e897fa744b3bf01e53181b7",
+      "scope": "synthetic reference configuration and complete local native record; not uploaded"
+    },
+    {
+      "path": "/tmp/GIDPS-faruzan-neuv-20261023/neuvillette-browser-final-artifacts/calculator-neuvillette-nat-37de0-y-and-independent-equipment/neuvillette-charge-native.json",
+      "bytes": 252285,
+      "sha256": "737673bab2f8dc34b5ed45ad68cd38e74166493fc32980e056beec556e341e43",
+      "scope": "synthetic reference configuration and complete local native record; not uploaded"
+    }
+  ]
+}

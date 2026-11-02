@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "hostVariant": "classic",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+  },
+  "name": "散法妮杜120秒 · 静态编辑样例（非自适应轴）",
+  "members": [
+    {
+      "id": "wanderer",
+      "characterKey": "wanderer",
+      "level": 100,
+      "levelCap": 100,
+      "constellation": 6,
+      "talents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "weapon": {
+        "key": "tulaytullahsremembrance",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 5
+      },
+      "artifactSets": [
+        {
+          "key": "desertpavilionchronicle",
+          "count": 4
+        },
+        {
+          "key": "gladiatorsfinale",
+          "count": 1
+        }
+      ],
+      "artifactStats": {
+        "hp": 4780,
+        "cr": 0.7386999999999999,
+        "cd": 1.0879,
+        "atk%": 0.9265999999999999,
+        "atk": 373.26,
+        "er": 0.1424,
+        "anemo%": 0.466
+      }
+    },
+    {
+      "id": "faruzan",
+      "characterKey": "faruzan",
+      "level": 90,
+      "levelCap": 90,
+      "constellation": 6,
+      "talents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "weapon": {
+        "key": "favoniuswarbow",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 5
+      },
+      "artifactSets": [
+        {
+          "key": "noblesseoblige",
+          "count": 5
+        }
+      ],
+      "artifactStats": {
+        "hp": 4780,
+        "er": 1.1656,
+        "cr": 0.6104,
+        "cd": 0.6759999999999999,
+        "atk%": 0.49550000000000005,
+        "atk": 311,
+        "hp%": 0.1982,
+        "anemo%": 0.466
+      }
+    },
+    {
+      "id": "nicole",
+      "characterKey": "nicole",
+      "level": 90,
+      "levelCap": 90,
+      "constellation": 2,
+      "talents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "weapon": {
+        "key": "angelosheptades",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 1
+      },
+      "artifactSets": [
+        {
+          "key": "gladiatorsfinale",
+          "count": 5
+        }
+      ],
+      "artifactStats": {
+        "hp": 4780,
+        "cr": 0.7076,
+        "cd": 0.7149,
+        "atk%": 0.8741,
+        "er": 0.5505,
+        "atk": 311,
+        "hp%": 0.1982,
+        "pyro%": 0.466
+      }
+    },
+    {
+      "id": "durin",
+      "characterKey": "durin",
+      "level": 90,
+      "levelCap": 90,
+      "constellation": 2,
+      "talents": {
+        "auto": 10,
+        "skill": 10,
+        "burst": 10
+      },
+      "weapon": {
+        "key": "athameartis",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 1
+      },
+      "artifactSets": [
+        {
+          "key": "gladiatorsfinale",
+          "count": 5
+        }
+      ],
+      "artifactStats": {
+        "hp": 4780,
+        "cr": 0.7076,
+        "cd": 0.7149,
+        "atk%": 0.8741,
+        "er": 0.5505,
+        "atk": 311,
+        "hp%": 0.1982,
+        "pyro%": 0.466
+      }
+    }
+  ],
+  "actions": [
+    {
+      "actorId": "nicole",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "burst"
+    },
+    {
+      "actorId": "durin",
+      "kind": "skill",
+      "repeat": 2
+    },
+    {
+      "actorId": "durin",
+      "kind": "burst"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "skill"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "aim"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "burst"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "charge"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "attack",
+      "repeat": 18
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "burst"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "burst"
+    },
+    {
+      "actorId": "durin",
+      "kind": "skill",
+      "repeat": 2
+    },
+    {
+      "actorId": "durin",
+      "kind": "burst"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "skill"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "aim"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "burst"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "charge"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "attack",
+      "repeat": 18
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "burst"
+    },
+    {
+      "actorId": "durin",
+      "kind": "skill",
+      "repeat": 2
+    },
+    {
+      "actorId": "durin",
+      "kind": "burst"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "skill"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "aim"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "burst"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "charge"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "attack",
+      "repeat": 18
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "burst"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "burst"
+    },
+    {
+      "actorId": "durin",
+      "kind": "skill",
+      "repeat": 2
+    },
+    {
+      "actorId": "durin",
+      "kind": "burst"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "skill"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "aim"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "burst"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "charge"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "attack",
+      "repeat": 18
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "burst"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "burst"
+    },
+    {
+      "actorId": "durin",
+      "kind": "skill",
+      "repeat": 2
+    },
+    {
+      "actorId": "durin",
+      "kind": "burst"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "skill"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "aim"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "burst"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "charge"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "attack",
+      "repeat": 18
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "skill"
+    },
+    {
+      "actorId": "nicole",
+      "kind": "burst"
+    },
+    {
+      "actorId": "durin",
+      "kind": "skill",
+      "repeat": 2
+    },
+    {
+      "actorId": "durin",
+      "kind": "burst"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "skill"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "aim"
+    },
+    {
+      "actorId": "faruzan",
+      "kind": "burst"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "skill"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "charge"
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "attack",
+      "repeat": 18
+    },
+    {
+      "actorId": "wanderer",
+      "kind": "burst"
+    }
+  ],
+  "durationSeconds": 120,
+  "startup": "full",
+  "executionProfile": {
+    "version": "source-action-delay-v1",
+    "mode": "practical",
+    "delays": {
+      "swap": 8,
+      "attack": 5,
+      "charge": 5,
+      "skill": 5,
+      "burst": 5,
+      "jump": 5,
+      "dash": 5,
+      "aim_delay": 5
+    }
+  },
+  "rotationLoop": {
+    "mode": "once"
+  },
+  "target": {
+    "level": 100,
+    "resistance": 0.1,
+    "geometry": {
+      "x": 0,
+      "y": 2.4,
+      "radius": 2
+    }
+  }
+}

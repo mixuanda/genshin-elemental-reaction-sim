@@ -1,0 +1,92 @@
+ ❯ packages/sim-core/src/source-host-base-panel.test.ts (5 tests | 1 failed) 175ms
+     × does not merge positive and negative zero in a cached explanation 84ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/source-host-base-panel.test.ts > source base-panel recipe > does not merge positive and negative zero in a cached explanation
+AssertionError: expected { panel: { …(17) }, …(4) } to deeply equal { panel: { …(17) }, …(4) }
+
+- Expected
++ Received
+
+@@ -286,27 +286,27 @@
+            "origin": {
+              "kind": "source-host-base-panel",
+              "reference": "signed",
+            },
+            "unit": "stat",
+-           "value": -0,
++           "value": 0,
+          },
+        ],
+        "result": {
+-         "display": "-0",
++         "display": "0",
+          "unit": "stat",
+-         "value": -0,
++         "value": 0,
+        },
+        "ruleId": "signed.configured.0",
+        "sourceRefs": [
+          "https://example.invalid/pinned-source/signed-zero/pkg/core/player/character/basestat.go",
+          "https://example.invalid/pinned-source/signed-zero/pkg/core/player/character/character.go",
+          "https://example.invalid/pinned-source/signed-zero/pkg/gcs/parser/parseCharacter.go",
+          "https://example.invalid/pinned-source/signed-zero/pkg/simulation/setup.go",
+        ],
+        "status": "applied",
+-       "substitution": "(-0)",
++       "substitution": "0",
+        "symbolicFormula": "configured",
+        "titleKey": "基础面板输入：无属性",
+        "warnings": [],
+      },
+      {
+@@ -2353,11 +2353,11 @@
+            "origin": {
+              "kind": "source-host-base-panel",
+              "reference": "signed.configured.0",
+            },
+            "unit": "stat",
+-           "value": -0,
++           "value": 0,
+          },
+          {
+            "context": {
+              "actorIndex": 0,
+              "characterKey": "fixture",
+@@ -2389,11 +2389,11 @@
+          "https://example.invalid/pinned-source/signed-zero/pkg/core/player/character/character.go",
+          "https://example.invalid/pinned-source/signed-zero/pkg/gcs/parser/parseCharacter.go",
+          "https://example.invalid/pinned-source/signed-zero/pkg/simulation/setup.go",
+        ],
+        "status": "applied",
+-       "substitution": "((-0) + 0)",
++       "substitution": "(0 + 0)",
+        "symbolicFormula": "(configured + character)",
+        "titleKey": "基础面板无属性：加入角色",
+        "warnings": [],
+      },
+      {
+
+ ❯ packages/sim-core/src/source-host-base-panel.test.ts:62:20
+     60|     const cached = executeSourceHostBasePanel(negative, "signed", sign…
+     61|     const uncached = executeSourceHostBasePanel(negative, "signed", si…
+     62|     expect(cached).toEqual(uncached);
+       |                    ^
+     63|     expect(Object.is(cached.trace.find(node => node.id === "signed.con…
+     64|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  18:26:10
+   Duration  547ms (transform 77ms, setup 0ms, import 138ms, tests 175ms, environment 0ms)
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+

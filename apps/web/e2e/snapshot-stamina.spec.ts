@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -11,14 +12,14 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
 async function calculatorRoundTrip(page: Page, filename: string): Promise<void> {
   const before = await audit(page);
   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name: filename, mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: filename, mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   const restored = await audit(page);
   expect(restored.document.gameContext).toEqual(before.document.gameContext);
@@ -35,43 +36,44 @@ async function calculatorRoundTrip(page: Page, filename: string): Promise<void> 
 test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
 test("Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits", async ({ page }) => {
   await page.goto("/calculator");
-  await page.locator("#calc-character").selectOption("character:10000027");
+  await (await revealControl(page.locator("#calc-character"))).selectOption("character:10000027");
   await expect(page.locator("#calc-skill")).toBeEnabled();
   const value = await page.locator("#calc-skill option").filter({ hasText: "有璇玑屏" }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
-  await page.locator("#calc-talent-level").fill("1");
-  await page.locator("#calc-talent-level").press("Tab");
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
+  await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
   await expect.poll(async () => (await audit(page)).document.gameContext?.effectiveTalentLevel).toBe(1);
-  await page.locator("#calc-ascension").selectOption("4");
-  await page.locator('[data-field="build.stats.atk"]').fill("2000");
-  await page.locator('[data-field="build.stats.critRate"]').fill("0.5");
-  await page.locator('[data-field="build.stats.critDamage"]').fill("1");
-  await page.locator("#calc-ningguang-current-a4-active").selectOption("0");
-  await page.locator("#calc-ningguang-screen-a4-active").selectOption("0");
+  await (await revealControl(page.locator("#calc-ascension"))).selectOption("4");
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("2000");
+  await (await revealControl(page.locator('[data-field="build.stats.critRate"]'))).fill("0.5");
+  await (await revealControl(page.locator('[data-field="build.stats.critDamage"]'))).fill("1");
+  await (await revealControl(page.locator("#calc-ningguang-current-a4-active"))).selectOption("0");
+  await (await revealControl(page.locator("#calc-ningguang-screen-a4-active"))).selectOption("0");
   const missing = await audit(page);
   expect(missing.document.gameContext?.skillId).toBe("ningguang-burst-with-screen");
   expect(missing.result.status).toBe("blocked");
   expect(missing.result.hits.filter(hit => hit.status === "blocked")).toHaveLength(6);
   expect(missing.result.totals).toBeUndefined();
-  await page.locator("#calc-scope").selectOption("single-hit");
-  await page.locator('[data-hit-id="ningguang-burst-with-screen-body-instance-1"]').check();
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
+  await (await revealControl(page.locator('[data-hit-id="ningguang-burst-with-screen-body-instance-1"]'))).check();
   const body = await audit(page);
   expect(body.result.status).toBe("calculated");
   // T1 Q coefficient .8696. Current Q: 2000 ATK, 50% CR, 100% CD; L90/90 and 10% RES.
   const bodyNonCrit = 2000 * 0.8696 * 0.5 * 0.9;
   expect(body.result.totals!.nonCritical).toBeCloseTo(bodyNonCrit, 9);
   expect(body.result.totals!.expected).toBeCloseTo(bodyNonCrit * 1.5, 9);
-  await page.locator("#calc-scope").selectOption("one-cast");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("one-cast");
   const historical = {
     "stats.atk": 1000, "stats.hp": 10000, "stats.def": 700, "stats.em": 0,
     "stats.critRate": 0.2, "stats.critDamage": 0.5,
     characterLevel: 90, ascension: 4, damageBonus: 0.3, additiveBaseDamage: 0, reactionBonus: 0,
   };
   for (const [path, number] of Object.entries(historical)) {
-    await page.locator(`[data-ningguang-snapshot="${path}"]`).fill(String(number));
+    await (await revealControl(page.locator(`[data-ningguang-snapshot="${path}"]`))).fill(String(number));
   }
-  await page.locator("#calc-ningguang-snapshot-source").fill("浏览器合成历史面板：仅验证两组快照，不是角色实测");
-  await page.locator("#calc-ningguang-snapshot-apply").click();
+  await (await revealControl(page.locator("#calc-ningguang-snapshot-source"))).fill("浏览器合成历史面板：仅验证两组快照，不是角色实测");
+  await (await revealControl(page.locator("#calc-ningguang-snapshot-apply"))).click();
   const complete = await audit(page);
   expect(complete.result.status).toBe("calculated");
   expect(complete.result.hits).toHaveLength(12);
@@ -85,7 +87,7 @@ test("Ningguang twelve-gem Q keeps the previous E snapshot independent and round
   await expect(screenTrace).toBeEmpty();
   // All numerical traces already exist in audit JSON; keyboard opening only mounts their presentation.
   await screenCard.locator(":scope > summary").focus();
-  await screenCard.locator(":scope > summary").press("Enter");
+  await (await revealControl(screenCard.locator(":scope > summary"))).press("Enter");
   await expect(screenCard).toHaveAttribute("open", "");
   await expect(screenTrace).toHaveAttribute("data-trace-mounted", "true");
   const rendered = await screenTrace.locator("tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({
@@ -99,18 +101,18 @@ test("Ningguang twelve-gem Q keeps the previous E snapshot independent and round
     substitution: node.substitution + (node.result ? ` = ${node.result.display}` : ""),
   })));
   await expect(screenTrace.locator('[data-trace-node="snapshot.atk"]')).toContainText("1,000");
-  await screenCard.locator(":scope > summary").press("Enter");
+  await (await revealControl(screenCard.locator(":scope > summary"))).press("Enter");
   await expect(screenCard).not.toHaveAttribute("open", "");
-  await screenCard.locator(":scope > summary").press("Enter");
+  await (await revealControl(screenCard.locator(":scope > summary"))).press("Enter");
   await expect(screenCard).toHaveAttribute("open", "");
   await expect(screenTrace.locator(".calculator-trace")).toHaveCount(1);
   await expect(screenTrace.locator("tr[data-trace-node]")).toHaveCount(complete.result.hits[6]!.trace.length);
   const bonusStep = screenCard.locator('[data-detail-id="customDamageBonus"]');
-  await bonusStep.locator(":scope > summary").click();
+  await (await revealControl(bonusStep.locator(":scope > summary"))).click();
   await expect(bonusStep).toHaveAttribute("open", "");
 
   // A4 belongs to its own saved snapshot. It must not add 12% to the current Q's six gems.
-  await page.locator("#calc-ningguang-screen-a4-active").selectOption("1");
+  await (await revealControl(page.locator("#calc-ningguang-screen-a4-active"))).selectOption("1");
   const oldA4 = await audit(page);
   const screenA4NonCrit = 1000 * 0.8696 * 1.42 * 0.5 * 0.9;
   expect(oldA4.result.hits[0]!.nonCritical).toBeCloseTo(bodyNonCrit, 9);
@@ -122,24 +124,24 @@ test("Ningguang twelve-gem Q keeps the previous E snapshot independent and round
   expect(updatedBonus.result!.value).toBe(0.12);
   await expect(screenTrace.locator('[data-trace-node="customDamageBonus"] .trace-value')).toHaveText(updatedBonus.result!.display!);
   await expect(bonusStep.locator(".trace-substitution code")).toHaveText(`${updatedBonus.substitution} = ${updatedBonus.result!.display}`);
-  await page.locator('[data-ningguang-snapshot="damageBonus"]').fill("0.42");
-  await page.locator("#calc-ningguang-snapshot-apply").click();
-  await page.locator("#calc-ningguang-screen-a4-included").selectOption("1");
+  await (await revealControl(page.locator('[data-ningguang-snapshot="damageBonus"]'))).fill("0.42");
+  await (await revealControl(page.locator("#calc-ningguang-snapshot-apply"))).click();
+  await (await revealControl(page.locator("#calc-ningguang-screen-a4-included"))).selectOption("1");
   const accounted = await audit(page);
   for (const branch of ["nonCritical", "critical", "expected"] as const) {
     expect(accounted.result.totals![branch]).toBeCloseTo(oldA4.result.totals![branch], 9);
   }
   await calculatorRoundTrip(page, "ningguang-two-snapshot-complete.json");
 
-  await page.locator("#calc-scope").selectOption("single-hit");
-  await page.locator('[data-hit-id="ningguang-burst-with-screen-screen-instance-1"]').check();
-  await page.locator('[data-field="build.stats.atk"]').fill("9999");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
+  await (await revealControl(page.locator('[data-hit-id="ningguang-burst-with-screen-screen-instance-1"]'))).check();
+  await (await revealControl(page.locator('[data-field="build.stats.atk"]'))).fill("9999");
   const selected = await audit(page);
   expect(selected.result.hits).toHaveLength(1);
   expect(selected.result.totals!.nonCritical).toBeCloseTo(screenA4NonCrit, 9);
   expect(selected.result.totals!.expected).toBeCloseTo(screenA4NonCrit * 1.1, 9);
   await calculatorRoundTrip(page, "ningguang-history-selected-gem.json");
-  await page.locator("#calc-ningguang-snapshot-clear").click();
+  await (await revealControl(page.locator("#calc-ningguang-snapshot-clear"))).click();
   const cleared = await audit(page);
   expect(cleared.result.status).toBe("blocked");
   expect(cleared.result.totals).toBeUndefined();
@@ -180,43 +182,44 @@ async function waitForSimulation(page: Page): Promise<void> {
 test("Shared stamina rejects an unfunded second actor or waits to the exact recovery frame and preserves delayed debits in records", async ({ page }) => {
   const config = syntheticStamina();
   await page.goto("/results");
-  await page.locator("#importInput").setInputFiles({ name: "shared-stamina.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "shared-stamina.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#team-stamina-enabled")).not.toBeChecked();
-  await page.locator("#team-stamina-enabled").check();
-  await page.locator("#team-stamina-initial").fill("10");
+  await (await revealControl(page.locator("#team-stamina-enabled"))).check();
+  await (await revealControl(page.locator("#team-stamina-initial"))).fill("10");
   for (const [index, delay] of [6, 3].entries()) {
     const cost = page.locator(`[data-stamina-kind="ability"][data-stamina-index="${index}"]`);
-    await cost.locator("[data-stamina-amount]").fill("10");
-    await cost.locator("[data-stamina-consume-frame]").fill(String(delay));
+    await (await revealControl(cost.locator("[data-stamina-amount]"))).fill("10");
+    await (await revealControl(cost.locator("[data-stamina-consume-frame]"))).fill(String(delay));
     await expect(cost.locator("[data-stamina-zero-use]")).not.toBeChecked();
   }
-  await page.locator("#team-apply").click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await (await revealControl(page.locator("#team-apply"))).click();
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.staminaModel).toEqual({ mode: "shared-stamina-v1", profileId: "gcsim-b4ae769-stamina-v1", initialStamina: 10 });
   expect(saved.timeline!.abilities.map(ability => [ability.staminaCost!.amount, ability.staminaCost!.consumeFrame])).toEqual([[10, 6], [10, 3]]);
   expect(saved.timeline!.commands).toEqual(config.timeline!.commands);
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#critModeInput").selectOption("average");
-  await page.locator("#iterationInput").fill("1");
-  await page.getByRole("button", { name: "运行模拟", exact: true }).click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("average");
+  await (await revealControl(page.locator("#iterationInput"))).fill("1");
+  await (await revealControl(page.getByRole("button", { name: "运行模拟", exact: true }))).click();
   await waitForSimulation(page);
-  const strict = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const strict = await downloadSimulationRecord(page);
   expect(strict.result.timelineExecution!.commandResults[2]).toMatchObject({ requestedFrame: 10, startFrame: null, status: "rejected", failureCode: "INSUFFICIENT_STAMINA" });
   expect(strict.result.damageEvents.map(event => event.frame)).toEqual([1]);
   expect(strict.result.stamina!.logs.filter(row => row.operation === "spend").map(row => [row.frame, row.actorId, row.before, row.after])).toEqual([[6, "a", 10, 0]]);
   // Last use F6; recovery starts F97 and runs through F180: 84 × 25/60 = 35.
   expect(strict.result.stamina!.finalStamina).toBeCloseTo(35, 9);
 
-  await page.locator('.product-nav a[href="/rotation"]').click();
-  await page.locator("#rotation-mode").selectOption("wait");
-  await page.locator("#execution-profile").selectOption("unchanged");
-  await page.locator("#rotation-save").click();
+  await (await revealControl(page.locator('.product-nav a[href="/rotation"]'))).click();
+  await (await revealControl(page.locator("#rotation-mode"))).selectOption("wait");
+  await (await revealControl(page.locator("#execution-profile"))).selectOption("unchanged");
+  await (await revealControl(page.locator("#rotation-save"))).click();
   await waitForSimulation(page);
-  const waited = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const waited = await downloadSimulationRecord(page);
   expect(waited.sourceConfig.timeline!.legalityMode).toBe("wait");
   // At F119 only 23 ticks have restored 9.5833; F120 is the first affordable input with 10.
   expect(waited.result.timelineExecution!.commandResults[2]).toMatchObject({ requestedFrame: 10, startFrame: 120, status: "waited", waitedFrames: 110 });
@@ -229,24 +232,24 @@ test("Shared stamina rejects an unfunded second actor or waits to the exact reco
   expect(waited.result.stamina!.finalStamina).toBeCloseTo(1.25, 9);
   expect(waited.result.stamina!.logs.find(row => row.operation === "recover")!.startFrame).toBe(97);
   expect(spends[1]!.substitution).toContain("11.25");
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   await expect(page.locator("#actionStateAudit [data-stamina-summary]")).toContainText("1.25");
   const displayedDebit = page.locator(`#actionStateAudit [data-action-stamina-index="${spends[1]!.sequence}"]`);
-  await displayedDebit.locator("summary").click();
+  await (await revealControl(displayedDebit.locator("summary"))).click();
   expect(JSON.parse((await displayedDebit.locator("pre").textContent())!)).toEqual(spends[1]);
-  await page.locator("#importInput").setInputFiles({ name: "shared-stamina-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(waited)) });
-  await waitForSimulation(page);
-  const restored = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "shared-stamina-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(waited.wire)) });
+  await expectReadonlyRecord(page, waited);
+  const restored = await downloadSimulationRecord(page);
   expect(restored.sourceConfig).toEqual(waited.sourceConfig);
   expect(restored.options).toEqual(waited.options);
   expect(restored.result.timelineExecution).toEqual(waited.result.timelineExecution);
   expect(restored.result.stamina).toEqual(waited.result.stamina);
   expect(restored.result.damageEvents).toEqual(waited.result.damageEvents);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#team-stamina-enabled")).toBeChecked();
-  await page.locator("#team-stamina-enabled").uncheck();
-  await page.locator("#team-apply").click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await (await revealControl(page.locator("#team-stamina-enabled"))).uncheck();
+  await (await revealControl(page.locator("#team-apply"))).click();
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const disabled = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(disabled.staminaModel).toBeUndefined();
   expect(disabled.rotation.every(action => action.staminaCost === undefined)).toBe(true);

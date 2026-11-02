@@ -1,0 +1,620 @@
+frame,seconds,actor,ability,element,reaction,damage,isCrit,includedIn120Seconds
+15,0.25,nicole,Revelation: Uncreated Light,pyro,,21148.408821393787,True,True
+45,0.75,nicole,Arcane Projection: Unity,pyro,,81808.96329883329,True,True
+151,2.5166666666666666,nicole,Revelation: Ladder of Divine Ascent,pyro,,51834.159146140766,True,True
+224,3.7333333333333334,durin,Confirmation of Purity,pyro,,16187.547070686538,True,True
+254,4.233333333333333,durin,Arcane Projection,pyro,,47326.54527949415,True,True
+341,5.683333333333334,durin,As the Light Shifts,pyro,,21142.88081857607,True,True
+365,6.083333333333333,durin,As the Light Shifts,pyro,,14642.383734561063,True,True
+373,6.216666666666667,faruzan,Wind Realm of Nasamjnin,anemo,,9307.127186122148,False,True
+374,6.233333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+398,6.633333333333334,durin,As the Light Shifts,pyro,,25941.306729915046,True,True
+400,6.666666666666667,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+458,7.633333333333334,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+458,7.633333333333334,faruzan,Fully-Charged Aimed Shot (Hurricane Arrow),anemo,,21231.175157303016,True,True
+459,7.65,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+488,8.133333333333333,faruzan,Arcane Projection,anemo,,13043.347552610985,True,True
+488,8.133333333333333,faruzan,Arcane Projection: Unity,anemo,,43477.82517536996,True,True
+491,8.183333333333334,faruzan,Pressurized Collapse,anemo,,21970.12055383925,True,True
+492,8.2,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+517,8.616666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+518,8.633333333333333,faruzan,The Wind's Secret Ways,anemo,,109741.51431447009,True,True
+519,8.65,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+539,8.983333333333333,wanderer,Hanega: Song of the Wind,anemo,,63535.155030533286,True,True
+540,9.0,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+551,9.183333333333334,faruzan,Pressurized Collapse,anemo,,23540.153253492525,True,True
+576,9.6,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+606,10.1,wanderer,Charge Attack (Windfavored),anemo,,108567.40802913655,True,True
+635,10.583333333333334,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+638,10.633333333333333,wanderer,Normal 0 (Windfavored),anemo,,84564.11601300798,True,True
+639,10.65,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+646,10.766666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,46263.80211950138,True,True
+647,10.783333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+654,10.9,wanderer,Normal 1 (Windfavored),anemo,,85670.1522598803,True,True
+662,11.033333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,47568.79628437431,True,True
+669,11.15,wanderer,Arcane Projection,anemo,,47406.2595645798,True,True
+694,11.566666666666666,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+701,11.683333333333334,wanderer,Normal 2 (Windfavored),anemo,,73064.45611033172,True,True
+709,11.816666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,42625.31623317586,True,True
+709,11.816666666666666,wanderer,Normal 2 (Windfavored),anemo,,76820.8828269427,True,True
+717,11.95,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,51720.79461654393,True,True
+730,12.166666666666666,wanderer,Normal 0 (Windfavored),anemo,,121117.52597342593,True,True
+734,12.233333333333333,faruzan,Pressurized Collapse,anemo,,9364.256248355237,False,True
+738,12.3,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+746,12.433333333333334,wanderer,Normal 1 (Windfavored),anemo,,118563.32719689413,True,True
+752,12.533333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+754,12.566666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,61127.44038647594,True,True
+793,13.216666666666667,wanderer,Normal 2 (Windfavored),anemo,,95044.4114053966,True,True
+794,13.233333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+801,13.35,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+801,13.35,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+802,13.366666666666667,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+809,13.483333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+811,13.516666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+822,13.7,wanderer,Normal 0 (Windfavored),anemo,,36165.306431389334,False,True
+830,13.833333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+838,13.966666666666667,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+846,14.1,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+852,14.2,wanderer,Arcane Projection,anemo,,55629.31570172315,True,True
+852,14.2,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+870,14.5,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+885,14.75,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+893,14.883333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+893,14.883333333333333,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+901,15.016666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,30118.30125632688,True,True
+914,15.233333333333333,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+915,15.25,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+918,15.3,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+922,15.366666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+929,15.483333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+930,15.5,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+938,15.633333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+977,16.283333333333335,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+985,16.416666666666668,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+985,16.416666666666668,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+988,16.466666666666665,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+993,16.55,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+1006,16.766666666666666,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+1014,16.9,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+1022,17.033333333333335,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+1023,17.05,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1030,17.166666666666668,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+1046,17.433333333333334,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+1069,17.816666666666666,wanderer,Normal 2 (Windfavored),anemo,,20457.95365618061,False,True
+1077,17.95,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+1077,17.95,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+1078,17.966666666666665,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1085,18.083333333333332,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,30118.30125632688,True,True
+1098,18.3,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+1102,18.366666666666667,faruzan,Pressurized Collapse,anemo,,9364.256248355237,False,True
+1105,18.416666666666668,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+1106,18.433333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+1114,18.566666666666666,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+1122,18.7,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+1161,19.35,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+1162,19.366666666666667,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1164,19.4,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+1169,19.483333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+1169,19.483333333333334,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+1177,19.616666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,41685.58831971607,True,True
+1223,20.383333333333333,durin,Dragon of White Flame,pyro,,16010.403271402363,True,True
+1261,21.016666666666666,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,104740.66542790308,True,True
+1262,21.033333333333335,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1267,21.116666666666667,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+1273,21.216666666666665,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+1279,21.316666666666666,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+1280,21.333333333333332,wanderer,swirl-pyro,pyro,,1130.49621,False,True
+1282,21.366666666666667,durin,Dragon of White Flame,pyro,,14409.362944262128,True,True
+1285,21.416666666666668,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+1291,21.516666666666666,wanderer,Arcane Projection: Unity,anemo,,196980.87272355004,True,True
+1294,21.566666666666666,faruzan,Pressurized Collapse,anemo,,13826.508199245787,True,True
+1336,22.266666666666666,nicole,Revelation: Uncreated Light,pyro,,38307.045306512424,True,True
+1340,22.333333333333332,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+1399,23.316666666666666,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+1458,24.3,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+1472,24.533333333333335,nicole,Revelation: Ladder of Divine Ascent,pyro,,40414.67736417426,False,True
+1505,25.083333333333332,faruzan,Pressurized Collapse,anemo,,21628.592582879934,True,True
+1506,25.1,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+1517,25.283333333333335,durin,Dragon of White Flame,pyro,,25224.574854141523,True,True
+1545,25.75,durin,Confirmation of Purity,pyro,,26513.474953655863,True,True
+1547,25.783333333333335,durin,Arcane Projection,pyro,,76295.7434062552,True,True
+1662,27.7,durin,As the Light Shifts,pyro,,31706.629592652953,True,True
+1686,28.1,durin,As the Light Shifts,pyro,,22359.996144168552,True,True
+1692,28.2,durin,Arcane Projection: Unity,pyro,,118014.97979439076,True,True
+1694,28.233333333333334,faruzan,Wind Realm of Nasamjnin,anemo,,16278.73510315301,False,True
+1695,28.25,faruzan,Pressurized Collapse,anemo,,32317.761016146884,True,True
+1695,28.25,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+1719,28.65,durin,As the Light Shifts,pyro,,25941.306729915046,True,True
+1721,28.683333333333334,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+1779,29.65,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+1779,29.65,faruzan,Fully-Charged Aimed Shot (Hurricane Arrow),anemo,,34249.115396666966,True,True
+1780,29.666666666666668,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+1809,30.15,faruzan,Arcane Projection,anemo,,20506.86997098198,True,True
+1812,30.2,faruzan,Pressurized Collapse,anemo,,34541.623891191375,True,True
+1813,30.216666666666665,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+1838,30.633333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+1839,30.65,faruzan,The Wind's Secret Ways,anemo,,42601.51953201478,False,True
+1840,30.666666666666668,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+1860,31.0,wanderer,Hanega: Song of the Wind,anemo,,63535.155030533286,True,True
+1861,31.016666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1893,31.55,faruzan,Pressurized Collapse,anemo,,24322.77788833903,True,True
+1897,31.616666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+1927,32.11666666666667,wanderer,Charge Attack (Windfavored),anemo,,107311.58353633255,True,True
+1956,32.6,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+1959,32.65,wanderer,Normal 0 (Windfavored),anemo,,86045.74762867978,True,True
+1960,32.666666666666664,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1967,32.78333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,46263.80211950138,True,True
+1968,32.8,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+1975,32.916666666666664,wanderer,Normal 1 (Windfavored),anemo,,85670.1522598803,True,True
+1983,33.05,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,45956.05085542446,True,True
+1990,33.166666666666664,wanderer,Arcane Projection,anemo,,47406.2595645798,True,True
+2015,33.583333333333336,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+2022,33.7,wanderer,Normal 2 (Windfavored),anemo,,74764.61074813364,True,True
+2030,33.833333333333336,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,42625.31623317586,True,True
+2030,33.833333333333336,wanderer,Normal 2 (Windfavored),anemo,,76820.8828269427,True,True
+2038,33.96666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,49709.99004280904,True,True
+2051,34.18333333333333,wanderer,Normal 0 (Windfavored),anemo,,121117.52597342593,True,True
+2059,34.31666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+2060,34.333333333333336,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+2067,34.45,wanderer,Normal 1 (Windfavored),anemo,,118563.32719689413,True,True
+2073,34.55,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+2075,34.583333333333336,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63186.23432977663,True,True
+2084,34.733333333333334,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+2085,34.75,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+2114,35.233333333333334,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+2115,35.25,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+2122,35.36666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+2122,35.36666666666667,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+2130,35.5,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,52955.15043585735,True,True
+2132,35.53333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+2143,35.71666666666667,wanderer,Normal 0 (Windfavored),anemo,,124008.08718994523,True,True
+2151,35.85,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+2159,35.983333333333334,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+2167,36.11666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+2173,36.21666666666667,wanderer,Arcane Projection,anemo,,55629.31570172315,True,True
+2191,36.516666666666666,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+2206,36.766666666666666,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+2214,36.9,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+2214,36.9,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+2222,37.03333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+2235,37.25,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+2236,37.266666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+2243,37.38333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+2244,37.4,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+2250,37.5,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+2251,37.516666666666666,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+2259,37.65,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+2268,37.8,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+2298,38.3,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+2306,38.43333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+2306,38.43333333333333,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+2309,38.483333333333334,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+2314,38.56666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,30118.30125632688,True,True
+2327,38.78333333333333,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+2335,38.916666666666664,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+2343,39.05,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+2344,39.06666666666667,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+2351,39.18333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+2367,39.45,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+2390,39.833333333333336,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+2398,39.96666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+2398,39.96666666666667,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+2399,39.983333333333334,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+2406,40.1,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+2419,40.31666666666667,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+2426,40.43333333333333,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+2427,40.45,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+2428,40.46666666666667,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+2435,40.583333333333336,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+2443,40.71666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+2452,40.86666666666667,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+2453,40.88333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+2482,41.36666666666667,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+2483,41.38333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+2485,41.416666666666664,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+2490,41.5,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+2490,41.5,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+2498,41.63333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,21610.08885225818,True,True
+2538,42.3,nicole,Revelation: Uncreated Light,pyro,,38307.045306512424,True,True
+2544,42.4,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+2603,43.38333333333333,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+2661,44.35,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+2674,44.56666666666667,nicole,Revelation: Ladder of Divine Ascent,pyro,,89514.46889390958,True,True
+2707,45.11666666666667,faruzan,Pressurized Collapse,anemo,,21628.592582879934,True,True
+2708,45.13333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+2720,45.333333333333336,durin,Dragon of White Flame,pyro,,25224.574854141523,True,True
+2747,45.78333333333333,durin,Confirmation of Purity,pyro,,26513.474953655863,True,True
+2750,45.833333333333336,durin,Arcane Projection,pyro,,76295.7434062552,True,True
+2864,47.733333333333334,durin,As the Light Shifts,pyro,,31706.629592652953,True,True
+2888,48.13333333333333,durin,As the Light Shifts,pyro,,22359.996144168552,True,True
+2894,48.233333333333334,durin,Arcane Projection: Unity,pyro,,118014.97979439076,True,True
+2896,48.266666666666666,faruzan,Wind Realm of Nasamjnin,anemo,,16278.73510315301,False,True
+2897,48.28333333333333,faruzan,Pressurized Collapse,anemo,,32317.761016146884,True,True
+2897,48.28333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+2921,48.68333333333333,durin,As the Light Shifts,pyro,,25941.306729915046,True,True
+2923,48.71666666666667,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+2981,49.68333333333333,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+2981,49.68333333333333,faruzan,Fully-Charged Aimed Shot (Hurricane Arrow),anemo,,13295.464051501152,False,True
+2982,49.7,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+3011,50.18333333333333,faruzan,Arcane Projection,anemo,,7960.741448362571,False,True
+3014,50.233333333333334,faruzan,Pressurized Collapse,anemo,,13409.015485710937,False,True
+3015,50.25,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+3040,50.666666666666664,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3041,50.68333333333333,faruzan,The Wind's Secret Ways,anemo,,109741.51431447009,True,True
+3042,50.7,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+3062,51.03333333333333,wanderer,Hanega: Song of the Wind,anemo,,63535.155030533286,True,True
+3063,51.05,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3095,51.583333333333336,faruzan,Pressurized Collapse,anemo,,24322.77788833903,True,True
+3099,51.65,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3129,52.15,wanderer,Charge Attack (Windfavored),anemo,,107311.58353633255,True,True
+3158,52.63333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3161,52.68333333333333,wanderer,Normal 0 (Windfavored),anemo,,86045.74762867978,True,True
+3162,52.7,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3169,52.81666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,46263.80211950138,True,True
+3170,52.833333333333336,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3177,52.95,wanderer,Normal 1 (Windfavored),anemo,,85670.1522598803,True,True
+3185,53.083333333333336,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,45956.05085542446,True,True
+3192,53.2,wanderer,Arcane Projection,anemo,,47406.2595645798,True,True
+3217,53.61666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3224,53.733333333333334,wanderer,Normal 2 (Windfavored),anemo,,74764.61074813364,True,True
+3232,53.86666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,42625.31623317586,True,True
+3232,53.86666666666667,wanderer,Normal 2 (Windfavored),anemo,,76820.8828269427,True,True
+3240,54.0,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,49709.99004280904,True,True
+3253,54.21666666666667,wanderer,Normal 0 (Windfavored),anemo,,121117.52597342593,True,True
+3261,54.35,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+3262,54.36666666666667,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+3269,54.483333333333334,wanderer,Normal 1 (Windfavored),anemo,,34577.41472161358,False,True
+3275,54.583333333333336,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3277,54.61666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63186.23432977663,True,True
+3286,54.766666666666666,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+3287,54.78333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+3316,55.266666666666666,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+3317,55.28333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3324,55.4,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+3324,55.4,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+3332,55.53333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,52955.15043585735,True,True
+3334,55.56666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3345,55.75,wanderer,Normal 0 (Windfavored),anemo,,124008.08718994523,True,True
+3353,55.88333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+3361,56.016666666666666,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+3369,56.15,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+3375,56.25,wanderer,Arcane Projection,anemo,,55629.31570172315,True,True
+3393,56.55,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3408,56.8,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+3416,56.93333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+3416,56.93333333333333,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+3424,57.06666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+3437,57.28333333333333,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+3438,57.3,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3445,57.416666666666664,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+3446,57.43333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3452,57.53333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+3453,57.55,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+3461,57.68333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+3470,57.833333333333336,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+3500,58.333333333333336,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+3508,58.46666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+3508,58.46666666666667,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+3511,58.516666666666666,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+3516,58.6,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,30118.30125632688,True,True
+3529,58.81666666666667,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+3537,58.95,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+3545,59.083333333333336,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+3546,59.1,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3553,59.21666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+3569,59.483333333333334,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+3592,59.86666666666667,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+3600,60.0,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+3600,60.0,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+3601,60.016666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3608,60.13333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+3621,60.35,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+3628,60.46666666666667,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+3629,60.483333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+3630,60.5,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+3637,60.61666666666667,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+3645,60.75,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+3654,60.9,faruzan,Pressurized Collapse,anemo,,9364.256248355237,False,True
+3655,60.916666666666664,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+3684,61.4,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+3685,61.416666666666664,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3687,61.45,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+3692,61.53333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+3692,61.53333333333333,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+3700,61.666666666666664,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,44744.160795638214,True,True
+3746,62.43333333333333,durin,Dragon of White Flame,pyro,,16010.403271402363,True,True
+3784,63.06666666666667,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,104740.66542790308,True,True
+3785,63.083333333333336,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+3790,63.166666666666664,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+3796,63.266666666666666,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+3802,63.36666666666667,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+3803,63.38333333333333,wanderer,swirl-pyro,pyro,,1130.49621,False,True
+3805,63.416666666666664,durin,Dragon of White Flame,pyro,,14409.362944262128,True,True
+3808,63.46666666666667,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+3835,63.916666666666664,faruzan,Pressurized Collapse,anemo,,5671.247218203529,False,True
+3859,64.31666666666666,nicole,Revelation: Uncreated Light,pyro,,38307.045306512424,True,True
+3863,64.38333333333334,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+3922,65.36666666666666,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+3981,66.35,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+3995,66.58333333333333,nicole,Revelation: Ladder of Divine Ascent,pyro,,89514.46889390958,True,True
+4025,67.08333333333333,nicole,Arcane Projection: Unity,pyro,,123231.72147908506,True,True
+4028,67.13333333333334,faruzan,Pressurized Collapse,anemo,,8396.192772857117,False,True
+4029,67.15,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+4040,67.33333333333333,durin,Dragon of White Flame,pyro,,25224.574854141523,True,True
+4068,67.8,durin,Confirmation of Purity,pyro,,26513.474953655863,True,True
+4070,67.83333333333333,durin,Arcane Projection,pyro,,76295.7434062552,True,True
+4185,69.75,durin,As the Light Shifts,pyro,,31706.629592652953,True,True
+4209,70.15,durin,As the Light Shifts,pyro,,22359.996144168552,True,True
+4217,70.28333333333333,faruzan,Wind Realm of Nasamjnin,anemo,,41934.021625722155,True,True
+4218,70.3,faruzan,Pressurized Collapse,anemo,,32317.761016146884,True,True
+4218,70.3,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+4242,70.7,durin,As the Light Shifts,pyro,,25941.306729915046,True,True
+4244,70.73333333333333,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+4302,71.7,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+4302,71.7,faruzan,Fully-Charged Aimed Shot (Hurricane Arrow),anemo,,13295.464051501152,False,True
+4303,71.71666666666667,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+4332,72.2,faruzan,Arcane Projection,anemo,,7960.741448362571,False,True
+4335,72.25,faruzan,Pressurized Collapse,anemo,,34541.623891191375,True,True
+4336,72.26666666666667,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+4361,72.68333333333334,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4362,72.7,faruzan,The Wind's Secret Ways,anemo,,109741.51431447009,True,True
+4363,72.71666666666667,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+4383,73.05,wanderer,Hanega: Song of the Wind,anemo,,63535.155030533286,True,True
+4384,73.06666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4392,73.2,faruzan,Arcane Projection: Unity,anemo,,23890.87124334483,False,True
+4416,73.6,faruzan,Pressurized Collapse,anemo,,9442.072161622295,False,True
+4420,73.66666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4450,74.16666666666667,wanderer,Charge Attack (Windfavored),anemo,,107311.58353633255,True,True
+4479,74.65,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4482,74.7,wanderer,Normal 0 (Windfavored),anemo,,86045.74762867978,True,True
+4483,74.71666666666667,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4490,74.83333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,46263.80211950138,True,True
+4491,74.85,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4498,74.96666666666667,wanderer,Normal 1 (Windfavored),anemo,,85670.1522598803,True,True
+4506,75.1,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,45956.05085542446,True,True
+4513,75.21666666666667,wanderer,Arcane Projection,anemo,,47406.2595645798,True,True
+4538,75.63333333333334,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4545,75.75,wanderer,Normal 2 (Windfavored),anemo,,74764.61074813364,True,True
+4553,75.88333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,42625.31623317586,True,True
+4553,75.88333333333334,wanderer,Normal 2 (Windfavored),anemo,,76820.8828269427,True,True
+4561,76.01666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,49709.99004280904,True,True
+4574,76.23333333333333,wanderer,Normal 0 (Windfavored),anemo,,121117.52597342593,True,True
+4582,76.36666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+4590,76.5,wanderer,Normal 1 (Windfavored),anemo,,118563.32719689413,True,True
+4596,76.6,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4598,76.63333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63186.23432977663,True,True
+4607,76.78333333333333,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+4608,76.8,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+4637,77.28333333333333,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+4638,77.3,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4645,77.41666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+4645,77.41666666666667,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+4653,77.55,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,52955.15043585735,True,True
+4655,77.58333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4666,77.76666666666667,wanderer,Normal 0 (Windfavored),anemo,,124008.08718994523,True,True
+4674,77.9,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+4682,78.03333333333333,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+4690,78.16666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+4696,78.26666666666667,wanderer,Arcane Projection,anemo,,55629.31570172315,True,True
+4714,78.56666666666666,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4729,78.81666666666666,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+4737,78.95,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+4737,78.95,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+4745,79.08333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+4758,79.3,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+4759,79.31666666666666,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+4759,79.31666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4766,79.43333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+4767,79.45,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4773,79.55,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+4774,79.56666666666666,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+4782,79.7,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+4791,79.85,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+4821,80.35,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+4829,80.48333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+4829,80.48333333333333,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+4832,80.53333333333333,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+4837,80.61666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,30118.30125632688,True,True
+4850,80.83333333333333,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+4858,80.96666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+4866,81.1,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+4867,81.11666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4874,81.23333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+4890,81.5,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+4913,81.88333333333334,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+4921,82.01666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+4921,82.01666666666667,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+4922,82.03333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+4929,82.15,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+4942,82.36666666666666,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+4949,82.48333333333333,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+4950,82.5,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+4958,82.63333333333334,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+4966,82.76666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+4975,82.91666666666667,faruzan,Pressurized Collapse,anemo,,9364.256248355237,False,True
+4976,82.93333333333334,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5005,83.41666666666667,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+5006,83.43333333333334,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+5008,83.46666666666667,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+5013,83.55,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+5013,83.55,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+5021,83.68333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,44744.160795638214,True,True
+5067,84.45,durin,Dragon of White Flame,pyro,,16010.403271402363,True,True
+5105,85.08333333333333,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,104740.66542790308,True,True
+5106,85.1,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+5111,85.18333333333334,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+5117,85.28333333333333,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+5123,85.38333333333334,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+5124,85.4,wanderer,swirl-pyro,pyro,,1130.49621,False,True
+5126,85.43333333333334,durin,Dragon of White Flame,pyro,,14409.362944262128,True,True
+5129,85.48333333333333,wanderer,Kyougen: Five Ceremonial Plays (Windfavored),anemo,,102692.6949798774,True,True
+5135,85.58333333333333,wanderer,Arcane Projection: Unity,anemo,,196980.87272355004,True,True
+5156,85.93333333333334,faruzan,Pressurized Collapse,anemo,,14609.132834092292,True,True
+5180,86.33333333333333,nicole,Revelation: Uncreated Light,pyro,,17295.157933320883,False,True
+5184,86.4,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+5243,87.38333333333334,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+5302,88.36666666666666,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+5316,88.6,nicole,Revelation: Ladder of Divine Ascent,pyro,,89514.46889390958,True,True
+5349,89.15,faruzan,Pressurized Collapse,anemo,,21628.592582879934,True,True
+5350,89.16666666666667,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5361,89.35,durin,Dragon of White Flame,pyro,,25224.574854141523,True,True
+5389,89.81666666666666,durin,Confirmation of Purity,pyro,,26513.474953655863,True,True
+5391,89.85,durin,Arcane Projection,pyro,,76295.7434062552,True,True
+5506,91.76666666666667,durin,As the Light Shifts,pyro,,31706.629592652953,True,True
+5530,92.16666666666667,durin,As the Light Shifts,pyro,,22359.996144168552,True,True
+5536,92.26666666666667,durin,Arcane Projection: Unity,pyro,,118014.97979439076,True,True
+5538,92.3,faruzan,Wind Realm of Nasamjnin,anemo,,16278.73510315301,False,True
+5539,92.31666666666666,faruzan,Pressurized Collapse,anemo,,12545.714680181243,False,True
+5539,92.31666666666666,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5563,92.71666666666667,durin,As the Light Shifts,pyro,,25941.306729915046,True,True
+5565,92.75,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+5623,93.71666666666667,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+5623,93.71666666666667,faruzan,Fully-Charged Aimed Shot (Hurricane Arrow),anemo,,34249.115396666966,True,True
+5624,93.73333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5653,94.21666666666667,faruzan,Arcane Projection,anemo,,20506.86997098198,True,True
+5656,94.26666666666667,faruzan,Pressurized Collapse,anemo,,34541.623891191375,True,True
+5657,94.28333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5682,94.7,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+5683,94.71666666666667,faruzan,The Wind's Secret Ways,anemo,,109741.51431447009,True,True
+5684,94.73333333333333,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5704,95.06666666666666,wanderer,Hanega: Song of the Wind,anemo,,63535.155030533286,True,True
+5705,95.08333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+5737,95.61666666666666,faruzan,Pressurized Collapse,anemo,,9442.072161622295,False,True
+5741,95.68333333333334,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+5771,96.18333333333334,wanderer,Charge Attack (Windfavored),anemo,,107311.58353633255,True,True
+5800,96.66666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+5803,96.71666666666667,wanderer,Normal 0 (Windfavored),anemo,,86045.74762867978,True,True
+5804,96.73333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+5811,96.85,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,46263.80211950138,True,True
+5812,96.86666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+5819,96.98333333333333,wanderer,Normal 1 (Windfavored),anemo,,85670.1522598803,True,True
+5827,97.11666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,45956.05085542446,True,True
+5834,97.23333333333333,wanderer,Arcane Projection,anemo,,47406.2595645798,True,True
+5859,97.65,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+5866,97.76666666666667,wanderer,Normal 2 (Windfavored),anemo,,74764.61074813364,True,True
+5874,97.9,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,42625.31623317586,True,True
+5874,97.9,wanderer,Normal 2 (Windfavored),anemo,,76820.8828269427,True,True
+5882,98.03333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,49709.99004280904,True,True
+5895,98.25,wanderer,Normal 0 (Windfavored),anemo,,121117.52597342593,True,True
+5903,98.38333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+5904,98.4,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+5911,98.51666666666667,wanderer,Normal 1 (Windfavored),anemo,,118563.32719689413,True,True
+5917,98.61666666666666,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+5919,98.65,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63186.23432977663,True,True
+5928,98.8,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+5929,98.81666666666666,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+5958,99.3,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+5959,99.31666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+5966,99.43333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+5966,99.43333333333334,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+5974,99.56666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,52955.15043585735,True,True
+5976,99.6,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+5987,99.78333333333333,wanderer,Normal 0 (Windfavored),anemo,,124008.08718994523,True,True
+5995,99.91666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+6003,100.05,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+6011,100.18333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+6017,100.28333333333333,wanderer,Arcane Projection,anemo,,55629.31570172315,True,True
+6035,100.58333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+6050,100.83333333333333,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+6058,100.96666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+6058,100.96666666666667,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+6066,101.1,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+6079,101.31666666666666,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+6080,101.33333333333333,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+6087,101.45,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+6088,101.46666666666667,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+6094,101.56666666666666,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+6095,101.58333333333333,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+6103,101.71666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+6112,101.86666666666666,faruzan,Pressurized Collapse,anemo,,9364.256248355237,False,True
+6142,102.36666666666666,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+6150,102.5,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+6150,102.5,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+6153,102.55,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+6158,102.63333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,30118.30125632688,True,True
+6171,102.85,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+6179,102.98333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+6187,103.11666666666666,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+6188,103.13333333333334,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+6195,103.25,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,38290.591206945464,True,True
+6211,103.51666666666667,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+6234,103.9,wanderer,Normal 2 (Windfavored),anemo,,72207.56222586613,True,True
+6242,104.03333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+6242,104.03333333333333,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+6243,104.05,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+6250,104.16666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+6263,104.38333333333334,wanderer,Normal 0 (Windfavored),anemo,,101171.23801041477,True,True
+6270,104.5,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+6271,104.51666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40468.49520416591,True,True
+6272,104.53333333333333,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+6279,104.65,wanderer,Normal 1 (Windfavored),anemo,,95726.47801736367,True,True
+6287,104.78333333333333,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,40349.38515024618,True,True
+6296,104.93333333333334,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+6297,104.95,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+6326,105.43333333333334,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+6327,105.45,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+6329,105.48333333333333,durin,Dragon of White Flame,pyro,,23097.418576187087,True,True
+6334,105.56666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,28059.507313026177,True,True
+6334,105.56666666666666,wanderer,Normal 2 (Windfavored),anemo,,70148.76828256543,True,True
+6342,105.7,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,21610.08885225818,True,True
+6382,106.36666666666666,nicole,Revelation: Uncreated Light,pyro,,38307.045306512424,True,True
+6388,106.46666666666667,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+6447,107.45,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+6505,108.41666666666667,durin,Dragon of White Flame,pyro,,21951.763849420247,True,True
+6518,108.63333333333334,nicole,Revelation: Ladder of Divine Ascent,pyro,,89514.46889390958,True,True
+6551,109.18333333333334,faruzan,Pressurized Collapse,anemo,,21628.592582879934,True,True
+6552,109.2,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+6564,109.4,durin,Dragon of White Flame,pyro,,25224.574854141523,True,True
+6591,109.85,durin,Confirmation of Purity,pyro,,26513.474953655863,True,True
+6594,109.9,durin,Arcane Projection,pyro,,76295.7434062552,True,True
+6708,111.8,durin,As the Light Shifts,pyro,,31706.629592652953,True,True
+6732,112.2,durin,As the Light Shifts,pyro,,22359.996144168552,True,True
+6738,112.3,durin,Arcane Projection: Unity,pyro,,118014.97979439076,True,True
+6740,112.33333333333333,faruzan,Wind Realm of Nasamjnin,anemo,,16278.73510315301,False,True
+6741,112.35,faruzan,Pressurized Collapse,anemo,,12545.714680181243,False,True
+6741,112.35,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+6765,112.75,durin,As the Light Shifts,pyro,,25941.306729915046,True,True
+6767,112.78333333333333,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+6825,113.75,durin,Dragon of White Flame,pyro,,38415.58673648543,True,True
+6825,113.75,faruzan,Fully-Charged Aimed Shot (Hurricane Arrow),anemo,,13295.464051501152,False,True
+6826,113.76666666666667,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+6855,114.25,faruzan,Arcane Projection,anemo,,20506.86997098198,True,True
+6858,114.3,faruzan,Pressurized Collapse,anemo,,34541.623891191375,True,True
+6859,114.31666666666666,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+6884,114.73333333333333,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+6885,114.75,faruzan,The Wind's Secret Ways,anemo,,109741.51431447009,True,True
+6886,114.76666666666667,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+6906,115.1,wanderer,Hanega: Song of the Wind,anemo,,63535.155030533286,True,True
+6907,115.11666666666666,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+6939,115.65,faruzan,Pressurized Collapse,anemo,,24322.77788833903,True,True
+6943,115.71666666666667,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+6973,116.21666666666667,wanderer,Charge Attack (Windfavored),anemo,,107311.58353633255,True,True
+7002,116.7,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+7005,116.75,wanderer,Normal 0 (Windfavored),anemo,,86045.74762867978,True,True
+7006,116.76666666666667,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+7013,116.88333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,46263.80211950138,True,True
+7014,116.9,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+7021,117.01666666666667,wanderer,Normal 1 (Windfavored),anemo,,85670.1522598803,True,True
+7029,117.15,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,45956.05085542446,True,True
+7036,117.26666666666667,wanderer,Arcane Projection,anemo,,47406.2595645798,True,True
+7061,117.68333333333334,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+7068,117.8,wanderer,Normal 2 (Windfavored),anemo,,74764.61074813364,True,True
+7076,117.93333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,42625.31623317586,True,True
+7076,117.93333333333334,wanderer,Normal 2 (Windfavored),anemo,,76820.8828269427,True,True
+7084,118.06666666666666,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,49709.99004280904,True,True
+7097,118.28333333333333,wanderer,Normal 0 (Windfavored),anemo,,121117.52597342593,True,True
+7105,118.41666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True
+7106,118.43333333333334,wanderer,Arcane Projection: Unity,anemo,,185431.05233907717,True,True
+7113,118.55,wanderer,Normal 1 (Windfavored),anemo,,118563.32719689413,True,True
+7119,118.65,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+7121,118.68333333333334,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63186.23432977663,True,True
+7130,118.83333333333333,faruzan,Pressurized Collapse,anemo,,24122.32409576309,True,True
+7131,118.85,faruzan,swirl-pyro,pyro,,1085.140125,False,True
+7160,119.33333333333333,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+7161,119.35,wanderer,swirl-pyro,pyro,,1256.1069,False,True
+7168,119.46666666666667,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,50896.35649255663,True,True
+7168,119.46666666666667,wanderer,Normal 2 (Windfavored),anemo,,92985.6174620959,True,True
+7176,119.6,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,52955.15043585735,True,True
+7178,119.63333333333334,durin,Dragon of White Flame,pyro,,40420.48250832741,True,True
+7189,119.81666666666666,wanderer,Normal 0 (Windfavored),anemo,,124008.08718994523,True,True
+7197,119.95,wanderer,Shugen: The Curtains’ Melancholic Sway,anemo,,63305.34438369638,True,True

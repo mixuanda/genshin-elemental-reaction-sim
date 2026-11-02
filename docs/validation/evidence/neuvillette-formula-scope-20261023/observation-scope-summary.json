@@ -1,0 +1,132 @@
+{
+  "partial": {
+    "input": {
+      "schemaVersion": 1,
+      "source": {
+        "hostVariant": "classic",
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      },
+      "member": {
+        "id": "neuvillette",
+        "characterKey": "neuvillette",
+        "level": 90,
+        "levelCap": 90,
+        "constellation": 0,
+        "talents": {
+          "auto": 10,
+          "skill": 6,
+          "burst": 6
+        },
+        "weapon": {
+          "key": "prototypeamber",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 1
+        },
+        "artifactSets": [
+          {
+            "key": "marechausseehunter",
+            "count": 5
+          }
+        ],
+        "artifactStats": {
+          "hp": 5228.13,
+          "cr": 0.8553999999999999,
+          "cd": 0.8857999999999999,
+          "hp%": 0.6525,
+          "er": 0.2525,
+          "atk": 311,
+          "hydro%": 0.466
+        }
+      },
+      "action": {
+        "kind": "burst"
+      },
+      "durationSeconds": 2.2,
+      "target": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 0,
+          "y": 2.4
+        }
+      },
+      "startup": "full",
+      "seed": "11",
+      "additionalTargets": [],
+      "primaryTargetIndex": 0
+    },
+    "appliedFrames": [
+      101
+    ],
+    "knownSubtotal": 24409.6621312273,
+    "completeCast": false
+  },
+  "zero": {
+    "input": {
+      "schemaVersion": 1,
+      "source": {
+        "hostVariant": "classic",
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      },
+      "member": {
+        "id": "neuvillette",
+        "characterKey": "neuvillette",
+        "level": 90,
+        "levelCap": 90,
+        "constellation": 0,
+        "talents": {
+          "auto": 10,
+          "skill": 6,
+          "burst": 6
+        },
+        "weapon": {
+          "key": "prototypeamber",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 1
+        },
+        "artifactSets": [
+          {
+            "key": "marechausseehunter",
+            "count": 5
+          }
+        ],
+        "artifactStats": {
+          "hp": 5228.13,
+          "cr": 0.8553999999999999,
+          "cd": 0.8857999999999999,
+          "hp%": 0.6525,
+          "er": 0.2525,
+          "atk": 311,
+          "hydro%": 0.466
+        }
+      },
+      "action": {
+        "kind": "burst"
+      },
+      "durationSeconds": 2.2,
+      "target": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 0,
+          "y": 2.4
+        }
+      },
+      "startup": "zero",
+      "seed": "11",
+      "additionalTargets": [],
+      "primaryTargetIndex": 0
+    },
+    "applications": 0,
+    "acceptedBursts": 0,
+    "energyConsumptions": 0
+  },
+  "wasm": {
+    "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "wasmBytes": 47084886
+  }
+}

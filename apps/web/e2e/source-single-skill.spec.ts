@@ -43,6 +43,7 @@ test('single-character native skill runs from calculator and keeps its observed 
       await expect(panel).toBeVisible();
       await expect(page.locator('#calc-artifact-utility')).toBeHidden();
       await expect(panel.locator('textarea')).toHaveCount(0);
+      await panel.locator('[data-single-source-details] > summary').click();
       await panel.locator('[data-single-source]').selectOption(lane);
       await expect(panel.locator('[data-single-character] option[value="kaeya"]')).toBeAttached();
       await panel.locator('[data-single-character]').selectOption('kaeya');
@@ -70,6 +71,7 @@ test('single-character native skill runs from calculator and keeps its observed 
       await panel.locator('[data-single-weapon-field="refinement"]').fill('2');
       await panel.locator('[data-single-member="constellation"]').fill('1');
       await panel.locator('[data-single-talent="skill"]').fill('8');
+      await panel.locator('[data-single-advanced="run"] > summary').click();
       await panel.locator('[data-single-duration]').fill('6');
       await panel.locator('[data-single-target="level"]').fill('90');
       await panel.locator('[data-single-target="resistance"]').fill('0.1');

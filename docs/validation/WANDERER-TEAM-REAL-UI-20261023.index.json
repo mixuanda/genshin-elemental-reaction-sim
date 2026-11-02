@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "capturedAtHead": "5b43d993fb188e2baa8ce1829f011dbea8dbd9d3",
+  "nativeRunsThisBatch": 1,
+  "scope": "One new actual browser run plus offline independent checks; subsequent changes are audit-only. Production remains paused.",
+  "capture": {
+    "path": "/tmp/GIDPS-team-closure-20261023/head-5b43-real-ui/run.result.json",
+    "sha256": "da061210ea6d43d1554e761f3428c84dfd9cf65be34f1e4f6e25e47ed1ff6d1e",
+    "bytes": 119455012
+  },
+  "currentNewRun": {
+    "seed": "20261022",
+    "frames": 7200,
+    "hits": 610,
+    "total": 27069474.337322712,
+    "dps": 225578.9528110226,
+    "mean": false,
+    "gameVerified": false
+  },
+  "machineReceipts": [
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.browser.json",
+      "sha256": "b86556b8d7a5cd3cace034717dc7a890d5ad73edd261feedaf13b19c44ad6eaf",
+      "bytes": 3216
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.energy-and-arithmetic.json",
+      "sha256": "e44ff5ec28aa867f007a5375084fffb6ab5d101b110e05587f248f3fe752756d",
+      "bytes": 320709
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.aura.json",
+      "sha256": "e650149dce0e9a39acc8c32cbadcf5caa8dabde39877b3a7a1436312e715b1df",
+      "bytes": 11672
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.axis.json",
+      "sha256": "95cae565b7d3d12ee541bea12e8a7313696fee343cbe753e908f9f22508ce99c",
+      "bytes": 13158
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.c2-and-c4.json",
+      "sha256": "eef3aac2e35eba72ef706164da1ec64deee9328de733b6740d16b6a2198dd7d6",
+      "bytes": 49694
+    },
+    {
+      "path": "docs/audits/wanderer-tulay-timeline-20261023.json",
+      "sha256": "ce0df2d5edd7e8dbb7b4d7deedf1a2b8a8a18db3e6d93f786dd5cd7edec429e8",
+      "bytes": 51485
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.hits.csv",
+      "sha256": "52468ab874b24ca060dc8ae60e5646faac3b8869356d6ff8816b90f9e7044fd8",
+      "bytes": 76017
+    },
+    {
+      "path": "docs/validation/WANDERER-TEAM-REAL-UI-20261023.curve-1s.csv",
+      "sha256": "18b25900e7a5e8c1cdcd7c18bd3de134331eaaff11cc9dee876123fb00617940",
+      "bytes": 6349
+    }
+  ],
+  "notRun": [
+    "full regression",
+    "deployment",
+    "Library upload",
+    "second random trial"
+  ],
+  "historicalFullSuite": {
+    "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerunThisBatch": false
+  },
+  "historicalSameSeedCapture": {
+    "sha256": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+    "bytes": 50219676,
+    "usedAsNewNativeRun": false
+  },
+  "screenshots": [
+    {
+      "path": "/tmp/GIDPS-team-closure-20261023/head-5b43-real-ui/actual-team-result.png",
+      "sha256": "ff201f32fe0d94f1756975015347a9fe181f61cc499ec3a8b35d30fd65149b83"
+    },
+    {
+      "path": "/tmp/GIDPS-team-closure-20261023/head-5b43-real-ui/actual-team-frame-curve.png",
+      "sha256": "7fc7ad0890905f12880b772afdf66a09c9d6f4d64a2cbaf6d5b6a59ea14dd0ee"
+    }
+  ]
+}

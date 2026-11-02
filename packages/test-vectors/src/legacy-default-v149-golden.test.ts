@@ -21,6 +21,7 @@ import { describe, expect, it } from "vitest";
 
 import frozenV148 from "../fixtures/legacy-default-120s-1.48.golden.json";
 import { simulate } from "../../sim-core/src/simulator";
+import { historicalLegacyDefault } from "./historical-legacy-default";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
@@ -63,12 +64,13 @@ const FROZEN_V147_APPLICATION_URL = new URL(
   import.meta.url,
 );
 
-function runDefault() {
+function runDefault(source: 'historical' | 'current' = 'historical') {
+  const run = source === 'historical' ? historicalLegacyDefault : simulate;
   return projectSimulationResultV150ToV149(
     projectSimulationResultV151ToV150(
       projectSimulationResultV152ToV151(
         projectSimulationResultV153ToV152(
-          simulate(withV152CompatibilityPolicies(durinMeltPreset), {
+          run(withV152CompatibilityPolicies(durinMeltPreset), {
             energyMode: "configured",
             critMode: "average",
             compatibilityMode: "legacy-v0.1",
@@ -326,4 +328,47 @@ describe("default 1.49 reset-boundary Golden", () => {
       ).toThrow(/no faithful V1\.48 wire projection/);
     },
   );
+});
+
+describe('current default V149 consumer boundary',()=>{
+ it('keeps current combat compatibility while refusing equality with frozen audit bytes',()=>{
+  const result = runDefault('current');
+  const parsed = simulationResultV149Schema.parse(result);
+  expect(parsed).toStrictEqual(result);
+  // The legacy V149 trusted function is still declared with today's SimulationResult
+  // type (including five post-V149 logs). Public V149 parsing above establishes
+  // its actual versioned input contract; do not fabricate those later fields.
+  expect(assertTrustedSimulationResultV149(
+    parsed as unknown as Parameters<typeof assertTrustedSimulationResultV149>[0],
+  )).toBe(parsed);
+  expect(compactBaseline(result)).toEqual(frozenV148Baseline());
+  const expectedHistorical = runDefault('historical');
+  expect(expectedHistorical.hitResolutionLog).toHaveLength(269);
+  const damageIds = new Set<number>();
+  for (const hit of expectedHistorical.hitResolutionLog) {
+    expect(hit.damageEventId).not.toBeNull();
+    const damage = expectedHistorical.damageEvents[hit.damageEventId!]!;
+    expect(damage.id).toBe(hit.damageEventId);
+    expect(damage.kind).toBe('direct');
+    expect(damage.eventPriority).toBe(3);
+    expect([damage.frame, damage.hitId, damage.targetId, damage.sourceActorId])
+      .toEqual([hit.frame, hit.hitId, hit.targetId, hit.sourceActorId]);
+    for (const field of ['eventPriority', 'eventSequence', 'intraEventSequence'])
+      expect(hit).not.toHaveProperty(field);
+    // Only expected historical rows acquire the independently authenticated
+    // damage queue coordinates. Actual output and its audit hash are untouched.
+    Object.assign(hit, { eventPriority: 3, eventSequence: damage.eventSequence, intraEventSequence: 0 });
+    damageIds.add(damage.id);
+  }
+  expect(damageIds.size).toBe(269);
+  const expectedCompatibility = frozenV148Compatibility();
+  expectedCompatibility.currentAudit = {
+    ...expectedCompatibility.currentAudit,
+    hitResolutionLogCanonicalSha256: canonicalSha256(expectedHistorical.hitResolutionLog),
+  };
+  expect(makeV148Compatibility(result)).toStrictEqual(expectedCompatibility);
+  expect(result.hitResolutionLog).toHaveLength(269);expect(result.hitResolutionLog.every(row=>row.eventPriority===3&&row.intraEventSequence===0)).toBe(true);
+  const before=structuredClone(result),generated=makeFixture(result);
+  expect(generated).not.toEqual(JSON.parse(readFileSync(FIXTURE_URL,'utf8')));expect(result).toStrictEqual(before);expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
+ });
 });

@@ -46,6 +46,18 @@ export const sourceHostStatProvenanceSchema = z.object({
   attackReads: z.array(sourceHostStatReadSchema), finalStats: vector,
 }).strict();
 export type SourceHostStatProvenance = z.infer<typeof sourceHostStatProvenanceSchema>;
+/** Bound recorded reads to their actual consumer, without requiring a fresh
+ * Stats call on every hit. Lyney, for example, updates Snapshot.SourceFrame
+ * when launching an already snapshotted projectile. This checks temporal
+ * consistency, not authenticity of every historical getter timestamp. */
+export function assertSourceHostSnapshotTiming(receipt: SourceHostStatProvenance, snapshotFrame: number, hitFrame: number): void {
+  if (snapshotFrame > hitFrame || receipt.snapshotRead && receipt.snapshotRead.frame > snapshotFrame)
+    throw new Error("来源属性读取帧晚于快照帧，或快照帧晚于实际命中帧。");
+  for (const read of receipt.attackReads) {
+    if (read.frame > hitFrame || receipt.snapshotRead && read.frame < receipt.snapshotRead.frame)
+      throw new Error("来源命中属性读取位于快照属性读取之前，或实际命中之后。");
+  }
+}
 export interface SourceHostStatProvenanceExecution {
   trace: CalculationTraceNode[];
   finalStats: number[];

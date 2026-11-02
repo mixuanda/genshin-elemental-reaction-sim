@@ -25,6 +25,7 @@ import { describe, expect, it } from "vitest";
 
 import frozenV149 from "../fixtures/legacy-default-120s-1.49.golden.json";
 import { simulate } from "../../sim-core/src/simulator";
+import { historicalLegacyDefault, historicalDefaultArchive } from "./historical-legacy-default";
 import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
 import {
   byteSha256,
@@ -60,12 +61,12 @@ const RUNTIME_OPTIONS = {
 } as const;
 
 function runNativeDefault(): SimulationResultForV153 {
-  return simulate(durinMeltPreset, RUNTIME_OPTIONS);
+  return historicalLegacyDefault(durinMeltPreset, RUNTIME_OPTIONS);
 }
 
 function runV152CompatibilityDefault(): SimulationResultForV152 {
   return projectSimulationResultV153ToV152(
-    simulate(withV152CompatibilityPolicies(durinMeltPreset), RUNTIME_OPTIONS),
+    historicalLegacyDefault(withV152CompatibilityPolicies(durinMeltPreset), RUNTIME_OPTIONS),
   );
 }
 
@@ -362,4 +363,77 @@ describe("default 1.53 callback-bus Golden", () => {
       );
     },
   );
+});
+
+function expectedCurrentDefault(config: typeof durinMeltPreset): SimulationResultForV153 {
+  const expected = historicalLegacyDefault(config, RUNTIME_OPTIONS);
+  expect(expected.damageEvents).toHaveLength(269);
+  expect(expected.hitResolutionLog).toHaveLength(269);
+  expect(new Set(expected.damageEvents.map(event=>event.eventSequence)).size).toBe(269);
+  const damageIds = new Set<number>();
+  for (const hit of expected.hitResolutionLog) {
+    expect(hit.damageEventId).not.toBeNull();
+    const damage = expected.damageEvents[hit.damageEventId!]!;
+    expect(damage.id).toBe(hit.damageEventId);
+    expect(damage.kind).toBe('direct');expect(damage.eventPriority).toBe(3);
+    expect([damage.frame,damage.hitId,damage.targetId,damage.sourceActorId]).toEqual([hit.frame,hit.hitId,hit.targetId,hit.sourceActorId]);
+    for(const field of ['eventPriority','eventSequence','intraEventSequence'])expect(hit).not.toHaveProperty(field);
+    // Current direct resolution explicitly records P3/S/I0. The independent
+    // authentic damage backlink already contains its queue; no current output
+    // or remapped/generated IDs participate in constructing this expectation.
+    Object.assign(hit,{eventPriority:3,eventSequence:damage.eventSequence,intraEventSequence:0});
+    damageIds.add(damage.id);
+  }
+  expect(damageIds.size).toBe(269);
+  return expected;
+}
+
+describe('current default full-wire and authenticated consumer contract',()=>{
+  it('proves the exact shared compatibility inputs and separate native policies',()=>{
+    expect(historicalDefaultArchive.consumerCalls).toEqual({
+      'packages/test-vectors/src/legacy-default-v148-golden.test.ts':['compat-v152','compat-v152'],
+      'packages/test-vectors/src/legacy-default-v149-golden.test.ts':['compat-v152','compat-v152','compat-v152'],
+      'packages/test-vectors/src/legacy-default-v153-golden.test.ts':['native-v153','compat-v152','native-v153'],
+    });
+    expect(historicalDefaultArchive.cases.map(row=>[row.caseId,row.consumers.length])).toEqual([['compat-v152',3],['native-v153',1]]);
+  });
+  for(const native of [false,true])it(`keeps the ${native?'native153':'compatibility152'} current producer and synthetic legacy arithmetic`,()=>{
+    const config=native?durinMeltPreset:withV152CompatibilityPolicies(durinMeltPreset);
+    const result=simulate(config,RUNTIME_OPTIONS);
+    expect(simulationResultV153Schema.parse(result)).toEqual(result);expect(assertTrustedSimulationResultV153(result)).toBe(result);
+    expect(result).toStrictEqual(expectedCurrentDefault(config));
+    expect(result).not.toEqual(historicalLegacyDefault(config,RUNTIME_OPTIONS));
+    // Independent authored provisional preset oracle, NOT a claim of verified
+    // live character balance. legacy-v0.1 deliberately preserves its old flat
+    // stat treatment. Nicole E at(.15+.15)*60=18; white1180,ATK128%,flat920,
+    // scaling2.2, bonus105%, teamDEFignore40%, teamCR+15%, pyroRESshred25%.
+    const atk=1180*(1+1.28)+920;
+    const defense=190/(190+210*(1-.4));
+    const firstDamage=atk*2.2*(1+1.05)*defense*(1-(.1-.25)/2)*(1+(.7+.15)*1.85);
+    expect(result.damageEvents[0]).toMatchObject({frame:18,actorId:'nicole',hitId:'nicole-e:hit-0',reaction:'none',kind:'direct'});
+    expect(result.damageEvents[0]!.finalDamage).toBeCloseTo(firstDamage,8);
+    expect(result.resolvedRuntimeOptions).toEqual(RUNTIME_OPTIONS);
+    expect(result.config.meta.verificationStatus).toBe('provisional');
+    expect(result.totalDamage).toBeCloseTo(Object.values(result.byCharacter).reduce((sum,n)=>sum+n,0),6);
+    expect(result.freezeBrokenAttackLog).toEqual([]);expect(result.callbackRegistrationLog).toEqual([]);expect(result.callbackDeliveryLog).toEqual([]);
+    const before=structuredClone(result);
+    if(native)expect(makeFixture(result,runV152CompatibilityDefault())).not.toEqual(JSON.parse(readFileSync(FIXTURE_URL,'utf8')));
+    expect(result).toStrictEqual(before);
+  });
+  it('refuses to substitute historical output for changed config or runtime options',()=>{
+    expect(()=>historicalLegacyDefault({...durinMeltPreset,duration:119},RUNTIME_OPTIONS)).toThrow(/exact config\/options/);
+    expect(()=>historicalLegacyDefault(durinMeltPreset,{...RUNTIME_OPTIONS,critMode:'noCrit'})).toThrow(/exact config\/options/);
+  });
+  const mutations:{name:string;mutate:(r:SimulationResultForV153)=>void}[]=[
+    {name:'missing damage backlink',mutate:r=>{r.hitResolutionLog[0]!.damageEventId=999;}},
+    {name:'different resolution frame',mutate:r=>{r.hitResolutionLog[0]!.frame+=1;}},
+    {name:'foreign target',mutate:r=>{r.hitResolutionLog[0]!.targetId='missing-target';}},
+  ];
+  for(const mutation of mutations)it(`rejects current ${mutation.name} without mutating its valid control`,()=>{
+    const result=simulate(durinMeltPreset,RUNTIME_OPTIONS),before=structuredClone(result);
+    expect(simulationResultV153Schema.parse(result)).toEqual(result);
+    const forged=structuredClone(result);mutation.mutate(forged);
+    expect(simulationResultV153Schema.safeParse(forged).success).toBe(false);
+    expect(()=>expect(forged).toStrictEqual(expectedCurrentDefault(durinMeltPreset))).toThrow();expect(result).toStrictEqual(before);
+  });
 });

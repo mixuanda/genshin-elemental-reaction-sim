@@ -123,7 +123,7 @@ import {
 import { calcCrystallizeShield } from "./crystallize";
 import { validateEnergyReplayIntegrity } from "./energy-replay-integrity";
 import { validateParticleProvenanceIntegrity } from "./particle-provenance-integrity";
-import { targetPhaseV2ResultReferencesSchema } from "./schema";
+import { dendroCoreResultReferencesSchema, targetPhaseV2ResultReferencesSchema } from "./schema";
 import { validateTargetPhaseV3Integrity } from "./target-phase-v3-integrity";
 import { validateFreezeBrokenAttackIntegrity } from "./freeze-broken-attack-integrity";
 import { validateCallbackBusV153Integrity } from "./callback-bus-result-integrity";
@@ -22911,6 +22911,18 @@ export function assertTrustedSimulationResultV153(
     }
   } as unknown as RefinementCtx;
   validateSimulationResultV153Integrity(result, context);
+  // Public parsing authenticates core-contact provenance through this same
+  // facet. Keep the current trusted boundary equally strict without changing
+  // any frozen-version assertion or replacing the returned source object.
+  if (result.dendroCoreContactLog.length > 0 ||
+    result.dendroCoreLog.some(entry => entry.operation === "consume")) {
+    const coreReferences = dendroCoreResultReferencesSchema.safeParse(result);
+    if (!coreReferences.success) {
+      for (const issue of coreReferences.error.issues) {
+        issues.push({ path: [...issue.path], message: `Dendro core references: ${issue.message}` });
+      }
+    }
+  }
   const hasElectroChargedTargetPhaseV2Transition =
     result.config.targetTaskModel.mode === "target-phase-v2" &&
     result.targetPhaseLog.some((phase) =>

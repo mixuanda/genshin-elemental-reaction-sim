@@ -14,6 +14,7 @@ import type {
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
+import { expectCurrentBurningContract } from "./burning-foundation-contract";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const PERFORMANCE_RUNS = 21;
@@ -104,10 +105,11 @@ interface FrozenV146ReactionAuditOverride {
   note?: string;
 }
 
-/** Keep the sustained-Burning performance sentinel on frozen 1.46 semantics. */
-function projectDamageEventsToFrozenV146(
+/** Historical-only 1.46 sentinel; never erase fields from the current probe. */
+function projectHistoricalDamageEventsToFrozenV146(
   result: SimulationResult
 ): unknown[] {
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
   const frozenV146AuditByDamageEventId = new Map<
     number,
     FrozenV146ReactionAuditOverride
@@ -342,6 +344,22 @@ describe("simulation performance", () => {
   it("keeps a sustained 120s Burning refresh stream below the 100 ms desktop target", () => {
     const config = makeSustainedBurningPerformanceConfig();
     const probe = simulate(config, { critMode: "noCrit" });
+    // Validate the complete CURRENT wire, numerical mechanics and exact finite
+    // queue correspondence before timing. The immutable old hashes are checked
+    // against genuine old output only. No history object survives this scope
+    // into the original timing loop, and no extra simulations are introduced.
+    (() => {
+      const historical = expectCurrentBurningContract(probe, "performance", config, { critMode: "noCrit" });
+      expect(sha256(historical.elementalApplicationIcdLog.filter((entry) => entry.sourceKind === "burning-tick"))).toBe(
+        "60b3b32508e8dab91a95bf2f8e8dc455171dc7bc2e0534927d9a987a0a32e011"
+      );
+      expect(sha256({
+        totalDamage: historical.totalDamage, dps: historical.dps,
+        damageEvents: projectHistoricalDamageEventsToFrozenV146(historical),
+        burningStateLog: historical.burningStateLog, quickenStateLog: historical.quickenStateLog,
+        targetStateTimeline: historical.targetStateTimeline
+      })).toBe("d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65");
+    })();
     const burningTicks = probe.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
@@ -366,23 +384,20 @@ describe("simulation performance", () => {
     const sustainedOutputHash = sha256({
       totalDamage: probe.totalDamage,
       dps: probe.dps,
-      damageEvents: projectDamageEventsToFrozenV146(probe),
+      damageEvents: probe.damageEvents,
       burningStateLog: probe.burningStateLog,
       quickenStateLog: probe.quickenStateLog,
       targetStateTimeline: probe.targetStateTimeline
     });
 
     process.stdout.write(
-      `120s sustained-Burning output probe: totalDamage=${probe.totalDamage} dps=${probe.dps} ticks=${burningTicks.length} applications=${burningApplications.length} allowedApplications=${allowedBurningApplications.length} blockedApplications=${blockedBurningApplications.length} applicationHash=${burningApplicationHash} frozenV146ProjectionHash=${sustainedOutputHash}\n`
+      `120s sustained-Burning output probe: totalDamage=${probe.totalDamage} dps=${probe.dps} ticks=${burningTicks.length} applications=${burningApplications.length} allowedApplications=${allowedBurningApplications.length} blockedApplications=${blockedBurningApplications.length} applicationHash=${burningApplicationHash} currentFullDamageStateHash=${sustainedOutputHash}\n`
     );
 
     expect(burningTicks).toHaveLength(479);
     expect(burningApplications).toHaveLength(479);
     expect(allowedBurningApplications).toHaveLength(60);
     expect(blockedBurningApplications).toHaveLength(419);
-    expect(burningApplicationHash).toBe(
-      "60b3b32508e8dab91a95bf2f8e8dc455171dc7bc2e0534927d9a987a0a32e011"
-    );
     expect(fuelRefreshes).toHaveLength(119);
     expect(targetStateTimelinePoints).toHaveLength(1198);
     expect(probe.quickenStateLog).toEqual([]);
@@ -395,9 +410,6 @@ describe("simulation performance", () => {
     expect(
       probe.runManifest.reactionOwnedElementalApplicationRoot
     ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT);
-    expect(sustainedOutputHash).toBe(
-      "d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65"
-    );
     expect(
       targetStateTimelinePoints.every(
         (point) =>

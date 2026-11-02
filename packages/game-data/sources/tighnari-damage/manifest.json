@@ -1,0 +1,136 @@
+{
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "fixed-source-provisional",
+  "coefficients": [
+    {
+      "sourceTable": "wreath",
+      "abilityKey": "combat1",
+      "parameterKey": "param7",
+      "values": [
+        0.872,
+        0.9374,
+        1.0028,
+        1.09,
+        1.1554,
+        1.2208,
+        1.308,
+        1.3952,
+        1.4824,
+        1.5696,
+        1.6568,
+        1.744,
+        1.853,
+        1.962,
+        2.071
+      ]
+    },
+    {
+      "sourceTable": "clusterbloom",
+      "abilityKey": "combat1",
+      "parameterKey": "param8",
+      "values": [
+        0.386,
+        0.41495,
+        0.4439,
+        0.4825,
+        0.51145,
+        0.5404,
+        0.579,
+        0.6176,
+        0.6562,
+        0.6948,
+        0.7334,
+        0.772,
+        0.82025,
+        0.8685,
+        0.91675
+      ]
+    },
+    {
+      "sourceTable": "burst",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        0.5562,
+        0.597915,
+        0.63963,
+        0.69525,
+        0.736965,
+        0.77868,
+        0.8343,
+        0.88992,
+        0.94554,
+        1.00116,
+        1.05678,
+        1.1124,
+        1.181925,
+        1.25145,
+        1.320975
+      ]
+    },
+    {
+      "sourceTable": "burstSecond",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        0.6798,
+        0.730785,
+        0.78177,
+        0.84975,
+        0.900735,
+        0.95172,
+        1.0197,
+        1.08768,
+        1.15566,
+        1.22364,
+        1.29162,
+        1.3596,
+        1.444575,
+        1.52955,
+        1.614525
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "internal/characters/tighnari/aimed.go",
+      "sha256": "73df60b4a71e1bef71b213b8c523c6b602507aebced436629759d4df0d7ff8cf",
+      "gitBlob": "c3ba9a691c58622e20f12dedae7d8cc0945895f3",
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/tighnari/aimed.go"
+    },
+    {
+      "path": "internal/characters/tighnari/asc.go",
+      "sha256": "46026d9ad171b3ce6fee168b9f0a099bbd9aaf38e4636ff571f1e7f35af401c4",
+      "gitBlob": "29bce787aa8a4c25e1f0aaee78f8ab782e9a41ad",
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/tighnari/asc.go"
+    },
+    {
+      "path": "internal/characters/tighnari/cons.go",
+      "sha256": "e170a084d7fc05fd76bb087dd2d8e252b214f8b03034ecd69aef0d1e88914ad8",
+      "gitBlob": "5595358301878a6ae8a4f2d7fbb81e005291e73f",
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/tighnari/cons.go"
+    },
+    {
+      "path": "internal/characters/tighnari/burst.go",
+      "sha256": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+      "gitBlob": "711a0c467d78c24ac9148eb39dca8a4d84d506de",
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/tighnari/burst.go"
+    },
+    {
+      "path": "internal/characters/tighnari/tighnari.go",
+      "sha256": "4628dcd1f8e5e305009958fee926666011d3786e42c7b0f4bea9f7280f861895",
+      "gitBlob": "32a57a93ed66c22cab3a94268d132fbacd35c757",
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/tighnari/tighnari.go"
+    },
+    {
+      "path": "internal/characters/tighnari/zz_tighnari.dm.go",
+      "sha256": "8319465d076ae6b1482c1c8cf040abc3fa72fa33f79b6dbef71ad7ecb8795823",
+      "gitBlob": "fa80d06588b4f618a31dfc648198e31b63109f52",
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/tighnari/zz_tighnari.dm.go"
+    }
+  ],
+  "comparedCoefficientPositions": 60,
+  "maximumAbsoluteDifference": 0,
+  "scope": "CA C0-C5 and Q 6+6 conditional own hits; explicit EM snapshot/live split; no automatic aura or ICD proof"
+}

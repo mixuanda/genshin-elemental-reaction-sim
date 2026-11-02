@@ -1,0 +1,106 @@
+{
+  "baseApplicationCommit": "9b753c593532480db3c8ee0583588fbbdb17df3e",
+  "sourceFiles": [
+    {
+      "file": "asc.go",
+      "ClassicSHA256": "7db9cf294d62753d1aec92c4a7dd0cce922418936fbdeca17eec89d2d8cfea48",
+      "StellarSHA256": "7db9cf294d62753d1aec92c4a7dd0cce922418936fbdeca17eec89d2d8cfea48",
+      "identical": true,
+      "ClassicGitBlob": "e55f8828e15a5da378f732cd98e3b01f0c6b523f",
+      "StellarGitBlob": "e55f8828e15a5da378f732cd98e3b01f0c6b523f"
+    },
+    {
+      "file": "attack.go",
+      "ClassicSHA256": "ae6b3fd3c2fd9355f3ec6037f9004b93d12b0283a5fcca4d40e56a34e783147f",
+      "StellarSHA256": "64eba9670825393dc302135cee2bfd2673602fc8e7c46bff278f6fb832e752dc",
+      "identical": false,
+      "ClassicGitBlob": "c7c41bb5ced5e9b6be5d9c98a4da4516348abc04",
+      "StellarGitBlob": "4c2e5bc85971d433f90c78e72f20d3bf2a9db810"
+    },
+    {
+      "file": "burst.go",
+      "ClassicSHA256": "121fdd4d4c61b6146ac7e4f13cd6dbe08f8b19ec8373bf9e27391dcc81fb0b22",
+      "StellarSHA256": "121fdd4d4c61b6146ac7e4f13cd6dbe08f8b19ec8373bf9e27391dcc81fb0b22",
+      "identical": true,
+      "ClassicGitBlob": "8745f493f1f4a12c13d5f49c203fc6291e655192",
+      "StellarGitBlob": "8745f493f1f4a12c13d5f49c203fc6291e655192"
+    },
+    {
+      "file": "charge.go",
+      "ClassicSHA256": "b1d58f157b9bbbaf86216deb227800c8641424658fcfbb709240a96a71ac16f2",
+      "StellarSHA256": "b1d58f157b9bbbaf86216deb227800c8641424658fcfbb709240a96a71ac16f2",
+      "identical": true,
+      "ClassicGitBlob": "25cf8ee1efd98880744af434ae3a9e791111565d",
+      "StellarGitBlob": "25cf8ee1efd98880744af434ae3a9e791111565d"
+    },
+    {
+      "file": "cons.go",
+      "ClassicSHA256": "74411291c02df40cb4d91919bef7d8ee438496a647a511f7da73b5ea125bb458",
+      "StellarSHA256": "74411291c02df40cb4d91919bef7d8ee438496a647a511f7da73b5ea125bb458",
+      "identical": true,
+      "ClassicGitBlob": "78d07332e844ab65e970daf461206ee160fd2c92",
+      "StellarGitBlob": "78d07332e844ab65e970daf461206ee160fd2c92"
+    },
+    {
+      "file": "jump.go",
+      "ClassicSHA256": "5b89533815309ab0035b22d3c09f3dd19a42cb511545ae1ef72318ffeabfd9fd",
+      "StellarSHA256": "5b89533815309ab0035b22d3c09f3dd19a42cb511545ae1ef72318ffeabfd9fd",
+      "identical": true,
+      "ClassicGitBlob": "91d03f68592cada8a08d1f2e9ae37cd88a37597e",
+      "StellarGitBlob": "91d03f68592cada8a08d1f2e9ae37cd88a37597e"
+    },
+    {
+      "file": "plunge.go",
+      "ClassicSHA256": "24fd413c3775cbde581aefba511a7d64aa4adedfa741df2030627ef130463ea0",
+      "StellarSHA256": "24fd413c3775cbde581aefba511a7d64aa4adedfa741df2030627ef130463ea0",
+      "identical": true,
+      "ClassicGitBlob": "ca50482e76f3ab3ab748da23c738d483b59f7e0c",
+      "StellarGitBlob": "ca50482e76f3ab3ab748da23c738d483b59f7e0c"
+    },
+    {
+      "file": "skill.go",
+      "ClassicSHA256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+      "StellarSHA256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+      "identical": true,
+      "ClassicGitBlob": "c52a1d693c6a429cf3e9de8944e6d606b96f1e2a",
+      "StellarGitBlob": "c52a1d693c6a429cf3e9de8944e6d606b96f1e2a"
+    },
+    {
+      "file": "xiao.go",
+      "ClassicSHA256": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+      "StellarSHA256": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+      "identical": true,
+      "ClassicGitBlob": "ffca714e883ef97ea4a71f629900841acaaf1548",
+      "StellarGitBlob": "ffca714e883ef97ea4a71f629900841acaaf1548"
+    },
+    {
+      "file": "zz_xiao.dm.go",
+      "ClassicSHA256": "2abd9756f7b24a58af959b6b2434775b1d3f058dd0788f84072d8fd794924fd9",
+      "StellarSHA256": "2abd9756f7b24a58af959b6b2434775b1d3f058dd0788f84072d8fd794924fd9",
+      "identical": true,
+      "ClassicGitBlob": "b9d9696b00a6e573ff20d6bc7a1876c23c8715ac",
+      "StellarGitBlob": "b9d9696b00a6e573ff20d6bc7a1876c23c8715ac"
+    }
+  ],
+  "numericScope": "The fixed source tables and Xiao snapshot/passive rules match across b4/a7. The only inspected attack.go difference is N6→charged action legality/cancel timing, outside selected-hit damage. No native run or rebuild.",
+  "baseline": "C1 E blocked at constellation-scope:xiao-skill-hit; 10 old documents, no Q-state or collision action.",
+  "validation": {
+    "focused": 66,
+    "newXiaoTests": 35,
+    "inheritedRelatedTests": 31,
+    "typecheck": "passed",
+    "nativeRebuild": false,
+    "fullSuite": false,
+    "browser": "Parent integration owns real-browser batch."
+  },
+  "manualChecks": {
+    "E10NoQNoPriorA4Noncritical": 4095.3599999999997,
+    "Q10A1FirstHighPlungeNoncritical": 7279.5945222,
+    "E10QCastAt179framesA1Still5percent": 4300.128000000001
+  },
+  "evidenceDirectory": "/workspace/GIDPS-cloud/function-batch-20261022/xiao",
+  "preservedFirstFailures": [
+    "baseline.log",
+    "focused-first.log"
+  ]
+}

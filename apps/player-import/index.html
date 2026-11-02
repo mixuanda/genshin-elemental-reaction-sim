@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GIDPS 玩家配装导入预览</title></head>
+  <body><main>
+    <header><p>GIDPS · 独立导入工作台</p><h1>先看清配装，再应用</h1><p>GOOD、公开 Enka 展示柜与纯配装文本。缺失字段保持未知；仅在本页内存应用。</p></header>
+    <section aria-labelledby="input-title"><h2 id="input-title">导入配装</h2>
+      <p>请只提供纯配装 JSON 或文档说明的 Snap Hutao 导出文本。不要粘贴 Cookie、Token、密码或登录响应。</p>
+      <label for="json-input">GOOD / 原始 Enka JSON / 纯配装文本</label><textarea id="json-input" rows="9" spellcheck="false" autocomplete="off" placeholder="粘贴纯配装 JSON 或文本"></textarea>
+      <div class="controls"><label>选择配装文件 <input id="file-input" type="file" accept=".json,.txt,application/json,text/plain"></label><button id="preview">预览输入</button><button id="good-demo">合成 GOOD 示例</button><button id="enka-demo">合成 Enka 示例</button><button id="hutao-demo">合成多角色文本示例</button></div>
+      <form id="uid-form"><label for="uid">公开展柜 UID（9–10 位数字）</label><div class="controls"><input id="uid" inputmode="numeric" pattern="[1-9][0-9]{8,9}" maxlength="10" required autocomplete="off"><button type="submit">获取公开展柜</button></div></form>
+      <p>UID 仅获取公开展柜，不能读取全部账号、背包或历史。上游快照时间可能未知。</p>
+      <button id="authorized-demo">演示授权适配器（合成数据，无登录）</button><p>未来可由玩家主动授权米游社 / HoYoLAB 读取已拥有角色的当前配装。本原型未连接账号服务。</p>
+    </section>
+    <p id="status" role="status" aria-live="polite">尚未导入。可先查看明确标记的合成示例。</p>
+    <section aria-labelledby="preview-title"><h2 id="preview-title">导入预览</h2><div id="preview-content"></div><button id="apply" disabled>应用完整预览到本页</button><details><summary>规范化字段与来源路径</summary><pre id="normalized">暂无预览</pre></details></section>
+    <section aria-labelledby="current-title"><h2 id="current-title">当前已应用数据</h2><p id="current">暂无已应用数据。刷新页面会清空。</p></section>
+  </main><script type="module" src="/main.ts"></script></body>
+</html>

@@ -1,0 +1,810 @@
+{
+  "schema": "tulaytullah-event-replay-v1",
+  "status": "passed",
+  "meaning": "Passed means the capture matches the declared source model; see actionBoundaryFinding for the observed legacy defect.",
+  "capture": {
+    "path": "/workspace/GIDPS-cloud/mechanism-closure-20261022/team/team-120-observed.result.json",
+    "sha256": "5d737b64f5e5f73fe22508a3bc0ad38e50525be9c74b875a482e0936b89587e8",
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "configSha256": "a6bf4f3c03c2fc6e477651e23b3d6cea87bef1536020ffc48c94c6f55f72206f",
+    "seed": "20261022",
+    "endFrame": 7200,
+    "actionContext": "fixed"
+  },
+  "buildManifest": {
+    "path": "/workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host/manifest.json",
+    "sha256": "7de861a78b85ed8a0ab34eee96747a6777f35f2b3dac8c699cf421f312593915",
+    "wasmSha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
+    "relevantPatches": [
+      {
+        "path": "135-athame-trigger-hit-atk.patch",
+        "sha256": "491d0c83d2602278aff9b440a579f58285a2826a4c34dad60df389f70a71fd60",
+        "size": 4449
+      },
+      {
+        "path": "136-normal-attack-speed-context.patch",
+        "sha256": "b64bba418b5bc1bc15a285ebf5bf8c3866598436fd3d7af1ad20581c838a4a43",
+        "size": 5729
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go",
+      "gitBlob": "b75702a09a043299f73fc936eefa872df78e63a0",
+      "sha256": "8794151b734d749fc6f6c54c8ece794a26e40de62f8280229222d840179862fb",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go"
+    },
+    {
+      "path": "internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go",
+      "gitBlob": "392b15a042a2599698bafd07780a828c36c5cbc2",
+      "sha256": "b6561028d9dcd168bc5fe91052af5573364317b16cd051171dedf2aed1a8acf2",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go"
+    },
+    {
+      "path": "internal/characters/wanderer/cons.go",
+      "gitBlob": "711fd1dfc2707bc2fd4321410f45b507814d2543",
+      "sha256": "db49adc6fc1e136d890c63e39cac67c8240b2189b59614e614165c633bbb4371",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/cons.go"
+    },
+    {
+      "path": "internal/characters/wanderer/attack.go",
+      "gitBlob": "72e36762e68d56527ca8d394a364b0397e9d79e5",
+      "sha256": "f9d407581c920c4909e9577742126f68ac47a6021fa1c2b463527a8833f6efa5",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/wanderer/attack.go"
+    },
+    {
+      "path": "internal/frames/frames.go",
+      "gitBlob": "6f0f47b4097751ee1076677356ce0c4bdbe038c7",
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/frames/frames.go"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "gitBlob": "1bf462c6ebbc58342377aa1a31ae82285ec6b75b",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "gitBlob": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/core/player/animation/animation.go",
+      "gitBlob": "a11a10d7afbe88a8d1eefb60439a2c07e8823c88",
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/animation/animation.go"
+    },
+    {
+      "path": "pkg/core/player/character/hitlag.go",
+      "gitBlob": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "gitBlob": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "gitBlob": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "gitBlob": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "gitBlob": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "path": "pkg/enemy/attack.go",
+      "gitBlob": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    }
+  ],
+  "contract": {
+    "refinement": 5,
+    "normalAttackSpeed": 0.2,
+    "bonusPerStack": 0.096,
+    "timerDelayCharacterFrames": 60,
+    "hitGateFrames": 18,
+    "hitGateExpiryInclusive": true,
+    "maxStacks": 10,
+    "effectDurationFrames": 840
+  },
+  "counts": {
+    "resets": 8,
+    "departures": 5,
+    "normalHits": 258,
+    "normalHitsInsideWindow": 258,
+    "hitGateAccepts": 97,
+    "hitGateRejects": 161,
+    "timerTasks": 26,
+    "timerOutcomes": {
+      "increment": 18,
+      "capped-stop": 6,
+      "stale-source-stop": 2
+    },
+    "stackWriteLogs": 42,
+    "snapshotSpeedReads": 307,
+    "snapshotSpeedApplied": 273,
+    "snapshotSpeedRejected": 34
+  },
+  "transitions": [
+    {
+      "frame": 537,
+      "kind": "reset",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": null,
+      "actionSequence": 15
+    },
+    {
+      "frame": 1322,
+      "kind": "depart",
+      "fromStacks": 10,
+      "toStacks": 0,
+      "previousSource": 15
+    },
+    {
+      "frame": 1858,
+      "kind": "reset",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": null,
+      "actionSequence": 52
+    },
+    {
+      "frame": 2490,
+      "kind": "reset",
+      "fromStacks": 10,
+      "toStacks": 0,
+      "previousSource": 52,
+      "actionSequence": 72
+    },
+    {
+      "frame": 2524,
+      "kind": "depart",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": 72
+    },
+    {
+      "frame": 3060,
+      "kind": "reset",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": null,
+      "actionSequence": 89
+    },
+    {
+      "frame": 3845,
+      "kind": "depart",
+      "fromStacks": 10,
+      "toStacks": 0,
+      "previousSource": 89
+    },
+    {
+      "frame": 4381,
+      "kind": "reset",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": null,
+      "actionSequence": 126
+    },
+    {
+      "frame": 5166,
+      "kind": "depart",
+      "fromStacks": 10,
+      "toStacks": 0,
+      "previousSource": 126
+    },
+    {
+      "frame": 5702,
+      "kind": "reset",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": null,
+      "actionSequence": 163
+    },
+    {
+      "frame": 6334,
+      "kind": "reset",
+      "fromStacks": 10,
+      "toStacks": 0,
+      "previousSource": 163,
+      "actionSequence": 183
+    },
+    {
+      "frame": 6368,
+      "kind": "depart",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": 183
+    },
+    {
+      "frame": 6904,
+      "kind": "reset",
+      "fromStacks": 0,
+      "toStacks": 0,
+      "previousSource": null,
+      "actionSequence": 200
+    }
+  ],
+  "timerTasks": [
+    {
+      "frame": 597,
+      "queuedFrame": 537,
+      "sourceActionSequence": 15,
+      "before": 0,
+      "after": 1,
+      "outcome": "increment"
+    },
+    {
+      "frame": 657,
+      "queuedFrame": 597,
+      "sourceActionSequence": 15,
+      "before": 3,
+      "after": 4,
+      "outcome": "increment"
+    },
+    {
+      "frame": 717,
+      "queuedFrame": 657,
+      "sourceActionSequence": 15,
+      "before": 8,
+      "after": 9,
+      "outcome": "increment"
+    },
+    {
+      "frame": 777,
+      "queuedFrame": 717,
+      "sourceActionSequence": 15,
+      "before": 10,
+      "after": 10,
+      "outcome": "capped-stop"
+    },
+    {
+      "frame": 1918,
+      "queuedFrame": 1858,
+      "sourceActionSequence": 52,
+      "before": 0,
+      "after": 1,
+      "outcome": "increment"
+    },
+    {
+      "frame": 1978,
+      "queuedFrame": 1918,
+      "sourceActionSequence": 52,
+      "before": 3,
+      "after": 4,
+      "outcome": "increment"
+    },
+    {
+      "frame": 2038,
+      "queuedFrame": 1978,
+      "sourceActionSequence": 52,
+      "before": 8,
+      "after": 9,
+      "outcome": "increment"
+    },
+    {
+      "frame": 2098,
+      "queuedFrame": 2038,
+      "sourceActionSequence": 52,
+      "before": 10,
+      "after": 10,
+      "outcome": "capped-stop"
+    },
+    {
+      "frame": 2550,
+      "queuedFrame": 2490,
+      "sourceActionSequence": 72,
+      "before": 0,
+      "after": 0,
+      "outcome": "stale-source-stop"
+    },
+    {
+      "frame": 3120,
+      "queuedFrame": 3060,
+      "sourceActionSequence": 89,
+      "before": 0,
+      "after": 1,
+      "outcome": "increment"
+    },
+    {
+      "frame": 3180,
+      "queuedFrame": 3120,
+      "sourceActionSequence": 89,
+      "before": 3,
+      "after": 4,
+      "outcome": "increment"
+    },
+    {
+      "frame": 3240,
+      "queuedFrame": 3180,
+      "sourceActionSequence": 89,
+      "before": 8,
+      "after": 9,
+      "outcome": "increment"
+    },
+    {
+      "frame": 3300,
+      "queuedFrame": 3240,
+      "sourceActionSequence": 89,
+      "before": 10,
+      "after": 10,
+      "outcome": "capped-stop"
+    },
+    {
+      "frame": 4441,
+      "queuedFrame": 4381,
+      "sourceActionSequence": 126,
+      "before": 0,
+      "after": 1,
+      "outcome": "increment"
+    },
+    {
+      "frame": 4501,
+      "queuedFrame": 4441,
+      "sourceActionSequence": 126,
+      "before": 3,
+      "after": 4,
+      "outcome": "increment"
+    },
+    {
+      "frame": 4561,
+      "queuedFrame": 4501,
+      "sourceActionSequence": 126,
+      "before": 8,
+      "after": 9,
+      "outcome": "increment"
+    },
+    {
+      "frame": 4621,
+      "queuedFrame": 4561,
+      "sourceActionSequence": 126,
+      "before": 10,
+      "after": 10,
+      "outcome": "capped-stop"
+    },
+    {
+      "frame": 5762,
+      "queuedFrame": 5702,
+      "sourceActionSequence": 163,
+      "before": 0,
+      "after": 1,
+      "outcome": "increment"
+    },
+    {
+      "frame": 5822,
+      "queuedFrame": 5762,
+      "sourceActionSequence": 163,
+      "before": 3,
+      "after": 4,
+      "outcome": "increment"
+    },
+    {
+      "frame": 5882,
+      "queuedFrame": 5822,
+      "sourceActionSequence": 163,
+      "before": 8,
+      "after": 9,
+      "outcome": "increment"
+    },
+    {
+      "frame": 5942,
+      "queuedFrame": 5882,
+      "sourceActionSequence": 163,
+      "before": 10,
+      "after": 10,
+      "outcome": "capped-stop"
+    },
+    {
+      "frame": 6394,
+      "queuedFrame": 6334,
+      "sourceActionSequence": 183,
+      "before": 0,
+      "after": 0,
+      "outcome": "stale-source-stop"
+    },
+    {
+      "frame": 6964,
+      "queuedFrame": 6904,
+      "sourceActionSequence": 200,
+      "before": 0,
+      "after": 1,
+      "outcome": "increment"
+    },
+    {
+      "frame": 7024,
+      "queuedFrame": 6964,
+      "sourceActionSequence": 200,
+      "before": 3,
+      "after": 4,
+      "outcome": "increment"
+    },
+    {
+      "frame": 7084,
+      "queuedFrame": 7024,
+      "sourceActionSequence": 200,
+      "before": 8,
+      "after": 9,
+      "outcome": "increment"
+    },
+    {
+      "frame": 7144,
+      "queuedFrame": 7084,
+      "sourceActionSequence": 200,
+      "before": 10,
+      "after": 10,
+      "outcome": "capped-stop"
+    }
+  ],
+  "constructorsAfterCharge": [
+    {
+      "frame": 620,
+      "actionSequence": 17,
+      "actualThreshold": 21,
+      "expectedThreshold": 21,
+      "legacyThreshold": 25,
+      "tulayOnlyFixedThreshold": 22,
+      "bothFixedThreshold": 21,
+      "snapshotSpeedComponents": {
+        "tulaytullahsremembrance-atkspd": 0.2,
+        "wanderer-c1-atkspd": 0.1,
+        "desert-4pc-spd": 0.1
+      }
+    },
+    {
+      "frame": 1941,
+      "actionSequence": 54,
+      "actualThreshold": 21,
+      "expectedThreshold": 21,
+      "legacyThreshold": 25,
+      "tulayOnlyFixedThreshold": 22,
+      "bothFixedThreshold": 21,
+      "snapshotSpeedComponents": {
+        "tulaytullahsremembrance-atkspd": 0.2,
+        "wanderer-c1-atkspd": 0.1,
+        "desert-4pc-spd": 0.1
+      }
+    },
+    {
+      "frame": 3143,
+      "actionSequence": 91,
+      "actualThreshold": 21,
+      "expectedThreshold": 21,
+      "legacyThreshold": 25,
+      "tulayOnlyFixedThreshold": 22,
+      "bothFixedThreshold": 21,
+      "snapshotSpeedComponents": {
+        "tulaytullahsremembrance-atkspd": 0.2,
+        "wanderer-c1-atkspd": 0.1,
+        "desert-4pc-spd": 0.1
+      }
+    },
+    {
+      "frame": 4464,
+      "actionSequence": 128,
+      "actualThreshold": 21,
+      "expectedThreshold": 21,
+      "legacyThreshold": 25,
+      "tulayOnlyFixedThreshold": 22,
+      "bothFixedThreshold": 21,
+      "snapshotSpeedComponents": {
+        "tulaytullahsremembrance-atkspd": 0.2,
+        "wanderer-c1-atkspd": 0.1,
+        "desert-4pc-spd": 0.1
+      }
+    },
+    {
+      "frame": 5785,
+      "actionSequence": 165,
+      "actualThreshold": 21,
+      "expectedThreshold": 21,
+      "legacyThreshold": 25,
+      "tulayOnlyFixedThreshold": 22,
+      "bothFixedThreshold": 21,
+      "snapshotSpeedComponents": {
+        "tulaytullahsremembrance-atkspd": 0.2,
+        "wanderer-c1-atkspd": 0.1,
+        "desert-4pc-spd": 0.1
+      }
+    },
+    {
+      "frame": 6987,
+      "actionSequence": 202,
+      "actualThreshold": 21,
+      "expectedThreshold": 21,
+      "legacyThreshold": 25,
+      "tulayOnlyFixedThreshold": 22,
+      "bothFixedThreshold": 21,
+      "snapshotSpeedComponents": {
+        "tulaytullahsremembrance-atkspd": 0.2,
+        "wanderer-c1-atkspd": 0.1,
+        "desert-4pc-spd": 0.1
+      }
+    }
+  ],
+  "actionBoundaryFinding": {
+    "present": false,
+    "kind": "normal-only speed read used previous animation during construction",
+    "patch": "136-normal-attack-speed-context.patch"
+  },
+  "checks": {
+    "classic-pin": 1,
+    "tree-snapshot": 1,
+    "fixed-source-blob": 14,
+    "context-version-from-manifest": 1,
+    "capture-wasm-matches-manifest": 1,
+    "no-character-clock-pause-in-this-capture": 1,
+    "character-clock-equals-observation": 1,
+    "reset-actor-on-field": 8,
+    "attack-mod-presence": 307,
+    "attack-mod-outcome": 307,
+    "attack-mod-expiry": 307,
+    "per-hit-expected-na-bonus": 258,
+    "na-bonus-only-damage-slot": 258,
+    "all-stack-write-logs-match-generated-events": 1,
+    "all-18-frame-gates-match-landed-hit-replay": 1,
+    "all-60-frame-task-chains-match": 1,
+    "timer-60-character-clock": 26,
+    "specified-r5-weapon": 307,
+    "full-snapshot-read-to-event-match": 295,
+    "snapshot-as-predicate-from-animation-order": 307,
+    "snapshot-as-r5-value": 273,
+    "snapshot-as-only-speed-slot": 273,
+    "constructor-speed-scope": 6,
+    "constructor-frame-callback-from-context": 6,
+    "normal-hit-coverage": 1,
+    "as-snapshot-coverage": 1
+  },
+  "failures": [],
+  "bounds": [
+    "Only the actual deterministic capture is replayed; action times are inputs, not fixed constants or reoptimized DPS.",
+    "Character clock has no hitlag in this capture; a paused-clock replay requires additional accounting.",
+    "Snapshot speed predicate is closed from animation event order; original action-constructor StatRead links remain missing.",
+    "No 14-second expiry boundary, exact-18f retrigger or outside-effect hit is exercised here; do not generalize their coverage.",
+    "Raw boundary hits are audited, but normalHitsInsideWindow excludes the end frame.",
+    "Game-internal timing and all other characters/buffs are outside this weapon audit."
+  ],
+  "csvFiles": [
+    {
+      "kind": "normalHits",
+      "path": "tulaytullah-fixed-20261022.hits.csv",
+      "rows": 258,
+      "sha256": "0b986807e1dd6321aa11481f057928eb149387dba490c9b20ba5d6306585a840"
+    },
+    {
+      "kind": "speedReads",
+      "path": "tulaytullah-fixed-20261022.speed.csv",
+      "rows": 307,
+      "sha256": "85b0ca7591fb8212161bd0873ef8f5817f3f86303ec9939e8c10b8c92dbc0c89"
+    }
+  ],
+  "representativeNormalHits": [
+    {
+      "calculationId": 520,
+      "attackId": 32,
+      "frame": 638,
+      "ability": "Normal 0 (Windfavored)",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 17,
+      "stacksAtRead": 1,
+      "expectedBonus": 0.096,
+      "actualBonus": 0.096,
+      "gateExpiryBeforeHit": -1,
+      "hitGateAccepted": true,
+      "stacksAfterHit": 3,
+      "gateExpiryAfterHit": 656
+    },
+    {
+      "calculationId": 574,
+      "attackId": 36,
+      "frame": 646,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 17,
+      "stacksAtRead": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "gateExpiryBeforeHit": 656,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 3,
+      "gateExpiryAfterHit": 656
+    },
+    {
+      "calculationId": 623,
+      "attackId": 39,
+      "frame": 654,
+      "ability": "Normal 1 (Windfavored)",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 18,
+      "stacksAtRead": 3,
+      "expectedBonus": 0.28800000000000003,
+      "actualBonus": 0.28800000000000003,
+      "gateExpiryBeforeHit": 656,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 3,
+      "gateExpiryAfterHit": 656
+    },
+    {
+      "calculationId": 670,
+      "attackId": 40,
+      "frame": 662,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 18,
+      "stacksAtRead": 4,
+      "expectedBonus": 0.384,
+      "actualBonus": 0.384,
+      "gateExpiryBeforeHit": 656,
+      "hitGateAccepted": true,
+      "stacksAfterHit": 6,
+      "gateExpiryAfterHit": 680
+    },
+    {
+      "calculationId": 862,
+      "attackId": 43,
+      "frame": 701,
+      "ability": "Normal 2 (Windfavored)",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 19,
+      "stacksAtRead": 6,
+      "expectedBonus": 0.5760000000000001,
+      "actualBonus": 0.5760000000000001,
+      "gateExpiryBeforeHit": 680,
+      "hitGateAccepted": true,
+      "stacksAfterHit": 8,
+      "gateExpiryAfterHit": 719
+    },
+    {
+      "calculationId": 930,
+      "attackId": 45,
+      "frame": 709,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 19,
+      "stacksAtRead": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "gateExpiryBeforeHit": 719,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 8,
+      "gateExpiryAfterHit": 719
+    },
+    {
+      "calculationId": 936,
+      "attackId": 44,
+      "frame": 709,
+      "ability": "Normal 2 (Windfavored)",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 19,
+      "stacksAtRead": 8,
+      "expectedBonus": 0.768,
+      "actualBonus": 0.768,
+      "gateExpiryBeforeHit": 719,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 8,
+      "gateExpiryAfterHit": 719
+    },
+    {
+      "calculationId": 985,
+      "attackId": 46,
+      "frame": 717,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 19,
+      "stacksAtRead": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "gateExpiryBeforeHit": 719,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 9,
+      "gateExpiryAfterHit": 719
+    },
+    {
+      "calculationId": 1050,
+      "attackId": 47,
+      "frame": 730,
+      "ability": "Normal 0 (Windfavored)",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 20,
+      "stacksAtRead": 9,
+      "expectedBonus": 0.864,
+      "actualBonus": 0.864,
+      "gateExpiryBeforeHit": 719,
+      "hitGateAccepted": true,
+      "stacksAfterHit": 10,
+      "gateExpiryAfterHit": 748
+    },
+    {
+      "calculationId": 1104,
+      "attackId": 49,
+      "frame": 738,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 20,
+      "stacksAtRead": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "gateExpiryBeforeHit": 748,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 10,
+      "gateExpiryAfterHit": 748
+    },
+    {
+      "calculationId": 1155,
+      "attackId": 50,
+      "frame": 746,
+      "ability": "Normal 1 (Windfavored)",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 21,
+      "stacksAtRead": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "gateExpiryBeforeHit": 748,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 10,
+      "gateExpiryAfterHit": 748
+    },
+    {
+      "calculationId": 1208,
+      "attackId": 52,
+      "frame": 754,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 15,
+      "attackActionSequence": 21,
+      "stacksAtRead": 10,
+      "expectedBonus": 0.96,
+      "actualBonus": 0.96,
+      "gateExpiryBeforeHit": 748,
+      "hitGateAccepted": true,
+      "stacksAfterHit": 10,
+      "gateExpiryAfterHit": 772
+    },
+    {
+      "calculationId": 7465,
+      "attackId": 247,
+      "frame": 2498,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 72,
+      "attackActionSequence": 71,
+      "stacksAtRead": 0,
+      "expectedBonus": 0.0,
+      "actualBonus": 0,
+      "gateExpiryBeforeHit": 2500,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 0,
+      "gateExpiryAfterHit": 2500
+    },
+    {
+      "calculationId": 18995,
+      "attackId": 641,
+      "frame": 6342,
+      "ability": "Shugen: The Curtains’ Melancholic Sway",
+      "sourceActionSequence": 183,
+      "attackActionSequence": 182,
+      "stacksAtRead": 0,
+      "expectedBonus": 0.0,
+      "actualBonus": 0,
+      "gateExpiryBeforeHit": 6344,
+      "hitGateAccepted": false,
+      "stacksAfterHit": 0,
+      "gateExpiryAfterHit": 6344
+    }
+  ]
+}

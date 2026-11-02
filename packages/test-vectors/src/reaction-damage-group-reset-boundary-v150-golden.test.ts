@@ -8,6 +8,9 @@ import {
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+  assertTrustedSimulationResult,
+  simulationResultSchema,
+  type SimulationResult,
   assertTrustedSimulationResultV150,
   damageEventV148Schema,
   hitResolutionLogEntryV148Schema,
@@ -25,6 +28,7 @@ import { z } from "zod";
 import { describe, expect, it } from "vitest";
 
 import { simulate } from "../../sim-core/src/simulator";
+import { parseEventStepResult, simulateEventStepResult } from "../../sim-core/src/event-step-result";
 import {
   makeConfig,
   neutralStats,
@@ -295,25 +299,27 @@ function makeRepeatedReactionConfig(reaction: ReactionVector): SimConfig {
   });
 }
 
-function runScenario(reaction: ReactionVector): SimulationResultForV150 {
-  const randomSeed = `synthetic-reaction-damage-group-${reaction}-1.50`;
-  return projectSimulationResultV151ToV150(
-    projectSimulationResultV152ToV151(
-      projectSimulationResultV153ToV152(
-        simulate(makeRepeatedReactionConfig(reaction), {
-          critMode: "noCrit",
-          randomSeed,
-        }),
-      ),
-    ),
-  );
+type BoundaryCase = "superconductReactionA" | "overloadReactionB";
+const HISTORICAL_URL = new URL("./fixtures/historical-reaction-damage-group-reset-boundary-v153-84ff5cd.json",import.meta.url);
+function readHistoricalBoundary(): Record<BoundaryCase,SimulationResult> {
+  const bytes=readFileSync(HISTORICAL_URL);expect(byteSha256(bytes)).toBe("2c4316a1ed23ca861938598d51f6ed32616ce76eed0985b5daf5c8a87a8b35fb");
+  const archive=JSON.parse(bytes.toString("utf8")) as {fixtureVersion:string;source:{commit:string;tree:string};cases:Array<{caseId:BoundaryCase;sourceWireSha256:string;sourceWireText:string}>};
+  expect(archive).toMatchObject({fixtureVersion:"historical-reaction-damage-group-reset-boundary-v153-84ff5cd-v1",source:{commit:"84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",tree:"72bd69a8c54a3e115685c7ee52f5862064c70f55"}});
+  expect(archive.cases.map(row=>row.caseId)).toEqual(["superconductReactionA","overloadReactionB"]);expect(archive.cases.map(row=>row.sourceWireSha256)).toEqual(["34af928e17540a6f32dd1da6cc70720261baf8bd9c1257907d95006812dd32aa","7503b353c86b75ab657944f76b0297c701a1d48cd0e8e042f111a7279e9b6474"]);
+  const results={} as Record<BoundaryCase,SimulationResult>;for(const row of archive.cases){expect(byteSha256(Buffer.from(row.sourceWireText))).toBe(row.sourceWireSha256);results[row.caseId]=JSON.parse(row.sourceWireText) as SimulationResult;expect(results[row.caseId].resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");expect(results[row.caseId].runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");}return results;
 }
-
-function runScenarios() {
-  return {
-    superconductReactionA: runScenario("superconduct"),
-    overloadReactionB: runScenario("overload"),
-  };
+function runCurrentScenario(reaction:ReactionVector):SimulationResult {return simulate(makeRepeatedReactionConfig(reaction),{critMode:"noCrit",randomSeed:`synthetic-reaction-damage-group-${reaction}-1.50`});}
+function runCurrentScenarios():Record<BoundaryCase,SimulationResult>{return {superconductReactionA:runCurrentScenario("superconduct"),overloadReactionB:runCurrentScenario("overload")};}
+function historicalProjection(result:SimulationResult):SimulationResultForV150{return projectSimulationResultV151ToV150(projectSimulationResultV152ToV151(projectSimulationResultV153ToV152(result)));}
+function runScenarios(){const historical=readHistoricalBoundary();return {superconductReactionA:historicalProjection(historical.superconductReactionA),overloadReactionB:historicalProjection(historical.overloadReactionB)};}
+/** Closed expected-only adaptation:8 identity fields,4 direct Aura substeps,
+ * and12 newly explicit direct-hit coordinates; no queue or backlink renaming. */
+function expectedCurrentScenarios():Record<BoundaryCase,SimulationResult>{
+  const results=readHistoricalBoundary();for(const [key,reproducibilityKey] of [["superconductReactionA","gdl-v2-fnv1a32-01745e17"],["overloadReactionB","gdl-v2-fnv1a32-a20b3459"]] as const){
+    const r=results[key];r.resolvedRuntimeOptions.flatStatBuffSemantics="canonical-v1";r.runManifest.resolvedRuntimeOptions.flatStatBuffSemantics="canonical-v1";r.reproducibilityKey=reproducibilityKey;r.runManifest.reproducibilityKey=reproducibilityKey;
+    for(const pointId of [1,2]){const point=r.targetStateTimeline.points[pointId]!;expect(point).toMatchObject({cause:"direct-hit-application",intraEventSequence:0});point.intraEventSequence=1;}
+    for(const [hitId,sequence] of [[0,1],[2,2]]){const hit=r.hitResolutionLog[hitId!]!;for(const field of ["eventPriority","eventSequence","intraEventSequence"])expect(hit).not.toHaveProperty(field);Object.assign(hit,{eventPriority:3,eventSequence:sequence,intraEventSequence:0});}
+  }return results;
 }
 
 function scenarioFixture(
@@ -457,7 +463,7 @@ function expectFrozenV150Trusted(result: SimulationResultForV150): void {
 }
 
 function expectBoundarySemantics(
-  result: SimulationResultForV150,
+  result: SimulationResultForV150 | SimulationResult,
   reaction: ReactionVector,
   icdGroup: "reaction-a" | "reaction-b",
   icdTag: "ICDTagSuperconductDamage" | "ICDTagOverloadDamage",
@@ -696,4 +702,34 @@ describe("Reaction damage-group reset boundary 1.50 Golden", () => {
       expect(frozen).toEqual(generated);
     },
   );
+});
+
+describe("current reaction-group reset-boundary contracts",()=>{
+  it("preserves full current wires, source FIFO boundaries and independent damage",()=>{
+    const actual=runCurrentScenarios();expect(runCurrentScenarios()).toStrictEqual(actual);expect(actual).toStrictEqual(expectedCurrentScenarios());
+    for(const [key,reaction,multiplier,group,tag] of [["superconductReactionA","superconduct",1.5,"reaction-a","ICDTagSuperconductDamage"],["overloadReactionB","overload",2.75,"reaction-b","ICDTagOverloadDamage"]] as const){
+      const r=actual[key];expect(simulationResultSchema.parse(r)).toEqual(r);expect(assertTrustedSimulationResult(r)).toBe(r);expectBoundarySemantics(r,reaction,group,tag);
+      expect(r.config.reactionDamageGroupModel).toEqual({mode:"fixed-gcsim-reaction-damage-task-order-v2",policyId:GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID});expect(r.runManifest.reactionDamageGroupRoot).toEqual(GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT);
+      // Pinned level90 curve1446.8535 and classic multipliers1.5/2.75; actualEM100.
+      const direct=1000*.5*.9,damage=1446.8535*multiplier*(1+16*100/2100)*.9;
+      expect(r.damageEvents.map(row=>row.frame)).toEqual([0,1,29,30]);expect(r.damageEvents.map(row=>row.targetId)).toEqual(Array(4).fill("enemy-0"));r.damageEvents.forEach((row,index)=>expect(row.finalDamage).toBeCloseTo(index%2===0?direct:damage,10));expect(r.totalDamage).toBeCloseTo(2*(direct+damage),9);
+      for(const [pointId,hitId,frame,sequence,damageId] of [[1,0,0,1,0],[2,2,29,2,2]]){expect(r.targetStateTimeline.points[pointId!]!).toMatchObject({cause:"direct-hit-application",frame,eventPriority:3,eventSequence:sequence,intraEventSequence:1,primaryDamageEventId:damageId});expect(r.hitResolutionLog[hitId!]!).toMatchObject({frame,eventPriority:3,eventSequence:sequence,intraEventSequence:0,damageEventId:damageId});}
+    }
+  });
+  it("preserves strict canonical refusal/nonmutation and exact authentic frozen fixture",()=>{
+    const current=runCurrentScenarios(),before=structuredClone(current);for(const r of Object.values(current))expect(()=>historicalProjection(r)).toThrow(/flatStatBuffSemantics/);expect(current).toStrictEqual(before);expect(fixtureSchema.parse(makeFixture(runScenarios()))).toStrictEqual(JSON.parse(readFileSync(FIXTURE_URL,"utf8")));
+  });
+  it.each(["superconduct","overload"] as const)("%s owns allocation chronology in the real event-step witness, not historical parsing",reaction=>{
+    const key=reaction==="superconduct"?"superconductReactionA":"overloadReactionB",original=runCurrentScenario(reaction),forged=structuredClone(original);forged.targetStateTimeline.points[1]!.intraEventSequence=0;
+    expect(simulationResultSchema.parse(forged)).toEqual(forged);expect(()=>expect(forged).toStrictEqual(expectedCurrentScenarios()[key])).toThrow();
+    const captured=simulateEventStepResult(makeRepeatedReactionConfig(reaction),{critMode:"noCrit",randomSeed:`synthetic-reaction-damage-group-${reaction}-1.50`});const before=structuredClone(captured.wire),parsed=parseEventStepResult(JSON.parse(JSON.stringify(captured.wire)));expect(parsed.result.damageEvents).toStrictEqual(original.damageEvents);expect(parsed.result.targetStateTimeline).toStrictEqual(original.targetStateTimeline);const bad=structuredClone(captured.wire);bad.result.targetStateTimeline.points[1]!.intraEventSequence=0;expect(()=>parseEventStepResult(JSON.parse(JSON.stringify(bad)))).toThrow();expect(captured.wire).toStrictEqual(before);
+  });
+  for(const reaction of ["superconduct","overload"] as const)it.each(["reset-sequence","reset-before-attempt","damage-parent","hit-reaction"] as const)(`${reaction}: public ingress rejects forged %s`,mutation=>{
+    const original=runCurrentScenario(reaction);expect(simulationResultSchema.parse(JSON.parse(JSON.stringify(original)))).toEqual(original);const forged=structuredClone(original);
+    if(mutation==="reset-sequence")forged.reactionDamageLog[0]!.damageGroupDecisions[0]!.resetTaskSequence=999;
+    if(mutation==="reset-before-attempt")forged.reactionDamageGroupResetLog[0]!.executedBeforeAttemptTaskSequence=3;
+    if(mutation==="damage-parent")forged.damageEvents[1]!.parentDamageEventId=2;
+    if(mutation==="hit-reaction")forged.hitResolutionLog[1]!.reactionDamageLogId=1;
+    expect(simulationResultSchema.safeParse(JSON.parse(JSON.stringify(forged))).success).toBe(false);expect(()=>expect(forged).toStrictEqual(expectedCurrentScenarios()[reaction==="superconduct"?"superconductReactionA":"overloadReactionB"])).toThrow();expect(simulationResultSchema.parse(original)).toEqual(original);
+  });
 });

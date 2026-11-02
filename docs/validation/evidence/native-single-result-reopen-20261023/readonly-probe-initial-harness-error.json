@@ -1,0 +1,7 @@
+{
+  "provenance": "Root exec tool response for the first final-code readonly probe",
+  "outcome": "failed in harness, not an archive rejection",
+  "error": "TypeError [ERR_INVALID_ARG_TYPE]: readFile path was a Promise because download.path() was not awaited",
+  "completedBeforeError": "Positive archive was opened and screenshot saved; no native run",
+  "correction": "Awaited download.path(); same saved files then passed readonly probe without new simulation"
+}

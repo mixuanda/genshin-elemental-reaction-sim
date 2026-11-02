@@ -98,6 +98,8 @@ export * from "./held-lifecycle-formulas";
 export * from "./finite-followup-formulas";
 export * from "./idle-stance-schedule";
 export * from "./idle-stance-formulas";
+export * from "./durin-skill-context";
+export * from "./durin-skill-formulas";
 export * from "./observed-entity-schedule";
 export * from "./observed-entity-formulas";
 export * from "./contact-marker-schedule";

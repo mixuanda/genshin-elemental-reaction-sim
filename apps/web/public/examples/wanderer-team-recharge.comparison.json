@@ -1,0 +1,7139 @@
+{
+  "schemaVersion": "wanderer-recharge-comparison/1",
+  "runs": [
+    {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "seed": "20261022",
+      "totalDamage": 29329602.14168498,
+      "dps": 244413.35118070815,
+      "hits": 619,
+      "actors": [
+        {
+          "key": "wanderer",
+          "damage": 21753722.708621763,
+          "hits": 362,
+          "share": 0.7416985270899422
+        },
+        {
+          "key": "durin",
+          "damage": 4840322.575347667,
+          "hits": 138,
+          "share": 0.16503198890885437
+        },
+        {
+          "key": "faruzan",
+          "damage": 1888537.7128709191,
+          "hits": 105,
+          "share": 0.06439015789398714
+        },
+        {
+          "key": "nicole",
+          "damage": 847019.1448446361,
+          "hits": 14,
+          "share": 0.028879326107216503
+        }
+      ],
+      "phaseFrames": [
+        1,
+        1322,
+        2524,
+        3845,
+        5166,
+        6368
+      ],
+      "timing": {
+        "nativeAndSharedCallbacksMs": 41641.781201,
+        "resultValidationMs": 8443.451864000002,
+        "scope": "Node acceptance harness; excludes browser UI, loading and rendering"
+      },
+      "variant": "original",
+      "label": "原配装114.24%",
+      "statisticsWindow": "[0,7200)",
+      "wandererEnergyRecharge": 1.1424,
+      "qDecisions": [
+        {
+          "actor": "nicole",
+          "frame": 37,
+          "seconds": 0.6166666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 235,
+          "seconds": 3.9166666666666665,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 448,
+          "seconds": 7.466666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 1164,
+          "seconds": 19.4,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 1358,
+          "seconds": 22.633333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 1556,
+          "seconds": 25.933333333333334,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 1769,
+          "seconds": 29.483333333333334,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "seconds": 41.416666666666664,
+          "energy": 50.497279999999996,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": false
+        },
+        {
+          "actor": "nicole",
+          "frame": 2560,
+          "seconds": 42.666666666666664,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 2758,
+          "seconds": 45.96666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 2971,
+          "seconds": 49.516666666666666,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 3687,
+          "seconds": 61.45,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 3881,
+          "seconds": 64.68333333333334,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 4079,
+          "seconds": 67.98333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 4292,
+          "seconds": 71.53333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 5008,
+          "seconds": 83.46666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 5202,
+          "seconds": 86.7,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 5400,
+          "seconds": 90.0,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 5613,
+          "seconds": 93.55,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6329,
+          "seconds": 105.48333333333333,
+          "energy": 53.239039999999996,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": false
+        },
+        {
+          "actor": "nicole",
+          "frame": 6404,
+          "seconds": 106.73333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 6602,
+          "seconds": 110.03333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 6815,
+          "seconds": 113.58333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        }
+      ],
+      "qByActor": {
+        "wanderer": {
+          "cast": 3,
+          "decisions": 5,
+          "skipped": 2
+        },
+        "faruzan": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        }
+      },
+      "curve1s": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "damage": 102957.37212022708,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2,
+          "damage": 0,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "damage": 51834.159146140766,
+          "cumulative": 154791.53126636785
+        },
+        {
+          "startSeconds": 3,
+          "endSeconds": 4,
+          "damage": 16187.547070686538,
+          "cumulative": 170979.07833705438
+        },
+        {
+          "startSeconds": 4,
+          "endSeconds": 5,
+          "damage": 47326.54527949415,
+          "cumulative": 218305.62361654855
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 6,
+          "damage": 21142.88081857607,
+          "cumulative": 239448.50443512463
+        },
+        {
+          "startSeconds": 6,
+          "endSeconds": 7,
+          "damage": 89391.5445120837,
+          "cumulative": 328840.0489472083
+        },
+        {
+          "startSeconds": 7,
+          "endSeconds": 8,
+          "damage": 60731.90201878844,
+          "cumulative": 389571.9509659968
+        },
+        {
+          "startSeconds": 8,
+          "endSeconds": 9,
+          "damage": 294358.725385151,
+          "cumulative": 683930.6763511477
+        },
+        {
+          "startSeconds": 9,
+          "endSeconds": 10,
+          "damage": 65216.74266181994,
+          "cumulative": 749147.4190129676
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 11,
+          "damage": 367998.17472985364,
+          "cumulative": 1117145.5937428214
+        },
+        {
+          "startSeconds": 11,
+          "endSeconds": 12,
+          "damage": 379626.98814427573,
+          "cumulative": 1496772.581887097
+        },
+        {
+          "startSeconds": 12,
+          "endSeconds": 13,
+          "damage": 413898.376697175,
+          "cumulative": 1910670.958584272
+        },
+        {
+          "startSeconds": 13,
+          "endSeconds": 14,
+          "damage": 527952.5669933826,
+          "cumulative": 2438623.5255776546
+        },
+        {
+          "startSeconds": 14,
+          "endSeconds": 15,
+          "damage": 490187.27957753104,
+          "cumulative": 2928810.8051551855
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 16,
+          "damage": 371574.0171993072,
+          "cumulative": 3300384.8223544927
+        },
+        {
+          "startSeconds": 16,
+          "endSeconds": 17,
+          "damage": 363212.4969252517,
+          "cumulative": 3663597.3192797443
+        },
+        {
+          "startSeconds": 17,
+          "endSeconds": 18,
+          "damage": 280351.7247955692,
+          "cumulative": 3943949.0440753135
+        },
+        {
+          "startSeconds": 18,
+          "endSeconds": 19,
+          "damage": 338236.7785197591,
+          "cumulative": 4282185.822595073
+        },
+        {
+          "startSeconds": 19,
+          "endSeconds": 20,
+          "damage": 222828.870610671,
+          "cumulative": 4505014.693205744
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 21,
+          "damage": 16010.403271402363,
+          "cumulative": 4521025.096477146
+        },
+        {
+          "startSeconds": 21,
+          "endSeconds": 22,
+          "damage": 655538.5456984618,
+          "cumulative": 5176563.642175608
+        },
+        {
+          "startSeconds": 22,
+          "endSeconds": 23,
+          "damage": 60258.80915593267,
+          "cumulative": 5236822.451331541
+        },
+        {
+          "startSeconds": 23,
+          "endSeconds": 24,
+          "damage": 21951.763849420247,
+          "cumulative": 5258774.215180961
+        },
+        {
+          "startSeconds": 24,
+          "endSeconds": 25,
+          "damage": 62366.44121359451,
+          "cumulative": 5321140.656394556
+        },
+        {
+          "startSeconds": 25,
+          "endSeconds": 26,
+          "damage": 150747.52592193254,
+          "cumulative": 5471888.182316489
+        },
+        {
+          "startSeconds": 26,
+          "endSeconds": 27,
+          "damage": 0,
+          "cumulative": 5471888.182316489
+        },
+        {
+          "startSeconds": 27,
+          "endSeconds": 28,
+          "damage": 31706.629592652953,
+          "cumulative": 5503594.811909142
+        },
+        {
+          "startSeconds": 28,
+          "endSeconds": 29,
+          "damage": 254413.5056492597,
+          "cumulative": 5758008.317558401
+        },
+        {
+          "startSeconds": 29,
+          "endSeconds": 30,
+          "damage": 73749.8422581524,
+          "cumulative": 5831758.159816554
+        },
+        {
+          "startSeconds": 30,
+          "endSeconds": 31,
+          "damage": 140240.77615251555,
+          "cumulative": 5971998.93596907
+        },
+        {
+          "startSeconds": 31,
+          "endSeconds": 32,
+          "damage": 129534.52232719972,
+          "cumulative": 6101533.458296269
+        },
+        {
+          "startSeconds": 32,
+          "endSeconds": 33,
+          "damage": 368223.9818527214,
+          "cumulative": 6469757.440148991
+        },
+        {
+          "startSeconds": 33,
+          "endSeconds": 34,
+          "damage": 377703.59277939296,
+          "cumulative": 6847461.032928384
+        },
+        {
+          "startSeconds": 34,
+          "endSeconds": 35,
+          "damage": 617231.4309519607,
+          "cumulative": 7464692.463880344
+        },
+        {
+          "startSeconds": 35,
+          "endSeconds": 36,
+          "damage": 614539.2408519385,
+          "cumulative": 8079231.704732283
+        },
+        {
+          "startSeconds": 36,
+          "endSeconds": 37,
+          "damage": 304756.22723845375,
+          "cumulative": 8383987.931970737
+        },
+        {
+          "startSeconds": 37,
+          "endSeconds": 38,
+          "damage": 372830.1240993073,
+          "cumulative": 8756818.056070045
+        },
+        {
+          "startSeconds": 38,
+          "endSeconds": 39,
+          "damage": 363212.4969252517,
+          "cumulative": 9120030.552995296
+        },
+        {
+          "startSeconds": 39,
+          "endSeconds": 40,
+          "damage": 330042.53942195396,
+          "cumulative": 9450073.09241725
+        },
+        {
+          "startSeconds": 40,
+          "endSeconds": 41,
+          "damage": 539511.0388312441,
+          "cumulative": 9989584.131248493
+        },
+        {
+          "startSeconds": 41,
+          "endSeconds": 42,
+          "damage": 214320.65820660233,
+          "cumulative": 10203904.789455095
+        },
+        {
+          "startSeconds": 42,
+          "endSeconds": 43,
+          "damage": 60258.80915593267,
+          "cumulative": 10264163.598611029
+        },
+        {
+          "startSeconds": 43,
+          "endSeconds": 44,
+          "damage": 21951.763849420247,
+          "cumulative": 10286115.36246045
+        },
+        {
+          "startSeconds": 44,
+          "endSeconds": 45,
+          "damage": 111466.23274332983,
+          "cumulative": 10397581.59520378
+        },
+        {
+          "startSeconds": 45,
+          "endSeconds": 46,
+          "damage": 150747.52592193254,
+          "cumulative": 10548329.121125713
+        },
+        {
+          "startSeconds": 46,
+          "endSeconds": 47,
+          "damage": 0,
+          "cumulative": 10548329.121125713
+        },
+        {
+          "startSeconds": 47,
+          "endSeconds": 48,
+          "damage": 31706.629592652953,
+          "cumulative": 10580035.750718366
+        },
+        {
+          "startSeconds": 48,
+          "endSeconds": 49,
+          "damage": 254413.5056492597,
+          "cumulative": 10834449.256367626
+        },
+        {
+          "startSeconds": 49,
+          "endSeconds": 50,
+          "damage": 52796.190912986574,
+          "cumulative": 10887245.447280612
+        },
+        {
+          "startSeconds": 50,
+          "endSeconds": 51,
+          "damage": 173702.03400687102,
+          "cumulative": 11060947.481287483
+        },
+        {
+          "startSeconds": 51,
+          "endSeconds": 52,
+          "damage": 129534.52232719972,
+          "cumulative": 11190482.003614683
+        },
+        {
+          "startSeconds": 52,
+          "endSeconds": 53,
+          "damage": 368223.9818527214,
+          "cumulative": 11558705.985467404
+        },
+        {
+          "startSeconds": 53,
+          "endSeconds": 54,
+          "damage": 327993.6027365839,
+          "cumulative": 11886699.588203989
+        },
+        {
+          "startSeconds": 54,
+          "endSeconds": 55,
+          "damage": 582955.5085194892,
+          "cumulative": 12469655.096723478
+        },
+        {
+          "startSeconds": 55,
+          "endSeconds": 56,
+          "damage": 518812.7628345748,
+          "cumulative": 12988467.859558053
+        },
+        {
+          "startSeconds": 56,
+          "endSeconds": 57,
+          "damage": 400482.7052558174,
+          "cumulative": 13388950.564813871
+        },
+        {
+          "startSeconds": 57,
+          "endSeconds": 58,
+          "damage": 372830.1240993073,
+          "cumulative": 13761780.688913178
+        },
+        {
+          "startSeconds": 58,
+          "endSeconds": 59,
+          "damage": 363212.4969252517,
+          "cumulative": 14124993.18583843
+        },
+        {
+          "startSeconds": 59,
+          "endSeconds": 60,
+          "damage": 230578.15692636234,
+          "cumulative": 14355571.342764791
+        },
+        {
+          "startSeconds": 60,
+          "endSeconds": 61,
+          "damage": 624217.3534794279,
+          "cumulative": 14979788.69624422
+        },
+        {
+          "startSeconds": 61,
+          "endSeconds": 62,
+          "damage": 222828.870610671,
+          "cumulative": 15202617.56685489
+        },
+        {
+          "startSeconds": 62,
+          "endSeconds": 63,
+          "damage": 16010.403271402363,
+          "cumulative": 15218627.970126294
+        },
+        {
+          "startSeconds": 63,
+          "endSeconds": 64,
+          "damage": 537978.6586198782,
+          "cumulative": 15756606.628746172
+        },
+        {
+          "startSeconds": 64,
+          "endSeconds": 65,
+          "damage": 60258.80915593267,
+          "cumulative": 15816865.437902106
+        },
+        {
+          "startSeconds": 65,
+          "endSeconds": 66,
+          "damage": 21951.763849420247,
+          "cumulative": 15838817.201751526
+        },
+        {
+          "startSeconds": 66,
+          "endSeconds": 67,
+          "damage": 111466.23274332983,
+          "cumulative": 15950283.434494857
+        },
+        {
+          "startSeconds": 67,
+          "endSeconds": 68,
+          "damage": 260746.8475909948,
+          "cumulative": 16211030.28208585
+        },
+        {
+          "startSeconds": 68,
+          "endSeconds": 69,
+          "damage": 0,
+          "cumulative": 16211030.28208585
+        },
+        {
+          "startSeconds": 69,
+          "endSeconds": 70,
+          "damage": 31706.629592652953,
+          "cumulative": 16242736.911678504
+        },
+        {
+          "startSeconds": 70,
+          "endSeconds": 71,
+          "damage": 162053.81237743807,
+          "cumulative": 16404790.724055942
+        },
+        {
+          "startSeconds": 71,
+          "endSeconds": 72,
+          "damage": 52796.190912986574,
+          "cumulative": 16457586.914968928
+        },
+        {
+          "startSeconds": 72,
+          "endSeconds": 73,
+          "damage": 194834.64241235144,
+          "cumulative": 16652421.55738128
+        },
+        {
+          "startSeconds": 73,
+          "endSeconds": 74,
+          "damage": 138544.68784382782,
+          "cumulative": 16790966.24522511
+        },
+        {
+          "startSeconds": 74,
+          "endSeconds": 75,
+          "damage": 368223.9818527214,
+          "cumulative": 17159190.22707783
+        },
+        {
+          "startSeconds": 75,
+          "endSeconds": 76,
+          "damage": 327993.6027365839,
+          "cumulative": 17487183.829814415
+        },
+        {
+          "startSeconds": 76,
+          "endSeconds": 77,
+          "damage": 481510.36865569255,
+          "cumulative": 17968694.19847011
+        },
+        {
+          "startSeconds": 77,
+          "endSeconds": 78,
+          "damage": 518812.7628345748,
+          "cumulative": 18487506.961304683
+        },
+        {
+          "startSeconds": 78,
+          "endSeconds": 79,
+          "damage": 400482.7052558174,
+          "cumulative": 18887989.6665605
+        },
+        {
+          "startSeconds": 79,
+          "endSeconds": 80,
+          "damage": 558261.1764383845,
+          "cumulative": 19446250.842998885
+        },
+        {
+          "startSeconds": 80,
+          "endSeconds": 81,
+          "damage": 363212.4969252517,
+          "cumulative": 19809463.339924138
+        },
+        {
+          "startSeconds": 81,
+          "endSeconds": 82,
+          "damage": 230578.15692636234,
+          "cumulative": 20040041.4968505
+        },
+        {
+          "startSeconds": 82,
+          "endSeconds": 83,
+          "damage": 438786.3011403507,
+          "cumulative": 20478827.79799085
+        },
+        {
+          "startSeconds": 83,
+          "endSeconds": 84,
+          "damage": 222828.870610671,
+          "cumulative": 20701656.66860152
+        },
+        {
+          "startSeconds": 84,
+          "endSeconds": 85,
+          "damage": 16010.403271402363,
+          "cumulative": 20717667.071872924
+        },
+        {
+          "startSeconds": 85,
+          "endSeconds": 86,
+          "damage": 656321.1703333083,
+          "cumulative": 21373988.24220623
+        },
+        {
+          "startSeconds": 86,
+          "endSeconds": 87,
+          "damage": 39246.921782741134,
+          "cumulative": 21413235.16398897
+        },
+        {
+          "startSeconds": 87,
+          "endSeconds": 88,
+          "damage": 21951.763849420247,
+          "cumulative": 21435186.92783839
+        },
+        {
+          "startSeconds": 88,
+          "endSeconds": 89,
+          "damage": 111466.23274332983,
+          "cumulative": 21546653.16058172
+        },
+        {
+          "startSeconds": 89,
+          "endSeconds": 90,
+          "damage": 150747.52592193254,
+          "cumulative": 21697400.686503652
+        },
+        {
+          "startSeconds": 90,
+          "endSeconds": 91,
+          "damage": 0,
+          "cumulative": 21697400.686503652
+        },
+        {
+          "startSeconds": 91,
+          "endSeconds": 92,
+          "damage": 31706.629592652953,
+          "cumulative": 21729107.316096306
+        },
+        {
+          "startSeconds": 92,
+          "endSeconds": 93,
+          "damage": 234641.45931329404,
+          "cumulative": 21963748.7754096
+        },
+        {
+          "startSeconds": 93,
+          "endSeconds": 94,
+          "damage": 73749.8422581524,
+          "cumulative": 22037498.617667753
+        },
+        {
+          "startSeconds": 94,
+          "endSeconds": 95,
+          "damage": 207380.77093497085,
+          "cumulative": 22244879.388602722
+        },
+        {
+          "startSeconds": 95,
+          "endSeconds": 96,
+          "damage": 114653.816600483,
+          "cumulative": 22359533.205203205
+        },
+        {
+          "startSeconds": 96,
+          "endSeconds": 97,
+          "damage": 368223.9818527214,
+          "cumulative": 22727757.187055927
+        },
+        {
+          "startSeconds": 97,
+          "endSeconds": 98,
+          "damage": 327993.6027365839,
+          "cumulative": 23055750.78979251
+        },
+        {
+          "startSeconds": 98,
+          "endSeconds": 99,
+          "damage": 666941.4209947699,
+          "cumulative": 23722692.21078728
+        },
+        {
+          "startSeconds": 99,
+          "endSeconds": 100,
+          "damage": 518812.7628345748,
+          "cumulative": 24241504.973621856
+        },
+        {
+          "startSeconds": 100,
+          "endSeconds": 101,
+          "damage": 400482.7052558174,
+          "cumulative": 24641987.678877674
+        },
+        {
+          "startSeconds": 101,
+          "endSeconds": 102,
+          "damage": 358072.05625189946,
+          "cumulative": 25000059.735129572
+        },
+        {
+          "startSeconds": 102,
+          "endSeconds": 103,
+          "damage": 363212.4969252517,
+          "cumulative": 25363272.232054826
+        },
+        {
+          "startSeconds": 103,
+          "endSeconds": 104,
+          "damage": 230578.15692636234,
+          "cumulative": 25593850.38898119
+        },
+        {
+          "startSeconds": 104,
+          "endSeconds": 105,
+          "damage": 638975.4213268358,
+          "cumulative": 26232825.810308024
+        },
+        {
+          "startSeconds": 105,
+          "endSeconds": 106,
+          "damage": 214320.65820660233,
+          "cumulative": 26447146.468514625
+        },
+        {
+          "startSeconds": 106,
+          "endSeconds": 107,
+          "damage": 60258.80915593267,
+          "cumulative": 26507405.27767056
+        },
+        {
+          "startSeconds": 107,
+          "endSeconds": 108,
+          "damage": 21951.763849420247,
+          "cumulative": 26529357.041519977
+        },
+        {
+          "startSeconds": 108,
+          "endSeconds": 109,
+          "damage": 111466.23274332983,
+          "cumulative": 26640823.274263307
+        },
+        {
+          "startSeconds": 109,
+          "endSeconds": 110,
+          "damage": 150747.52592193254,
+          "cumulative": 26791570.80018524
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 111,
+          "damage": 0,
+          "cumulative": 26791570.80018524
+        },
+        {
+          "startSeconds": 111,
+          "endSeconds": 112,
+          "damage": 31706.629592652953,
+          "cumulative": 26823277.429777894
+        },
+        {
+          "startSeconds": 112,
+          "endSeconds": 113,
+          "damage": 234641.45931329404,
+          "cumulative": 27057918.88909119
+        },
+        {
+          "startSeconds": 113,
+          "endSeconds": 114,
+          "damage": 52796.190912986574,
+          "cumulative": 27110715.080004178
+        },
+        {
+          "startSeconds": 114,
+          "endSeconds": 115,
+          "damage": 207380.77093497085,
+          "cumulative": 27318095.850939147
+        },
+        {
+          "startSeconds": 115,
+          "endSeconds": 116,
+          "damage": 129534.52232719972,
+          "cumulative": 27447630.373266347
+        },
+        {
+          "startSeconds": 116,
+          "endSeconds": 117,
+          "damage": 282553.82959284115,
+          "cumulative": 27730184.20285919
+        },
+        {
+          "startSeconds": 117,
+          "endSeconds": 118,
+          "damage": 413663.7549964642,
+          "cumulative": 28143847.957855653
+        },
+        {
+          "startSeconds": 118,
+          "endSeconds": 119,
+          "damage": 666941.4209947699,
+          "cumulative": 28810789.378850423
+        },
+        {
+          "startSeconds": 119,
+          "endSeconds": 120,
+          "damage": 518812.7628345748,
+          "cumulative": 29329602.14168498
+        }
+      ],
+      "c4ElectroActualGain": 0.0,
+      "observedEnergyAndCooldownLegal": true,
+      "steadyStateProven": false,
+      "evidenceHashes": {
+        "capture": "64b645c87a56c6d23a9d29678c139778134deb3d8c3b01fd83bc3e690d87e8ea",
+        "completion": "e72ca8feb8061227c2bcbe77302bd164309051076e9ca5ae90e0fe3400716ee1",
+        "energyAudit": "09da2fb126f2b8cade8e48bf124184c28da6b7e4cd1ef415efa7eebc3ca2e77b",
+        "burstAndC4Audit": "5a2f5d1f1c4bcc6439226ed5075b087b8a50936904a20869f00e7055196004b1"
+      }
+    },
+    {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "seed": "20261022",
+      "totalDamage": 28138465.235348802,
+      "dps": 234487.21029457336,
+      "hits": 610,
+      "actors": [
+        {
+          "key": "wanderer",
+          "damage": 20744548.70082409,
+          "hits": 352,
+          "share": 0.7372309942037584
+        },
+        {
+          "key": "durin",
+          "damage": 4621465.1979512945,
+          "hits": 137,
+          "share": 0.16424013034462173
+        },
+        {
+          "key": "faruzan",
+          "damage": 1851300.261779438,
+          "hits": 106,
+          "share": 0.06579251022737913
+        },
+        {
+          "key": "nicole",
+          "damage": 921151.0747939858,
+          "hits": 15,
+          "share": 0.03273636522424096
+        }
+      ],
+      "phaseFrames": [
+        1,
+        1322,
+        2643,
+        3964,
+        5285,
+        6606
+      ],
+      "timing": {
+        "nativeAndSharedCallbacksMs": 37630.528545,
+        "resultValidationMs": 8427.105867000006,
+        "scope": "Node acceptance harness; excludes browser UI, loading and rendering"
+      },
+      "variant": "er140",
+      "label": "充能候选140.16%",
+      "statisticsWindow": "[0,7200)",
+      "wandererEnergyRecharge": 1.4016,
+      "qDecisions": [
+        {
+          "actor": "nicole",
+          "frame": 37,
+          "seconds": 0.6166666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 235,
+          "seconds": 3.9166666666666665,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 448,
+          "seconds": 7.466666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 1164,
+          "seconds": 19.4,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 1358,
+          "seconds": 22.633333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 1556,
+          "seconds": 25.933333333333334,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 1769,
+          "seconds": 29.483333333333334,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "seconds": 41.416666666666664,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 2679,
+          "seconds": 44.65,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 2877,
+          "seconds": 47.95,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 3090,
+          "seconds": 51.5,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 3806,
+          "seconds": 63.43333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 4000,
+          "seconds": 66.66666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 4198,
+          "seconds": 69.96666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 4411,
+          "seconds": 73.51666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 5127,
+          "seconds": 85.45,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 5321,
+          "seconds": 88.68333333333334,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 5519,
+          "seconds": 91.98333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 5732,
+          "seconds": 95.53333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6448,
+          "seconds": 107.46666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 6642,
+          "seconds": 110.7,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 6840,
+          "seconds": 114.0,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 7053,
+          "seconds": 117.55,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        }
+      ],
+      "qByActor": {
+        "wanderer": {
+          "cast": 5,
+          "decisions": 5,
+          "skipped": 0
+        },
+        "faruzan": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        }
+      },
+      "curve1s": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "damage": 102957.37212022708,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2,
+          "damage": 0,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "damage": 51834.159146140766,
+          "cumulative": 154791.53126636785
+        },
+        {
+          "startSeconds": 3,
+          "endSeconds": 4,
+          "damage": 16187.547070686538,
+          "cumulative": 170979.07833705438
+        },
+        {
+          "startSeconds": 4,
+          "endSeconds": 5,
+          "damage": 47326.54527949415,
+          "cumulative": 218305.62361654855
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 6,
+          "damage": 21142.88081857607,
+          "cumulative": 239448.50443512463
+        },
+        {
+          "startSeconds": 6,
+          "endSeconds": 7,
+          "damage": 89391.5445120837,
+          "cumulative": 328840.0489472083
+        },
+        {
+          "startSeconds": 7,
+          "endSeconds": 8,
+          "damage": 60731.90201878844,
+          "cumulative": 389571.9509659968
+        },
+        {
+          "startSeconds": 8,
+          "endSeconds": 9,
+          "damage": 295785.7109774196,
+          "cumulative": 685357.6619434163
+        },
+        {
+          "startSeconds": 9,
+          "endSeconds": 10,
+          "damage": 65216.74266181994,
+          "cumulative": 750574.4046052363
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 11,
+          "damage": 376320.30720447435,
+          "cumulative": 1126894.7118097106
+        },
+        {
+          "startSeconds": 11,
+          "endSeconds": 12,
+          "damage": 358307.77499954816,
+          "cumulative": 1485202.4868092588
+        },
+        {
+          "startSeconds": 12,
+          "endSeconds": 13,
+          "damage": 425705.78484250786,
+          "cumulative": 1910908.2716517667
+        },
+        {
+          "startSeconds": 13,
+          "endSeconds": 14,
+          "damage": 540937.9692590846,
+          "cumulative": 2451846.2409108514
+        },
+        {
+          "startSeconds": 14,
+          "endSeconds": 15,
+          "damage": 445172.90061669564,
+          "cumulative": 2897019.141527547
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 16,
+          "damage": 346375.9623315778,
+          "cumulative": 3243395.1038591247
+        },
+        {
+          "startSeconds": 16,
+          "endSeconds": 17,
+          "damage": 368574.8199816801,
+          "cumulative": 3611969.923840805
+        },
+        {
+          "startSeconds": 17,
+          "endSeconds": 18,
+          "damage": 282797.0279765175,
+          "cumulative": 3894766.9518173225
+        },
+        {
+          "startSeconds": 18,
+          "endSeconds": 19,
+          "damage": 343071.9221759922,
+          "cumulative": 4237838.873993315
+        },
+        {
+          "startSeconds": 19,
+          "endSeconds": 20,
+          "damage": 205192.75302613113,
+          "cumulative": 4443031.627019446
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 21,
+          "damage": 16010.403271402363,
+          "cumulative": 4459042.030290849
+        },
+        {
+          "startSeconds": 21,
+          "endSeconds": 22,
+          "damage": 648295.9869333844,
+          "cumulative": 5107338.017224233
+        },
+        {
+          "startSeconds": 22,
+          "endSeconds": 23,
+          "damage": 60258.80915593267,
+          "cumulative": 5167596.826380165
+        },
+        {
+          "startSeconds": 23,
+          "endSeconds": 24,
+          "damage": 21951.763849420247,
+          "cumulative": 5189548.590229586
+        },
+        {
+          "startSeconds": 24,
+          "endSeconds": 25,
+          "damage": 62366.44121359451,
+          "cumulative": 5251915.0314431805
+        },
+        {
+          "startSeconds": 25,
+          "endSeconds": 26,
+          "damage": 150747.52592193254,
+          "cumulative": 5402662.557365113
+        },
+        {
+          "startSeconds": 26,
+          "endSeconds": 27,
+          "damage": 0,
+          "cumulative": 5402662.557365113
+        },
+        {
+          "startSeconds": 27,
+          "endSeconds": 28,
+          "damage": 31706.629592652953,
+          "cumulative": 5434369.186957766
+        },
+        {
+          "startSeconds": 28,
+          "endSeconds": 29,
+          "damage": 254413.5056492597,
+          "cumulative": 5688782.692607026
+        },
+        {
+          "startSeconds": 29,
+          "endSeconds": 30,
+          "damage": 73749.8422581524,
+          "cumulative": 5762532.534865178
+        },
+        {
+          "startSeconds": 30,
+          "endSeconds": 31,
+          "damage": 140240.77615251555,
+          "cumulative": 5902773.311017694
+        },
+        {
+          "startSeconds": 31,
+          "endSeconds": 32,
+          "damage": 130961.50791946836,
+          "cumulative": 6033734.818937162
+        },
+        {
+          "startSeconds": 32,
+          "endSeconds": 33,
+          "damage": 376565.0406631583,
+          "cumulative": 6410299.85960032
+        },
+        {
+          "startSeconds": 33,
+          "endSeconds": 34,
+          "damage": 388770.91193688876,
+          "cumulative": 6799070.771537209
+        },
+        {
+          "startSeconds": 34,
+          "endSeconds": 35,
+          "damage": 632058.0946614881,
+          "cumulative": 7431128.866198697
+        },
+        {
+          "startSeconds": 35,
+          "endSeconds": 36,
+          "damage": 632855.7470965968,
+          "cumulative": 8063984.613295294
+        },
+        {
+          "startSeconds": 36,
+          "endSeconds": 37,
+          "damage": 308955.20337785274,
+          "cumulative": 8372939.8166731475
+        },
+        {
+          "startSeconds": 37,
+          "endSeconds": 38,
+          "damage": 377665.26775554044,
+          "cumulative": 8750605.084428689
+        },
+        {
+          "startSeconds": 38,
+          "endSeconds": 39,
+          "damage": 368574.8199816801,
+          "cumulative": 9119179.904410368
+        },
+        {
+          "startSeconds": 39,
+          "endSeconds": 40,
+          "damage": 334857.07798363676,
+          "cumulative": 9454036.982394004
+        },
+        {
+          "startSeconds": 40,
+          "endSeconds": 41,
+          "damage": 547192.8773943622,
+          "cumulative": 10001229.859788366
+        },
+        {
+          "startSeconds": 41,
+          "endSeconds": 42,
+          "damage": 226016.77302897882,
+          "cumulative": 10227246.632817345
+        },
+        {
+          "startSeconds": 42,
+          "endSeconds": 43,
+          "damage": 16010.403271402363,
+          "cumulative": 10243257.036088748
+        },
+        {
+          "startSeconds": 43,
+          "endSeconds": 44,
+          "damage": 540976.2661882433,
+          "cumulative": 10784233.302276991
+        },
+        {
+          "startSeconds": 44,
+          "endSeconds": 45,
+          "damage": 60258.80915593267,
+          "cumulative": 10844492.111432925
+        },
+        {
+          "startSeconds": 45,
+          "endSeconds": 46,
+          "damage": 21951.763849420247,
+          "cumulative": 10866443.875282345
+        },
+        {
+          "startSeconds": 46,
+          "endSeconds": 47,
+          "damage": 111466.23274332983,
+          "cumulative": 10977910.108025676
+        },
+        {
+          "startSeconds": 47,
+          "endSeconds": 48,
+          "damage": 273979.2474010176,
+          "cumulative": 11251889.355426693
+        },
+        {
+          "startSeconds": 48,
+          "endSeconds": 49,
+          "damage": 0,
+          "cumulative": 11251889.355426693
+        },
+        {
+          "startSeconds": 49,
+          "endSeconds": 50,
+          "damage": 31706.629592652953,
+          "cumulative": 11283595.985019347
+        },
+        {
+          "startSeconds": 50,
+          "endSeconds": 51,
+          "damage": 116626.47951890327,
+          "cumulative": 11400222.46453825
+        },
+        {
+          "startSeconds": 51,
+          "endSeconds": 52,
+          "damage": 73749.8422581524,
+          "cumulative": 11473972.306796402
+        },
+        {
+          "startSeconds": 52,
+          "endSeconds": 53,
+          "damage": 194834.64241235144,
+          "cumulative": 11668806.949208753
+        },
+        {
+          "startSeconds": 53,
+          "endSeconds": 54,
+          "damage": 145022.46610641942,
+          "cumulative": 11813829.415315172
+        },
+        {
+          "startSeconds": 54,
+          "endSeconds": 55,
+          "damage": 376565.0406631583,
+          "cumulative": 12190394.45597833
+        },
+        {
+          "startSeconds": 55,
+          "endSeconds": 56,
+          "damage": 330962.88286306243,
+          "cumulative": 12521357.338841394
+        },
+        {
+          "startSeconds": 56,
+          "endSeconds": 57,
+          "damage": 443780.347415526,
+          "cumulative": 12965137.686256919
+        },
+        {
+          "startSeconds": 57,
+          "endSeconds": 58,
+          "damage": 535659.6981848838,
+          "cumulative": 13500797.384441802
+        },
+        {
+          "startSeconds": 58,
+          "endSeconds": 59,
+          "damage": 352460.2675054603,
+          "cumulative": 13853257.651947262
+        },
+        {
+          "startSeconds": 59,
+          "endSeconds": 60,
+          "damage": 464867.5821717959,
+          "cumulative": 14318125.234119058
+        },
+        {
+          "startSeconds": 60,
+          "endSeconds": 61,
+          "damage": 368574.8199816801,
+          "cumulative": 14686700.054100737
+        },
+        {
+          "startSeconds": 61,
+          "endSeconds": 62,
+          "damage": 333600.97108363674,
+          "cumulative": 15020301.025184374
+        },
+        {
+          "startSeconds": 62,
+          "endSeconds": 63,
+          "damage": 345413.1692009922,
+          "cumulative": 15365714.194385367
+        },
+        {
+          "startSeconds": 63,
+          "endSeconds": 64,
+          "damage": 203561.818249145,
+          "cumulative": 15569276.012634512
+        },
+        {
+          "startSeconds": 64,
+          "endSeconds": 65,
+          "damage": 16010.403271402363,
+          "cumulative": 15585286.415905915
+        },
+        {
+          "startSeconds": 65,
+          "endSeconds": 66,
+          "damage": 649078.6115682309,
+          "cumulative": 16234365.027474146
+        },
+        {
+          "startSeconds": 66,
+          "endSeconds": 67,
+          "damage": 60258.80915593267,
+          "cumulative": 16294623.83663008
+        },
+        {
+          "startSeconds": 67,
+          "endSeconds": 68,
+          "damage": 21951.763849420247,
+          "cumulative": 16316575.6004795
+        },
+        {
+          "startSeconds": 68,
+          "endSeconds": 69,
+          "damage": 62366.44121359451,
+          "cumulative": 16378942.041693095
+        },
+        {
+          "startSeconds": 69,
+          "endSeconds": 70,
+          "damage": 150747.52592193254,
+          "cumulative": 16529689.567615028
+        },
+        {
+          "startSeconds": 70,
+          "endSeconds": 71,
+          "damage": 0,
+          "cumulative": 16529689.567615028
+        },
+        {
+          "startSeconds": 71,
+          "endSeconds": 72,
+          "damage": 31706.629592652953,
+          "cumulative": 16561396.197207682
+        },
+        {
+          "startSeconds": 72,
+          "endSeconds": 73,
+          "damage": 234641.45931329404,
+          "cumulative": 16796037.656520978
+        },
+        {
+          "startSeconds": 73,
+          "endSeconds": 74,
+          "damage": 73749.8422581524,
+          "cumulative": 16869787.49877913
+        },
+        {
+          "startSeconds": 74,
+          "endSeconds": 75,
+          "damage": 119108.16774703513,
+          "cumulative": 16988895.666526165
+        },
+        {
+          "startSeconds": 75,
+          "endSeconds": 76,
+          "damage": 130961.50791946836,
+          "cumulative": 17119857.174445633
+        },
+        {
+          "startSeconds": 76,
+          "endSeconds": 77,
+          "damage": 341459.1744939297,
+          "cumulative": 17461316.348939564
+        },
+        {
+          "startSeconds": 77,
+          "endSeconds": 78,
+          "damage": 301866.25817930716,
+          "cumulative": 17763182.60711887
+        },
+        {
+          "startSeconds": 78,
+          "endSeconds": 79,
+          "damage": 669300.2244802534,
+          "cumulative": 18432482.831599124
+        },
+        {
+          "startSeconds": 79,
+          "endSeconds": 80,
+          "damage": 535659.6981848838,
+          "cumulative": 18968142.52978401
+        },
+        {
+          "startSeconds": 80,
+          "endSeconds": 81,
+          "damage": 406151.25228956575,
+          "cumulative": 19374293.782073576
+        },
+        {
+          "startSeconds": 81,
+          "endSeconds": 82,
+          "damage": 377665.26775554044,
+          "cumulative": 19751959.049829118
+        },
+        {
+          "startSeconds": 82,
+          "endSeconds": 83,
+          "damage": 368574.8199816801,
+          "cumulative": 20120533.869810797
+        },
+        {
+          "startSeconds": 83,
+          "endSeconds": 84,
+          "damage": 233885.02460754605,
+          "cumulative": 20354418.894418344
+        },
+        {
+          "startSeconds": 84,
+          "endSeconds": 85,
+          "damage": 618131.7322464903,
+          "cumulative": 20972550.626664836
+        },
+        {
+          "startSeconds": 85,
+          "endSeconds": 86,
+          "damage": 226016.77302897882,
+          "cumulative": 21198567.399693813
+        },
+        {
+          "startSeconds": 86,
+          "endSeconds": 87,
+          "damage": 16010.403271402363,
+          "cumulative": 21214577.802965216
+        },
+        {
+          "startSeconds": 87,
+          "endSeconds": 88,
+          "damage": 540976.2661882433,
+          "cumulative": 21755554.069153458
+        },
+        {
+          "startSeconds": 88,
+          "endSeconds": 89,
+          "damage": 60258.80915593267,
+          "cumulative": 21815812.87830939
+        },
+        {
+          "startSeconds": 89,
+          "endSeconds": 90,
+          "damage": 21951.763849420247,
+          "cumulative": 21837764.64215881
+        },
+        {
+          "startSeconds": 90,
+          "endSeconds": 91,
+          "damage": 111466.23274332983,
+          "cumulative": 21949230.87490214
+        },
+        {
+          "startSeconds": 91,
+          "endSeconds": 92,
+          "damage": 273979.2474010176,
+          "cumulative": 22223210.122303158
+        },
+        {
+          "startSeconds": 92,
+          "endSeconds": 93,
+          "damage": 0,
+          "cumulative": 22223210.122303158
+        },
+        {
+          "startSeconds": 93,
+          "endSeconds": 94,
+          "damage": 31706.629592652953,
+          "cumulative": 22254916.75189581
+        },
+        {
+          "startSeconds": 94,
+          "endSeconds": 95,
+          "damage": 136398.52585486893,
+          "cumulative": 22391315.277750682
+        },
+        {
+          "startSeconds": 95,
+          "endSeconds": 96,
+          "damage": 73749.8422581524,
+          "cumulative": 22465065.120008834
+        },
+        {
+          "startSeconds": 96,
+          "endSeconds": 97,
+          "damage": 140240.77615251555,
+          "cumulative": 22605305.896161348
+        },
+        {
+          "startSeconds": 97,
+          "endSeconds": 98,
+          "damage": 154852.3791628132,
+          "cumulative": 22760158.275324162
+        },
+        {
+          "startSeconds": 98,
+          "endSeconds": 99,
+          "damage": 376565.0406631583,
+          "cumulative": 23136723.31598732
+        },
+        {
+          "startSeconds": 99,
+          "endSeconds": 100,
+          "damage": 278962.6851968894,
+          "cumulative": 23415686.001184206
+        },
+        {
+          "startSeconds": 100,
+          "endSeconds": 101,
+          "damage": 495780.54508169903,
+          "cumulative": 23911466.546265904
+        },
+        {
+          "startSeconds": 101,
+          "endSeconds": 102,
+          "damage": 535659.6981848838,
+          "cumulative": 24447126.24445079
+        },
+        {
+          "startSeconds": 102,
+          "endSeconds": 103,
+          "damage": 335109.01798382174,
+          "cumulative": 24782235.26243461
+        },
+        {
+          "startSeconds": 103,
+          "endSeconds": 104,
+          "damage": 530360.927151247,
+          "cumulative": 25312596.189585857
+        },
+        {
+          "startSeconds": 104,
+          "endSeconds": 105,
+          "damage": 368574.8199816801,
+          "cumulative": 25681171.009567536
+        },
+        {
+          "startSeconds": 105,
+          "endSeconds": 106,
+          "damage": 233885.02460754605,
+          "cumulative": 25915056.034175083
+        },
+        {
+          "startSeconds": 106,
+          "endSeconds": 107,
+          "damage": 459887.18352449074,
+          "cumulative": 26374943.217699572
+        },
+        {
+          "startSeconds": 107,
+          "endSeconds": 108,
+          "damage": 226016.77302897882,
+          "cumulative": 26600959.99072855
+        },
+        {
+          "startSeconds": 108,
+          "endSeconds": 109,
+          "damage": 16010.403271402363,
+          "cumulative": 26616970.393999953
+        },
+        {
+          "startSeconds": 109,
+          "endSeconds": 110,
+          "damage": 561126.8952928116,
+          "cumulative": 27178097.289292764
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 111,
+          "damage": 39246.921782741134,
+          "cumulative": 27217344.211075503
+        },
+        {
+          "startSeconds": 111,
+          "endSeconds": 112,
+          "damage": 21951.763849420247,
+          "cumulative": 27239295.974924922
+        },
+        {
+          "startSeconds": 112,
+          "endSeconds": 113,
+          "damage": 111466.23274332983,
+          "cumulative": 27350762.207668252
+        },
+        {
+          "startSeconds": 113,
+          "endSeconds": 114,
+          "damage": 150747.52592193254,
+          "cumulative": 27501509.733590186
+        },
+        {
+          "startSeconds": 114,
+          "endSeconds": 115,
+          "damage": 0,
+          "cumulative": 27501509.733590186
+        },
+        {
+          "startSeconds": 115,
+          "endSeconds": 116,
+          "damage": 31706.629592652953,
+          "cumulative": 27533216.36318284
+        },
+        {
+          "startSeconds": 116,
+          "endSeconds": 117,
+          "damage": 260296.74583586317,
+          "cumulative": 27793513.109018702
+        },
+        {
+          "startSeconds": 117,
+          "endSeconds": 118,
+          "damage": 73749.8422581524,
+          "cumulative": 27867262.951276854
+        },
+        {
+          "startSeconds": 118,
+          "endSeconds": 119,
+          "damage": 140240.77615251555,
+          "cumulative": 28007503.727429368
+        },
+        {
+          "startSeconds": 119,
+          "endSeconds": 120,
+          "damage": 130961.50791946836,
+          "cumulative": 28138465.235348802
+        }
+      ],
+      "c4ElectroActualGain": 15.99999999999995,
+      "observedEnergyAndCooldownLegal": true,
+      "steadyStateProven": false,
+      "evidenceHashes": {
+        "capture": "501872e80a60dbc4dd143282f6552325d807a032afc4fedb57dc1f1b53355b9c",
+        "completion": "676c74b5983071befff30a23af767e8db1f6312b12e8ee0d760a4c7055845ca0",
+        "energyAudit": "b6e6d83d6e958bd87f5fba5f7422b7d2070cb44b472a000a658636311c6ecadd",
+        "burstAndC4Audit": "24f564a25b9d0c185aa3a7ee0baa00a8078ae89adebf53ad0357acbbdd4d678a"
+      }
+    },
+    {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "seed": "20261022",
+      "totalDamage": 27069474.337322712,
+      "dps": 225578.9528110226,
+      "hits": 610,
+      "actors": [
+        {
+          "key": "wanderer",
+          "damage": 19675557.80279801,
+          "hits": 352,
+          "share": 0.7268540776822491
+        },
+        {
+          "key": "durin",
+          "damage": 4621465.1979512945,
+          "hits": 137,
+          "share": 0.17072607839965825
+        },
+        {
+          "key": "faruzan",
+          "damage": 1851300.261779438,
+          "hits": 106,
+          "share": 0.06839069864119643
+        },
+        {
+          "key": "nicole",
+          "damage": 921151.0747939858,
+          "hits": 15,
+          "share": 0.034029145276896856
+        }
+      ],
+      "phaseFrames": [
+        1,
+        1322,
+        2643,
+        3964,
+        5285,
+        6606
+      ],
+      "timing": {
+        "nativeAndSharedCallbacksMs": 39525.765247,
+        "resultValidationMs": 8698.86926,
+        "scope": "Node acceptance harness; excludes browser UI, loading and rendering"
+      },
+      "variant": "er150",
+      "label": "充能候选151.82%",
+      "statisticsWindow": "[0,7200)",
+      "wandererEnergyRecharge": 1.5181999999999998,
+      "qDecisions": [
+        {
+          "actor": "nicole",
+          "frame": 37,
+          "seconds": 0.6166666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 235,
+          "seconds": 3.9166666666666665,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 448,
+          "seconds": 7.466666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 1164,
+          "seconds": 19.4,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 1358,
+          "seconds": 22.633333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 1556,
+          "seconds": 25.933333333333334,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 1769,
+          "seconds": 29.483333333333334,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "seconds": 41.416666666666664,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 2679,
+          "seconds": 44.65,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 2877,
+          "seconds": 47.95,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 3090,
+          "seconds": 51.5,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 3806,
+          "seconds": 63.43333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 4000,
+          "seconds": 66.66666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 4198,
+          "seconds": 69.96666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 4411,
+          "seconds": 73.51666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 5127,
+          "seconds": 85.45,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 5321,
+          "seconds": 88.68333333333334,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 5519,
+          "seconds": 91.98333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 5732,
+          "seconds": 95.53333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6448,
+          "seconds": 107.46666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 6642,
+          "seconds": 110.7,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 6840,
+          "seconds": 114.0,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 7053,
+          "seconds": 117.55,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        }
+      ],
+      "qByActor": {
+        "wanderer": {
+          "cast": 5,
+          "decisions": 5,
+          "skipped": 0
+        },
+        "faruzan": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        }
+      },
+      "curve1s": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "damage": 102957.37212022708,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2,
+          "damage": 0,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "damage": 51834.159146140766,
+          "cumulative": 154791.53126636785
+        },
+        {
+          "startSeconds": 3,
+          "endSeconds": 4,
+          "damage": 16187.547070686538,
+          "cumulative": 170979.07833705438
+        },
+        {
+          "startSeconds": 4,
+          "endSeconds": 5,
+          "damage": 47326.54527949415,
+          "cumulative": 218305.62361654855
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 6,
+          "damage": 21142.88081857607,
+          "cumulative": 239448.50443512463
+        },
+        {
+          "startSeconds": 6,
+          "endSeconds": 7,
+          "damage": 89391.5445120837,
+          "cumulative": 328840.0489472083
+        },
+        {
+          "startSeconds": 7,
+          "endSeconds": 8,
+          "damage": 60731.90201878844,
+          "cumulative": 389571.9509659968
+        },
+        {
+          "startSeconds": 8,
+          "endSeconds": 9,
+          "damage": 294509.654820064,
+          "cumulative": 684081.6057860608
+        },
+        {
+          "startSeconds": 9,
+          "endSeconds": 10,
+          "damage": 65216.74266181994,
+          "cumulative": 749298.3484478807
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 11,
+          "damage": 335614.7960123697,
+          "cumulative": 1084913.1444602504
+        },
+        {
+          "startSeconds": 11,
+          "endSeconds": 12,
+          "damage": 352249.0378034879,
+          "cumulative": 1437162.1822637382
+        },
+        {
+          "startSeconds": 12,
+          "endSeconds": 13,
+          "damage": 418240.45817505737,
+          "cumulative": 1855402.6404387956
+        },
+        {
+          "startSeconds": 13,
+          "endSeconds": 14,
+          "damage": 531763.0030804911,
+          "cumulative": 2387165.6435192865
+        },
+        {
+          "startSeconds": 14,
+          "endSeconds": 15,
+          "damage": 437683.7387386664,
+          "cumulative": 2824849.382257953
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 16,
+          "damage": 341136.77827452886,
+          "cumulative": 3165986.1605324815
+        },
+        {
+          "startSeconds": 16,
+          "endSeconds": 17,
+          "damage": 361839.4398191386,
+          "cumulative": 3527825.60035162
+        },
+        {
+          "startSeconds": 17,
+          "endSeconds": 18,
+          "damage": 278183.4191879102,
+          "cumulative": 3806009.0195395304
+        },
+        {
+          "startSeconds": 18,
+          "endSeconds": 19,
+          "damage": 337015.9872563368,
+          "cumulative": 4143025.0067958673
+        },
+        {
+          "startSeconds": 19,
+          "endSeconds": 20,
+          "damage": 201826.1418147643,
+          "cumulative": 4344851.148610632
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 21,
+          "damage": 16010.403271402363,
+          "cumulative": 4360861.551882034
+        },
+        {
+          "startSeconds": 21,
+          "endSeconds": 22,
+          "damage": 564443.2503883292,
+          "cumulative": 4925304.802270363
+        },
+        {
+          "startSeconds": 22,
+          "endSeconds": 23,
+          "damage": 60258.80915593267,
+          "cumulative": 4985563.611426296
+        },
+        {
+          "startSeconds": 23,
+          "endSeconds": 24,
+          "damage": 21951.763849420247,
+          "cumulative": 5007515.375275716
+        },
+        {
+          "startSeconds": 24,
+          "endSeconds": 25,
+          "damage": 62366.44121359451,
+          "cumulative": 5069881.816489311
+        },
+        {
+          "startSeconds": 25,
+          "endSeconds": 26,
+          "damage": 150747.52592193254,
+          "cumulative": 5220629.342411243
+        },
+        {
+          "startSeconds": 26,
+          "endSeconds": 27,
+          "damage": 0,
+          "cumulative": 5220629.342411243
+        },
+        {
+          "startSeconds": 27,
+          "endSeconds": 28,
+          "damage": 31706.629592652953,
+          "cumulative": 5252335.972003897
+        },
+        {
+          "startSeconds": 28,
+          "endSeconds": 29,
+          "damage": 254413.5056492597,
+          "cumulative": 5506749.477653156
+        },
+        {
+          "startSeconds": 29,
+          "endSeconds": 30,
+          "damage": 73749.8422581524,
+          "cumulative": 5580499.319911309
+        },
+        {
+          "startSeconds": 30,
+          "endSeconds": 31,
+          "damage": 140240.77615251555,
+          "cumulative": 5720740.096063824
+        },
+        {
+          "startSeconds": 31,
+          "endSeconds": 32,
+          "damage": 129685.45176211276,
+          "cumulative": 5850425.547825937
+        },
+        {
+          "startSeconds": 32,
+          "endSeconds": 33,
+          "damage": 369988.3522304911,
+          "cumulative": 6220413.900056428
+        },
+        {
+          "startSeconds": 33,
+          "endSeconds": 34,
+          "damage": 381850.2282227028,
+          "cumulative": 6602264.128279131
+        },
+        {
+          "startSeconds": 34,
+          "endSeconds": 35,
+          "damage": 620877.2062477124,
+          "cumulative": 7223141.334526843
+        },
+        {
+          "startSeconds": 35,
+          "endSeconds": 36,
+          "damage": 621121.4168818566,
+          "cumulative": 7844262.7514087
+        },
+        {
+          "startSeconds": 36,
+          "endSeconds": 37,
+          "damage": 303719.1809829121,
+          "cumulative": 8147981.932391612
+        },
+        {
+          "startSeconds": 37,
+          "endSeconds": 38,
+          "damage": 371609.332835885,
+          "cumulative": 8519591.265227497
+        },
+        {
+          "startSeconds": 38,
+          "endSeconds": 39,
+          "damage": 361839.4398191386,
+          "cumulative": 8881430.705046635
+        },
+        {
+          "startSeconds": 39,
+          "endSeconds": 40,
+          "damage": 328827.6995520883,
+          "cumulative": 9210258.404598724
+        },
+        {
+          "startSeconds": 40,
+          "endSeconds": 41,
+          "damage": 537468.0333486771,
+          "cumulative": 9747726.437947402
+        },
+        {
+          "startSeconds": 41,
+          "endSeconds": 42,
+          "damage": 222083.85396043552,
+          "cumulative": 9969810.291907838
+        },
+        {
+          "startSeconds": 42,
+          "endSeconds": 43,
+          "damage": 16010.403271402363,
+          "cumulative": 9985820.69517924
+        },
+        {
+          "startSeconds": 43,
+          "endSeconds": 44,
+          "damage": 531358.0799085001,
+          "cumulative": 10517178.77508774
+        },
+        {
+          "startSeconds": 44,
+          "endSeconds": 45,
+          "damage": 60258.80915593267,
+          "cumulative": 10577437.584243674
+        },
+        {
+          "startSeconds": 45,
+          "endSeconds": 46,
+          "damage": 21951.763849420247,
+          "cumulative": 10599389.348093094
+        },
+        {
+          "startSeconds": 46,
+          "endSeconds": 47,
+          "damage": 111466.23274332983,
+          "cumulative": 10710855.580836425
+        },
+        {
+          "startSeconds": 47,
+          "endSeconds": 48,
+          "damage": 273979.2474010176,
+          "cumulative": 10984834.828237442
+        },
+        {
+          "startSeconds": 48,
+          "endSeconds": 49,
+          "damage": 0,
+          "cumulative": 10984834.828237442
+        },
+        {
+          "startSeconds": 49,
+          "endSeconds": 50,
+          "damage": 31706.629592652953,
+          "cumulative": 11016541.457830096
+        },
+        {
+          "startSeconds": 50,
+          "endSeconds": 51,
+          "damage": 116626.47951890327,
+          "cumulative": 11133167.937349
+        },
+        {
+          "startSeconds": 51,
+          "endSeconds": 52,
+          "damage": 73749.8422581524,
+          "cumulative": 11206917.77960715
+        },
+        {
+          "startSeconds": 52,
+          "endSeconds": 53,
+          "damage": 194834.64241235144,
+          "cumulative": 11401752.422019502
+        },
+        {
+          "startSeconds": 53,
+          "endSeconds": 54,
+          "damage": 145045.0451110861,
+          "cumulative": 11546797.467130588
+        },
+        {
+          "startSeconds": 54,
+          "endSeconds": 55,
+          "damage": 369988.3522304911,
+          "cumulative": 11916785.81936108
+        },
+        {
+          "startSeconds": 55,
+          "endSeconds": 56,
+          "damage": 325632.05859859963,
+          "cumulative": 12242417.87795968
+        },
+        {
+          "startSeconds": 56,
+          "endSeconds": 57,
+          "damage": 436268.3681277798,
+          "cumulative": 12678686.24608746
+        },
+        {
+          "startSeconds": 57,
+          "endSeconds": 58,
+          "damage": 457601.7148324072,
+          "cumulative": 13136287.960919866
+        },
+        {
+          "startSeconds": 58,
+          "endSeconds": 59,
+          "damage": 346792.63859933976,
+          "cumulative": 13483080.599519206
+        },
+        {
+          "startSeconds": 59,
+          "endSeconds": 60,
+          "damage": 428663.0975683736,
+          "cumulative": 13911743.69708758
+        },
+        {
+          "startSeconds": 60,
+          "endSeconds": 61,
+          "damage": 361839.4398191386,
+          "cumulative": 14273583.136906719
+        },
+        {
+          "startSeconds": 61,
+          "endSeconds": 62,
+          "damage": 327571.59265208826,
+          "cumulative": 14601154.729558807
+        },
+        {
+          "startSeconds": 62,
+          "endSeconds": 63,
+          "damage": 237087.734808571,
+          "cumulative": 14838242.464367379
+        },
+        {
+          "startSeconds": 63,
+          "endSeconds": 64,
+          "damage": 200241.85965807378,
+          "cumulative": 15038484.324025452
+        },
+        {
+          "startSeconds": 64,
+          "endSeconds": 65,
+          "damage": 16010.403271402363,
+          "cumulative": 15054494.727296855
+        },
+        {
+          "startSeconds": 65,
+          "endSeconds": 66,
+          "damage": 637420.9483924517,
+          "cumulative": 15691915.675689306
+        },
+        {
+          "startSeconds": 66,
+          "endSeconds": 67,
+          "damage": 60258.80915593267,
+          "cumulative": 15752174.48484524
+        },
+        {
+          "startSeconds": 67,
+          "endSeconds": 68,
+          "damage": 21951.763849420247,
+          "cumulative": 15774126.24869466
+        },
+        {
+          "startSeconds": 68,
+          "endSeconds": 69,
+          "damage": 62366.44121359451,
+          "cumulative": 15836492.689908255
+        },
+        {
+          "startSeconds": 69,
+          "endSeconds": 70,
+          "damage": 150747.52592193254,
+          "cumulative": 15987240.215830188
+        },
+        {
+          "startSeconds": 70,
+          "endSeconds": 71,
+          "damage": 0,
+          "cumulative": 15987240.215830188
+        },
+        {
+          "startSeconds": 71,
+          "endSeconds": 72,
+          "damage": 31706.629592652953,
+          "cumulative": 16018946.845422842
+        },
+        {
+          "startSeconds": 72,
+          "endSeconds": 73,
+          "damage": 234641.45931329404,
+          "cumulative": 16253588.304736136
+        },
+        {
+          "startSeconds": 73,
+          "endSeconds": 74,
+          "damage": 73749.8422581524,
+          "cumulative": 16327338.146994287
+        },
+        {
+          "startSeconds": 74,
+          "endSeconds": 75,
+          "damage": 119108.16774703513,
+          "cumulative": 16446446.314741323
+        },
+        {
+          "startSeconds": 75,
+          "endSeconds": 76,
+          "damage": 129685.45176211276,
+          "cumulative": 16576131.766503435
+        },
+        {
+          "startSeconds": 76,
+          "endSeconds": 77,
+          "damage": 335854.4126433122,
+          "cumulative": 16911986.179146748
+        },
+        {
+          "startSeconds": 77,
+          "endSeconds": 78,
+          "damage": 265318.07710787206,
+          "cumulative": 17177304.25625462
+        },
+        {
+          "startSeconds": 78,
+          "endSeconds": 79,
+          "damage": 657071.6715699978,
+          "cumulative": 17834375.92782462
+        },
+        {
+          "startSeconds": 79,
+          "endSeconds": 80,
+          "damage": 457601.7148324072,
+          "cumulative": 18291977.642657027
+        },
+        {
+          "startSeconds": 80,
+          "endSeconds": 81,
+          "damage": 399021.2011202083,
+          "cumulative": 18690998.843777236
+        },
+        {
+          "startSeconds": 81,
+          "endSeconds": 82,
+          "damage": 351351.62069021375,
+          "cumulative": 19042350.46446745
+        },
+        {
+          "startSeconds": 82,
+          "endSeconds": 83,
+          "damage": 260550.8790907825,
+          "cumulative": 19302901.343558233
+        },
+        {
+          "startSeconds": 83,
+          "endSeconds": 84,
+          "damage": 229798.77940012136,
+          "cumulative": 19532700.122958355
+        },
+        {
+          "startSeconds": 84,
+          "endSeconds": 85,
+          "damage": 607280.5058392879,
+          "cumulative": 20139980.628797643
+        },
+        {
+          "startSeconds": 85,
+          "endSeconds": 86,
+          "damage": 222083.85396043552,
+          "cumulative": 20362064.48275808
+        },
+        {
+          "startSeconds": 86,
+          "endSeconds": 87,
+          "damage": 16010.403271402363,
+          "cumulative": 20378074.886029482
+        },
+        {
+          "startSeconds": 87,
+          "endSeconds": 88,
+          "damage": 459163.006539224,
+          "cumulative": 20837237.892568707
+        },
+        {
+          "startSeconds": 88,
+          "endSeconds": 89,
+          "damage": 60258.80915593267,
+          "cumulative": 20897496.70172464
+        },
+        {
+          "startSeconds": 89,
+          "endSeconds": 90,
+          "damage": 21951.763849420247,
+          "cumulative": 20919448.46557406
+        },
+        {
+          "startSeconds": 90,
+          "endSeconds": 91,
+          "damage": 111466.23274332983,
+          "cumulative": 21030914.69831739
+        },
+        {
+          "startSeconds": 91,
+          "endSeconds": 92,
+          "damage": 273979.2474010176,
+          "cumulative": 21304893.945718408
+        },
+        {
+          "startSeconds": 92,
+          "endSeconds": 93,
+          "damage": 0,
+          "cumulative": 21304893.945718408
+        },
+        {
+          "startSeconds": 93,
+          "endSeconds": 94,
+          "damage": 31706.629592652953,
+          "cumulative": 21336600.57531106
+        },
+        {
+          "startSeconds": 94,
+          "endSeconds": 95,
+          "damage": 136398.52585486893,
+          "cumulative": 21472999.10116593
+        },
+        {
+          "startSeconds": 95,
+          "endSeconds": 96,
+          "damage": 73749.8422581524,
+          "cumulative": 21546748.943424083
+        },
+        {
+          "startSeconds": 96,
+          "endSeconds": 97,
+          "damage": 140240.77615251555,
+          "cumulative": 21686989.719576597
+        },
+        {
+          "startSeconds": 97,
+          "endSeconds": 98,
+          "damage": 153576.3230054576,
+          "cumulative": 21840566.042582054
+        },
+        {
+          "startSeconds": 98,
+          "endSeconds": 99,
+          "damage": 369988.3522304911,
+          "cumulative": 22210554.394812547
+        },
+        {
+          "startSeconds": 99,
+          "endSeconds": 100,
+          "damage": 274679.5254289065,
+          "cumulative": 22485233.920241453
+        },
+        {
+          "startSeconds": 100,
+          "endSeconds": 101,
+          "damage": 487220.901297473,
+          "cumulative": 22972454.821538925
+        },
+        {
+          "startSeconds": 101,
+          "endSeconds": 102,
+          "damage": 525819.3967445605,
+          "cumulative": 23498274.218283486
+        },
+        {
+          "startSeconds": 102,
+          "endSeconds": 103,
+          "damage": 329910.9557134961,
+          "cumulative": 23828185.17399698
+        },
+        {
+          "startSeconds": 103,
+          "endSeconds": 104,
+          "damage": 521202.39096273837,
+          "cumulative": 24349387.56495972
+        },
+        {
+          "startSeconds": 104,
+          "endSeconds": 105,
+          "damage": 361839.4398191386,
+          "cumulative": 24711227.00477886
+        },
+        {
+          "startSeconds": 105,
+          "endSeconds": 106,
+          "damage": 229798.77940012136,
+          "cumulative": 24941025.78417898
+        },
+        {
+          "startSeconds": 106,
+          "endSeconds": 107,
+          "damage": 451888.1153807115,
+          "cumulative": 25392913.89955969
+        },
+        {
+          "startSeconds": 107,
+          "endSeconds": 108,
+          "damage": 222083.85396043552,
+          "cumulative": 25614997.753520127
+        },
+        {
+          "startSeconds": 108,
+          "endSeconds": 109,
+          "damage": 16010.403271402363,
+          "cumulative": 25631008.15679153
+        },
+        {
+          "startSeconds": 109,
+          "endSeconds": 110,
+          "damage": 479374.29063253076,
+          "cumulative": 26110382.44742406
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 111,
+          "damage": 39246.921782741134,
+          "cumulative": 26149629.3692068
+        },
+        {
+          "startSeconds": 111,
+          "endSeconds": 112,
+          "damage": 21951.763849420247,
+          "cumulative": 26171581.13305622
+        },
+        {
+          "startSeconds": 112,
+          "endSeconds": 113,
+          "damage": 111466.23274332983,
+          "cumulative": 26283047.36579955
+        },
+        {
+          "startSeconds": 113,
+          "endSeconds": 114,
+          "damage": 150747.52592193254,
+          "cumulative": 26433794.891721483
+        },
+        {
+          "startSeconds": 114,
+          "endSeconds": 115,
+          "damage": 0,
+          "cumulative": 26433794.891721483
+        },
+        {
+          "startSeconds": 115,
+          "endSeconds": 116,
+          "damage": 31706.629592652953,
+          "cumulative": 26465501.521314137
+        },
+        {
+          "startSeconds": 116,
+          "endSeconds": 117,
+          "damage": 260296.74583586317,
+          "cumulative": 26725798.26715
+        },
+        {
+          "startSeconds": 117,
+          "endSeconds": 118,
+          "damage": 73749.8422581524,
+          "cumulative": 26799548.10940815
+        },
+        {
+          "startSeconds": 118,
+          "endSeconds": 119,
+          "damage": 140240.77615251555,
+          "cumulative": 26939788.885560665
+        },
+        {
+          "startSeconds": 119,
+          "endSeconds": 120,
+          "damage": 129685.45176211276,
+          "cumulative": 27069474.337322712
+        }
+      ],
+      "c4ElectroActualGain": 13.599999999999952,
+      "observedEnergyAndCooldownLegal": true,
+      "steadyStateProven": false,
+      "evidenceHashes": {
+        "capture": "e6ccae8bec3bfe8483eed2e32cc8387ed8eeb4e688162fdd5d6d6826f4c46af3",
+        "completion": "578e39259b9134e035bc911dbde6453b0054b4551525d1bbf6cfd4e1942bde7d",
+        "energyAudit": "d3bcecdbd28a34e4c990705dce150c3552b8754e287f6d21c439c68feb7a074c",
+        "burstAndC4Audit": "911fd515960c098b0159718f12cc54a1769c41f894ec3343b75ae542f02536da"
+      }
+    },
+    {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "seed": "20261023",
+      "totalDamage": 29559228.215355925,
+      "dps": 246326.90179463272,
+      "hits": 619,
+      "actors": [
+        {
+          "key": "wanderer",
+          "damage": 21879180.404813115,
+          "hits": 362,
+          "share": 0.7401810441534786
+        },
+        {
+          "key": "durin",
+          "damage": 4840322.575347667,
+          "hits": 138,
+          "share": 0.16374996465006264
+        },
+        {
+          "key": "faruzan",
+          "damage": 1951026.0877971412,
+          "hits": 105,
+          "share": 0.06600395902026931
+        },
+        {
+          "key": "nicole",
+          "damage": 888699.1473980002,
+          "hits": 14,
+          "share": 0.030065032176189357
+        }
+      ],
+      "phaseFrames": [
+        1,
+        1322,
+        2524,
+        3845,
+        5166,
+        6368
+      ],
+      "timing": {
+        "nativeAndSharedCallbacksMs": 45163.923084999995,
+        "resultValidationMs": 9659.153444000003,
+        "scope": "Node acceptance harness; excludes browser UI, loading and rendering"
+      },
+      "variant": "original",
+      "label": "原配装114.24%",
+      "statisticsWindow": "[0,7200)",
+      "wandererEnergyRecharge": 1.1424,
+      "qDecisions": [
+        {
+          "actor": "nicole",
+          "frame": 37,
+          "seconds": 0.6166666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 235,
+          "seconds": 3.9166666666666665,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 448,
+          "seconds": 7.466666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 1164,
+          "seconds": 19.4,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 1358,
+          "seconds": 22.633333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 1556,
+          "seconds": 25.933333333333334,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 1769,
+          "seconds": 29.483333333333334,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "seconds": 41.416666666666664,
+          "energy": 49.497279999999996,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": false
+        },
+        {
+          "actor": "nicole",
+          "frame": 2560,
+          "seconds": 42.666666666666664,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 2758,
+          "seconds": 45.96666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 2971,
+          "seconds": 49.516666666666666,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 3687,
+          "seconds": 61.45,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 3881,
+          "seconds": 64.68333333333334,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 4079,
+          "seconds": 67.98333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 4292,
+          "seconds": 71.53333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 5008,
+          "seconds": 83.46666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 5202,
+          "seconds": 86.7,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 5400,
+          "seconds": 90.0,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 5613,
+          "seconds": 93.55,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6329,
+          "seconds": 105.48333333333333,
+          "energy": 51.497279999999996,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": false
+        },
+        {
+          "actor": "nicole",
+          "frame": 6404,
+          "seconds": 106.73333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 6602,
+          "seconds": 110.03333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 6815,
+          "seconds": 113.58333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        }
+      ],
+      "qByActor": {
+        "wanderer": {
+          "cast": 3,
+          "decisions": 5,
+          "skipped": 2
+        },
+        "faruzan": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        }
+      },
+      "curve1s": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "damage": 102957.37212022708,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2,
+          "damage": 0,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "damage": 23402.482796578068,
+          "cumulative": 126359.85491680515
+        },
+        {
+          "startSeconds": 3,
+          "endSeconds": 4,
+          "damage": 16187.547070686538,
+          "cumulative": 142547.4019874917
+        },
+        {
+          "startSeconds": 4,
+          "endSeconds": 5,
+          "damage": 47326.54527949415,
+          "cumulative": 189873.94726698584
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 6,
+          "damage": 21142.88081857607,
+          "cumulative": 211016.82808556192
+        },
+        {
+          "startSeconds": 6,
+          "endSeconds": 7,
+          "damage": 89391.5445120837,
+          "cumulative": 300408.3725976456
+        },
+        {
+          "startSeconds": 7,
+          "endSeconds": 8,
+          "damage": 60731.90201878844,
+          "cumulative": 361140.27461643406
+        },
+        {
+          "startSeconds": 8,
+          "endSeconds": 9,
+          "damage": 294358.725385151,
+          "cumulative": 655499.0000015851
+        },
+        {
+          "startSeconds": 9,
+          "endSeconds": 10,
+          "damage": 50814.84765890681,
+          "cumulative": 706313.8476604919
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 11,
+          "damage": 367998.17472985364,
+          "cumulative": 1074312.0223903456
+        },
+        {
+          "startSeconds": 11,
+          "endSeconds": 12,
+          "damage": 379626.98814427573,
+          "cumulative": 1453939.0105346213
+        },
+        {
+          "startSeconds": 12,
+          "endSeconds": 13,
+          "damage": 428656.44454458286,
+          "cumulative": 1882595.4550792042
+        },
+        {
+          "startSeconds": 13,
+          "endSeconds": 14,
+          "damage": 615795.3477519385,
+          "cumulative": 2498390.8028311427
+        },
+        {
+          "startSeconds": 14,
+          "endSeconds": 15,
+          "damage": 490187.27957753104,
+          "cumulative": 2988578.0824086736
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 16,
+          "damage": 371574.0171993072,
+          "cumulative": 3360152.099607981
+        },
+        {
+          "startSeconds": 16,
+          "endSeconds": 17,
+          "damage": 363212.4969252517,
+          "cumulative": 3723364.5965332324
+        },
+        {
+          "startSeconds": 17,
+          "endSeconds": 18,
+          "damage": 330042.53942195396,
+          "cumulative": 4053407.1359551866
+        },
+        {
+          "startSeconds": 18,
+          "endSeconds": 19,
+          "damage": 338236.7785197591,
+          "cumulative": 4391643.9144749455
+        },
+        {
+          "startSeconds": 19,
+          "endSeconds": 20,
+          "damage": 222828.870610671,
+          "cumulative": 4614472.785085617
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 21,
+          "damage": 16010.403271402363,
+          "cumulative": 4630483.188357019
+        },
+        {
+          "startSeconds": 21,
+          "endSeconds": 22,
+          "damage": 655538.5456984618,
+          "cumulative": 5286021.734055481
+        },
+        {
+          "startSeconds": 22,
+          "endSeconds": 23,
+          "damage": 60258.80915593267,
+          "cumulative": 5346280.543211414
+        },
+        {
+          "startSeconds": 23,
+          "endSeconds": 24,
+          "damage": 21951.763849420247,
+          "cumulative": 5368232.307060834
+        },
+        {
+          "startSeconds": 24,
+          "endSeconds": 25,
+          "damage": 111466.23274332983,
+          "cumulative": 5479698.539804164
+        },
+        {
+          "startSeconds": 25,
+          "endSeconds": 26,
+          "damage": 150747.52592193254,
+          "cumulative": 5630446.065726097
+        },
+        {
+          "startSeconds": 26,
+          "endSeconds": 27,
+          "damage": 0,
+          "cumulative": 5630446.065726097
+        },
+        {
+          "startSeconds": 27,
+          "endSeconds": 28,
+          "damage": 31706.629592652953,
+          "cumulative": 5662152.69531875
+        },
+        {
+          "startSeconds": 28,
+          "endSeconds": 29,
+          "damage": 280068.79217182886,
+          "cumulative": 5942221.487490579
+        },
+        {
+          "startSeconds": 29,
+          "endSeconds": 30,
+          "damage": 73749.8422581524,
+          "cumulative": 6015971.329748731
+        },
+        {
+          "startSeconds": 30,
+          "endSeconds": 31,
+          "damage": 186248.16252949042,
+          "cumulative": 6202219.492278222
+        },
+        {
+          "startSeconds": 31,
+          "endSeconds": 32,
+          "damage": 129534.52232719972,
+          "cumulative": 6331754.014605422
+        },
+        {
+          "startSeconds": 32,
+          "endSeconds": 33,
+          "damage": 368223.9818527214,
+          "cumulative": 6699977.996458143
+        },
+        {
+          "startSeconds": 33,
+          "endSeconds": 34,
+          "damage": 377703.59277939296,
+          "cumulative": 7077681.589237536
+        },
+        {
+          "startSeconds": 34,
+          "endSeconds": 35,
+          "damage": 617231.4309519607,
+          "cumulative": 7694913.020189497
+        },
+        {
+          "startSeconds": 35,
+          "endSeconds": 36,
+          "damage": 614539.2408519385,
+          "cumulative": 8309452.261041435
+        },
+        {
+          "startSeconds": 36,
+          "endSeconds": 37,
+          "damage": 304756.22723845375,
+          "cumulative": 8614208.488279888
+        },
+        {
+          "startSeconds": 37,
+          "endSeconds": 38,
+          "damage": 372830.1240993073,
+          "cumulative": 8987038.612379195
+        },
+        {
+          "startSeconds": 38,
+          "endSeconds": 39,
+          "damage": 363212.4969252517,
+          "cumulative": 9350251.109304447
+        },
+        {
+          "startSeconds": 39,
+          "endSeconds": 40,
+          "damage": 330042.53942195396,
+          "cumulative": 9680293.6487264
+        },
+        {
+          "startSeconds": 40,
+          "endSeconds": 41,
+          "damage": 524752.9709838363,
+          "cumulative": 10205046.619710237
+        },
+        {
+          "startSeconds": 41,
+          "endSeconds": 42,
+          "damage": 214320.65820660233,
+          "cumulative": 10419367.27791684
+        },
+        {
+          "startSeconds": 42,
+          "endSeconds": 43,
+          "damage": 60258.80915593267,
+          "cumulative": 10479626.087072773
+        },
+        {
+          "startSeconds": 43,
+          "endSeconds": 44,
+          "damage": 21951.763849420247,
+          "cumulative": 10501577.850922193
+        },
+        {
+          "startSeconds": 44,
+          "endSeconds": 45,
+          "damage": 111466.23274332983,
+          "cumulative": 10613044.083665524
+        },
+        {
+          "startSeconds": 45,
+          "endSeconds": 46,
+          "damage": 150747.52592193254,
+          "cumulative": 10763791.609587457
+        },
+        {
+          "startSeconds": 46,
+          "endSeconds": 47,
+          "damage": 0,
+          "cumulative": 10763791.609587457
+        },
+        {
+          "startSeconds": 47,
+          "endSeconds": 48,
+          "damage": 31706.629592652953,
+          "cumulative": 10795498.23918011
+        },
+        {
+          "startSeconds": 48,
+          "endSeconds": 49,
+          "damage": 260296.74583586317,
+          "cumulative": 11055794.985015973
+        },
+        {
+          "startSeconds": 49,
+          "endSeconds": 50,
+          "damage": 73749.8422581524,
+          "cumulative": 11129544.827274125
+        },
+        {
+          "startSeconds": 50,
+          "endSeconds": 51,
+          "damage": 119108.16774703513,
+          "cumulative": 11248652.99502116
+        },
+        {
+          "startSeconds": 51,
+          "endSeconds": 52,
+          "damage": 129534.52232719972,
+          "cumulative": 11378187.51734836
+        },
+        {
+          "startSeconds": 52,
+          "endSeconds": 53,
+          "damage": 368223.9818527214,
+          "cumulative": 11746411.499201082
+        },
+        {
+          "startSeconds": 53,
+          "endSeconds": 54,
+          "damage": 327993.6027365839,
+          "cumulative": 12074405.101937667
+        },
+        {
+          "startSeconds": 54,
+          "endSeconds": 55,
+          "damage": 666941.4209947699,
+          "cumulative": 12741346.522932436
+        },
+        {
+          "startSeconds": 55,
+          "endSeconds": 56,
+          "damage": 452945.16182956455,
+          "cumulative": 13194291.684762001
+        },
+        {
+          "startSeconds": 56,
+          "endSeconds": 57,
+          "damage": 400482.7052558174,
+          "cumulative": 13594774.390017819
+        },
+        {
+          "startSeconds": 57,
+          "endSeconds": 58,
+          "damage": 358072.05625189946,
+          "cumulative": 13952846.446269719
+        },
+        {
+          "startSeconds": 58,
+          "endSeconds": 59,
+          "damage": 363212.4969252517,
+          "cumulative": 14316058.94319497
+        },
+        {
+          "startSeconds": 59,
+          "endSeconds": 60,
+          "damage": 230578.15692636234,
+          "cumulative": 14546637.100121332
+        },
+        {
+          "startSeconds": 60,
+          "endSeconds": 61,
+          "damage": 638975.4213268358,
+          "cumulative": 15185612.521448169
+        },
+        {
+          "startSeconds": 61,
+          "endSeconds": 62,
+          "damage": 222828.870610671,
+          "cumulative": 15408441.39205884
+        },
+        {
+          "startSeconds": 62,
+          "endSeconds": 63,
+          "damage": 16010.403271402363,
+          "cumulative": 15424451.795330243
+        },
+        {
+          "startSeconds": 63,
+          "endSeconds": 64,
+          "damage": 537978.6586198782,
+          "cumulative": 15962430.453950122
+        },
+        {
+          "startSeconds": 64,
+          "endSeconds": 65,
+          "damage": 60258.80915593267,
+          "cumulative": 16022689.263106056
+        },
+        {
+          "startSeconds": 65,
+          "endSeconds": 66,
+          "damage": 21951.763849420247,
+          "cumulative": 16044641.026955476
+        },
+        {
+          "startSeconds": 66,
+          "endSeconds": 67,
+          "damage": 111466.23274332983,
+          "cumulative": 16156107.259698806
+        },
+        {
+          "startSeconds": 67,
+          "endSeconds": 68,
+          "damage": 273979.2474010176,
+          "cumulative": 16430086.507099824
+        },
+        {
+          "startSeconds": 68,
+          "endSeconds": 69,
+          "damage": 0,
+          "cumulative": 16430086.507099824
+        },
+        {
+          "startSeconds": 69,
+          "endSeconds": 70,
+          "damage": 31706.629592652953,
+          "cumulative": 16461793.136692477
+        },
+        {
+          "startSeconds": 70,
+          "endSeconds": 71,
+          "damage": 162053.81237743807,
+          "cumulative": 16623846.949069915
+        },
+        {
+          "startSeconds": 71,
+          "endSeconds": 72,
+          "damage": 52796.190912986574,
+          "cumulative": 16676643.139982902
+        },
+        {
+          "startSeconds": 72,
+          "endSeconds": 73,
+          "damage": 140240.77615251555,
+          "cumulative": 16816883.916135415
+        },
+        {
+          "startSeconds": 73,
+          "endSeconds": 74,
+          "damage": 153425.39357054455,
+          "cumulative": 16970309.30970596
+        },
+        {
+          "startSeconds": 74,
+          "endSeconds": 75,
+          "damage": 368223.9818527214,
+          "cumulative": 17338533.291558683
+        },
+        {
+          "startSeconds": 75,
+          "endSeconds": 76,
+          "damage": 327993.6027365839,
+          "cumulative": 17666526.894295268
+        },
+        {
+          "startSeconds": 76,
+          "endSeconds": 77,
+          "damage": 481510.36865569255,
+          "cumulative": 18148037.26295096
+        },
+        {
+          "startSeconds": 77,
+          "endSeconds": 78,
+          "damage": 518812.7628345748,
+          "cumulative": 18666850.025785536
+        },
+        {
+          "startSeconds": 78,
+          "endSeconds": 79,
+          "damage": 400482.7052558174,
+          "cumulative": 19067332.731041353
+        },
+        {
+          "startSeconds": 79,
+          "endSeconds": 80,
+          "damage": 558261.1764383845,
+          "cumulative": 19625593.907479737
+        },
+        {
+          "startSeconds": 80,
+          "endSeconds": 81,
+          "damage": 363212.4969252517,
+          "cumulative": 19988806.40440499
+        },
+        {
+          "startSeconds": 81,
+          "endSeconds": 82,
+          "damage": 230578.15692636234,
+          "cumulative": 20219384.561331354
+        },
+        {
+          "startSeconds": 82,
+          "endSeconds": 83,
+          "damage": 438786.3011403507,
+          "cumulative": 20658170.862471703
+        },
+        {
+          "startSeconds": 83,
+          "endSeconds": 84,
+          "damage": 222828.870610671,
+          "cumulative": 20880999.733082373
+        },
+        {
+          "startSeconds": 84,
+          "endSeconds": 85,
+          "damage": 16010.403271402363,
+          "cumulative": 20897010.136353776
+        },
+        {
+          "startSeconds": 85,
+          "endSeconds": 86,
+          "damage": 647383.2847174195,
+          "cumulative": 21544393.421071194
+        },
+        {
+          "startSeconds": 86,
+          "endSeconds": 87,
+          "damage": 60258.80915593267,
+          "cumulative": 21604652.230227128
+        },
+        {
+          "startSeconds": 87,
+          "endSeconds": 88,
+          "damage": 21951.763849420247,
+          "cumulative": 21626603.994076546
+        },
+        {
+          "startSeconds": 88,
+          "endSeconds": 89,
+          "damage": 111466.23274332983,
+          "cumulative": 21738070.226819877
+        },
+        {
+          "startSeconds": 89,
+          "endSeconds": 90,
+          "damage": 150747.52592193254,
+          "cumulative": 21888817.75274181
+        },
+        {
+          "startSeconds": 90,
+          "endSeconds": 91,
+          "damage": 0,
+          "cumulative": 21888817.75274181
+        },
+        {
+          "startSeconds": 91,
+          "endSeconds": 92,
+          "damage": 31706.629592652953,
+          "cumulative": 21920524.382334463
+        },
+        {
+          "startSeconds": 92,
+          "endSeconds": 93,
+          "damage": 260296.74583586317,
+          "cumulative": 22180821.128170326
+        },
+        {
+          "startSeconds": 93,
+          "endSeconds": 94,
+          "damage": 52796.190912986574,
+          "cumulative": 22233617.319083314
+        },
+        {
+          "startSeconds": 94,
+          "endSeconds": 95,
+          "damage": 194834.64241235144,
+          "cumulative": 22428451.961495668
+        },
+        {
+          "startSeconds": 95,
+          "endSeconds": 96,
+          "damage": 129534.52232719972,
+          "cumulative": 22557986.483822867
+        },
+        {
+          "startSeconds": 96,
+          "endSeconds": 97,
+          "damage": 368223.9818527214,
+          "cumulative": 22926210.46567559
+        },
+        {
+          "startSeconds": 97,
+          "endSeconds": 98,
+          "damage": 327993.6027365839,
+          "cumulative": 23254204.068412174
+        },
+        {
+          "startSeconds": 98,
+          "endSeconds": 99,
+          "damage": 666941.4209947699,
+          "cumulative": 23921145.489406943
+        },
+        {
+          "startSeconds": 99,
+          "endSeconds": 100,
+          "damage": 518812.7628345748,
+          "cumulative": 24439958.25224152
+        },
+        {
+          "startSeconds": 100,
+          "endSeconds": 101,
+          "damage": 400482.7052558174,
+          "cumulative": 24840440.957497336
+        },
+        {
+          "startSeconds": 101,
+          "endSeconds": 102,
+          "damage": 372830.1240993073,
+          "cumulative": 25213271.081596643
+        },
+        {
+          "startSeconds": 102,
+          "endSeconds": 103,
+          "damage": 363212.4969252517,
+          "cumulative": 25576483.578521896
+        },
+        {
+          "startSeconds": 103,
+          "endSeconds": 104,
+          "damage": 230578.15692636234,
+          "cumulative": 25807061.73544826
+        },
+        {
+          "startSeconds": 104,
+          "endSeconds": 105,
+          "damage": 638975.4213268358,
+          "cumulative": 26446037.156775095
+        },
+        {
+          "startSeconds": 105,
+          "endSeconds": 106,
+          "damage": 214320.65820660233,
+          "cumulative": 26660357.814981695
+        },
+        {
+          "startSeconds": 106,
+          "endSeconds": 107,
+          "damage": 60258.80915593267,
+          "cumulative": 26720616.62413763
+        },
+        {
+          "startSeconds": 107,
+          "endSeconds": 108,
+          "damage": 21951.763849420247,
+          "cumulative": 26742568.387987047
+        },
+        {
+          "startSeconds": 108,
+          "endSeconds": 109,
+          "damage": 111466.23274332983,
+          "cumulative": 26854034.620730378
+        },
+        {
+          "startSeconds": 109,
+          "endSeconds": 110,
+          "damage": 150747.52592193254,
+          "cumulative": 27004782.14665231
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 111,
+          "damage": 0,
+          "cumulative": 27004782.14665231
+        },
+        {
+          "startSeconds": 111,
+          "endSeconds": 112,
+          "damage": 31706.629592652953,
+          "cumulative": 27036488.776244964
+        },
+        {
+          "startSeconds": 112,
+          "endSeconds": 113,
+          "damage": 260296.74583586317,
+          "cumulative": 27296785.522080828
+        },
+        {
+          "startSeconds": 113,
+          "endSeconds": 114,
+          "damage": 73749.8422581524,
+          "cumulative": 27370535.36433898
+        },
+        {
+          "startSeconds": 114,
+          "endSeconds": 115,
+          "damage": 207380.77093497085,
+          "cumulative": 27577916.13527395
+        },
+        {
+          "startSeconds": 115,
+          "endSeconds": 116,
+          "damage": 129534.52232719972,
+          "cumulative": 27707450.657601148
+        },
+        {
+          "startSeconds": 116,
+          "endSeconds": 117,
+          "damage": 282553.82959284115,
+          "cumulative": 27990004.48719399
+        },
+        {
+          "startSeconds": 117,
+          "endSeconds": 118,
+          "damage": 383469.5443326086,
+          "cumulative": 28373474.0315266
+        },
+        {
+          "startSeconds": 118,
+          "endSeconds": 119,
+          "damage": 666941.4209947699,
+          "cumulative": 29040415.45252137
+        },
+        {
+          "startSeconds": 119,
+          "endSeconds": 120,
+          "damage": 518812.7628345748,
+          "cumulative": 29559228.215355925
+        }
+      ],
+      "c4ElectroActualGain": 11.999999999999968,
+      "observedEnergyAndCooldownLegal": true,
+      "steadyStateProven": false,
+      "evidenceHashes": {
+        "capture": "169022bb22aa49ea077074136e6852053607d6f56e12e3d8c3445866beb391b9",
+        "completion": "28238dcec303b406ac7a3cfd6fd7ef3eb5aa5b9525e9cc993bafcaf243c90178",
+        "energyAudit": "1b7d2dc344235b127c644e823a96455135976b967afe2b2b8aa818519504abff",
+        "burstAndC4Audit": "615451eaabb45e13af0754beffb55b66235e19bd5d8f9188c6a924f2a1d419cf"
+      }
+    },
+    {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "seed": "20261023",
+      "totalDamage": 27870663.77368476,
+      "dps": 232255.53144737298,
+      "hits": 613,
+      "actors": [
+        {
+          "key": "wanderer",
+          "damage": 20299837.936688203,
+          "hits": 356,
+          "share": 0.7283586103842685
+        },
+        {
+          "key": "durin",
+          "damage": 4671886.396752285,
+          "hits": 137,
+          "share": 0.16762738177636946
+        },
+        {
+          "key": "faruzan",
+          "damage": 1954602.6922868371,
+          "hits": 105,
+          "share": 0.07013118554185122
+        },
+        {
+          "key": "nicole",
+          "damage": 944336.7479574318,
+          "hits": 15,
+          "share": 0.03388282229751078
+        }
+      ],
+      "phaseFrames": [
+        1,
+        1322,
+        2524,
+        3845,
+        5166,
+        6487
+      ],
+      "timing": {
+        "nativeAndSharedCallbacksMs": 39108.000465000005,
+        "resultValidationMs": 8969.555632999996,
+        "scope": "Node acceptance harness; excludes browser UI, loading and rendering"
+      },
+      "variant": "er140",
+      "label": "充能候选140.16%",
+      "statisticsWindow": "[0,7200)",
+      "wandererEnergyRecharge": 1.4016,
+      "qDecisions": [
+        {
+          "actor": "nicole",
+          "frame": 37,
+          "seconds": 0.6166666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 235,
+          "seconds": 3.9166666666666665,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 448,
+          "seconds": 7.466666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 1164,
+          "seconds": 19.4,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 1358,
+          "seconds": 22.633333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 1556,
+          "seconds": 25.933333333333334,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 1769,
+          "seconds": 29.483333333333334,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "seconds": 41.416666666666664,
+          "energy": 59.13951999999999,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": false
+        },
+        {
+          "actor": "nicole",
+          "frame": 2560,
+          "seconds": 42.666666666666664,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 2758,
+          "seconds": 45.96666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 2971,
+          "seconds": 49.516666666666666,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 3687,
+          "seconds": 61.45,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 3881,
+          "seconds": 64.68333333333334,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 4079,
+          "seconds": 67.98333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 4292,
+          "seconds": 71.53333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 5008,
+          "seconds": 83.46666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 5202,
+          "seconds": 86.7,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 5400,
+          "seconds": 90.0,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 5613,
+          "seconds": 93.55,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6329,
+          "seconds": 105.48333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 6523,
+          "seconds": 108.71666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 6721,
+          "seconds": 112.01666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 6934,
+          "seconds": 115.56666666666666,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        }
+      ],
+      "qByActor": {
+        "wanderer": {
+          "cast": 4,
+          "decisions": 5,
+          "skipped": 1
+        },
+        "faruzan": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        }
+      },
+      "curve1s": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "damage": 102957.37212022708,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2,
+          "damage": 0,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "damage": 23402.482796578068,
+          "cumulative": 126359.85491680515
+        },
+        {
+          "startSeconds": 3,
+          "endSeconds": 4,
+          "damage": 16187.547070686538,
+          "cumulative": 142547.4019874917
+        },
+        {
+          "startSeconds": 4,
+          "endSeconds": 5,
+          "damage": 47326.54527949415,
+          "cumulative": 189873.94726698584
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 6,
+          "damage": 21142.88081857607,
+          "cumulative": 211016.82808556192
+        },
+        {
+          "startSeconds": 6,
+          "endSeconds": 7,
+          "damage": 89391.5445120837,
+          "cumulative": 300408.3725976456
+        },
+        {
+          "startSeconds": 7,
+          "endSeconds": 8,
+          "damage": 60731.90201878844,
+          "cumulative": 361140.27461643406
+        },
+        {
+          "startSeconds": 8,
+          "endSeconds": 9,
+          "damage": 295785.7109774196,
+          "cumulative": 656925.9855938538
+        },
+        {
+          "startSeconds": 9,
+          "endSeconds": 10,
+          "damage": 50814.84765890681,
+          "cumulative": 707740.8332527606
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 11,
+          "damage": 312973.8290245652,
+          "cumulative": 1020714.6622773258
+        },
+        {
+          "startSeconds": 11,
+          "endSeconds": 12,
+          "damage": 319654.4478144598,
+          "cumulative": 1340369.1100917854
+        },
+        {
+          "startSeconds": 12,
+          "endSeconds": 13,
+          "damage": 440463.8526899157,
+          "cumulative": 1780832.9627817012
+        },
+        {
+          "startSeconds": 13,
+          "endSeconds": 14,
+          "damage": 421136.80804441695,
+          "cumulative": 2201969.770826118
+        },
+        {
+          "startSeconds": 14,
+          "endSeconds": 15,
+          "damage": 497232.95062381495,
+          "cumulative": 2699202.721449933
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 16,
+          "damage": 376409.1608555404,
+          "cumulative": 3075611.8823054736
+        },
+        {
+          "startSeconds": 16,
+          "endSeconds": 17,
+          "damage": 368574.8199816801,
+          "cumulative": 3444186.702287154
+        },
+        {
+          "startSeconds": 17,
+          "endSeconds": 18,
+          "damage": 334857.07798363676,
+          "cumulative": 3779043.7802707907
+        },
+        {
+          "startSeconds": 18,
+          "endSeconds": 19,
+          "damage": 343071.9221759922,
+          "cumulative": 4122115.702446783
+        },
+        {
+          "startSeconds": 19,
+          "endSeconds": 20,
+          "damage": 226016.77302897885,
+          "cumulative": 4348132.475475762
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 21,
+          "damage": 16010.403271402363,
+          "cumulative": 4364142.878747164
+        },
+        {
+          "startSeconds": 21,
+          "endSeconds": 22,
+          "damage": 648295.9869333844,
+          "cumulative": 5012438.865680548
+        },
+        {
+          "startSeconds": 22,
+          "endSeconds": 23,
+          "damage": 60258.80915593267,
+          "cumulative": 5072697.674836481
+        },
+        {
+          "startSeconds": 23,
+          "endSeconds": 24,
+          "damage": 21951.763849420247,
+          "cumulative": 5094649.438685901
+        },
+        {
+          "startSeconds": 24,
+          "endSeconds": 25,
+          "damage": 111466.23274332983,
+          "cumulative": 5206115.671429232
+        },
+        {
+          "startSeconds": 25,
+          "endSeconds": 26,
+          "damage": 150747.52592193254,
+          "cumulative": 5356863.197351164
+        },
+        {
+          "startSeconds": 26,
+          "endSeconds": 27,
+          "damage": 0,
+          "cumulative": 5356863.197351164
+        },
+        {
+          "startSeconds": 27,
+          "endSeconds": 28,
+          "damage": 31706.629592652953,
+          "cumulative": 5388569.826943818
+        },
+        {
+          "startSeconds": 28,
+          "endSeconds": 29,
+          "damage": 280068.79217182886,
+          "cumulative": 5668638.619115646
+        },
+        {
+          "startSeconds": 29,
+          "endSeconds": 30,
+          "damage": 73749.8422581524,
+          "cumulative": 5742388.461373799
+        },
+        {
+          "startSeconds": 30,
+          "endSeconds": 31,
+          "damage": 186248.16252949042,
+          "cumulative": 5928636.623903289
+        },
+        {
+          "startSeconds": 31,
+          "endSeconds": 32,
+          "damage": 130961.50791946836,
+          "cumulative": 6059598.131822757
+        },
+        {
+          "startSeconds": 32,
+          "endSeconds": 33,
+          "damage": 376565.0406631583,
+          "cumulative": 6436163.172485916
+        },
+        {
+          "startSeconds": 33,
+          "endSeconds": 34,
+          "damage": 388770.91193688876,
+          "cumulative": 6824934.084422804
+        },
+        {
+          "startSeconds": 34,
+          "endSeconds": 35,
+          "damage": 632058.0946614881,
+          "cumulative": 7456992.179084293
+        },
+        {
+          "startSeconds": 35,
+          "endSeconds": 36,
+          "damage": 632855.7470965968,
+          "cumulative": 8089847.92618089
+        },
+        {
+          "startSeconds": 36,
+          "endSeconds": 37,
+          "damage": 308955.20337785274,
+          "cumulative": 8398803.129558742
+        },
+        {
+          "startSeconds": 37,
+          "endSeconds": 38,
+          "damage": 377665.26775554044,
+          "cumulative": 8776468.397314282
+        },
+        {
+          "startSeconds": 38,
+          "endSeconds": 39,
+          "damage": 368574.8199816801,
+          "cumulative": 9145043.217295961
+        },
+        {
+          "startSeconds": 39,
+          "endSeconds": 40,
+          "damage": 334857.07798363676,
+          "cumulative": 9479900.295279598
+        },
+        {
+          "startSeconds": 40,
+          "endSeconds": 41,
+          "damage": 532434.8095469543,
+          "cumulative": 10012335.104826553
+        },
+        {
+          "startSeconds": 41,
+          "endSeconds": 42,
+          "damage": 217243.22713230172,
+          "cumulative": 10229578.331958855
+        },
+        {
+          "startSeconds": 42,
+          "endSeconds": 43,
+          "damage": 60258.80915593267,
+          "cumulative": 10289837.141114788
+        },
+        {
+          "startSeconds": 43,
+          "endSeconds": 44,
+          "damage": 21951.763849420247,
+          "cumulative": 10311788.904964209
+        },
+        {
+          "startSeconds": 44,
+          "endSeconds": 45,
+          "damage": 111466.23274332983,
+          "cumulative": 10423255.137707539
+        },
+        {
+          "startSeconds": 45,
+          "endSeconds": 46,
+          "damage": 150747.52592193254,
+          "cumulative": 10574002.663629472
+        },
+        {
+          "startSeconds": 46,
+          "endSeconds": 47,
+          "damage": 0,
+          "cumulative": 10574002.663629472
+        },
+        {
+          "startSeconds": 47,
+          "endSeconds": 48,
+          "damage": 31706.629592652953,
+          "cumulative": 10605709.293222126
+        },
+        {
+          "startSeconds": 48,
+          "endSeconds": 49,
+          "damage": 260296.74583586317,
+          "cumulative": 10866006.039057989
+        },
+        {
+          "startSeconds": 49,
+          "endSeconds": 50,
+          "damage": 73749.8422581524,
+          "cumulative": 10939755.88131614
+        },
+        {
+          "startSeconds": 50,
+          "endSeconds": 51,
+          "damage": 119108.16774703513,
+          "cumulative": 11058864.049063176
+        },
+        {
+          "startSeconds": 51,
+          "endSeconds": 52,
+          "damage": 130961.50791946836,
+          "cumulative": 11189825.556982644
+        },
+        {
+          "startSeconds": 52,
+          "endSeconds": 53,
+          "damage": 276938.9778190035,
+          "cumulative": 11466764.534801647
+        },
+        {
+          "startSeconds": 53,
+          "endSeconds": 54,
+          "damage": 336770.7142707157,
+          "cumulative": 11803535.249072364
+        },
+        {
+          "startSeconds": 54,
+          "endSeconds": 55,
+          "damage": 328299.9080433826,
+          "cumulative": 12131835.157115746
+        },
+        {
+          "startSeconds": 55,
+          "endSeconds": 56,
+          "damage": 465508.75975015893,
+          "cumulative": 12597343.916865906
+        },
+        {
+          "startSeconds": 56,
+          "endSeconds": 57,
+          "damage": 283048.96797670244,
+          "cumulative": 12880392.884842608
+        },
+        {
+          "startSeconds": 57,
+          "endSeconds": 58,
+          "damage": 362907.1999081326,
+          "cumulative": 13243300.08475074
+        },
+        {
+          "startSeconds": 58,
+          "endSeconds": 59,
+          "damage": 317717.6014548697,
+          "cumulative": 13561017.686205609
+        },
+        {
+          "startSeconds": 59,
+          "endSeconds": 60,
+          "damage": 134425.89657950442,
+          "cumulative": 13695443.582785113
+        },
+        {
+          "startSeconds": 60,
+          "endSeconds": 61,
+          "damage": 573081.9344605462,
+          "cumulative": 14268525.51724566
+        },
+        {
+          "startSeconds": 61,
+          "endSeconds": 62,
+          "damage": 226016.77302897882,
+          "cumulative": 14494542.290274639
+        },
+        {
+          "startSeconds": 62,
+          "endSeconds": 63,
+          "damage": 16010.403271402363,
+          "cumulative": 14510552.693546042
+        },
+        {
+          "startSeconds": 63,
+          "endSeconds": 64,
+          "damage": 532038.3805723545,
+          "cumulative": 15042591.074118396
+        },
+        {
+          "startSeconds": 64,
+          "endSeconds": 65,
+          "damage": 60258.80915593267,
+          "cumulative": 15102849.88327433
+        },
+        {
+          "startSeconds": 65,
+          "endSeconds": 66,
+          "damage": 21951.763849420247,
+          "cumulative": 15124801.64712375
+        },
+        {
+          "startSeconds": 66,
+          "endSeconds": 67,
+          "damage": 111466.23274332983,
+          "cumulative": 15236267.87986708
+        },
+        {
+          "startSeconds": 67,
+          "endSeconds": 68,
+          "damage": 273979.2474010176,
+          "cumulative": 15510247.127268098
+        },
+        {
+          "startSeconds": 68,
+          "endSeconds": 69,
+          "damage": 0,
+          "cumulative": 15510247.127268098
+        },
+        {
+          "startSeconds": 69,
+          "endSeconds": 70,
+          "damage": 31706.629592652953,
+          "cumulative": 15541953.756860752
+        },
+        {
+          "startSeconds": 70,
+          "endSeconds": 71,
+          "damage": 162053.81237743807,
+          "cumulative": 15704007.56923819
+        },
+        {
+          "startSeconds": 71,
+          "endSeconds": 72,
+          "damage": 52796.190912986574,
+          "cumulative": 15756803.760151176
+        },
+        {
+          "startSeconds": 72,
+          "endSeconds": 73,
+          "damage": 140240.77615251555,
+          "cumulative": 15897044.536303692
+        },
+        {
+          "startSeconds": 73,
+          "endSeconds": 74,
+          "damage": 154852.3791628132,
+          "cumulative": 16051896.915466504
+        },
+        {
+          "startSeconds": 74,
+          "endSeconds": 75,
+          "damage": 376565.0406631583,
+          "cumulative": 16428461.956129663
+        },
+        {
+          "startSeconds": 75,
+          "endSeconds": 76,
+          "damage": 336770.7142707157,
+          "cumulative": 16765232.67040038
+        },
+        {
+          "startSeconds": 76,
+          "endSeconds": 77,
+          "damage": 358523.3353967812,
+          "cumulative": 17123756.00579716
+        },
+        {
+          "startSeconds": 77,
+          "endSeconds": 78,
+          "damage": 535659.6981848838,
+          "cumulative": 17659415.703982044
+        },
+        {
+          "startSeconds": 78,
+          "endSeconds": 79,
+          "damage": 406151.25228956575,
+          "cumulative": 18065566.95627161
+        },
+        {
+          "startSeconds": 79,
+          "endSeconds": 80,
+          "damage": 565943.0150015026,
+          "cumulative": 18631509.971273113
+        },
+        {
+          "startSeconds": 80,
+          "endSeconds": 81,
+          "damage": 346119.8652018463,
+          "cumulative": 18977629.83647496
+        },
+        {
+          "startSeconds": 81,
+          "endSeconds": 82,
+          "damage": 233885.02460754605,
+          "cumulative": 19211514.861082505
+        },
+        {
+          "startSeconds": 82,
+          "endSeconds": 83,
+          "damage": 445129.1156770829,
+          "cumulative": 19656643.97675959
+        },
+        {
+          "startSeconds": 83,
+          "endSeconds": 84,
+          "damage": 205192.7530261311,
+          "cumulative": 19861836.72978572
+        },
+        {
+          "startSeconds": 84,
+          "endSeconds": 85,
+          "damage": 16010.403271402363,
+          "cumulative": 19877847.133057125
+        },
+        {
+          "startSeconds": 85,
+          "endSeconds": 86,
+          "damage": 561126.8952928116,
+          "cumulative": 20438974.028349936
+        },
+        {
+          "startSeconds": 86,
+          "endSeconds": 87,
+          "damage": 60258.80915593267,
+          "cumulative": 20499232.83750587
+        },
+        {
+          "startSeconds": 87,
+          "endSeconds": 88,
+          "damage": 21951.763849420247,
+          "cumulative": 20521184.60135529
+        },
+        {
+          "startSeconds": 88,
+          "endSeconds": 89,
+          "damage": 111466.23274332983,
+          "cumulative": 20632650.83409862
+        },
+        {
+          "startSeconds": 89,
+          "endSeconds": 90,
+          "damage": 150747.52592193254,
+          "cumulative": 20783398.36002055
+        },
+        {
+          "startSeconds": 90,
+          "endSeconds": 91,
+          "damage": 0,
+          "cumulative": 20783398.36002055
+        },
+        {
+          "startSeconds": 91,
+          "endSeconds": 92,
+          "damage": 31706.629592652953,
+          "cumulative": 20815104.989613205
+        },
+        {
+          "startSeconds": 92,
+          "endSeconds": 93,
+          "damage": 260296.74583586317,
+          "cumulative": 21075401.73544907
+        },
+        {
+          "startSeconds": 93,
+          "endSeconds": 94,
+          "damage": 52796.190912986574,
+          "cumulative": 21128197.926362056
+        },
+        {
+          "startSeconds": 94,
+          "endSeconds": 95,
+          "damage": 194834.64241235144,
+          "cumulative": 21323032.56877441
+        },
+        {
+          "startSeconds": 95,
+          "endSeconds": 96,
+          "damage": 130961.50791946836,
+          "cumulative": 21453994.076693878
+        },
+        {
+          "startSeconds": 96,
+          "endSeconds": 97,
+          "damage": 376565.0406631583,
+          "cumulative": 21830559.117357034
+        },
+        {
+          "startSeconds": 97,
+          "endSeconds": 98,
+          "damage": 336770.7142707157,
+          "cumulative": 22167329.83162775
+        },
+        {
+          "startSeconds": 98,
+          "endSeconds": 99,
+          "damage": 684058.2923276612,
+          "cumulative": 22851388.12395541
+        },
+        {
+          "startSeconds": 99,
+          "endSeconds": 100,
+          "damage": 535659.6981848838,
+          "cumulative": 23387047.822140295
+        },
+        {
+          "startSeconds": 100,
+          "endSeconds": 101,
+          "damage": 406151.25228956575,
+          "cumulative": 23793199.074429862
+        },
+        {
+          "startSeconds": 101,
+          "endSeconds": 102,
+          "damage": 377665.26775554044,
+          "cumulative": 24170864.342185404
+        },
+        {
+          "startSeconds": 102,
+          "endSeconds": 103,
+          "damage": 368574.8199816801,
+          "cumulative": 24539439.162167083
+        },
+        {
+          "startSeconds": 103,
+          "endSeconds": 104,
+          "damage": 233885.02460754605,
+          "cumulative": 24773324.18677463
+        },
+        {
+          "startSeconds": 104,
+          "endSeconds": 105,
+          "damage": 648164.930770453,
+          "cumulative": 25421489.117545083
+        },
+        {
+          "startSeconds": 105,
+          "endSeconds": 106,
+          "damage": 226016.77302897882,
+          "cumulative": 25647505.89057406
+        },
+        {
+          "startSeconds": 106,
+          "endSeconds": 107,
+          "damage": 16010.403271402363,
+          "cumulative": 25663516.293845464
+        },
+        {
+          "startSeconds": 107,
+          "endSeconds": 108,
+          "damage": 540976.2661882433,
+          "cumulative": 26204492.560033705
+        },
+        {
+          "startSeconds": 108,
+          "endSeconds": 109,
+          "damage": 60258.80915593267,
+          "cumulative": 26264751.36918964
+        },
+        {
+          "startSeconds": 109,
+          "endSeconds": 110,
+          "damage": 21951.763849420247,
+          "cumulative": 26286703.133039057
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 111,
+          "damage": 111466.23274332983,
+          "cumulative": 26398169.365782388
+        },
+        {
+          "startSeconds": 111,
+          "endSeconds": 112,
+          "damage": 206385.12648136413,
+          "cumulative": 26604554.492263753
+        },
+        {
+          "startSeconds": 112,
+          "endSeconds": 113,
+          "damage": 0,
+          "cumulative": 26604554.492263753
+        },
+        {
+          "startSeconds": 113,
+          "endSeconds": 114,
+          "damage": 31706.629592652953,
+          "cumulative": 26636261.121856406
+        },
+        {
+          "startSeconds": 114,
+          "endSeconds": 115,
+          "damage": 162053.81237743807,
+          "cumulative": 26798314.934233844
+        },
+        {
+          "startSeconds": 115,
+          "endSeconds": 116,
+          "damage": 73749.8422581524,
+          "cumulative": 26872064.776491996
+        },
+        {
+          "startSeconds": 116,
+          "endSeconds": 117,
+          "damage": 140240.77615251555,
+          "cumulative": 27012305.55264451
+        },
+        {
+          "startSeconds": 117,
+          "endSeconds": 118,
+          "damage": 145022.46610641942,
+          "cumulative": 27157328.01875093
+        },
+        {
+          "startSeconds": 118,
+          "endSeconds": 119,
+          "damage": 288709.1433350213,
+          "cumulative": 27446037.16208595
+        },
+        {
+          "startSeconds": 119,
+          "endSeconds": 120,
+          "damage": 424626.61159885273,
+          "cumulative": 27870663.77368476
+        }
+      ],
+      "c4ElectroActualGain": 8.906240000000011,
+      "observedEnergyAndCooldownLegal": true,
+      "steadyStateProven": false,
+      "evidenceHashes": {
+        "capture": "4ee7f9909e5e089bf3e5a87aeba9845f6bf1973808c6874e90f8e73f1e4db596",
+        "completion": "278642e6331fc993655a4d6e5dfa7a7f37695a880e3686f98331f60083ea94ef",
+        "energyAudit": "c58afd500072474c1c1b3487abedb72f3f367be04964c6aecff5726ca67e1166",
+        "burstAndC4Audit": "70d4eec22be5469fa90064b013a72c428dacdb091d539f9c14417baf47093dd9"
+      }
+    },
+    {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+      "seed": "20261023",
+      "totalDamage": 27701755.79972081,
+      "dps": 230847.9649976734,
+      "hits": 610,
+      "actors": [
+        {
+          "key": "wanderer",
+          "damage": 20017659.913347036,
+          "hits": 352,
+          "share": 0.7226133988788098
+        },
+        {
+          "key": "durin",
+          "damage": 4621465.1979512945,
+          "hits": 137,
+          "share": 0.16682932415417046
+        },
+        {
+          "key": "faruzan",
+          "damage": 2185888.06138472,
+          "hits": 106,
+          "share": 0.07890792472463966
+        },
+        {
+          "key": "nicole",
+          "damage": 876742.6270377784,
+          "hits": 15,
+          "share": 0.031649352242380774
+        }
+      ],
+      "phaseFrames": [
+        1,
+        1322,
+        2643,
+        3964,
+        5285,
+        6606
+      ],
+      "timing": {
+        "nativeAndSharedCallbacksMs": 44923.232087000004,
+        "resultValidationMs": 8488.326968000001,
+        "scope": "Node acceptance harness; excludes browser UI, loading and rendering"
+      },
+      "variant": "er150",
+      "label": "充能候选151.82%",
+      "statisticsWindow": "[0,7200)",
+      "wandererEnergyRecharge": 1.5181999999999998,
+      "qDecisions": [
+        {
+          "actor": "nicole",
+          "frame": 37,
+          "seconds": 0.6166666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 235,
+          "seconds": 3.9166666666666665,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 448,
+          "seconds": 7.466666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 1164,
+          "seconds": 19.4,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 1358,
+          "seconds": 22.633333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 1556,
+          "seconds": 25.933333333333334,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 1769,
+          "seconds": 29.483333333333334,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 2485,
+          "seconds": 41.416666666666664,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 2679,
+          "seconds": 44.65,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 2877,
+          "seconds": 47.95,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 3090,
+          "seconds": 51.5,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 3806,
+          "seconds": 63.43333333333333,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 4000,
+          "seconds": 66.66666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 4198,
+          "seconds": 69.96666666666667,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 4411,
+          "seconds": 73.51666666666667,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 5127,
+          "seconds": 85.45,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 5321,
+          "seconds": 88.68333333333334,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 5519,
+          "seconds": 91.98333333333333,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 5732,
+          "seconds": 95.53333333333333,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "wanderer",
+          "frame": 6448,
+          "seconds": 107.46666666666667,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "nicole",
+          "frame": 6642,
+          "seconds": 110.7,
+          "energy": 60.0,
+          "maxEnergy": 60.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "durin",
+          "frame": 6840,
+          "seconds": 114.0,
+          "energy": 70.0,
+          "maxEnergy": 70.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        },
+        {
+          "actor": "faruzan",
+          "frame": 7053,
+          "seconds": 117.55,
+          "energy": 80.0,
+          "maxEnergy": 80.0,
+          "cooldownFrames": 0.0,
+          "ready": true
+        }
+      ],
+      "qByActor": {
+        "wanderer": {
+          "cast": 5,
+          "decisions": 5,
+          "skipped": 0
+        },
+        "faruzan": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "nicole": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        },
+        "durin": {
+          "cast": 6,
+          "decisions": 6,
+          "skipped": 0
+        }
+      },
+      "curve1s": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "damage": 102957.37212022708,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2,
+          "damage": 0,
+          "cumulative": 102957.37212022708
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "damage": 23402.482796578068,
+          "cumulative": 126359.85491680515
+        },
+        {
+          "startSeconds": 3,
+          "endSeconds": 4,
+          "damage": 16187.547070686538,
+          "cumulative": 142547.4019874917
+        },
+        {
+          "startSeconds": 4,
+          "endSeconds": 5,
+          "damage": 47326.54527949415,
+          "cumulative": 189873.94726698584
+        },
+        {
+          "startSeconds": 5,
+          "endSeconds": 6,
+          "damage": 21142.88081857607,
+          "cumulative": 211016.82808556192
+        },
+        {
+          "startSeconds": 6,
+          "endSeconds": 7,
+          "damage": 89391.5445120837,
+          "cumulative": 300408.3725976456
+        },
+        {
+          "startSeconds": 7,
+          "endSeconds": 8,
+          "damage": 60731.90201878844,
+          "cumulative": 361140.27461643406
+        },
+        {
+          "startSeconds": 8,
+          "endSeconds": 9,
+          "damage": 294509.654820064,
+          "cumulative": 655649.9294364981
+        },
+        {
+          "startSeconds": 9,
+          "endSeconds": 10,
+          "damage": 50814.84765890681,
+          "cumulative": 706464.7770954049
+        },
+        {
+          "startSeconds": 10,
+          "endSeconds": 11,
+          "damage": 308138.09008413064,
+          "cumulative": 1014602.8671795356
+        },
+        {
+          "startSeconds": 11,
+          "endSeconds": 12,
+          "damage": 314642.4796992911,
+          "cumulative": 1329245.3468788266
+        },
+        {
+          "startSeconds": 12,
+          "endSeconds": 13,
+          "damage": 432998.5260224652,
+          "cumulative": 1762243.8729012918
+        },
+        {
+          "startSeconds": 13,
+          "endSeconds": 14,
+          "damage": 415247.63239414734,
+          "cumulative": 2177491.505295439
+        },
+        {
+          "startSeconds": 14,
+          "endSeconds": 15,
+          "damage": 303810.7936705944,
+          "cumulative": 2481302.2989660334
+        },
+        {
+          "startSeconds": 15,
+          "endSeconds": 16,
+          "damage": 301242.9805291727,
+          "cumulative": 2782545.279495206
+        },
+        {
+          "startSeconds": 16,
+          "endSeconds": 17,
+          "damage": 361839.4398191386,
+          "cumulative": 3144384.7193143447
+        },
+        {
+          "startSeconds": 17,
+          "endSeconds": 18,
+          "damage": 328827.6995520883,
+          "cumulative": 3473212.418866433
+        },
+        {
+          "startSeconds": 18,
+          "endSeconds": 19,
+          "damage": 337015.9872563368,
+          "cumulative": 3810228.40612277
+        },
+        {
+          "startSeconds": 19,
+          "endSeconds": 20,
+          "damage": 222083.85396043552,
+          "cumulative": 4032312.2600832055
+        },
+        {
+          "startSeconds": 20,
+          "endSeconds": 21,
+          "damage": 16010.403271402363,
+          "cumulative": 4048322.6633546078
+        },
+        {
+          "startSeconds": 21,
+          "endSeconds": 22,
+          "damage": 636638.3237576053,
+          "cumulative": 4684960.987112213
+        },
+        {
+          "startSeconds": 22,
+          "endSeconds": 23,
+          "damage": 60258.80915593267,
+          "cumulative": 4745219.796268146
+        },
+        {
+          "startSeconds": 23,
+          "endSeconds": 24,
+          "damage": 21951.763849420247,
+          "cumulative": 4767171.560117566
+        },
+        {
+          "startSeconds": 24,
+          "endSeconds": 25,
+          "damage": 111466.23274332983,
+          "cumulative": 4878637.792860895
+        },
+        {
+          "startSeconds": 25,
+          "endSeconds": 26,
+          "damage": 150747.52592193254,
+          "cumulative": 5029385.318782828
+        },
+        {
+          "startSeconds": 26,
+          "endSeconds": 27,
+          "damage": 0,
+          "cumulative": 5029385.318782828
+        },
+        {
+          "startSeconds": 27,
+          "endSeconds": 28,
+          "damage": 31706.629592652953,
+          "cumulative": 5061091.948375481
+        },
+        {
+          "startSeconds": 28,
+          "endSeconds": 29,
+          "damage": 280068.79217182886,
+          "cumulative": 5341160.74054731
+        },
+        {
+          "startSeconds": 29,
+          "endSeconds": 30,
+          "damage": 73749.8422581524,
+          "cumulative": 5414910.582805462
+        },
+        {
+          "startSeconds": 30,
+          "endSeconds": 31,
+          "damage": 186248.16252949042,
+          "cumulative": 5601158.745334953
+        },
+        {
+          "startSeconds": 31,
+          "endSeconds": 32,
+          "damage": 129685.45176211276,
+          "cumulative": 5730844.197097066
+        },
+        {
+          "startSeconds": 32,
+          "endSeconds": 33,
+          "damage": 369988.3522304911,
+          "cumulative": 6100832.549327557
+        },
+        {
+          "startSeconds": 33,
+          "endSeconds": 34,
+          "damage": 381850.2282227028,
+          "cumulative": 6482682.77755026
+        },
+        {
+          "startSeconds": 34,
+          "endSeconds": 35,
+          "damage": 620877.2062477124,
+          "cumulative": 7103559.983797972
+        },
+        {
+          "startSeconds": 35,
+          "endSeconds": 36,
+          "damage": 621121.4168818566,
+          "cumulative": 7724681.400679829
+        },
+        {
+          "startSeconds": 36,
+          "endSeconds": 37,
+          "damage": 303719.1809829121,
+          "cumulative": 8028400.581662741
+        },
+        {
+          "startSeconds": 37,
+          "endSeconds": 38,
+          "damage": 371609.332835885,
+          "cumulative": 8400009.914498625
+        },
+        {
+          "startSeconds": 38,
+          "endSeconds": 39,
+          "damage": 361839.4398191386,
+          "cumulative": 8761849.354317764
+        },
+        {
+          "startSeconds": 39,
+          "endSeconds": 40,
+          "damage": 328827.6995520883,
+          "cumulative": 9090677.053869853
+        },
+        {
+          "startSeconds": 40,
+          "endSeconds": 41,
+          "damage": 522709.96550126927,
+          "cumulative": 9613387.019371122
+        },
+        {
+          "startSeconds": 41,
+          "endSeconds": 42,
+          "damage": 222083.85396043552,
+          "cumulative": 9835470.873331558
+        },
+        {
+          "startSeconds": 42,
+          "endSeconds": 43,
+          "damage": 16010.403271402363,
+          "cumulative": 9851481.276602961
+        },
+        {
+          "startSeconds": 43,
+          "endSeconds": 44,
+          "damage": 531358.0799085001,
+          "cumulative": 10382839.35651146
+        },
+        {
+          "startSeconds": 44,
+          "endSeconds": 45,
+          "damage": 60258.80915593267,
+          "cumulative": 10443098.165667394
+        },
+        {
+          "startSeconds": 45,
+          "endSeconds": 46,
+          "damage": 21951.763849420247,
+          "cumulative": 10465049.929516815
+        },
+        {
+          "startSeconds": 46,
+          "endSeconds": 47,
+          "damage": 111466.23274332983,
+          "cumulative": 10576516.162260145
+        },
+        {
+          "startSeconds": 47,
+          "endSeconds": 48,
+          "damage": 193152.7266713413,
+          "cumulative": 10769668.888931487
+        },
+        {
+          "startSeconds": 48,
+          "endSeconds": 49,
+          "damage": 0,
+          "cumulative": 10769668.888931487
+        },
+        {
+          "startSeconds": 49,
+          "endSeconds": 50,
+          "damage": 31706.629592652953,
+          "cumulative": 10801375.51852414
+        },
+        {
+          "startSeconds": 50,
+          "endSeconds": 51,
+          "damage": 162053.81237743807,
+          "cumulative": 10963429.330901578
+        },
+        {
+          "startSeconds": 51,
+          "endSeconds": 52,
+          "damage": 73749.8422581524,
+          "cumulative": 11037179.17315973
+        },
+        {
+          "startSeconds": 52,
+          "endSeconds": 53,
+          "damage": 194834.64241235144,
+          "cumulative": 11232013.815572081
+        },
+        {
+          "startSeconds": 53,
+          "endSeconds": 54,
+          "damage": 138695.61727874086,
+          "cumulative": 11370709.432850823
+        },
+        {
+          "startSeconds": 54,
+          "endSeconds": 55,
+          "damage": 369988.3522304911,
+          "cumulative": 11740697.785081314
+        },
+        {
+          "startSeconds": 55,
+          "endSeconds": 56,
+          "damage": 381850.2282227028,
+          "cumulative": 12122548.013304017
+        },
+        {
+          "startSeconds": 56,
+          "endSeconds": 57,
+          "damage": 436268.3681277798,
+          "cumulative": 12558816.381431798
+        },
+        {
+          "startSeconds": 57,
+          "endSeconds": 58,
+          "damage": 525819.3967445605,
+          "cumulative": 13084635.778176358
+        },
+        {
+          "startSeconds": 58,
+          "endSeconds": 59,
+          "damage": 399021.2011202083,
+          "cumulative": 13483656.979296567
+        },
+        {
+          "startSeconds": 59,
+          "endSeconds": 60,
+          "damage": 556218.1709558174,
+          "cumulative": 14039875.150252385
+        },
+        {
+          "startSeconds": 60,
+          "endSeconds": 61,
+          "damage": 361839.4398191386,
+          "cumulative": 14401714.590071524
+        },
+        {
+          "startSeconds": 61,
+          "endSeconds": 62,
+          "damage": 327571.59265208826,
+          "cumulative": 14729286.182723612
+        },
+        {
+          "startSeconds": 62,
+          "endSeconds": 63,
+          "damage": 354115.3021287446,
+          "cumulative": 15083401.484852357
+        },
+        {
+          "startSeconds": 63,
+          "endSeconds": 64,
+          "damage": 222083.85396043552,
+          "cumulative": 15305485.338812793
+        },
+        {
+          "startSeconds": 64,
+          "endSeconds": 65,
+          "damage": 16010.403271402363,
+          "cumulative": 15321495.742084196
+        },
+        {
+          "startSeconds": 65,
+          "endSeconds": 66,
+          "damage": 637420.9483924517,
+          "cumulative": 15958916.690476649
+        },
+        {
+          "startSeconds": 66,
+          "endSeconds": 67,
+          "damage": 60258.80915593267,
+          "cumulative": 16019175.499632582
+        },
+        {
+          "startSeconds": 67,
+          "endSeconds": 68,
+          "damage": 21951.763849420247,
+          "cumulative": 16041127.263482003
+        },
+        {
+          "startSeconds": 68,
+          "endSeconds": 69,
+          "damage": 111466.23274332983,
+          "cumulative": 16152593.496225333
+        },
+        {
+          "startSeconds": 69,
+          "endSeconds": 70,
+          "damage": 150747.52592193254,
+          "cumulative": 16303341.022147266
+        },
+        {
+          "startSeconds": 70,
+          "endSeconds": 71,
+          "damage": 0,
+          "cumulative": 16303341.022147266
+        },
+        {
+          "startSeconds": 71,
+          "endSeconds": 72,
+          "damage": 31706.629592652953,
+          "cumulative": 16335047.65173992
+        },
+        {
+          "startSeconds": 72,
+          "endSeconds": 73,
+          "damage": 260296.74583586317,
+          "cumulative": 16595344.397575783
+        },
+        {
+          "startSeconds": 73,
+          "endSeconds": 74,
+          "damage": 73749.8422581524,
+          "cumulative": 16669094.239833934
+        },
+        {
+          "startSeconds": 74,
+          "endSeconds": 75,
+          "damage": 207380.77093497085,
+          "cumulative": 16876475.010768905
+        },
+        {
+          "startSeconds": 75,
+          "endSeconds": 76,
+          "damage": 129685.45176211276,
+          "cumulative": 17006160.46253102
+        },
+        {
+          "startSeconds": 76,
+          "endSeconds": 77,
+          "damage": 307237.5622440174,
+          "cumulative": 17313398.024775036
+        },
+        {
+          "startSeconds": 77,
+          "endSeconds": 78,
+          "damage": 274679.5254289065,
+          "cumulative": 17588077.55020394
+        },
+        {
+          "startSeconds": 78,
+          "endSeconds": 79,
+          "damage": 671829.7394174057,
+          "cumulative": 18259907.289621346
+        },
+        {
+          "startSeconds": 79,
+          "endSeconds": 80,
+          "damage": 457601.7148324072,
+          "cumulative": 18717509.004453752
+        },
+        {
+          "startSeconds": 80,
+          "endSeconds": 81,
+          "damage": 329910.9557134961,
+          "cumulative": 19047419.960167248
+        },
+        {
+          "startSeconds": 81,
+          "endSeconds": 82,
+          "damage": 278310.5015368234,
+          "cumulative": 19325730.46170407
+        },
+        {
+          "startSeconds": 82,
+          "endSeconds": 83,
+          "damage": 361839.4398191386,
+          "cumulative": 19687569.90152321
+        },
+        {
+          "startSeconds": 83,
+          "endSeconds": 84,
+          "damage": 229798.77940012136,
+          "cumulative": 19917368.68092333
+        },
+        {
+          "startSeconds": 84,
+          "endSeconds": 85,
+          "damage": 548697.7664998458,
+          "cumulative": 20466066.44742318
+        },
+        {
+          "startSeconds": 85,
+          "endSeconds": 86,
+          "damage": 201826.14181476427,
+          "cumulative": 20667892.589237943
+        },
+        {
+          "startSeconds": 86,
+          "endSeconds": 87,
+          "damage": 16010.403271402363,
+          "cumulative": 20683902.992509346
+        },
+        {
+          "startSeconds": 87,
+          "endSeconds": 88,
+          "damage": 531358.0799085001,
+          "cumulative": 21215261.072417848
+        },
+        {
+          "startSeconds": 88,
+          "endSeconds": 89,
+          "damage": 60258.80915593267,
+          "cumulative": 21275519.88157378
+        },
+        {
+          "startSeconds": 89,
+          "endSeconds": 90,
+          "damage": 21951.763849420247,
+          "cumulative": 21297471.6454232
+        },
+        {
+          "startSeconds": 90,
+          "endSeconds": 91,
+          "damage": 111466.23274332983,
+          "cumulative": 21408937.87816653
+        },
+        {
+          "startSeconds": 91,
+          "endSeconds": 92,
+          "damage": 206385.12648136413,
+          "cumulative": 21615323.004647896
+        },
+        {
+          "startSeconds": 92,
+          "endSeconds": 93,
+          "damage": 0,
+          "cumulative": 21615323.004647896
+        },
+        {
+          "startSeconds": 93,
+          "endSeconds": 94,
+          "damage": 31706.629592652953,
+          "cumulative": 21647029.63424055
+        },
+        {
+          "startSeconds": 94,
+          "endSeconds": 95,
+          "damage": 162053.81237743807,
+          "cumulative": 21809083.446617987
+        },
+        {
+          "startSeconds": 95,
+          "endSeconds": 96,
+          "damage": 52796.190912986574,
+          "cumulative": 21861879.637530975
+        },
+        {
+          "startSeconds": 96,
+          "endSeconds": 97,
+          "damage": 194834.64241235144,
+          "cumulative": 22056714.279943325
+        },
+        {
+          "startSeconds": 97,
+          "endSeconds": 98,
+          "damage": 130164.33938436938,
+          "cumulative": 22186878.619327694
+        },
+        {
+          "startSeconds": 98,
+          "endSeconds": 99,
+          "damage": 307533.5268045614,
+          "cumulative": 22494412.146132257
+        },
+        {
+          "startSeconds": 99,
+          "endSeconds": 100,
+          "damage": 296960.29046493897,
+          "cumulative": 22791372.436597195
+        },
+        {
+          "startSeconds": 100,
+          "endSeconds": 101,
+          "damage": 472462.83345006517,
+          "cumulative": 23263835.27004726
+        },
+        {
+          "startSeconds": 101,
+          "endSeconds": 102,
+          "damage": 525819.3967445605,
+          "cumulative": 23789654.66679182
+        },
+        {
+          "startSeconds": 102,
+          "endSeconds": 103,
+          "damage": 399021.2011202083,
+          "cumulative": 24188675.867912028
+        },
+        {
+          "startSeconds": 103,
+          "endSeconds": 104,
+          "damage": 556218.1709558174,
+          "cumulative": 24744894.038867846
+        },
+        {
+          "startSeconds": 104,
+          "endSeconds": 105,
+          "damage": 361839.4398191386,
+          "cumulative": 25106733.478686985
+        },
+        {
+          "startSeconds": 105,
+          "endSeconds": 106,
+          "damage": 229798.77940012136,
+          "cumulative": 25336532.258087106
+        },
+        {
+          "startSeconds": 106,
+          "endSeconds": 107,
+          "damage": 431630.40323504026,
+          "cumulative": 25768162.661322147
+        },
+        {
+          "startSeconds": 107,
+          "endSeconds": 108,
+          "damage": 222083.85396043552,
+          "cumulative": 25990246.515282582
+        },
+        {
+          "startSeconds": 108,
+          "endSeconds": 109,
+          "damage": 16010.403271402363,
+          "cumulative": 26006256.918553986
+        },
+        {
+          "startSeconds": 109,
+          "endSeconds": 110,
+          "damage": 628483.062776563,
+          "cumulative": 26634739.981330547
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 111,
+          "damage": 60258.80915593267,
+          "cumulative": 26694998.79048648
+        },
+        {
+          "startSeconds": 111,
+          "endSeconds": 112,
+          "damage": 21951.763849420247,
+          "cumulative": 26716950.5543359
+        },
+        {
+          "startSeconds": 112,
+          "endSeconds": 113,
+          "damage": 111466.23274332983,
+          "cumulative": 26828416.78707923
+        },
+        {
+          "startSeconds": 113,
+          "endSeconds": 114,
+          "damage": 150747.52592193254,
+          "cumulative": 26979164.313001163
+        },
+        {
+          "startSeconds": 114,
+          "endSeconds": 115,
+          "damage": 0,
+          "cumulative": 26979164.313001163
+        },
+        {
+          "startSeconds": 115,
+          "endSeconds": 116,
+          "damage": 31706.629592652953,
+          "cumulative": 27010870.942593817
+        },
+        {
+          "startSeconds": 116,
+          "endSeconds": 117,
+          "damage": 280068.79217182886,
+          "cumulative": 27290939.734765645
+        },
+        {
+          "startSeconds": 117,
+          "endSeconds": 118,
+          "damage": 73749.8422581524,
+          "cumulative": 27364689.577023797
+        },
+        {
+          "startSeconds": 118,
+          "endSeconds": 119,
+          "damage": 207380.77093497085,
+          "cumulative": 27572070.347958766
+        },
+        {
+          "startSeconds": 119,
+          "endSeconds": 120,
+          "damage": 129685.45176211276,
+          "cumulative": 27701755.79972081
+        }
+      ],
+      "c4ElectroActualGain": 7.999999999999979,
+      "observedEnergyAndCooldownLegal": true,
+      "steadyStateProven": false,
+      "evidenceHashes": {
+        "capture": "7c32f95c00d823872a7f3ca93d1e55789b82ea540f334759f3fdd8201eb8d58e",
+        "completion": "eb63d5a195ced2143c5400e31c7ef718fc39ed918c64a0a653feb1cde3e89bbe",
+        "energyAudit": "f92dcaac76e0b4ff218a08b96325e0bf78054b4e2c97f206f81509eee69dc829",
+        "burstAndC4Audit": "a50303a158a886e72f9d0dcb8c4d29f7e2c798aee744a4a546987b39fa4d22b2"
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "id": "wanderer-er140",
+      "label": "充能候选140.16%",
+      "totalEnergyRecharge": 1.4016,
+      "equipmentSha256": "f63d6fdd62a87f40da28ccf3eb2606b39f9068ef7c97b50a2aff911793ce6510",
+      "equipmentAsset": "wanderer-team-recharge.er140.equipment.json",
+      "configAsset": "wanderer-team-recharge.er140.gcsl",
+      "totalRolls": 45,
+      "displayDeltas": [
+        {
+          "label": "暴击率",
+          "delta": -11.669999999999991,
+          "unit": "百分点"
+        },
+        {
+          "label": "暴击伤害",
+          "delta": 28.74000000000003,
+          "unit": "百分点"
+        },
+        {
+          "label": "攻击百分比",
+          "delta": -27.40999999999999,
+          "unit": "百分点"
+        },
+        {
+          "label": "充能",
+          "delta": 25.919999999999998,
+          "unit": "百分点"
+        }
+      ],
+      "rollMoves": [
+        {
+          "slot": "flower",
+          "tierIndex": 2,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0525,
+          "addedValue": 0.0699
+        },
+        {
+          "slot": "flower",
+          "tierIndex": 3,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0583,
+          "addedValue": 0.0777
+        },
+        {
+          "slot": "plume",
+          "tierIndex": 3,
+          "from": "critRate_",
+          "to": "enerRech_",
+          "removedValue": 0.0389,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "plume",
+          "tierIndex": 3,
+          "from": "critDMG_",
+          "to": "enerRech_",
+          "removedValue": 0.0777,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "plume",
+          "tierIndex": 3,
+          "from": "atk_",
+          "to": "enerRech_",
+          "removedValue": 0.0583,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "sands",
+          "tierIndex": 3,
+          "from": "critRate_",
+          "to": "enerRech_",
+          "removedValue": 0.0389,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "goblet",
+          "tierIndex": 2,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0525,
+          "addedValue": 0.0699
+        },
+        {
+          "slot": "goblet",
+          "tierIndex": 3,
+          "from": "critRate_",
+          "to": "critDMG_",
+          "removedValue": 0.0389,
+          "addedValue": 0.0777
+        },
+        {
+          "slot": "circlet",
+          "tierIndex": 2,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0525,
+          "addedValue": 0.0699
+        }
+      ],
+      "pieceBudgets": [
+        {
+          "slot": "flower",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                1,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                2,
+                3,
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                1,
+                3,
+                3,
+                2
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "plume",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                1,
+                2,
+                3,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                1,
+                2,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0,
+                3,
+                3,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "sands",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                3,
+                0,
+                2,
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                1
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                0
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                3,
+                0,
+                2,
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                1,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "goblet",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                3,
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "circlet",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                2,
+                3,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                2,
+                3,
+                3,
+                2
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts"
+      ],
+      "sourceVersion": "artifact-stats-go-180a0a1",
+      "proxy": {
+        "label": "frozen-observed-own-hit-offense-only;not-native-DPS;not-cycle-or-global-optimum",
+        "hits": 282,
+        "baseline": 19192065.567747876,
+        "candidate": 18477199.378097184,
+        "relativeChange": -0.03724800684570495
+      }
+    },
+    {
+      "id": "wanderer-er150",
+      "label": "充能候选151.82%",
+      "totalEnergyRecharge": 1.5181999999999998,
+      "equipmentSha256": "9b2ebaf2f0276e3a41252ed658c9f5ae534f6c5b696d6a153fbc35c75555cd6a",
+      "equipmentAsset": "wanderer-team-recharge.er150.equipment.json",
+      "configAsset": "wanderer-team-recharge.er150.gcsl",
+      "totalRolls": 45,
+      "displayDeltas": [
+        {
+          "label": "暴击率",
+          "delta": -15.169999999999995,
+          "unit": "百分点"
+        },
+        {
+          "label": "暴击伤害",
+          "delta": 20.97000000000002,
+          "unit": "百分点"
+        },
+        {
+          "label": "攻击百分比",
+          "delta": -26.81999999999999,
+          "unit": "百分点"
+        },
+        {
+          "label": "充能",
+          "delta": 37.57999999999999,
+          "unit": "百分点"
+        }
+      ],
+      "rollMoves": [
+        {
+          "slot": "flower",
+          "tierIndex": 2,
+          "from": "critRate_",
+          "to": "critDMG_",
+          "removedValue": 0.035,
+          "addedValue": 0.0699
+        },
+        {
+          "slot": "flower",
+          "tierIndex": 2,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0525,
+          "addedValue": 0.0699
+        },
+        {
+          "slot": "flower",
+          "tierIndex": 3,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0583,
+          "addedValue": 0.0777
+        },
+        {
+          "slot": "plume",
+          "tierIndex": 3,
+          "from": "critRate_",
+          "to": "enerRech_",
+          "removedValue": 0.0389,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "plume",
+          "tierIndex": 3,
+          "from": "critDMG_",
+          "to": "enerRech_",
+          "removedValue": 0.0777,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "plume",
+          "tierIndex": 3,
+          "from": "atk_",
+          "to": "enerRech_",
+          "removedValue": 0.0583,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "sands",
+          "tierIndex": 3,
+          "from": "critRate_",
+          "to": "enerRech_",
+          "removedValue": 0.0389,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "sands",
+          "tierIndex": 3,
+          "from": "critDMG_",
+          "to": "enerRech_",
+          "removedValue": 0.0777,
+          "addedValue": 0.0648
+        },
+        {
+          "slot": "goblet",
+          "tierIndex": 2,
+          "from": "atk_",
+          "to": "critDMG_",
+          "removedValue": 0.0525,
+          "addedValue": 0.0699
+        },
+        {
+          "slot": "goblet",
+          "tierIndex": 3,
+          "from": "critRate_",
+          "to": "critDMG_",
+          "removedValue": 0.0389,
+          "addedValue": 0.0777
+        },
+        {
+          "slot": "circlet",
+          "tierIndex": 1,
+          "from": "atk_",
+          "to": "enerRech_",
+          "removedValue": 0.0466,
+          "addedValue": 0.0518
+        }
+      ],
+      "pieceBudgets": [
+        {
+          "slot": "flower",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                1,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                2,
+                3,
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                1,
+                3,
+                3,
+                2,
+                2
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "plume",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                1,
+                2,
+                3,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                1,
+                2,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0,
+                3,
+                3,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "sands",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                3,
+                0
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                3,
+                0,
+                2,
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                1
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                2,
+                0
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                2,
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                0
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                1,
+                3,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "goblet",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                3,
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critRate_",
+              "rolls": [
+                0,
+                1
+              ]
+            },
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                3,
+                2,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "circlet",
+          "initialSubstats": 4,
+          "totalRolls": 9,
+          "tierIndices": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            2,
+            3,
+            3
+          ],
+          "before": [
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                2,
+                3,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                1,
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0
+              ]
+            }
+          ],
+          "after": [
+            {
+              "stat": "critDMG_",
+              "rolls": [
+                0,
+                1,
+                2,
+                3,
+                3
+              ]
+            },
+            {
+              "stat": "atk_",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "atk",
+              "rolls": [
+                2
+              ]
+            },
+            {
+              "stat": "enerRech_",
+              "rolls": [
+                0,
+                1
+              ]
+            }
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts"
+      ],
+      "sourceVersion": "artifact-stats-go-180a0a1",
+      "proxy": {
+        "label": "frozen-observed-own-hit-offense-only;not-native-DPS;not-cycle-or-global-optimum",
+        "hits": 282,
+        "baseline": 19192065.567747876,
+        "candidate": 17798051.65426404,
+        "relativeChange": -0.07263490782495374
+      }
+    }
+  ],
+  "conclusions": [
+    "先修正了流浪者C2误加给非Q伤害的问题。以下六次运行使用同一个修正后的Classic引擎，原始历史记录仍然保留。",
+    "151.82%候选在这两个固定种子的120秒内，流浪者已到达的5次Q检查全部合法；代价是本次DPS低6.28%–7.71%。140.16%候选在第二个种子仍有一次缺能。原配装继续作为输出优先的可选项。"
+  ],
+  "limitations": [
+    "每一行是一次固定种子结果，未做蒙特卡洛平均或置信区间，不能称随机期望或无限稳态。",
+    "各次包含5个完整轮转和第6轮的实际前缀；120秒截止前未到达的Q检查不记为漏Q。",
+    "只在开场满能一次，没有无限能量或逐轮填满。粒子按充能计算，固定回能不乘充能；到上限后溢出不计实收。",
+    "包含流浪者C4实际随机增益和暴击抽样；配装改变Q次数和后续事件，所以相同初始种子不代表相同随机路径。两个种子通过不能保证所有战斗都每轮满Q。",
+    "仅搜索原5件圣遗物的合法副词条分配，套装、主词条、各件档位品质及其余3人装备保持不变，未搜索主词条、套装或动作轴的全局最优。",
+    "角色和武器使用固定版本数据；固定源的碰撞、部分命中时序近似和未覆盖机制尚未作游戏实机验证。该C2修复仅重建Classic，Stellar本批未重建。",
+    "本地云端成果尚未发布，本页不代表生产域名已更新。"
+  ],
+  "meaning": "Separate fixed-seed single runs, not a Monte Carlo mean or proof of infinite steady state.",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "wasmSha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e"
+}

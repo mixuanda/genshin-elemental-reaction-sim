@@ -1,0 +1,14 @@
+{
+  "provenance": "Completed /root/skill_condition_gaps tool-result report; not a fabricated root runner log",
+  "command": "npx vitest run packages/sim-core/src/__tests__/neuvillette-source-formulas.test.ts",
+  "runs": 1,
+  "passed": 6,
+  "failed": 0,
+  "reportedDurationMs": 562,
+  "scope": "Pure shared-formula regressions for both pinned revisions; not a native Stellar execution or lifecycle proof",
+  "stableFiles": [
+    "packages/sim-core/src/source-host-character-flat-group-c.ts",
+    "packages/sim-core/src/__tests__/neuvillette-source-formulas.test.ts"
+  ],
+  "reportTimingNote": "Completed agent tool-result report received before 2026-10-23 20:51 UTC resume; no exact runner timestamp archived."
+}

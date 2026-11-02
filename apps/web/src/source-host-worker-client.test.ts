@@ -32,7 +32,7 @@ describe("source-host worker diagnostics and lifecycle", () => {
       kind: "runtime-error", stage: "execute", message: "bad token=do-not-export", stack: "Error: failed\n at /Users/evan/private.js:1:2",
     } });
     const encoded = JSON.stringify(diagnostic);
-    expect(diagnostic.input).toMatchObject({ seed: "12345", configBytes: 45, durationSeconds: 30, requestKind: "single" });
+    expect(diagnostic.input).toMatchObject({ seed: "12345", configBytes: 44, durationSeconds: 30, requestKind: "single" });
     expect(diagnostic.input.configSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(diagnostic.failure.message).toContain("token=[redacted]");
     expect(diagnostic.failure.stack).toContain("/Users/[redacted]");
@@ -74,11 +74,67 @@ describe("source-host worker diagnostics and lifecycle", () => {
     const timeoutWorker = FakeWorker.instances[1]!;
     timeoutWorker.emitMessage({ type: "progress", stage: "execute", message: "running" });
     await vi.advanceTimersByTimeAsync(501);
-    await Promise.resolve();
-    expect(timeoutCallbacks.onFailure).toHaveBeenCalledOnce();
+    vi.useRealTimers();
+    await vi.waitFor(() => expect(timeoutCallbacks.onFailure).toHaveBeenCalledOnce());
     expect(timeoutCallbacks.onFailure.mock.calls[0]![0].failure).toMatchObject({ kind: "timeout", stage: "execute", code: "WORKER_TIMEOUT" });
     expect(timeoutCallbacks.onFailure.mock.calls[0]![0].worker.timeoutMs).toBe(500);
     expect(timeoutWorker.terminate).toHaveBeenCalledOnce();
     timeoutRun.cancel();
+  });
+});
+
+it("suppresses a pending failure diagnostic after cancellation", async () => {
+  vi.stubGlobal("Worker", FakeWorker); FakeWorker.instances = [];
+  let complete!: (value: ArrayBuffer) => void;
+  const digest = vi.spyOn(crypto.subtle, "digest").mockImplementation(() => new Promise(resolve => { complete = resolve; }));
+  try {
+    const callbacks = handlers(); const run = startSourceHostWorker(request(), callbacks);
+    FakeWorker.instances[0]!.emitError("old failure");
+    expect(digest).toHaveBeenCalled(); run.cancel(); complete(new ArrayBuffer(32));
+    for (let i = 0; i < 6; i++) await Promise.resolve();
+    expect(callbacks.onFailure).not.toHaveBeenCalled();
+  } finally { digest.mockRestore(); vi.unstubAllGlobals(); }
+});
+
+describe("source Worker operation boundaries", () => {
+  beforeEach(() => { FakeWorker.instances = []; vi.stubGlobal("Worker", FakeWorker); });
+  afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
+  it.each(["load-manifest", "load-wasm", "instantiate-wasm", "execute", "batch", "reexecution", "response"] as const)("retains %s when reporting failure", async stage => {
+    const callbacks = handlers(); const run = startSourceHostWorker(request(), callbacks);
+    const worker = FakeWorker.instances[0]!;
+    worker.emitMessage({ type: "progress", stage, message: "synthetic phase" });
+    worker.emitMessage({ type: "error", message: "synthetic failure" });
+    await vi.waitFor(() => expect(callbacks.onFailure).toHaveBeenCalledOnce());
+    expect(callbacks.onFailure.mock.calls[0]![0].failure.stage).toBe(stage);
+    worker.emitMessage({ type: "result", result: {} as never, elapsedMs: 1 });
+    expect(callbacks.onMessage).not.toHaveBeenCalled(); run.cancel();
+  });
+  it.each(["result", "batch-result", "startup-result", "reexecution-result"] as const)("terminates on %s and ignores duplicate terminal messages", type => {
+    const callbacks = handlers(); startSourceHostWorker(request(), callbacks);
+    const worker = FakeWorker.instances[0]!;
+    const message = { type, elapsedMs: 0 } as SourceHostWorkerMessage;
+    worker.emitMessage(message); worker.emitMessage(message); worker.emitError("late error");
+    expect(callbacks.onMessage).toHaveBeenCalledOnce();
+    expect(callbacks.onFailure).not.toHaveBeenCalled(); expect(worker.terminate).toHaveBeenCalledOnce();
+  });
+  it("reports construction failure through the same diagnostic handler", async () => {
+    vi.stubGlobal("Worker", class { constructor() { throw new Error("unsupported worker"); } });
+    const callbacks = handlers(); const run = startSourceHostWorker(request(), callbacks);
+    await vi.waitFor(() => expect(callbacks.onFailure).toHaveBeenCalledOnce());
+    expect(callbacks.onFailure.mock.calls[0]![0].failure.code).toBe("WORKER_CONSTRUCTION_FAILED");
+    expect(run.worker).toBeNull(); run.cancel();
+  });
+  it("reports postMessage failure and snapshots the original request", async () => {
+    class BrokenPostWorker extends FakeWorker { override postMessage = vi.fn(() => { throw new Error("clone failed"); }); }
+    vi.stubGlobal("Worker", BrokenPostWorker);
+    const input = request(), callbacks = handlers(); const run = startSourceHostWorker(input, callbacks);
+    input.seed = "changed";
+    await vi.waitFor(() => expect(callbacks.onFailure).toHaveBeenCalledOnce());
+    expect(callbacks.onFailure.mock.calls[0]![0]).toMatchObject({ failure: { kind: "post-message-error" }, input: { seed: "12345" } });
+    run.cancel();
+  });
+  it("counts declared target phases in the input receipt", async () => {
+    const diagnostic = await createSourceHostDiagnostic({ request: { ...request(), targetPhases: { policy: "declared-target-phases-v1", phases: [] } }, failure: { kind: "runtime-error", stage: "request", message: "fixture" } });
+    expect(diagnostic.input.targetPhaseCount).toBe(0);
   });
 });

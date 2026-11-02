@@ -69,7 +69,8 @@ describe("independent data dimensions and scoped readiness", () => {
     expect(hits).toHaveLength(4);
     expect(hits[0]?.coefficient).toBe(1.9008);
     expect(hits.map((hit) => hit.coefficientField)).toEqual([1, 2, 3, 4].map((n) => `talent-set:durin.combat2.parameters.param${n}[9]`));
-    expect(hits.every((hit) => hit.resultStatus === "provisional-conditioned" && hit.mappingVersion.endsWith(".8"))).toBe(true);
+    // Later character batches append their own revisions after Durin's revision.
+    expect(hits.every((hit) => hit.resultStatus === "provisional-conditioned" && hit.mappingVersion.split("+").includes("durin.8"))).toBe(true);
     expect(getClassifiedCharacterHits("unknown")).toEqual([]);
     expect(() => getClassifiedCharacterHits("character:10000123", 16)).toThrow(/缺少/);
   });
@@ -82,7 +83,12 @@ describe("independent data dimensions and scoped readiness", () => {
     expect(updateStatus.coverage.expectedInventory?.sourceId).not.toBe(gameDataCatalog.sources[0]?.id);
     expect(updateStatus.coverage.inventoryValidation.categories?.weapons?.completeness).toBe("partial");
     expect(updateStatus.activeVerifiedDataset).toBeNull();
-    expect(updateStatus.previewSnapshots).toEqual([]);
+    expect(updateStatus.previewSnapshots.map(snapshot => snapshot.gameVersion)).toEqual(["7.1.50", "7.1.50.2"]);
+    for (const snapshot of updateStatus.previewSnapshots) {
+      expect(snapshot.releaseStatus).toBe("preview");
+      expect(snapshot.snapshotId).not.toBe(updateStatus.activeCatalog?.snapshotId);
+      expect(snapshot.snapshotId).not.toBe(runtimeDatasetMetadata.snapshotId);
+    }
   });
 });
 

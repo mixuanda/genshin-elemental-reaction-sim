@@ -418,6 +418,18 @@ describe("core-owned target state timeline", () => {
         event.kind === "direct" && event.hitId === "shatter-hit"
     );
     expect(shatterDamage).toBeDefined();
+    // Direct-hit resolution now allocates the first causal coordinate before
+    // Shatter mutation and Aura application. Verify that backlink explicitly;
+    // the three state transitions must still retain their strict sub-order.
+    const resolution = result.hitResolutionLog.find(
+      (entry) => entry.id === shatterDamage?.targetResolutionId
+    );
+    expect(resolution).toMatchObject({
+      damageEventId: shatterDamage?.id,
+      eventPriority: 3,
+      eventSequence: shatterDamage?.eventSequence,
+      intraEventSequence: 0
+    });
 
     const points = result.targetStateTimeline.points.filter(
       (point) =>
@@ -438,7 +450,7 @@ describe("core-owned target state timeline", () => {
         pointKind: "mutation",
         priority: 3,
         sequence: shatterDamage?.eventSequence,
-        intra: 0,
+        intra: 1,
         reaction: "none"
       },
       {
@@ -446,7 +458,7 @@ describe("core-owned target state timeline", () => {
         pointKind: "mutation",
         priority: 3,
         sequence: shatterDamage?.eventSequence,
-        intra: 1,
+        intra: 2,
         reaction: "shatter"
       },
       {
@@ -454,7 +466,7 @@ describe("core-owned target state timeline", () => {
         pointKind: "mutation",
         priority: 3,
         sequence: shatterDamage?.eventSequence,
-        intra: 2,
+        intra: 3,
         reaction: "none"
       }
     ]);
@@ -525,7 +537,7 @@ describe("core-owned target state timeline", () => {
     ]);
     expect(
       frameFifteen.map((point) => point.eventSequence)
-    ).toEqual([3, 5, 5, 4, 7, 7]);
+    ).toEqual([4, 7, 7, 6, 9, 9]);
     expect(
       targetStateTimelineSchema.parse(result.targetStateTimeline)
     ).toEqual(result.targetStateTimeline);

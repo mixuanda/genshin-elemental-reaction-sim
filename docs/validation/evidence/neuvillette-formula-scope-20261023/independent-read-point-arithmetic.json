@@ -1,0 +1,66 @@
+{
+  "method": "Independent arithmetic only; no engine or shared formula imports. Expected values are exercised against production resolvers/calcDamage by the six numeric unit cases.",
+  "castMaxHp": 32000,
+  "laterMaxHp": [
+    48000,
+    64000
+  ],
+  "otherDamageBonus": 0.466,
+  "a4": [
+    0.12,
+    0.3
+  ],
+  "defenseMultiplier": 0.5,
+  "resistanceMultiplier": 0.9,
+  "critMode": "noCrit",
+  "reaction": "none",
+  "qTalentLevel": 10,
+  "q": [
+    {
+      "kind": "initial",
+      "coefficient": 0.400641,
+      "savedCastBase": 12820.512,
+      "laterDamageAtHpRatio0_5": 9149.9994144,
+      "laterDamageAtHpRatio0_8": 10188.4608864
+    },
+    {
+      "kind": "waterfall",
+      "coefficient": 0.163898,
+      "savedCastBase": 5244.736,
+      "laterDamageAtHpRatio0_5": 3743.1680831999993,
+      "laterDamageAtHpRatio0_8": 4167.9916992
+    }
+  ],
+  "charge": {
+    "talentLevel": 1,
+    "coefficient": 0.073186,
+    "initialBaseAt32000": 2341.952,
+    "laterWaveMaxHp": 48000,
+    "a1": [
+      {
+        "stacks": 0,
+        "multiplier": 1,
+        "waveBaseReplacingInitial": 3512.928,
+        "noBonusDamage": 1580.8176
+      },
+      {
+        "stacks": 1,
+        "multiplier": 1.1,
+        "waveBaseReplacingInitial": 3864.2208,
+        "noBonusDamage": 1738.8993600000001
+      },
+      {
+        "stacks": 2,
+        "multiplier": 1.25,
+        "waveBaseReplacingInitial": 4391.16,
+        "noBonusDamage": 1976.022
+      },
+      {
+        "stacks": 3,
+        "multiplier": 1.6,
+        "waveBaseReplacingInitial": 5620.6848,
+        "noBonusDamage": 2529.30816
+      }
+    ]
+  }
+}

@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "a9c7be1a520ab34e4fd2a3088e590cdb0448d98f",
+  "selectedDefect": "Iansan C1 counts requested instead of actual consumed Nightsoul, and strict6 threshold misses the tenth0.6 tick due to floating rounding.",
+  "modeBoundary": {
+    "source-host": {
+      "manifestPath": "/workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host/manifest.json",
+      "manifestSha256": "a1227b856daffaea61b62a76872fec76741958a713e4e9b729a001fe20130440",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "iansanRegistered": false
+    },
+    "source-host-stellar": {
+      "manifestPath": "/workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host-stellar/manifest.json",
+      "manifestSha256": "b666a4684658ffa0c40dfc19eb5b28a62a6dcae1117bd8f968e22a40ddb47535",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "iansanRegistered": true
+    }
+  },
+  "patch": {
+    "path": "packages/source-host/stellar-overlay/patches/139-iansan-c1-consumption-threshold.patch",
+    "sha256": "6f61d4f4ee3478b8b55ce4097c5ac35e6719a79188bb34126263444227b12e79",
+    "changedUpstreamFiles": [
+      "internal/characters/iansan/cons.go",
+      "internal/characters/iansan/skill.go"
+    ],
+    "absoluteThresholdTolerance": 1e-12,
+    "toleranceScope": "C1 consumption sum threshold6 only. No quantization or change to the Q42 gate/NS resource values.",
+    "applicationCheck": "git apply --check and apply passed against an isolated two-file copy from stellar-build-BLHabY; no build/native execution and no original source mutation."
+  },
+  "fixedSourceFiles": [
+    {
+      "path": "internal/characters/iansan/cons.go",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "localEvidence": "/tmp/GIDPS-iansan-energy-lifecycle-evidence-20261023/original-cons.go",
+      "bytes": 2352,
+      "sha256": "7411ebc9bb7a168204461d0e740ebb438e4710a3dafcf830aa0ffa0d53a1a276",
+      "computedGitBlobSha1": "4d3fdcfedc2f4ec1bd707af5015f3d89b7e1840a"
+    },
+    {
+      "path": "internal/characters/iansan/skill.go",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "localEvidence": "/tmp/GIDPS-iansan-energy-lifecycle-evidence-20261023/original-skill.go",
+      "bytes": 3093,
+      "sha256": "3a05af9e483794e24e01157eafe234e6b12aea76ff15ff6584732437ed3c3399",
+      "computedGitBlobSha1": "b1cf0956b6ea5919aa78f04d0dfe8d2a3f4343d7"
+    },
+    {
+      "path": "internal/characters/iansan/dash.go",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "localEvidence": "/tmp/GIDPS-iansan-energy-lifecycle-evidence-20261023/original-dash.go",
+      "bytes": 236,
+      "sha256": "c815fa0894c3cfefe5bed5961adc7e192ec8511b021651a65fa1e5fa98659562",
+      "computedGitBlobSha1": "243e17bda27127747e57da7a2611f42a5dc060bc"
+    },
+    {
+      "path": "internal/characters/iansan/jump.go",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "localEvidence": "/tmp/GIDPS-iansan-energy-lifecycle-evidence-20261023/original-jump.go",
+      "bytes": 287,
+      "sha256": "dc1aced026e492456b7fe4d1494e4d403da7c46cd0e29d7f4455662702bfe954",
+      "computedGitBlobSha1": "6ecd3f8d724aee53823ef876ddeff7dca2f8aaad"
+    }
+  ],
+  "sourceLimits": "cons identity matches existing active-burst-evidence.json additionalReadOnlySource. Skill comes from frozen52-file source archive. Dash/Jump fetched at fixed raw URLs with byte/blob hashes, not independently tree-verified. Cached source is instrumented; C1 function independently matched fixed raw bytes before patch.",
+  "allC1Callers": {
+    "direct": "skill.go reduceNightsoulPoints only",
+    "requestedAmounts": {
+      "scheduledCharacterTaskEvery6Frames": 0.6,
+      "dashWhileBlessing": 10,
+      "jumpFromDashWhileBlessing": 6
+    },
+    "restoration": "Q+15, off-field movement*0.67, A1 and C4 restoration can create arbitrary fractions; no integer-tenths accumulator.",
+    "consumeListeners": "Reviewed current Iansan A1, Mavuika fighting-spirit and Obsidian Codex listeners: none synchronously regenerate this actor’s NS points inside ConsumePoints; the actual before/after difference matches the template used amount."
+  },
+  "ieee754MinimalTrace": [
+    {
+      "tick": 1,
+      "relativeToEntryFrame": 6,
+      "actualPointBefore": 54.0,
+      "actualPointAfter": 53.4,
+      "actualConsumedTotal": 0.6000000000000014,
+      "oldRequestedAccumulator": 0.6,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 2,
+      "relativeToEntryFrame": 12,
+      "actualPointBefore": 53.4,
+      "actualPointAfter": 52.8,
+      "actualConsumedTotal": 1.2000000000000028,
+      "oldRequestedAccumulator": 1.2,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 3,
+      "relativeToEntryFrame": 18,
+      "actualPointBefore": 52.8,
+      "actualPointAfter": 52.199999999999996,
+      "actualConsumedTotal": 1.8000000000000043,
+      "oldRequestedAccumulator": 1.7999999999999998,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 4,
+      "relativeToEntryFrame": 24,
+      "actualPointBefore": 52.199999999999996,
+      "actualPointAfter": 51.599999999999994,
+      "actualConsumedTotal": 2.4000000000000057,
+      "oldRequestedAccumulator": 2.4,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 5,
+      "relativeToEntryFrame": 30,
+      "actualPointBefore": 51.599999999999994,
+      "actualPointAfter": 50.99999999999999,
+      "actualConsumedTotal": 3.000000000000007,
+      "oldRequestedAccumulator": 3.0,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 6,
+      "relativeToEntryFrame": 36,
+      "actualPointBefore": 50.99999999999999,
+      "actualPointAfter": 50.39999999999999,
+      "actualConsumedTotal": 3.6000000000000085,
+      "oldRequestedAccumulator": 3.6,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 7,
+      "relativeToEntryFrame": 42,
+      "actualPointBefore": 50.39999999999999,
+      "actualPointAfter": 49.79999999999999,
+      "actualConsumedTotal": 4.20000000000001,
+      "oldRequestedAccumulator": 4.2,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 8,
+      "relativeToEntryFrame": 48,
+      "actualPointBefore": 49.79999999999999,
+      "actualPointAfter": 49.19999999999999,
+      "actualConsumedTotal": 4.800000000000011,
+      "oldRequestedAccumulator": 4.8,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 9,
+      "relativeToEntryFrame": 54,
+      "actualPointBefore": 49.19999999999999,
+      "actualPointAfter": 48.59999999999999,
+      "actualConsumedTotal": 5.400000000000013,
+      "oldRequestedAccumulator": 5.3999999999999995,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 10,
+      "relativeToEntryFrame": 60,
+      "actualPointBefore": 48.59999999999999,
+      "actualPointAfter": 47.999999999999986,
+      "actualConsumedTotal": 6.000000000000014,
+      "oldRequestedAccumulator": 5.999999999999999,
+      "oldThresholdReached": false
+    },
+    {
+      "tick": 11,
+      "relativeToEntryFrame": 66,
+      "actualPointBefore": 47.999999999999986,
+      "actualPointAfter": 47.399999999999984,
+      "actualConsumedTotal": 6.600000000000016,
+      "oldRequestedAccumulator": 6.599999999999999,
+      "oldThresholdReached": true
+    }
+  ],
+  "nativeBefore": {
+    "path": "/tmp/GIDPS-iansan-team-20261023/before-energy/zero-energy-e-q.native.json",
+    "sha256": "d42ad502fcbddf511118d9b6c0741a2f6b1c376acc86d2f7e0b00da717cccd03",
+    "hostIdentity": {
+      "host": "/workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host-stellar",
+      "wasmSha256": "1aea2d170dd5a7a6977a28497f4f5937162bfc0e5b9a56b8e8bbc44e496e967c",
+      "bytes": 72152682,
+      "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "startedAt": "2026-10-23T14:39:22.273Z"
+    },
+    "initialEnergy": {
+      "mode": "zero"
+    },
+    "startupState": {
+      "mode": "zero",
+      "actors": [
+        {
+          "actorIndex": 0,
+          "actorKey": "iansan",
+          "requestedEnergy": 0,
+          "energy": 0,
+          "maxEnergy": 70
+        }
+      ]
+    },
+    "energyApplications": [
+      {
+        "id": 1,
+        "calculationId": 7,
+        "frame": 70,
+        "actorIndex": 0,
+        "actorKey": "iansan",
+        "source": "iansan-c1",
+        "operation": "flat-change",
+        "energyBefore": 0,
+        "energyAfter": 15,
+        "requestedAmount": 15,
+        "energyMax": 70
+      },
+      {
+        "id": 2,
+        "calculationId": 9,
+        "frame": 110,
+        "actorIndex": 0,
+        "actorKey": "iansan",
+        "source": "iansan",
+        "operation": "particle-apply",
+        "energyBefore": 15,
+        "energyAfter": 27,
+        "requestedAmount": 12,
+        "energyMax": 70,
+        "amountCalculationId": 8
+      }
+    ],
+    "selectedConsumptionRows": [
+      {
+        "event": "character",
+        "frame": 4,
+        "ended": 4,
+        "char_index": 0,
+        "msg": "enter nightsoul blessing",
+        "logs": {
+          "points": 54,
+          "duration": 960
+        },
+        "ordering": {
+          "points": 0,
+          "duration": 1
+        }
+      },
+      {
+        "event": "character",
+        "frame": 58,
+        "ended": 58,
+        "char_index": 0,
+        "msg": "consume nightsoul points",
+        "logs": {
+          "previous points": 49.19999999999999,
+          "amount": 0.6,
+          "final": 48.59999999999999
+        },
+        "ordering": {
+          "previous points": 0,
+          "amount": 1,
+          "final": 2
+        }
+      },
+      {
+        "event": "character",
+        "frame": 64,
+        "ended": 64,
+        "char_index": 0,
+        "msg": "consume nightsoul points",
+        "logs": {
+          "previous points": 48.59999999999999,
+          "amount": 0.6,
+          "final": 47.999999999999986
+        },
+        "ordering": {
+          "amount": 1,
+          "final": 2,
+          "previous points": 0
+        }
+      },
+      {
+        "event": "character",
+        "frame": 70,
+        "ended": 70,
+        "char_index": 0,
+        "msg": "consume nightsoul points",
+        "logs": {
+          "final": 47.399999999999984,
+          "previous points": 47.999999999999986,
+          "amount": 0.6
+        },
+        "ordering": {
+          "previous points": 0,
+          "amount": 1,
+          "final": 2
+        }
+      }
+    ],
+    "insufficientEnergyAttemptCount": 148,
+    "lastInsufficientEnergyFrame": 179,
+    "successfulBurstCount": 0,
+    "newNativeRunByThisAgent": false
+  },
+  "goFixture": {
+    "path": "packages/source-host/tests/fixtures/iansan-c1-consumption-threshold_test.go",
+    "executionStatus": "Prepared; not executed by this agent. Root runs it in isolated verified source copy before/after139.",
+    "command": "go test ./internal/characters/iansan -run ^TestIansanC1 -count=1",
+    "negativeCases": [
+      "C0",
+      "active18sICD",
+      "zero/negativeC1input",
+      "terminalclamprequest10remaining0.4",
+      "realShortfall1e-10",
+      "arbitraryRestoredFraction",
+      "ERdoesNotMultiplyFlat15",
+      "energyCap70",
+      "zeroEnergyQ",
+      "fullEnergyQStillBlockedByCD",
+      "sixFrameDelayedSpend"
+    ]
+  },
+  "shortNativeFixture": "packages/source-host/tests/fixtures/iansan-c1-short-native-cases.json",
+  "remainingVerification": [
+    "Official combined build including138/139, actual Go fixture execution, and bounded after native capture are root-owned and pending.",
+    "No full rotation or steady-state energy guarantee from the3second fixture.",
+    "Manual Swift calculation Q inputs do not prove team energy/CD/Nightsoul history."
+  ]
+}

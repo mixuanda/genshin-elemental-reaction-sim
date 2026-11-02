@@ -71,3 +71,14 @@ describe("complete source-host re-execution contract", () => {
     expect(() => sourceHostReexecutionRequest(partial)).toThrow(/开局状态回执不完整/);
   });
 });
+
+it('validates attached artifact metadata even on fresh native input and preserves parsed extra fields',()=>{
+ const native=structuredClone(classic) as any;delete native.schemaVersion;delete native.formulaVersion;
+ native.executionArtifact={wasmSha256:'invalid',wasmBytes:1};
+ expect(()=>createSourceHostResult(native)).toThrow();
+ delete native.executionArtifact;native.extraReceipt={marker:'retained'};
+ const parsed=createSourceHostResult(native);
+ expect(parsed.extraReceipt).toEqual({marker:'retained'});
+ expect(parsed.applications).toEqual(classic.applications);
+ expect(parsed.calculations).toEqual(classic.calculations);
+});

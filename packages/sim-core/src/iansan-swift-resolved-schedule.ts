@@ -14,6 +14,14 @@ export interface IansanSwiftResolvedSchedule {
   lifecycleEndFrame: number; requiredObservedThroughFrame: number; snapshotFrame: number;
 }
 
+/** A closed legal Swift cannot swap before its 25f snapshot: its earliest
+ * legal swap is31f. The 24f Q follow-up keeps Iansan active. No such inference
+ * is made from an independent hit or an incomplete/interrupted observation. */
+export function iansanSwiftScheduleProvesOwnerOnField(scope: string,
+  context: IansanSwiftResolvedScheduleContext): boolean {
+  return scope === "one-cast" && compileIansanSwiftResolvedSchedule("iansan-swift-resolved-c0", context).complete;
+}
+
 /** One actual Swift action; the preceding E/NA and later buff users are separate actions. */
 export function compileIansanSwiftResolvedSchedule(kind: IansanSwiftResolvedCastKind,
   raw: IansanSwiftResolvedScheduleContext): IansanSwiftResolvedSchedule {

@@ -13,3 +13,4 @@ export * from "./stellar-artifact-bonus";
 export * from "./moonlight-artifact-bonus";
 export * from "./artifact-buff";
 export * from "./enemy-shield";
+export * from "./angular-geometry";

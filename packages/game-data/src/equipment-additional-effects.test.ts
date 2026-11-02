@@ -64,7 +64,8 @@ it("preserves boundary conflicts, attack filters, independent windows and explic
   expect(artifactTotals(15042, { setEffectActive: true, moonsignLevel: 0 }).values.em).toBe(0);
   expect(artifactTotals(15044, { setEffectActive: true, witchLessonsCompleted: false }).values.critRate).toBe(0);
   expect(getArtifactConditionalControls({ "artifact-set:15037": 4 }).map(control => control.kind)).toEqual(["elements", "elements"]);
-  expect(getConditionalEquipmentCoverage()).toMatchObject({ twoPieceArtifactDefinitions: 53, fourPieceArtifactDefinitions: 44, formulaArtifactDefinitions: 42, reactionArtifactDefinitions: 5, independentlyVerifiedDefinitions: 0 });
+  // Includes the reviewed remaining-set expansion, not only the original batch.
+  expect(getConditionalEquipmentCoverage()).toMatchObject({ twoPieceArtifactDefinitions: 53, fourPieceArtifactDefinitions: 48, formulaArtifactDefinitions: 46, reactionArtifactDefinitions: 6, independentlyVerifiedDefinitions: 0 });
 });
 
 const fourPieces = (setId: string): ArtifactPieceInput[] => (["flower", "plume", "sands", "goblet"] as const).map(slot => ({ slot, setId, rarity: 5, level: 0, mainStat: slot === "flower" ? "hp" : slot === "plume" ? "atk" : "hp_", initialSubstats: 3, substats: [{ stat: "critRate_", rolls: [0] }, { stat: "critDMG_", rolls: [0] }, { stat: "atk_", rolls: [0] }] }));

@@ -1,3 +1,5 @@
+import {resetTighnariPanelAccounting} from './tighnari-calculation-context';
+import {captureKazuhaImportedDamageBonuses} from '../../../packages/sim-core/src/kazuha-burst-formulas';
 import { resetSourceCastPanelAccounting } from "../../../packages/sim-core/src/source-cast-context";
 import type { CatalogResolvedShowcaseCharacter } from "@genshin-dps-lab/schemas";
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
@@ -5,6 +7,14 @@ import { restoreCalculatorHitEquipmentInputs, prepareIncomingThrillingTales, res
 import { resetCharlottePanelAccounting } from "./collei-charlotte-calculation-context";
 import { resetBaizhuPanelAccounting } from "./baizhu-calculation-context";
 import { applyCharacterConstellationScope, resetKeqingPanelAccounting, resetKukiPanelAccounting } from "./character-calculations";
+import { hasKnownImportedTalent, requireImportedTalentLevel } from "./imported-talents";
+import { bindIansanSwiftBurstTalent } from "./iansan-calculation-talents";
+import { bindImportedFaruzanHurricaneTalent } from "./faruzan-calculation-talents";
+
+export function requireImportedNumber(value: number | null | undefined, field: string): number {
+  if (value === null || value === undefined || !Number.isFinite(value)) throw new Error(`导入缺少 ${field}；请补齐原始数据或重新导入，不能以 0 / 默认等级代替。`);
+  return value;
+}
 
 /** Final showcase stats are already aggregated. No equipment contribution is added here. */
 export function applyImportedCalculatorPanel(
@@ -16,55 +26,101 @@ export function applyImportedCalculatorPanel(
   const doc = structuredClone(document);
   const context = doc.gameContext;
   if (!context || character.catalog.characterId !== context.characterId) throw new Error("导入角色身份与当前真实命中定义不一致，不能借用其他角色天赋。");
+  const bonuses = character.stats.damageBonuses;
+  context.importedPanelDamageBonuses = {
+    physical: bonuses.physical ?? null, pyro: bonuses.pyro ?? null,
+    hydro: bonuses.hydro ?? null, cryo: bonuses.cryo ?? null,
+    electro: bonuses.electro ?? null, anemo: bonuses.anemo ?? null,
+    geo: bonuses.geo ?? null, dendro: bonuses.dendro ?? null,
+  };
   if (!Number.isInteger(character.constellation) || character.constellation < 0 || character.constellation > 6) throw new Error("导入命座缺失或非法；不会假定为 C0。");
   if (character.ascension !== undefined && character.ascension !== null && (!Number.isInteger(character.ascension) || character.ascension < 0 || character.ascension > 6)) throw new Error("导入突破阶段非法；不会依据等级猜测。");
   if (talentPolicy === "imported-effective") {
-    const skill = character.resolvedSkills.find(candidate => candidate.abilityId === context.abilityId);
-    if (!skill || skill.effectiveLevel !== context.effectiveTalentLevel) throw new Error("当前动作未匹配导入的有效天赋等级；不会再次加算命座天赋等级或使用默认值。");
+    if (requireImportedTalentLevel(character, context.abilityId) !== context.effectiveTalentLevel) throw new Error("当前动作未匹配导入的有效天赋等级；不会再次加算命座天赋等级或使用默认值。");
   }
-  doc.characterLevel = character.level;
+  const required: Array<[string, number | null | undefined]> = [
+    ["角色等级", character.level], ["攻击力（2001）", character.stats.attack],
+    ["生命值（2000）", character.stats.maxHp], ["防御力（2002）", character.stats.defense],
+    ["元素精通（28）", character.stats.elementalMastery], ["暴击率（20）", character.stats.critRate],
+    ["暴击伤害（22）", character.stats.critDamage],
+    ...doc.hits.filter(h => h.kind === "ordinary").map(h => [`${h.element} 伤害加成`, character.stats.damageBonuses[h.element]] as [string, number | null | undefined]),
+  ];
+  const missing = [...new Set(required.filter(([, value]) => value === null || value === undefined || !Number.isFinite(value)).map(([name]) => name))];
+  if (missing.length) throw new Error(`导入缺少：${missing.join("、")}。原始未知状态已保留；请补齐数据后重新导入，不以 0 或等级 1 代替。`);
+  doc.characterLevel = requireImportedNumber(character.level, "角色等级 propMap[4001] / 展柜等级");
   context.constellation = character.constellation;
   if (character.ascension === undefined || character.ascension === null) delete context.ascension;
   else context.ascension = character.ascension;
   doc.build = {
     mode: "imported-final", source,
     ...(character.ascension === undefined || character.ascension === null ? {} : { ascension: character.ascension }),
-    stats: { atk: character.stats.attack, hp: character.stats.maxHp, def: character.stats.defense, em: character.stats.elementalMastery, critRate: character.stats.critRate, critDamage: character.stats.critDamage, energyRecharge: character.stats.energyRecharge },
+    stats: { atk: requireImportedNumber(character.stats.attack, "attack"), hp: requireImportedNumber(character.stats.maxHp, "maxHp"), def: requireImportedNumber(character.stats.defense, "defense"), em: requireImportedNumber(character.stats.elementalMastery, "elementalMastery"), critRate: requireImportedNumber(character.stats.critRate, "critRate"), critDamage: requireImportedNumber(character.stats.critDamage, "critDamage"), ...(character.stats.energyRecharge === null ? {} : { energyRecharge: character.stats.energyRecharge }) },
   };
+  if (context.wandererPrimary && talentPolicy === "imported-effective") {
+    const skill = character.resolvedSkills.find(row => row.abilityId === "talent:wanderer:combat2");
+    if (skill && hasKnownImportedTalent(skill)) context.wandererPrimary.skillTalentLevel = skill.effectiveLevel;
+    else delete context.wandererPrimary.skillTalentLevel;
+  }
+  if (context.xiaoDamage && talentPolicy === "imported-effective") {
+    const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:xiao:combat3");
+    if (burst && hasKnownImportedTalent(burst)) context.xiaoDamage.burstTalentLevel = burst.effectiveLevel;
+    else delete context.xiaoDamage.burstTalentLevel;
+  }
+  if (talentPolicy === "imported-effective") {
+    bindImportedFaruzanHurricaneTalent(doc, character);
+    const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:iansan:combat3");
+    bindIansanSwiftBurstTalent(doc, burst && hasKnownImportedTalent(burst) ? burst.effectiveLevel : undefined);
+  }
   if (context.noelleBurst) {
     context.noelleBurst.accounting = "already-in-final-panel";
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:noelle:combat3");
-    if (talentPolicy === "imported-effective" && burst) context.noelleBurst.effectiveTalentLevel = burst.effectiveLevel;
+    if (talentPolicy === "imported-effective") {
+      if (burst && hasKnownImportedTalent(burst)) context.noelleBurst.effectiveTalentLevel = burst.effectiveLevel;
+      else if (context.noelleBurst.active) requireImportedTalentLevel(character, "talent:noelle:combat3");
+    }
   }
   if (context.ittoCharged) {
     context.ittoCharged.burst.accounting = "already-in-final-panel";
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:aratakiitto:combat3");
-    if (talentPolicy === "imported-effective" && burst) context.ittoCharged.burst.effectiveTalentLevel = burst.effectiveLevel;
+    if (talentPolicy === "imported-effective") {
+      if (burst && hasKnownImportedTalent(burst)) context.ittoCharged.burst.effectiveTalentLevel = burst.effectiveLevel;
+      else if (context.ittoCharged.burst.active) requireImportedTalentLevel(character, "talent:aratakiitto:combat3");
+    }
   }
   if (context.yanfeiCharged) {
     context.yanfeiCharged.priorA1BonusIncluded = 0;
     context.yanfeiCharged.includedBrillianceBonus = 0;
     const burst = character.resolvedSkills.find(skill => skill.abilityId === "talent:yanfei:combat3");
-    if (talentPolicy === "imported-effective" && burst) context.yanfeiCharged.brilliance.effectiveTalentLevel = burst.effectiveLevel;
+    if (talentPolicy === "imported-effective") {
+      if (burst && hasKnownImportedTalent(burst)) context.yanfeiCharged.brilliance.effectiveTalentLevel = burst.effectiveLevel;
+      else if (context.yanfeiCharged.brilliance.mainActive || context.yanfeiCharged.brilliance.a4Active) requireImportedTalentLevel(character, "talent:yanfei:combat3");
+    }
   }
   if (context.ningguangBurst) context.ningguangBurst.currentA4IncludedInBonus = context.ningguangBurst.currentA4Active;
   if (context.keqingBurst) context.keqingBurst.a4IncludedInPanel = true;
   resetKeqingPanelAccounting(doc, "imported-final");
   resetKukiPanelAccounting(doc, "imported-final");
+  resetTighnariPanelAccounting(doc, "imported-final");
   resetBaizhuPanelAccounting(doc, "imported-final");
   resetCharlottePanelAccounting(doc, "imported-final");
   resetSourceCastPanelAccounting(doc, "imported-final");
+  if (context.hutaoDamage && talentPolicy === "imported-effective") {
+    const skill = character.resolvedSkills.find(entry => entry.abilityId === "talent:hutao:combat2");
+    if (skill && hasKnownImportedTalent(skill)) context.hutaoDamage.skillTalentLevel = skill.effectiveLevel;
+    else delete context.hutaoDamage.skillTalentLevel;
+  }
   resetIncomingThrillingTalesPanelAccounting(doc, "imported-final");
   if (context.xingqiuSkill) context.xingqiuSkill.a4IncludedInPanel = character.ascension !== undefined && character.ascension !== null && character.ascension >= 4;
   doc.hits = doc.hits.map(original => {
     if (original.kind !== "ordinary") return original;
     const hit = restoreCalculatorHitEquipmentInputs(original);
-    hit.damageBonus = character.stats.damageBonuses[hit.element] ?? 0;
+    hit.damageBonus = requireImportedNumber(character.stats.damageBonuses[hit.element], `${hit.element} 伤害加成`);
     if (hit.elementalMasteryAdjustment) hit.elementalMasteryAdjustment.accounting = "already-in-final-panel";
     if (hit.attackAdjustment) hit.attackAdjustment.accounting = "already-in-final-panel";
     return hit;
   });
   doc.assumptions = [
+    "公开展柜不是战斗状态快照：条件增益、附着与历史快照不能自动还原。本次仅计算明确给定条件；未提供条件不代表已验证实战。",
     ...doc.assumptions.filter(assumption => assumption !== "C0 条件；有效天赋等级显式输入，不自动增加命座等级。"),
     `使用公开展示柜的 C${character.constellation} 和最终面板，装备词条不再次加算。命座和突破相关公式按每个所选命中的依赖判断。`,
     "来源精通状态可保留为明确条件审计，但展示柜最终精通已是入口数值；重新导入时设为已计入面板，不继承旧草稿的额外加算策略。",
@@ -82,6 +138,7 @@ export function applyImportedCalculatorPanel(
     talentPolicy === "imported-effective" ? "本动作使用导入映射的有效天赋等级；该值已包含导入提供的额外等级，不再次加算命座等级。" : "当前面板来自展示柜；有效天赋等级已由用户明确改为手动来源选择。",
     character.ascension === undefined || character.ascension === null ? "展示柜没有可用的角色突破属性值；突破阶段保持未知，只阻塞依赖它的命中。" : `角色突破 ${character.ascension} 来自展示柜 propMap[1002].val，不从等级或最终面板推断。`,
   ];
+  captureKazuhaImportedDamageBonuses(doc, character.stats.damageBonuses);
   doc.dataIdentity.evidenceStatus = "provisional";
   return prepareIncomingThrillingTales(applyCharacterConstellationScope(doc));
 }

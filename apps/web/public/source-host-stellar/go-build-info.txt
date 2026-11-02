@@ -1,0 +1,15 @@
+path	github.com/genshinsim/gcsim/cmd/sourcehost
+mod	github.com/genshinsim/gcsim	(devel)	
+dep	github.com/aclements/go-moremath	v0.0.0-20210112150236-f10218a38794	h1:xlwdaKcTNVW4PtpQb8aKA4Pjy0CdJHEqvFbAnvR5m2g=
+dep	github.com/josharian/intern	v1.0.0	h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
+dep	github.com/mailru/easyjson	v0.7.7	h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
+dep	github.com/philhofer/fwd	v1.1.2	h1:bnDivRJ1EWPjUIRXV5KfORO897HTbpFAQddBdE8t7Gw=
+dep	github.com/tinylib/msgp	v1.1.9	h1:SHf3yoO2sGA0veCJeCBYLHuttAVFHGm2RHgNodW7wQU=
+dep	google.golang.org/protobuf	v1.34.2	h1:6xV6lTsCfpGD21XK49h7MhtcApnLqkfYgPcdHftf6hg=
+build	-buildmode=exe
+build	-compiler=gc
+build	-trimpath=true
+build	CGO_ENABLED=0
+build	GOARCH=wasm
+build	GOOS=js
+

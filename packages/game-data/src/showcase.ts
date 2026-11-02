@@ -35,7 +35,7 @@ type EnkaAvatar = NonNullable<
 >[number];
 
 function numericValue(value: string | number | undefined): number | null {
-  if (value === undefined) return null;
+  if (value === undefined || (typeof value === "string" && !value.trim())) return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -43,20 +43,23 @@ function numericValue(value: string | number | undefined): number | null {
 function fightProp(
   avatar: EnkaAvatar,
   key: string
-): number {
-  return avatar.fightPropMap[key] ?? 0;
+): number | null {
+  return avatar.fightPropMap[key] ?? null;
 }
 
 function characterLevel(
   response: EnkaShowcaseResponse,
   avatar: EnkaAvatar
-): number {
-  const fromProp = numericValue(avatar.propMap?.["4001"]?.ival);
-  if (fromProp && fromProp >= 1) return Math.trunc(fromProp);
+): number | null {
+  // Enka documents `val` as the property value and says to ignore `ival`.
+  // https://github.com/EnkaNetwork/API-docs/blob/master/docs/gi/api.md#propmap
+  const fromProp = numericValue(avatar.propMap?.["4001"]?.val);
+  if (fromProp !== null && Number.isInteger(fromProp) && fromProp >= 1 && fromProp <= 100) return fromProp;
+  if (avatar.propMap?.["4001"] !== undefined) return null;
   return (
     response.playerInfo.showAvatarInfoList?.find(
       (entry) => entry.avatarId === avatar.avatarId
-    )?.level ?? 1
+    )?.level ?? null
   );
 }
 
@@ -143,7 +146,7 @@ function normalizeCharacter(
     // Enka documents an absent talentIdList specifically for C0.
     constellation: avatar.talentIdList?.length ?? 0,
     skillLevels: { ...(avatar.skillLevelMap ?? {}) },
-    skillLevelBonuses: { ...(avatar.proudSkillExtraLevelMap ?? {}) },
+    skillLevelBonuses: avatar.proudSkillExtraLevelMap === undefined ? null : { ...avatar.proudSkillExtraLevelMap },
     stats: {
       maxHp: fightProp(avatar, "2000"),
       attack: fightProp(avatar, "2001"),
@@ -200,26 +203,15 @@ function resolveCharacter(
         : catalog.weapons.find(
             (candidate) => candidate.itemId === character.weapon?.itemId
           ) ?? null;
-  const enkaMapping =
-    catalog === gameDataRuntimeIndex
-      ? findRuntimeEnkaCharacterMapping(
-          character.avatarId,
-          Object.keys(character.skillLevels)
-        )
-      : catalog.enkaCharacterMappings.find(
-          (candidate) => candidate.avatarId === character.avatarId
-        ) ?? null;
+  const enkaMapping = findRuntimeEnkaCharacterMapping(
+    character.avatarId,
+    Object.keys(character.skillLevels),
+    catalog
+  );
   const talentSet =
     characterRecord === null
       ? null
-      : catalog === gameDataRuntimeIndex
-        ? findRuntimeTalentSetForCharacter(characterRecord, enkaMapping)
-        : characterRecord.talentSetIds.length === 1
-          ? catalog.talentSets.find(
-              (candidate) =>
-                candidate.id === characterRecord.talentSetIds[0]
-            ) ?? null
-          : null;
+      : findRuntimeTalentSetForCharacter(characterRecord, enkaMapping, catalog);
   const combatAbilities = (talentSet?.abilities ?? []).filter((ability) =>
     ["combat1", "combat2", "combat3"].includes(ability.key)
   );
@@ -228,15 +220,16 @@ function resolveCharacter(
       const index = enkaMapping?.skillOrder.indexOf(Number(skillId)) ?? -1;
       const ability = index >= 0 ? combatAbilities[index] ?? null : null;
       const proudId = enkaMapping?.proudMap[skillId];
-      const bonusLevel =
-        proudId === undefined
-          ? 0
-          : character.skillLevelBonuses[String(proudId)] ?? 0;
+      const observedBonus = proudId === undefined || character.skillLevelBonuses === null
+        ? null : character.skillLevelBonuses[String(proudId)] ?? 0;
+      const bonusLevel = observedBonus !== null && Number.isInteger(observedBonus) && observedBonus >= 0 ? observedBonus : null;
+      const effectiveLevel = Number.isInteger(baseLevel) && baseLevel >= 1 && baseLevel <= 15 && bonusLevel !== null && baseLevel + bonusLevel <= 15
+        ? baseLevel + bonusLevel : null;
       return {
         skillId,
         baseLevel,
         bonusLevel,
-        effectiveLevel: baseLevel + bonusLevel,
+        effectiveLevel,
         abilityId: ability?.id ?? null,
         name: ability?.name ?? null,
         matchStatus: ability === null ? "unmatched" : "matched"
@@ -251,7 +244,9 @@ function resolveCharacter(
       catalogVersion: catalog.catalogVersion,
       characterId: characterRecord?.id ?? null,
       name: characterRecord?.name ?? null,
-      element: characterRecord?.element ?? null,
+      element: characterRecord?.element === "unknown"
+        ? enkaMapping?.element ?? "unknown"
+        : characterRecord?.element ?? null,
       weaponType: characterRecord?.weaponType ?? null,
       rarity: characterRecord?.rarity ?? null,
       simulationStatus: characterRecord?.simulationStatus ?? null,

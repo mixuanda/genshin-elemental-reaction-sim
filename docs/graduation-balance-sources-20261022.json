@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-10-22T12:11:56.723282+00:00",
+  "notOfficialGraduationStandards": true,
+  "sources": [
+    {
+      "id": "kqm-tcl-damage-formula",
+      "url": "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+      "commit": "bd7c18fa07735381a157e8397e9e55b3fc377be1",
+      "pinnedSourceUrl": "https://github.com/KQM-git/TCL/blob/bd7c18fa07735381a157e8397e9e55b3fc377be1/docs/combat-mechanics/damage/damage-formula.md",
+      "sha256": "5e51b3ecce4f8f58cbf4853765f7102f2898c2b334d00d21387b8e3b8efae39c",
+      "bytes": 22369,
+      "claimsUsed": [
+        "base versus final ATK, HP and DEF formulas",
+        "expected critical multiplier with effective CR clamped to 0–100%"
+      ],
+      "scope": "Only direct ATK-scaling damage is scored in the maintained Wanderer template."
+    },
+    {
+      "id": "kqm-artifacts",
+      "url": "https://keqingmains.com/misc/artifacts/",
+      "sha256": "bfb841a098103026dfb3a713c797840ba6a03118f32f621c5e150dd4a391a229",
+      "bytes": 767557,
+      "claimsUsed": [
+        "main/substat exclusion; four substat identities; upgrade cadence",
+        "ER constraints and the actual talent/utility target depend on the build"
+      ],
+      "pinKind": "Observed public-page content hash; no immutable revision asserted."
+    },
+    {
+      "id": "kqm-wanderer-quickguide",
+      "url": "https://keqingmains.com/q/wanderer-quickguide/",
+      "sha256": "7aad64556f8869db62221b6e5590457f141e1c679a517c9105908e1a056b4fd5",
+      "bytes": 260738,
+      "claimsUsed": [
+        "C0–C1 on-field ATK/Anemo/CRIT build; Normal Attack priority",
+        "C0–C1 need not Burst every rotation; team-dependent ER and buffs"
+      ],
+      "pinKind": "Observed public-page content hash; no immutable revision asserted."
+    },
+    {
+      "id": "kqm-compendium",
+      "url": "https://compendium.keqingmains.com/",
+      "sha256": "ed4133326c78f2bf81dfab498192663761ebd6228ee9bb415c13bfe7a4680f03",
+      "bytes": 105135,
+      "claimsUsed": [
+        "KQMS 2.0.2: 40 average rolls, 20 fixed plus 20 distributed",
+        "This community comparison standard does not define the project graduation tiers"
+      ],
+      "pinKind": "Observed public-page content hash; no immutable revision asserted."
+    }
+  ]
+}

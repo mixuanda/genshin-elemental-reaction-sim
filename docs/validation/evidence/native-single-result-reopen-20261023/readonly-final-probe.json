@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "nativeRuns": 0,
+  "wasmRequests": [],
+  "errors": [],
+  "rows": [
+    {
+      "filename": "original-positive.native.json",
+      "startup": "full",
+      "beforeWorkers": 0,
+      "afterWorkers": 0,
+      "exactBytes": true,
+      "sha256": "e0823f3fd171dd16b4b84df670cc826bb5a8464b6395ddbf7923c97370ccb3b4"
+    },
+    {
+      "filename": "zero-after-explicit-run.native.json",
+      "startup": "zero",
+      "beforeWorkers": 0,
+      "afterWorkers": 0,
+      "exactBytes": true,
+      "sha256": "98cacd23c3f5ee8f0cf7de74a817da6e5249790a7206699ac98f8e7bf34dca19"
+    }
+  ]
+}

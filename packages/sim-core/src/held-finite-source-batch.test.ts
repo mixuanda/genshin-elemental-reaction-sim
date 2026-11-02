@@ -98,6 +98,11 @@ describe("one held and finite followup source batch", () => {
         cynoBurstActive: true, cynoEndseerActive: cast.skillId.endsWith("-skill-endseer-c0"), cynoBurstEmIncludedInPanel: false, cynoCastEm: 300,
         hitStates: Object.fromEntries(cast.hits.map(hit => [hit.id, { includedDamageBonus: 0, includedAdditiveBase: 0, includedResistanceReduction: 0 }])),
       };
+      // This batch exercises the preserved complete C0 followup protocol,
+      // not the newer explicitly opted-in single Q initial-hit protocol.
+      delete doc.gameContext!.faruzanBurstInitial;
+      doc.dependencies = doc.dependencies.filter(row => !row.id.startsWith("faruzan-burst-initial:"));
+      for (const hit of doc.hits) hit.dependencies = hit.dependencies.filter(id => !id.startsWith("faruzan-burst-initial:"));
       doc.gameContext!.finiteFollowupCast = context;
       const prepared = prepareSourceCastDocument(doc);
       expect(prepared.hits).toHaveLength(cast.hits.length);

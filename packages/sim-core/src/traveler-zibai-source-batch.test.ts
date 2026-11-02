@@ -1,4 +1,5 @@
 import { expect, it } from "vitest";
+import { gameDataCatalog } from "../../game-data/src/catalog";
 import { sourceClassifiedMappings } from "../../game-data/src/classified-hits";
 import { calculateDocument, convertCalculatorToFinalPanel } from "./calculator";
 import {
@@ -21,8 +22,8 @@ function documentFor(skillId: string, ascension = 3): CalculatorDocument {
     build: { mode: "manual-final", stats: { ...neutral }, ascension, source: "Explicit hypothetical source-protocol input" },
     enemy: { level: 90, resistance: 0, defenseAdjustment: 0, defenseIgnore: 0 },
     gameContext: {
-      characterId: `character:${mapping.characterSlug}`, characterName: mapping.characterSlug,
-      abilityId: `${mapping.talentSetId}:${mapping.abilityKey}`, skillId,
+      characterId: gameDataCatalog.characters.find(row => row.slug === mapping.characterSlug)!.id, characterName: mapping.characterSlug,
+      abilityId: `${mapping.talentSetId.replace("talent-set:", "talent:")}:${mapping.abilityKey}`, skillId,
       skillName: mapping.skillLabel ?? skillId,
       ...(mapping.variantId ? { variantId: mapping.variantId } : {}),
       effectiveTalentLevel: 1, ascension, constellation: 0,

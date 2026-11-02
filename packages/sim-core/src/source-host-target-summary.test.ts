@@ -51,3 +51,33 @@ it("keeps legacy target attribution observed-only and rejects duplicate applicat
 
   expect(() => summarizeSourceHostTargets({ ...result, applications: [application(7, 41, 6, 5, 50, 45), application(7, 41, 1, 1, 45, 44)] })).toThrow(/重复/);
 });
+
+it("uses the same half-open complete window as the damage curve and retains boundary receipt identity", () => {
+  const inside = { ...application(1, 3, 100, 100, 1000, 900), frame: 7199 };
+  const endpoint = { ...application(2, 3, 500, 500, 900, 400), frame: 7200 };
+  const result = {
+    applications: [inside, endpoint],
+    observationWindow: { policy: "duration-or-native" as const, configuredEndFrame: 7200, actualEndFrame: 7200, endReason: "duration" as const },
+    result: { duration: 7200, total_damage: 600 },
+  } as Pick<SourceHostNativeResult, "applications" | "targetScene" | "observationWindow" | "result">;
+  const original = structuredClone(result);
+  const summary = summarizeSourceHostTargets(result);
+  expect(summary.total).toMatchObject({ appliedDamage: 100, rawDamage: 100, hpLoss: 100, hitCount: 1, applicationIds: [1] });
+  expect(summary.total.appliedDamageRate).toBe(100 / 120);
+  expect(summary.targets[0]!.appliedDamage).toBe(100);
+  expect(summary.excludedApplicationIds).toEqual([2]);
+  expect(summary.excludedAppliedDamage).toBe(500);
+  expect(result).toEqual(original);
+  expect(summarizeSourceHostTargets(result, { applicationIds: [1, 2], showRates: false }).applicationIds).toEqual([1]);
+});
+
+it("does not impose a configured half-open cutoff on an early native end or an unverified legacy window", () => {
+  const endpoint = { ...application(2, 3, 500, 500, 900, 400), frame: 120 };
+  const result = {
+    applications: [endpoint],
+    observationWindow: { policy: "duration-or-native" as const, configuredEndFrame: 7200, actualEndFrame: 120, endReason: "targets-dead" as const },
+    result: { duration: 120 },
+  } as Pick<SourceHostNativeResult, "applications" | "targetScene" | "observationWindow" | "result">;
+  expect(summarizeSourceHostTargets(result).total.appliedDamage).toBe(500);
+  expect(summarizeSourceHostTargets({ ...result, observationWindow: undefined }).total.appliedDamage).toBe(500);
+});

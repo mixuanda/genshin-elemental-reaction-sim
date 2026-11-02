@@ -1,0 +1,156 @@
+{
+  "codeCommit": "d86563f403792b6b6fd3ccd51c7ec5073861e41b",
+  "baseCommit": "81b55a05e85b46d9535ff09d688745263ed0f495",
+  "branch": "cloud/player-import-integration-20261021",
+  "nativeRunsThisBatch": 1,
+  "localOnlyNoProductionOrLibraryUpload": true,
+  "verification": {
+    "targetedTests": {
+      "passed": 18,
+      "failed": 0
+    },
+    "build": "passed",
+    "browser": "passed",
+    "allCallbackExplanations": "exact baseline match",
+    "strictCrossRunArchiveEquality": "failed: retained audited raw ordering differences",
+    "fullSuite": "not run; prior failure baseline unchanged"
+  },
+  "committedEvidence": [
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.comparison.json",
+      "bytes": 93311,
+      "sha256": "832f3c188c062dd5791e6b8407fcaf1a4949ce8e05b659327f9fd6400b29619a"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.offline-before.json",
+      "bytes": 354,
+      "sha256": "d31fb23ce68f10d687a15f543d2cd840654ccef5a1e4f06f4f5f3234c27e81c6"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.offline-after.json",
+      "bytes": 348,
+      "sha256": "d920567a76245f4be97e9c7f31d497fcab7fa17be18f01c503b576978f259d5e"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.browser.json",
+      "bytes": 6674,
+      "sha256": "c7b58993779f97a730e79cb46ce4477a2ff25e782b772a7c71da5f0cdd7b94c0"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.explanations.json",
+      "bytes": 1366,
+      "sha256": "62a3fb4500922c52835294c8db73e3104ec64e6862e7839c7c10fc0f6f7a92d5"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.application-index.json",
+      "bytes": 7961,
+      "sha256": "1f18bd920252ca30aec6c7e2063ff28266151a82d0cd01d3628d04ec8eb83847"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.targeted.log",
+      "bytes": 3298,
+      "sha256": "8df46bd3f5c0280a8abab9e38518d001ba222036e8ad0a6ed93d106bb845a82d"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.request-context-before.log",
+      "bytes": 15476,
+      "sha256": "c83670e04ddba0d1aa3ec47996e49ef8f7054a27371147b3990a8b6aa2d42d30"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.build.log",
+      "bytes": 8316,
+      "sha256": "b4bae17d23026648e56ffbc7d7fb01f3193f2b88074c162442eb093a0c83c6c9"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.strict-archive.log",
+      "bytes": 899,
+      "sha256": "0566fc270c32b85ca226cfd1ad57f2b6c3498d7433dbd60beaf4a648b63063c8"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-OBSERVATION-ORDER-20261023.zh-CN.md",
+      "bytes": 12237,
+      "sha256": "35008d132a3da82723a02c2baf1e2bc2af5d6202d34b30228e9e1bbe6cbd5e3b"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-OBSERVATION-ORDER-20261023.evidence.json",
+      "bytes": 104208,
+      "sha256": "12072fbc78bdf2e18ec112b28a3ff7d8310541854a1e93bf6a0b0d1669aa9754"
+    },
+    {
+      "path": "/workspace/GIDPS-cloud/player-import-integration/docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.zh-CN.md",
+      "bytes": 9300,
+      "sha256": "e7e107da0d0c59c54b75797122e0c66c6c36a3e4b103c288cf6011da943f60ff"
+    }
+  ],
+  "retainedCloudEvidence": [
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-before/validation.cpuprofile",
+      "bytes": 629795,
+      "sha256": "840e713698f6530b4a328e1671e8db8754150e99aa2a5a435f3249fd94d8f608"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-after/validation.cpuprofile",
+      "bytes": 552444,
+      "sha256": "65a731cbd2c01b380ec6782609104986001a7aa0478c4f256bad24021c8877de"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-resolver-current/resolver.cpuprofile",
+      "bytes": 865096,
+      "sha256": "9c0bf35ab338998799c6e417cb85bd418a3967f86a7bd7d3f2a643adad785d0e"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-resolver-current/explanations.json",
+      "bytes": 2800024,
+      "sha256": "dee0750f66230beb5da48e3c71ade9c5ed13d12fcf8f2cbed0c2d1b53751d3a4"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/runner-start.json",
+      "bytes": 272,
+      "sha256": "159c2da85cddd1e677a9a553ebc223cd95cafff6dca295a74e14c98e8dccbaf8"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/run.request.json",
+      "bytes": 3427,
+      "sha256": "c1158edf280d66b4fc567ef0c946892743b0e7aa41bea2f3adfe6b901711644f"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/timings.json",
+      "bytes": 2096,
+      "sha256": "4d1cc4c69b378dd24fcab143943d83def5905fe1a8604598f6f4db0225ed69b4"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/actual-team-result.png",
+      "bytes": 81360,
+      "sha256": "ff201f32fe0d94f1756975015347a9fe181f61cc499ec3a8b35d30fd65149b83"
+    },
+    {
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/actual-team-frame-curve.png",
+      "bytes": 689991,
+      "sha256": "7fc7ad0890905f12880b772afdf66a09c9d6f4d64a2cbaf6d5b6a59ea14dd0ee"
+    },
+    {
+      "stage": "before",
+      "path": "/tmp/GIDPS-team-performance-20261023/after-final/run.result.json",
+      "sha256": "a4a9d351b51da080c007ee15895d239575640f205056b32d8d5e995c922784cd",
+      "bytes": 119455012
+    },
+    {
+      "stage": "before",
+      "path": "/tmp/GIDPS-team-performance-20261023/after-final/run.reopened.json",
+      "sha256": "a4a9d351b51da080c007ee15895d239575640f205056b32d8d5e995c922784cd",
+      "bytes": 119455012
+    },
+    {
+      "stage": "after",
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/run.result.json",
+      "sha256": "e122d548b348db78d27567056755d629ab847cfab02bc9abdcca07e670d14e04",
+      "bytes": 119455012
+    },
+    {
+      "stage": "after",
+      "path": "/tmp/GIDPS-team-performance-20261023/validation-browser-final/run.reopened.json",
+      "sha256": "e122d548b348db78d27567056755d629ab847cfab02bc9abdcca07e670d14e04",
+      "bytes": 119455012
+    }
+  ]
+}

@@ -70,7 +70,14 @@ export function validateNoelleSourceActionSequence(config: SimConfig) {
   if (config.enemyShieldModel !== undefined) issues.push("此固定来源场景不覆盖敌方元素盾；请移除整场来源身份后作为自定义场景使用。");
   if (config.artifactEventModel !== undefined || config.nightsoulBurstModel !== undefined) issues.push("诺艾尔固定来源场景不覆盖自定义圣遗物事件与夜魂迸发事件；请先改为自定义场景。");
   if (!getNoelleSourceActionContract(config) || config.meta.verificationStatus !== "provisional") issues.push("诺艾尔来源标识须匹配，来源TODO不能提升为verified。");
-  for (const key of ["characters", "rotation", "normalHitEnergyModel", "favoniusModel", "weaponProcModel", "thrillingTalesModel", "sacrificialModel", "staminaModel", "reactionEngine", "playerDamageModel", "targetClockModel", "targetTaskModel", "elementalApplicationIcdModel", "directDamageGroupModel"] as const) if (canonicalStringify(config[key]) !== canonicalStringify(expected[key])) issues.push(`来源参考范围不允许更改 ${key}。`);
+  for (const key of ["characters", "rotation", "normalHitEnergyModel", "favoniusModel", "weaponProcModel", "thrillingTalesModel", "sacrificialModel", "staminaModel", "reactionEngine", "playerDamageModel", "targetClockModel", "targetTaskModel", "elementalApplicationIcdModel", "directDamageGroupModel"] as const) {
+    const actual = config[key], reference = expected[key];
+    // Undefined is not a serializable identity. Compare absence explicitly;
+    // null or an injected model must not become equivalent to absence.
+    const equal = actual === undefined || reference === undefined
+      ? actual === reference : canonicalStringify(actual) === canonicalStringify(reference);
+    if (!equal) issues.push(`来源参考范围不允许更改 ${key}。`);
+  }
   if (!config.timeline || config.timeline.initialActiveCharacterId !== "noelle" || canonicalStringify(config.timeline.abilities) !== canonicalStringify(expected.timeline!.abilities)) issues.push("诺艾尔Q/普攻能力定义与固定来源签名不一致。");
   if (config.actorPoses || config.enemy.targets || config.enemy.targetPhases || config.enemy.targetMotions) issues.push("来源参考只覆盖始终在全部攻击范围内的单个静止目标。");
   let next = 0, burst = false;

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
@@ -19,7 +21,6 @@ import {
   simulationResultV152Schema,
   type FreezeBrokenAttackModelV152,
   type FreezeBrokenAttackRootV152,
-  type SimConfig,
   type SimulationResultForV152,
   type SimulationRunManifestV152,
 } from "@genshin-dps-lab/schemas";
@@ -27,7 +28,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   makeConfig,
-  neutralStats,
 } from "../../sim-core/src/__tests__/fixtures";
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
@@ -54,101 +54,28 @@ const LEGACY_CALLBACK_BUS = {
   policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID,
 } as const;
 
-function runEmpty(model: FreezeBrokenAttackModelV152) {
-  return projectSimulationResultV153ToV152(
-    simulate(
-      makeConfig({
-        freezeBrokenAttackModel: model,
-        callbackBusModel: LEGACY_CALLBACK_BUS,
-      }),
-      NO_CRIT,
-    ),
-  );
+const historicalBytes = readFileSync(new URL("./fixtures/historical-projection-v152-v151-84ff5cd.json", import.meta.url));
+const historicalArchive = JSON.parse(historicalBytes.toString("utf8")) as {
+  fixtureVersion: string;
+  source: { commit: string };
+  cases: Array<{ caseId: string; sourceWireSha256: string; sourceWireText: string }>;
+};
+const sha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+function historicalSource(kind: "inactive" | "natural-expiry", model: FreezeBrokenAttackModelV152): SimulationResultForV152 {
+  const caseId = `${kind}-${model.mode === LEGACY_FREEZE_BROKEN.mode ? "v1" : "v2"}`;
+  const row = historicalArchive.cases.find(candidate => candidate.caseId === caseId);
+  if (!row) throw new Error(`Missing pinned historical case ${caseId}`);
+  expect(sha256(row.sourceWireText)).toBe(row.sourceWireSha256);
+  const result = JSON.parse(row.sourceWireText) as SimulationResultForV152;
+  expect(result.config.freezeBrokenAttackModel).toEqual(model);
+  expect(result.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(result.runManifest.resolvedRuntimeOptions).not.toHaveProperty("flatStatBuffSemantics");
+  expect(simulationResultV152Schema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResultV152(result)).toBe(result);
+  return result;
 }
-
-function makeNaturalExpiryConfig(
-  freezeBrokenAttackModel: FreezeBrokenAttackModelV152,
-): SimConfig {
-  const base = makeConfig({
-    freezeBrokenAttackModel,
-    callbackBusModel: LEGACY_CALLBACK_BUS,
-  });
-  const template = base.characters[0]!;
-  return {
-    ...base,
-    duration: 4,
-    cycleLength: 4,
-    enemy: {
-      level: 90,
-      resistance: 0.1,
-      defReduction: 0,
-      freezeResistance: 0,
-      targets: [
-        {
-          id: "enemy-0",
-          name: "Projection frozen target",
-          initialAura: [{ element: "cryo", gaugeUnits: 1 }],
-        },
-      ],
-    },
-    characters: [
-      {
-        ...template,
-        id: "hydro",
-        name: "Projection Hydro",
-        element: "hydro",
-        level: 90,
-        stats: { ...neutralStats, baseAtk: 1000 },
-      },
-    ],
-    rotation: [],
-    reactionEngine: { mode: "aura-v2" },
-    timeline: {
-      mode: "legal-frame-v1",
-      fps: 60,
-      legalityMode: "strict",
-      initialActiveCharacterId: "hydro",
-      swapFrames: 1,
-      abilities: [
-        {
-          id: "hydro-freeze",
-          actorId: "hydro",
-          name: "Hydro Freeze",
-          kind: "skill",
-          cancelFrame: 1,
-          animationEndFrame: 1,
-          cooldownFrames: 0,
-          hits: [
-            {
-              id: "hydro-freeze-hit",
-              label: "Freeze",
-              frame: 0,
-              scaling: 1,
-              element: "hydro",
-              application: {
-                gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" },
-              },
-            },
-          ],
-        },
-      ],
-      commands: [
-        {
-          type: "skill",
-          actorId: "hydro",
-          abilityId: "hydro-freeze",
-        },
-      ],
-    },
-  };
-}
-
-function runNaturalExpiry(model: FreezeBrokenAttackModelV152) {
-  return projectSimulationResultV153ToV152(
-    simulate(makeNaturalExpiryConfig(model), NO_CRIT),
-  );
-}
+const runEmpty = (model: FreezeBrokenAttackModelV152) => historicalSource("inactive", model);
+const runNaturalExpiry = (model: FreezeBrokenAttackModelV152) => historicalSource("natural-expiry", model);
 
 function rebindFreezeBrokenPolicy(
   result: SimulationResultForV152,
@@ -177,6 +104,17 @@ function rebindFreezeBrokenPolicy(
 }
 
 describe("V1.52 to frozen V1.51 result projection", () => {
+  it("pins original historical bytes rather than relabelling current canonical output", () => {
+    expect(sha256(historicalBytes)).toBe("f5ce3e566dbdca217b82bdb3a2c65071f64dcb92979463a3cb7b2bd8375ce6a2");
+    expect(historicalArchive.fixtureVersion).toBe("historical-projection-v152-v151-84ff5cd-v1");
+    expect(historicalArchive.source.commit).toBe("84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5");
+    expect(historicalArchive.cases.map(row => row.caseId)).toEqual(["inactive-v1", "inactive-v2", "natural-expiry-v1", "natural-expiry-v2"]);
+    const current = simulate(makeConfig({ freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN, callbackBusModel: LEGACY_CALLBACK_BUS }), NO_CRIT);
+    expect(current.resolvedRuntimeOptions.flatStatBuffSemantics).toBe("canonical-v1");
+    const before = JSON.stringify(current);
+    expect(() => projectSimulationResultV153ToV152(current)).toThrow(/flatStatBuffSemantics/);
+    expect(JSON.stringify(current)).toBe(before);
+  });
   it.each([
     ["V1", LEGACY_FREEZE_BROKEN],
     ["V2", FIXED_FREEZE_BROKEN],

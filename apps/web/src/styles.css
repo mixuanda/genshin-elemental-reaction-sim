@@ -2,9 +2,11 @@
   --bg: #0b0e14;
   --panel: #121722;
   --panel-2: #171e2b;
+  --surface: var(--panel);
   --text: #e8edf5;
   --muted: #8f9bad;
   --border: #293243;
+  --border-color: var(--border);
   --accent: #8db6ff;
   --accent-2: #b49cff;
   --good: #7ad6a7;
@@ -82,6 +84,8 @@ p { color: var(--muted); }
 .breakdown-value { text-align: right; font-variant-numeric: tabular-nums; }
 .breakdown-value small { display: block; color: var(--muted); }
 .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
+[data-source-host-energy-analysis] { min-width: 0; overflow-wrap: anywhere; }
+[data-curve-bin] { margin-inline: 0; }
 table { width: 100%; border-collapse: collapse; min-width: 760px; }
 .hit-table { min-width: 1240px; }
 th, td { padding: 10px 11px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; white-space: nowrap; }
@@ -182,3 +186,17 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
   .control-grid, .metric-grid, .energy-grid, .hit-filters, .showcase-import, .showcase-grid, .formula-detail { grid-template-columns: 1fr; }
   .showcase-import .muted { grid-column: auto; }
 }
+.product-start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.product-start-grid article { padding: 16px; border: 1px solid var(--border); border-radius: 12px; }
+.product-nav-more { position: relative; }
+.product-nav-more summary { padding: 10px 14px; cursor: pointer; }
+.product-nav-more[open] { padding-bottom: 8px; }
+.product-nav-more[open] a { display: block; }
+
+/* Compact product chrome leaves room for character / build / result. */
+.topbar { margin-bottom: 12px; gap: 12px; }
+.topbar h1 { font-size: 24px; margin: 3px 0; }
+.topbar .eyebrow { font-size: 10px; }
+.topbar p { font-size: 13px; color: var(--muted); }
+.product-nav { gap: 4px; margin-bottom: 14px; padding-bottom: 8px; }
+.product-nav a, .product-nav-more summary { padding: 8px 10px; }

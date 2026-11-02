@@ -33,7 +33,7 @@ describe("source-derived character and weapon stats", () => {
     expect(before.build.equipment.secondaryContributions.find(c => c.property === "FIGHT_PROP_NONE")?.value).toBe(0);
     expect(() => resolveEquipmentBuild({ ...ayakaHarbinger, level: 20.5, ascension: 1 })).toThrow("整数");
     expect(() => resolveEquipmentBuild({ ...ayakaHarbinger, level: 19, ascension: 1 })).toThrow("等级范围");
-    expect(() => resolveEquipmentBuild({ ...ayakaHarbinger, level: 91 })).toThrow("解锁条件尚未映射");
+    expect(() => resolveEquipmentBuild({ ...ayakaHarbinger, level: 91 })).toThrow("已解锁");
   });
 
   it("respects weapon type, starter level caps, and restricted refinements", () => {

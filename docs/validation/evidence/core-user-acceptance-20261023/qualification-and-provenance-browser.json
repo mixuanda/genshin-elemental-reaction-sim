@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "gitHead": "856feaf73ee7841459d5f9450d680391f85c3dba",
+  "applicationPatchSha256": "a160fd5f6825d02851be4168167f05838e4a81e67f8f5a258d108a6169d327e6",
+  "browser": "154.0.8037.57",
+  "scope": "Specified party qualification 0 and rejection without an enabler; separate one-grant empty-axis input roundtrip, no invented character attacks; not a new native 120-second sample.",
+  "identities": [
+    {
+      "id": "wanderer",
+      "name": "流浪者",
+      "element": "anemo",
+      "level": 100,
+      "energyMax": 60
+    },
+    {
+      "id": "faruzan",
+      "name": "珐露珊",
+      "element": "anemo",
+      "level": 90,
+      "energyMax": 80
+    },
+    {
+      "id": "nicole",
+      "name": "妮可",
+      "element": "pyro",
+      "level": 90,
+      "energyMax": 60
+    },
+    {
+      "id": "durin",
+      "name": "杜林",
+      "element": "pyro",
+      "level": 90,
+      "energyMax": 70
+    }
+  ],
+  "specifiedPartyAutomaticMoonsign": 0,
+  "noEnablerRunRejected": true,
+  "qualifiedInputAutomaticMoonsign": 1,
+  "actualSpecialDamageEvents": 0,
+  "savedRequestAndCompleteResultExactlyPreserved": true,
+  "completeJsonAndProvenancePreserved": true,
+  "originalFileUnchanged": true,
+  "reopenedOrigin": "capture",
+  "accessibleAfterReadOnlyImportWithoutOrdinarySimulation": true,
+  "desktopAndNarrowEntryVisible": true,
+  "captureSha256": "37408caa67dbb583d1db3b90f6f84018483258329b8b2523b1891fce998e6be8",
+  "reopenedSha256": "37408caa67dbb583d1db3b90f6f84018483258329b8b2523b1891fce998e6be8",
+  "errors": []
+}

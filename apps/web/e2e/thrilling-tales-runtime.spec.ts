@@ -1,3 +1,4 @@
+import { revealControl, runImportedScenario, downloadSimulationRecord, expectReadonlyRecord } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -8,7 +9,7 @@ import type { SimulationRecord } from "../src/simulation-record";
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
@@ -51,28 +52,29 @@ function syntheticThrillingTalesCycle() {
 test("Team TTDS declarations apply only on real holder swap and preserve rejected grants and complete hit replay", async ({ page }) => {
   const config = syntheticThrillingTalesCycle();
   await page.goto("/results");
-  await page.locator("#critModeInput").selectOption("average");
-  await page.locator("#importInput").setInputFiles({ name: "thrilling-tales.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await (await revealControl(page.locator("#critModeInput"))).selectOption("average");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "thrilling-tales.synthetic.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(config)) });
+  await runImportedScenario(page);
   await expect(page.locator("#notice")).toContainText(config.meta.name);
   await waitForSimulation(page);
-  await page.locator('.product-nav a[href="/team"]').click();
+  await (await revealControl(page.locator('.product-nav a[href="/team"]'))).click();
   await expect(page.locator("#thrillingTalesModelEnabled")).not.toBeChecked();
-  await page.locator("#thrillingTalesModelEnabled").check();
-  await page.locator('[data-thrilling-tales-actor="a"]').check();
-  await page.locator('[data-thrilling-tales-refinement="a"]').selectOption("1");
-  await page.locator('[data-thrilling-tales-actor="b"]').check();
-  await page.locator('[data-thrilling-tales-refinement="b"]').selectOption("5");
+  await (await revealControl(page.locator("#thrillingTalesModelEnabled"))).check();
+  await (await revealControl(page.locator('[data-thrilling-tales-actor="a"]'))).check();
+  await (await revealControl(page.locator('[data-thrilling-tales-refinement="a"]'))).selectOption("1");
+  await (await revealControl(page.locator('[data-thrilling-tales-actor="b"]'))).check();
+  await (await revealControl(page.locator('[data-thrilling-tales-refinement="b"]'))).selectOption("5");
   await expect(page.locator('[data-thrilling-tales-actor="c"]')).not.toBeChecked();
-  await page.locator("#team-apply").click();
-  await expect(page.locator("#team-status")).toContainText("保存");
+  await (await revealControl(page.locator("#team-apply"))).click();
+  await expect(page.locator("#team-status")).toHaveText("队伍配置已应用；请到模拟结果运行。");
   const saved = await page.evaluate(() => window.GenshinDpsLab.getConfig());
   expect(saved.thrillingTalesModel).toEqual({ mode: "fixed-source-no-character-hitlag-v1", actors: [{ actorId: "a", refinement: 1 }, { actorId: "b", refinement: 5 }] });
   expect(saved.characters).toEqual(config.characters);
   expect(saved.timeline).toEqual(config.timeline);
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#runButton").click();
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#runButton"))).click();
   await waitForSimulation(page);
-  const record = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const record = await downloadSimulationRecord(page);
   expect(record.sourceConfig).toEqual(saved);
   const result = record.result;
   expect(result.skippedActions).toEqual([]);
@@ -94,28 +96,28 @@ test("Team TTDS declarations apply only on real holder swap and preserve rejecte
   expect(result.damageEvents.map(event => event.statsBeforeDamage.atkPct)).toEqual([0, 0.24, 0.24, 0, 0.48, 0]);
   expect(result.totalDamage).toBe(4080);
 
-  await page.getByRole("button", { name: "时间轴", exact: true }).click();
+  await (await revealControl(page.getByRole("button", { name: "时间轴", exact: true }))).click();
   const ledger = page.locator("#thrillingTalesAudit");
   await expect(ledger).toBeVisible();
   await expect(ledger.locator("[data-thrilling-tales-id]")).toHaveCount(3);
   const blocked = ledger.locator(`[data-thrilling-tales-detail="${grants[1]!.id}"]`);
-  await blocked.locator(":scope > summary").click();
+  await (await revealControl(blocked.locator(":scope > summary"))).click();
   await expect(blocked).toContainText("不添加、不叠加，也不刷新");
   await expect(blocked).toContainText("预期系数 0.48 不替代已有增益");
   const blockedSource = JSON.parse(await blocked.locator("pre").textContent() ?? "null");
   expect(blockedSource.existingApplied).toEqual(grants[0]);
   const amplified = result.damageEvents.find(event => event.frame === 1622)!;
   const actualGrant = ledger.locator(`[data-thrilling-tales-detail="${grants[2]!.id}"]`);
-  await actualGrant.locator(":scope > summary").click();
-  await actualGrant.locator(`[data-thrilling-tales-hit-detail="${amplified.id}"] > summary`).click();
+  await (await revealControl(actualGrant.locator(":scope > summary"))).click();
+  await (await revealControl(actualGrant.locator(`[data-thrilling-tales-hit-detail="${amplified.id}"] > summary`))).click();
   await expect(actualGrant.locator(`[data-thrilling-tales-replay="${amplified.id}"]`)).toHaveAttribute("data-thrilling-tales-snapshot-includes", "true");
   await expect(actualGrant.locator(`[data-thrilling-tales-hit-trace="${amplified.id}"]`)).toContainText("原始伤害 840 · 共享核心还原 840 · 差值 0");
-  await page.getByRole("button", { name: "逐段伤害", exact: true }).click();
-  await page.locator(`#hitTableBody tr[data-hit-id="${amplified.id}"]`).click();
+  await (await revealControl(page.getByRole("button", { name: "逐段伤害", exact: true }))).click();
+  await (await revealControl(page.locator(`#hitTableBody tr[data-hit-id="${amplified.id}"]`))).click();
   await expect(page.locator("#sharedHitTrace")).toContainText("差值 0");
   const sourceTrace = await page.locator("#sharedHitTrace tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(sourceTrace.length).toBeGreaterThan(0);
-  await page.locator("#openHitCalculator").click();
+  await (await revealControl(page.locator("#openHitCalculator"))).click();
   await expect(page.getByTestId("replay-difference")).toHaveText("0");
   const restoredTrace = await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({ id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent })));
   expect(restoredTrace).toEqual(sourceTrace);
@@ -123,21 +125,21 @@ test("Team TTDS declarations apply only on real holder swap and preserve rejecte
   expect(captured.eventId).toBe(amplified.id);
   expect(captured.sourceResult).toEqual(result);
 
-  await page.locator('.product-nav a[href="/results"]').click();
-  await page.locator("#randomSeedInput").fill("discard-this-seed");
-  await page.locator("#importInput").setInputFiles({ name: "thrilling-tales-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+  await (await revealControl(page.locator('.product-nav a[href="/results"]'))).click();
+  await (await revealControl(page.locator("#randomSeedInput"))).fill("discard-this-seed");
+  await (await revealControl(page.locator("#importInput"))).setInputFiles({ name: "thrilling-tales-complete-record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record.wire)) });
+  await expectReadonlyRecord(page, record);
   await expect(page.locator("#randomSeedInput")).toHaveValue(record.options.randomSeed);
-  await waitForSimulation(page);
-  const replayed = await downloadJson<SimulationRecord>(page, "#exportRunButton");
+  const replayed = await downloadSimulationRecord(page);
   expect(replayed.sourceConfig).toEqual(record.sourceConfig);
   expect(replayed.options).toEqual(record.options);
   expect(replayed.result).toEqual(record.result);
 
   // A single warmup of this same saved cycle checks the persisted runtime cooldown state.
-  await page.getByRole("button", { name: "总览", exact: true }).click();
-  await page.locator("#analysis-warmup-energy").selectOption("zero");
-  await page.locator("#analysis-warmup-cycles").fill("8");
-  await page.locator("#analysis-steady-run").click();
+  await (await revealControl(page.getByRole("button", { name: "总览", exact: true }))).click();
+  await (await revealControl(page.locator("#analysis-warmup-energy"))).selectOption("zero");
+  await (await revealControl(page.locator("#analysis-warmup-cycles"))).fill("8");
+  await (await revealControl(page.locator("#analysis-steady-run"))).click();
   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
   await expect(page.locator("#analysis-startup-output")).toContainText("已从完整模拟检查点建立稳态");
   const { startup } = await downloadJson<{ startup: SimulationStartupResult }>(page, "#analysis-export");

@@ -123,10 +123,12 @@ describe("Nefer ordinary source contexts C0–C6", () => {
     const mapping = gameDataRuntimeIndex.enkaCharacterMappings.find((entry) => entry.avatarId === avatarId);
     if (!mapping) throw new Error("Missing real Nefer showcase mapping");
     const response = { playerInfo: { level: 60 }, avatarInfoList: [{
-      avatarId, propMap: { "4001": { type: 4001, ival: "90" }, "1002": { type: 1002, val: "6" } },
+      avatarId, propMap: { "4001": { type: 4001, val: "90" }, "1002": { type: 1002, val: "6" } },
       talentIdList: [1001, 1002, 1003, 1004],
-      skillLevelMap: Object.fromEntries(mapping.skillOrder.map((id) => [String(id), 10])),
-      fightPropMap: { "20": 0.7, "22": 1.2, "23": 1.5, "28": 300, "2000": 20000, "2001": 2000, "2002": 800 }, equipList: []
+      // This accounting test keeps effective Q10: base7 + the explicit C3 bonus.
+      skillLevelMap: Object.fromEntries(mapping.skillOrder.map((id, index) => [String(id), index === 2 ? 7 : 10])),
+      proudSkillExtraLevelMap: { [String(mapping.proudMap[String(mapping.skillOrder[2])])]: 3 },
+      fightPropMap: { "20": 0.7, "22": 1.2, "23": 1.5, "28": 300, "43": 0, "2000": 20000, "2001": 2000, "2002": 800 }, equipList: []
     }] };
     const character = resolveShowcaseCatalog(parseEnkaShowcase(response, { uid: "synthetic-nefer-import", fetchedAt: "2026-09-23T00:00:00.000Z" })).characters[0];
     if (!character) throw new Error("Missing parsed source identity");

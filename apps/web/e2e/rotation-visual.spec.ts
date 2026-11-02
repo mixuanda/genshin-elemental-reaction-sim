@@ -17,6 +17,7 @@ test("visual rotation preserves real actor commands, cooldown waits and energy r
   await expect(page.locator("#notice")).toContainText(fixture.meta.name);
   await page.locator('.product-nav a[href="/rotation"]').click();
   await expect(page.locator("#rotation-dsl")).toBeHidden();
+  await page.locator("#rotation-full-palette > summary").click();
   await expect(page.locator('[data-rotation-actor="h"] button').filter({ hasText: "重击" })).toBeDisabled();
   await page.locator('[data-visual-ability="h"]').click();
   await page.locator('[data-visual-ability="h"]').click();

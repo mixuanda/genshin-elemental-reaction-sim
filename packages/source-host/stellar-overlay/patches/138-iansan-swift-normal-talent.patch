@@ -1,0 +1,14 @@
+--- a/internal/characters/iansan/charge.go
++++ b/internal/characters/iansan/charge.go
+@@ -92,7 +92,10 @@
+ 		Durability:       25,
+ 		HitlagFactor:     0.01,
+ 		HitlagHaltFrames: 0.05 * 60,
+-		Mult:             swift[c.TalentLvlSkill()],
++		// Corrected by source-host patch 138 using fixed Optimizer 180a0a1:
++		// Iansan/index.tsx + dataUtil.tsx bind Swift auto[4] to autoIndex.
++		// Preserve upstream charge.go:95:21 (E-index) as historical evidence.
++		Mult:             swift[c.TalentLvlAttack()],
+ 	}
+ 	c.Core.QueueAttack(
+ 		ai,

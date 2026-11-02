@@ -1,0 +1,150 @@
+{
+  "format": "gidps-gaming-selected-hits-source-v1",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "provisional",
+  "files": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/gaming.go",
+      "sha256": "21cc8cefa5e10ae52d4065f0e923681bd0a4556b1cd1f97bfcb83e0c5d8bc817",
+      "gitBlob": "7fff3ae58d593b1ab5524a35fc5ac1b2d6f47a16"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/skill.go",
+      "sha256": "5941f6cd038ea3efd111d3c5fe7d969d083095dee484aa48263f5cf6141954d3",
+      "gitBlob": "60d88bda34ffc1ec0311d01954bf72acb303844b"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/plunge.go",
+      "sha256": "c303795226734e40f18185201c52f8acabfeb949a2bf00df636155960a3f5b9c",
+      "gitBlob": "5aec588f8d702bc96419734c8aa38724c885fb92"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/burst.go",
+      "sha256": "cf105bf4fa2e7e577f73c86b0b3a9e2fd7699955a6c6ce7e79d1bdc9bcb3b9b3",
+      "gitBlob": "15b28cf7bf28ede8fa51bbc3424afdf4b0ffbf63"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/asc.go",
+      "sha256": "8d98092a597d228ba3c696b5064ba71ae69eb3b99b49efd0bc92196084eb48f1",
+      "gitBlob": "8a053b1c669430af92ce6b8810baca3f86e46ffa"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/cons.go",
+      "sha256": "7d36f68865e58937266b27705318af95ec2a19d106718286fa40bcbc4d1a9359",
+      "gitBlob": "16ffe92adbc9c334038d68541fa386cfbb6ade53"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/gaming/zz_gaming.dm.go",
+      "sha256": "dc335fff4c640d686c10d737956963e16406102f5465966b0c2bdbcb9c237d22",
+      "gitBlob": "519fdf17c235a0bf8de4a731b602ce2cdbd6bfbf"
+    }
+  ],
+  "coefficients": [
+    {
+      "sourceTable": "skill",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        2.304,
+        2.4768,
+        2.6496,
+        2.88,
+        3.0528,
+        3.2256,
+        3.456,
+        3.6864,
+        3.9168,
+        4.1472,
+        4.3776,
+        4.608,
+        4.896,
+        5.184,
+        5.472
+      ]
+    },
+    {
+      "sourceTable": "burst",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        3.704,
+        3.9818,
+        4.2596,
+        4.63,
+        4.9078,
+        5.1856,
+        5.556,
+        5.9264,
+        6.2968,
+        6.6672,
+        7.0376,
+        7.408,
+        7.871,
+        8.334,
+        8.797
+      ]
+    }
+  ],
+  "crossVariant": {
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "files": [
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/gaming.go",
+        "sha256": "21cc8cefa5e10ae52d4065f0e923681bd0a4556b1cd1f97bfcb83e0c5d8bc817",
+        "gitBlob": "7fff3ae58d593b1ab5524a35fc5ac1b2d6f47a16"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/skill.go",
+        "sha256": "5941f6cd038ea3efd111d3c5fe7d969d083095dee484aa48263f5cf6141954d3",
+        "gitBlob": "60d88bda34ffc1ec0311d01954bf72acb303844b"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/plunge.go",
+        "sha256": "c303795226734e40f18185201c52f8acabfeb949a2bf00df636155960a3f5b9c",
+        "gitBlob": "5aec588f8d702bc96419734c8aa38724c885fb92"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/burst.go",
+        "sha256": "98bfffa9cd47e0c69f66eb0371b6e3e2ac54646c8b824634a0d03c09a2b1fd27",
+        "gitBlob": "2f61bf0c2b6606cbc6103a5ffa8cb9990ccfbf7b"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/asc.go",
+        "sha256": "8d98092a597d228ba3c696b5064ba71ae69eb3b99b49efd0bc92196084eb48f1",
+        "gitBlob": "8a053b1c669430af92ce6b8810baca3f86e46ffa"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/cons.go",
+        "sha256": "7d36f68865e58937266b27705318af95ec2a19d106718286fa40bcbc4d1a9359",
+        "gitBlob": "16ffe92adbc9c334038d68541fa386cfbb6ade53"
+      },
+      {
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "path": "internal/characters/gaming/zz_gaming.dm.go",
+        "sha256": "dc335fff4c640d686c10d737956963e16406102f5465966b0c2bdbcb9c237d22",
+        "gitBlob": "519fdf17c235a0bf8de4a731b602ce2cdbd6bfbf"
+      }
+    ],
+    "allSevenFilesByteIdentical": false,
+    "differences": [
+      {
+        "path": "internal/characters/gaming/burst.go",
+        "scope": "Burst animation cancellation defaults differ (swap/dash); coefficient vectors, initial Q hit60f, special plunge32f, drain33f, A4 and C6 rules unchanged. This single-hit calculator does not claim identical action scheduling."
+      }
+    ]
+  }
+}

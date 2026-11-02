@@ -1,0 +1,13 @@
+--- a/internal/characters/iansan/burst.go
++++ b/internal/characters/iansan/burst.go
+@@ -64,6 +64,10 @@
+ 		if !c.nightsoulState.HasBlessing() {
+ 			c.enterNightsoul(15)
+ 		} else {
++			// C6 applies to this restoration too; C4 records only Scale overflow.
++			if c.nightsoulState.Points()+15 > c.nightsoulState.MaxPoints {
++				c.c6OnOverflow()
++			}
+ 			c.nightsoulState.GeneratePoints(15)
+ 		}
+ 	}, 40)

@@ -1,3 +1,5 @@
+import { resolveAngularGeometry, type AngularGeometryMath } from "@genshin-dps-lab/reaction-formulas";
+import { eventStepProtocol, verifiedStepPositions, directHitStepWitnessSink, type PropagationStepEvent, type DirectHitStepSite, type DirectHitStepEvent, type DirectHitStepObserverOptions } from './direct-hit-step-witness';
 import { EnemyShieldHost, type EnemyShieldPhaseTask } from "./enemy-shield-host";
 import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
 import { WeaponHitStackRuntime, type WeaponHitStackRuntimeDecision } from "./weapon-hit-stack-runtime";
@@ -203,6 +205,7 @@ import {
   auraStateSnapshotsEqual,
   TargetStateTimelineRecorder
 } from "./target-state-timeline";
+import { copyGeneratedAuraStates } from "./aura-state-copy";
 import {
   ReactionDamageGroupTaskEngine,
   type ReactionDamageGroupAttemptResult,
@@ -319,7 +322,7 @@ const stellarSwirlRuntimeSink = Symbol("stellar-swirl-runtime-sink");
 const lunarMixedRuntimeSink = Symbol("lunar-mixed-runtime-sink");
 const lunarMixedV2RuntimeSink = Symbol("lunar-mixed-v2-runtime-sink");
 
-export interface SimulationRuntimeOptions extends SimulationOptions {
+export interface SimulationRuntimeOptions extends SimulationOptions, DirectHitStepObserverOptions {
   plugins?: readonly SimulationRuntimePluginV153[];
 }
 
@@ -565,11 +568,12 @@ function normalizeSignedDegrees(value: number): number {
 function transformActorLocalPoint(
   point: { x: number; y: number },
   actorPosition: { x: number; y: number },
-  actorFacingDegrees: number
+  actorFacingDegrees: number,
+  angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()
 ): { x: number; y: number } {
   const radians = (actorFacingDegrees * Math.PI) / 180;
-  const cosine = Math.cos(radians);
-  const sine = Math.sin(radians);
+  const cosine = angular.cos(radians);
+  const sine = angular.sin(radians);
   return {
     x:
       actorPosition.x +
@@ -589,7 +593,8 @@ function resolveWorldHitGeometry(
         position: { x: number; y: number };
         facingDegrees: number;
       }
-    | undefined
+    | undefined,
+  angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()
 ): ResolvedWorldHitGeometry {
   if ((geometry.coordinateSpace ?? "world") === "world") {
     return {
@@ -610,7 +615,8 @@ function resolveWorldHitGeometry(
       origin: transformActorLocalPoint(
         geometry.origin,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       )
     };
   }
@@ -621,7 +627,8 @@ function resolveWorldHitGeometry(
       origin: transformActorLocalPoint(
         geometry.origin,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       ),
       rotationDegrees: normalizeSignedDegrees(
         geometry.rotationDegrees + actorPose.facingDegrees
@@ -635,12 +642,14 @@ function resolveWorldHitGeometry(
       start: transformActorLocalPoint(
         geometry.start,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       ),
       end: transformActorLocalPoint(
         geometry.end,
         actorPose.position,
-        actorPose.facingDegrees
+        actorPose.facingDegrees,
+        angular
       )
     };
   }
@@ -650,7 +659,8 @@ function resolveWorldHitGeometry(
     origin: transformActorLocalPoint(
       geometry.origin,
       actorPose.position,
-      actorPose.facingDegrees
+      actorPose.facingDegrees,
+      angular
     ),
     directionDegrees: normalizeSignedDegrees(
       geometry.directionDegrees + actorPose.facingDegrees
@@ -661,7 +671,8 @@ function resolveWorldHitGeometry(
 function resolveHitGeometry(
   geometry: NonNullable<HitDefinition["geometry"]>,
   targetPosition: { x: number; y: number },
-  hitboxRadius: number
+  hitboxRadius: number,
+  angular: Readonly<AngularGeometryMath> = resolveAngularGeometry()
 ): {
   landed: boolean;
   distance: number;
@@ -684,8 +695,8 @@ function resolveHitGeometry(
 
   if (geometry.kind === "rectangle") {
     const radians = (geometry.rotationDegrees * Math.PI) / 180;
-    const cosine = Math.cos(radians);
-    const sine = Math.sin(radians);
+    const cosine = angular.cos(radians);
+    const sine = angular.sin(radians);
     const deltaX = targetPosition.x - geometry.origin.x;
     const deltaY = targetPosition.y - geometry.origin.y;
     const localX = deltaX * cosine + deltaY * sine;
@@ -729,7 +740,7 @@ function resolveHitGeometry(
     }
 
     const targetDirectionDegrees =
-      (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
+      (angular.atan2(deltaY, deltaX) * 180) / Math.PI;
     const angularDifference = Math.abs(
       normalizeSignedDegrees(
         targetDirectionDegrees - geometry.directionDegrees
@@ -754,10 +765,10 @@ function resolveHitGeometry(
           {
             x:
               geometry.origin.x +
-              geometry.radius * Math.cos(angleRadians),
+              geometry.radius * angular.cos(angleRadians),
             y:
               geometry.origin.y +
-              geometry.radius * Math.sin(angleRadians)
+              geometry.radius * angular.sin(angleRadians)
           }
         );
       });
@@ -2052,8 +2063,10 @@ function simulateConfig(
         ? "legal-frame-v1"
         : "legacy-v0.1"),
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed,
-    ...(requestedExecution === undefined ? {} : { execution: deepClone(requestedExecution) })
+    ...(requestedExecution === undefined ? {} : { execution: deepClone(requestedExecution) }),
+    ...(runtimeOptions.angularGeometrySemantics === undefined ? {} : { angularGeometrySemantics: runtimeOptions.angularGeometrySemantics })
   };
+  const angularGeometry = resolveAngularGeometry(options.angularGeometrySemantics);
   if (config.playerShieldModel !== undefined && options.compatibilityMode !== "legal-frame-v1") throw new Error("Player shields require compatibilityMode legal-frame-v1.");
   if (explicitSourceSnapshotsEnabled && options.compatibilityMode !== "legal-frame-v1") throw new Error("Explicit source snapshots require compatibilityMode legal-frame-v1.");
   if (options.compatibilityMode === "legal-frame-v1") options.flatStatBuffSemantics = "canonical-v1";
@@ -2189,7 +2202,7 @@ function simulateConfig(
     `${options.randomSeed}:crystallize-shard-position-v1`
   );
   const dendroCoreRandom = new SeededRandom(`${options.randomSeed}:dendro-core-position-v1`);
-  const dendroCoreManager = new DendroCoreManager(dendroCoreRandom);
+  const dendroCoreManager = new DendroCoreManager(dendroCoreRandom, angularGeometry);
   const actorPoses = deepClone(config.actorPoses ?? []);
   const actorPoseById = new Map(
     actorPoses.map((pose) => [pose.actorId, pose])
@@ -2959,7 +2972,9 @@ function simulateConfig(
   });
   let sequence = 0;
   let executingEvent: Pick<InternalEvent, "frame" | "priority" | "sequence"> | undefined;
-  let nextExecutionIntraSequence = (): number => 0;
+  const directHitStepEvents: DirectHitStepEvent[] = [];
+  const propagationStepEvents: PropagationStepEvent[] = [];
+  let nextExecutionIntraSequence = (_site?: DirectHitStepSite): number => 0;
   let freezeBrokenCallbackTaskSequence = 1_000_000_000;
   const freezeBrokenCallbackCountByTriggerSequence = new Map<number, number>();
   const push = <TPayload>(
@@ -4793,7 +4808,7 @@ function simulateConfig(
         }
       }
       artifactBuffLog.push({ ...decision, id, frame: event.frame, timeSeconds: event.frame / 60,
-        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next(),
+        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next({kind:'artifact-buff',id}),
         actionLogIndex: null, parentDamageEventId: null, playerHealthEventId: null, reactionTaskLogId: null,
         parentArtifactBuffLogId: null, ...links });
       for (const task of decision.delayedApplications) push(task.applyFrame / 60, "artifactBuffApply", { task, parentArtifactBuffLogId: id });
@@ -7559,10 +7574,10 @@ function simulateConfig(
             burningReaction.fuelDecayPerFrame,
           fuelExpiresAtFrame:
             burningReaction.fuelExpiresAtFrame,
-          auraBefore: deepClone(audit.auraBefore ?? []),
+          auraBefore: copyGeneratedAuraStates(audit.auraBefore ?? []),
           auraApplied: deepClone(audit.auraApplied ?? []),
           auraConsumed: deepClone(audit.auraConsumed ?? []),
-          auraAfter: deepClone(audit.auraAfter ?? []),
+          auraAfter: copyGeneratedAuraStates(audit.auraAfter ?? []),
           nextTickFrame: null,
           clockModel: burningClockModel,
           hitlagStatus: enemyHitlagStatus,
@@ -7661,10 +7676,10 @@ function simulateConfig(
         fuelDecayPerFrame: burningReaction.fuelDecayPerFrame,
         fuelExpiresAtFrame:
           burningReaction.fuelExpiresAtFrame,
-        auraBefore: deepClone(audit.auraBefore ?? []),
+        auraBefore: copyGeneratedAuraStates(audit.auraBefore ?? []),
         auraApplied: deepClone(audit.auraApplied ?? []),
         auraConsumed: deepClone(audit.auraConsumed ?? []),
-        auraAfter: deepClone(audit.auraAfter ?? []),
+        auraAfter: copyGeneratedAuraStates(audit.auraAfter ?? []),
         nextTickFrame: burningReaction.nextTickFrame,
         clockModel: burningClockModel,
         hitlagStatus: enemyHitlagStatus,
@@ -7761,10 +7776,10 @@ function simulateConfig(
         )?.gaugeUnits ?? 0,
       fuelDecayPerFrame: activeSource.fuelDecayPerFrame,
       fuelExpiresAtFrame: null,
-      auraBefore: deepClone(auraBefore),
+      auraBefore: copyGeneratedAuraStates(auraBefore),
       auraApplied: deepClone(audit.auraApplied ?? []),
       auraConsumed: deepClone(audit.auraConsumed ?? []),
-      auraAfter: deepClone(auraAfter),
+      auraAfter: copyGeneratedAuraStates(auraAfter),
       nextTickFrame: null,
       clockModel: burningClockModel,
       hitlagStatus: enemyHitlagStatus,
@@ -9070,7 +9085,8 @@ function simulateConfig(
             resolveHitGeometry(
               resolvedGeometry,
               core.position,
-              core.hitboxRadius
+              core.hitboxRadius,
+              angularGeometry
             ).landed
           );
     const contactedCoreIds: number[] = [];
@@ -9191,7 +9207,7 @@ function simulateConfig(
     resolvedGeometry: ResolvedWorldHitGeometry | null;
     eventPriority: number;
     eventSequence: number;
-    nextIntraEventSequence: () => number;
+    nextIntraEventSequence: (site?: DirectHitStepSite) => number;
   }): void => {
     if (hit.targetHitlag !== undefined) {
       applyConfiguredTargetHitlag({
@@ -9208,7 +9224,7 @@ function simulateConfig(
         landed,
         eventPriority,
         eventSequence,
-        intraEventSequence: nextIntraEventSequence()
+        intraEventSequence: nextIntraEventSequence({kind:'hitlag',hitResolutionLogId:targetResolutionId})
       });
     }
     const aggregate = hitCallbackAggregates.get(hitGroupId) ?? {
@@ -9634,7 +9650,7 @@ function simulateConfig(
         const resolvedGeometry =
           geometry === undefined
             ? undefined
-            : resolveWorldHitGeometry(geometry, sourceActorPose);
+            : resolveWorldHitGeometry(geometry, sourceActorPose, angularGeometry);
         const targetPlans: Array<{
           targeting?: HitTargeting;
           targetingSource: "default" | "scripted" | "geometry";
@@ -9718,7 +9734,8 @@ function simulateConfig(
                 const geometryResolution = resolveHitGeometry(
                   resolvedGeometry,
                   targetPosition,
-                  target.hitboxRadius
+                  target.hitboxRadius,
+                  angularGeometry
                 );
                 return {
                   targeting: {
@@ -10077,6 +10094,8 @@ function simulateConfig(
       appendArtifactDecision(event, decision, artifactSource("target-died", damage.actionId, { targetHealthLogId: healthLogId }));
     }
   };
+  // Terminal dispatches below stay synchronous in this iteration scope. Their
+  // local functions let V8 optimize each body independently of the large queue.
   while (queue.size > 0) {
     const lunarHorizon = Math.min(queue.peek()!.frame, Math.round(config.duration * 60));
     const beforePendingSwap = lunarHorizon - Number(pendingLunarSwapFrames.has(lunarHorizon));
@@ -10093,8 +10112,16 @@ function simulateConfig(
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
     let intraEventSequence = 0;
-    const nextIntraEventSequence = (): number =>
-      intraEventSequence++;
+    let observedPropagation: PropagationStepEvent | undefined;
+    const observedSteps: DirectHitStepEvent | undefined = (runtimeOptions[directHitStepWitnessSink] !== undefined || runtimeOptions[eventStepProtocol]) && event.type === "hit"
+      ? {frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,allocationCount:0,steps:[]} : undefined;
+    if (observedSteps) directHitStepEvents.push(observedSteps);
+    const nextIntraEventSequence = (site?: DirectHitStepSite): number => {
+      const allocated = intraEventSequence++;
+      if(observedPropagation) { observedPropagation.operations.push({operation:'allocate',sequence:allocated,site:site ?? {kind:'unclassified'}}); observedPropagation.allocationCount=intraEventSequence; }
+      if (observedSteps) { if(site?.kind==='hit-resolution') observedSteps.hitResolutionLogId=site.id; observedSteps.steps.push({sequence:allocated,site:site ?? {kind:'unclassified'}}); observedSteps.allocationCount=intraEventSequence; }
+      return allocated;
+    };
     nextExecutionIntraSequence = nextIntraEventSequence;
     if (event.type === "artifactBuffApply") {
       handleArtifactBuff({ kind: "delayed-buff", frame: event.frame, task: event.payload.task }, { parentArtifactBuffLogId: event.payload.parentArtifactBuffLogId });
@@ -10312,6 +10339,7 @@ function simulateConfig(
       continue;
     }
     if (event.type === "freezeBrokenCallback") {
+      const resolveQueuedFreezeBrokenCallback = (): void => {
       const { freezeBrokenAttackLogId } =
         event.payload as FreezeBrokenCallbackEventPayload;
       const pending = pendingFreezeBrokenCallbacks.get(
@@ -10421,6 +10449,9 @@ function simulateConfig(
       pendingFreezeBrokenCallbacks.delete(freezeBrokenAttackLogId);
       // This zero-delay callback task is audit-only. It must not wake Aura
       // decay, target clocks, target cleanup, damage, hit, or RNG machinery.
+      return;
+      };
+      resolveQueuedFreezeBrokenCallback();
       continue;
     }
     if (event.type === "reactionDamageGroupReset") {
@@ -10559,9 +10590,10 @@ function simulateConfig(
     }
 
     if (event.type === "action") {
+      const resolveQueuedAction = (): void => {
       const { action, cycle } = event.payload as ActionEventPayload;
       const actor = characters.get(action.actorId);
-      if (!actor) continue;
+      if (!actor) return;
       const previousActiveCharacterId = activeCharacterId;
       if (normalHitEnergyRuntime !== undefined && activeCharacterId !== null && activeCharacterId !== actor.id) {
         normalHitEnergyLog.push({ ...normalHitEnergyRuntime.onSwap(event.frame, actor.id), timeSeconds, eventPriority: event.priority, eventSequence: event.sequence });
@@ -10629,7 +10661,7 @@ function simulateConfig(
         });
         const summary = energyStats.get(actor.id);
         if (summary) summary.skipped += 1;
-        continue;
+        return;
       }
 
       if (action.staminaCost !== undefined && staminaRuntime !== undefined) {
@@ -10827,10 +10859,14 @@ function simulateConfig(
       for (const summon of action.summons ?? []) {
         push(timeSeconds + summon.spawnFrame / 60, "summonSpawn", { action, cycle, summon, actionTimeSeconds: timeSeconds });
       }
+      return;
+      };
+      resolveQueuedAction();
       continue;
     }
 
     if (event.type === "quickenBloomFollowup") {
+      const resolveQueuedQuickenBloomFollowup = (): void => {
       const {
         targetId,
         sourceActorId,
@@ -11062,10 +11098,14 @@ function simulateConfig(
         auraConsumed: taskResult.auraConsumed,
         auraAfter: taskResult.auraAfter
       });
+      return;
+      };
+      resolveQueuedQuickenBloomFollowup();
       continue;
     }
 
     if (event.type === "dendroCoreSpawn") {
+      const resolveQueuedDendroCoreSpawn = (): void => {
       const { reservation } =
         event.payload as DendroCoreSpawnEventPayload;
       const runtimeSource = dendroCoreRuntimeSources.get(
@@ -11197,6 +11237,9 @@ function simulateConfig(
             spawnDecision.spawned.expiresAtFrame
         } satisfies DendroCoreExpiryEventPayload
       );
+      return;
+      };
+      resolveQueuedDendroCoreSpawn();
       continue;
     }
 
@@ -11252,6 +11295,7 @@ function simulateConfig(
     }
 
     if (event.type === "crystallizeShardSpawn") {
+      const resolveQueuedCrystallizeShardSpawn = (): void => {
       const {
         audit,
         actorId,
@@ -11262,7 +11306,7 @@ function simulateConfig(
       const actor = characters.get(actorId);
       const target = enemyTargetById.get(sourceTargetId);
       const stats = computeStats(actorId, timeSeconds);
-      if (!actor || !target || !stats) continue;
+      if (!actor || !target || !stats) return;
 
       while (
         activeCrystallizeShards.size >=
@@ -11315,8 +11359,8 @@ function simulateConfig(
         centerPosition === null
           ? null
           : {
-              x: centerPosition.x + Math.cos(radians) * spawnRadius,
-              y: centerPosition.y + Math.sin(radians) * spawnRadius
+              x: centerPosition.x + angularGeometry.cos(radians) * spawnRadius,
+              y: centerPosition.y + angularGeometry.sin(radians) * spawnRadius
             };
       const shard: ActiveCrystallizeShard = {
         id: nextCrystallizeShardId++,
@@ -11366,6 +11410,9 @@ function simulateConfig(
         shardId: shard.id,
         expectedExpiryFrame: shard.expiresAtFrame
       } satisfies CrystallizeShardExpiryEventPayload);
+      return;
+      };
+      resolveQueuedCrystallizeShardSpawn();
       continue;
     }
 
@@ -11410,10 +11457,11 @@ function simulateConfig(
     }
 
     if (event.type === "crystallizePickup") {
+      const resolveQueuedCrystallizePickup = (): void => {
       const { commandIndex, element } =
         event.payload as CrystallizePickupEventPayload;
       const pickupActorId = activeCharacterId;
-      if (pickupActorId === null) continue;
+      if (pickupActorId === null) return;
       const matchingShards = [...activeCrystallizeShards.values()]
         .filter(
           (shard) => element === "any" || shard.element === element
@@ -11596,10 +11644,14 @@ function simulateConfig(
           reason: "NO_MATCHING_SHARD"
         });
       }
+      return;
+      };
+      resolveQueuedCrystallizePickup();
       continue;
     }
 
     if (event.type === "crystallizeShieldExpiry") {
+      const resolveQueuedCrystallizeShieldExpiry = (): void => {
       const { shieldId, expectedExpiryFrame } =
         event.payload as CrystallizeShieldExpiryEventPayload;
       const shield = activeCrystallizeShield;
@@ -11608,7 +11660,7 @@ function simulateConfig(
         shield.id !== shieldId ||
         shield.expiresAtFrame !== expectedExpiryFrame
       ) {
-        continue;
+        return;
       }
       crystallizeShieldLog.push({
         id: crystallizeShieldLog.length,
@@ -11663,10 +11715,14 @@ function simulateConfig(
         damageAfterShield: 0
       });
       activeCrystallizeShield = null;
+      return;
+      };
+      resolveQueuedCrystallizeShieldExpiry();
       continue;
     }
 
     if (event.type === "energy") {
+      const resolveQueuedEnergy = (): void => {
       const { actorId, actionId, gain } =
         event.payload as EnergyEventPayload;
       const internalCooldown = gain.internalCooldown;
@@ -11814,6 +11870,9 @@ function simulateConfig(
           source
         );
       }
+      return;
+      };
+      resolveQueuedEnergy();
       continue;
     }
 
@@ -11972,6 +12031,7 @@ function simulateConfig(
     }
 
     if (event.type === "frozenExpiry") {
+      const resolveQueuedFrozenExpiry = (): void => {
       const {
         targetId,
         generation,
@@ -11987,7 +12047,7 @@ function simulateConfig(
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
-      if (!auraEngine || !target) continue;
+      if (!auraEngine || !target) return;
       const targetPhaseV2State =
         materializeTargetPhaseV2Decay(
           event.frame,
@@ -12004,7 +12064,7 @@ function simulateConfig(
       ) {
         // Refresh, consumption, or a before-Reactable callback can invalidate
         // a queued expiry. Stale V2/V3 wakes own no Aura boundary or Tick transition.
-        continue;
+        return;
       }
       const targetStateTimelinePointId =
         targetStateTimelineRecorder.result().points.length;
@@ -12031,7 +12091,7 @@ function simulateConfig(
         auraBefore: result.auraBefore,
         auraAfter: result.auraAfter
       });
-      if (result.operation === "stale") continue;
+      if (result.operation === "stale") return;
       const source = activeFrozenStateSources.get(targetId);
       const frozenStateLogId = frozenStateLog.length;
       frozenStateLog.push({
@@ -12091,10 +12151,14 @@ function simulateConfig(
       if (source?.generation === generation) {
         activeFrozenStateSources.delete(targetId);
       }
+      return;
+      };
+      resolveQueuedFrozenExpiry();
       continue;
     }
 
     if (event.type === "quickenExpiry") {
+      const resolveQueuedQuickenExpiry = (): void => {
       const {
         targetId,
         generation,
@@ -12110,7 +12174,7 @@ function simulateConfig(
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
-      if (!auraEngine || !target) continue;
+      if (!auraEngine || !target) return;
       const targetPhaseV2State =
         materializeTargetPhaseV2Decay(
           event.frame,
@@ -12153,7 +12217,7 @@ function simulateConfig(
         auraBefore: result.auraBefore,
         auraAfter: result.auraAfter
       });
-      if (!isCurrentLifecycleExpiry) continue;
+      if (!isCurrentLifecycleExpiry) return;
       const quickenStateLogId = quickenStateLog.length;
       quickenStateLog.push({
         id: quickenStateLogId,
@@ -12214,10 +12278,14 @@ function simulateConfig(
       if (source?.generation === generation) {
         activeQuickenStateSources.delete(targetId);
       }
+      return;
+      };
+      resolveQueuedQuickenExpiry();
       continue;
     }
 
     if (event.type === "electroChargedCleanup") {
+      const resolveQueuedElectroChargedCleanup = (): void => {
       const { targetId, generation, reactionTaskLogId, deadlineTargetFrame } =
         event.payload as ElectroChargedCleanupEventPayload;
       const auraEngine = auraEngines?.get(targetId);
@@ -12239,7 +12307,7 @@ function simulateConfig(
         // Multiple generations can share one target-Tick deadline. The first
         // wake drains and resolves every terminal Aura result; later queued
         // wakes for those tasks are deterministic no-ops.
-        continue;
+        return;
       }
       if (
         wakeAudit.generation !== generation ||
@@ -12639,10 +12707,14 @@ function simulateConfig(
           `Aura-v8 EC cleanup wake for reaction task ${reactionTaskLogId} did not resolve its owning task.`
         );
       }
+      return;
+      };
+      resolveQueuedElectroChargedCleanup();
       continue;
     }
 
     if (event.type === "periodicReactionExpiry") {
+      const resolveQueuedPeriodicReactionExpiry = (): void => {
       const {
         targetId,
         generation,
@@ -12663,7 +12735,7 @@ function simulateConfig(
         !target ||
         auraEngine.isMechanicsTruncated()
       ) {
-        continue;
+        return;
       }
       const targetPhaseV2State =
         materializeTargetPhaseV2Decay(
@@ -12678,7 +12750,7 @@ function simulateConfig(
       if (targetPhaseV2Enabled && result.operation === "stale") {
         // Wane, refresh, or an earlier expiry can invalidate this queued token.
         // A stale wake changes no EC state and owns no Reactable.Tick boundary.
-        continue;
+        return;
       }
       const targetStateTimelinePointId =
         targetStateTimelineRecorder.result().points.length;
@@ -12708,7 +12780,7 @@ function simulateConfig(
         auraConsumed: result.auraConsumed,
         auraAfter: result.auraAfter
       });
-      if (result.operation === "stale") continue;
+      if (result.operation === "stale") return;
       const source = activePeriodicReactionSources.get(targetId);
       const periodicReactionLogId = periodicReactionLog.length;
       periodicReactionLog.push({
@@ -12768,10 +12840,14 @@ function simulateConfig(
       if (source?.generation === generation) {
         activePeriodicReactionSources.delete(targetId);
       }
+      return;
+      };
+      resolveQueuedPeriodicReactionExpiry();
       continue;
     }
 
     if (event.type === "burningFuelExpiry") {
+      const resolveQueuedBurningFuelExpiry = (): void => {
       const {
         targetId,
         generation,
@@ -12787,7 +12863,7 @@ function simulateConfig(
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
-      if (!auraEngine || !target) continue;
+      if (!auraEngine || !target) return;
       const targetPhaseV2State =
         materializeTargetPhaseV2Decay(
           event.frame,
@@ -12844,7 +12920,7 @@ function simulateConfig(
         auraBefore: result.auraBefore,
         auraAfter: result.auraAfter
       });
-      if (result.operation === "stale") continue;
+      if (result.operation === "stale") return;
       const source = activeBurningSources.get(targetId);
       const removedAura = result.auraBefore
         .filter(
@@ -12991,10 +13067,14 @@ function simulateConfig(
       if (source?.generation === generation) {
         activeBurningSources.delete(targetId);
       }
+      return;
+      };
+      resolveQueuedBurningFuelExpiry();
       continue;
     }
 
     if (event.type === "burningTick") {
+      const resolveQueuedBurningTick = (): void => {
       const {
         targetId,
         generation,
@@ -13010,7 +13090,7 @@ function simulateConfig(
           (!source || source.generation !== generation)) ||
         auraEngine.isMechanicsTruncated()
       ) {
-        continue;
+        return;
       }
       const prepared = targetPhaseAuditEnabled
         ? auraEngine.prepareBurningTickBeforeDecay(
@@ -13040,7 +13120,7 @@ function simulateConfig(
           event,
           prepared.nextTickFrame
         );
-        continue;
+        return;
       }
       // Enemy-owned tasks run before Reactable.Tick in the fixed reference.
       // The callback above decides whether to queue Burning damage from the
@@ -13175,7 +13255,7 @@ function simulateConfig(
           );
         }
       }
-      if (prepared.operation === "stale") continue;
+      if (prepared.operation === "stale") return;
       if (prepared.operation === "stop") {
         const burningStateLogId = burningStateLog.length;
         burningStateLog.push({
@@ -13260,7 +13340,7 @@ function simulateConfig(
           targetPhaseTask.burningStateLogId = burningStateLogId;
         }
         activeBurningSources.delete(targetId);
-        continue;
+        return;
       }
 
       if (source === undefined) {
@@ -13312,10 +13392,10 @@ function simulateConfig(
         fuelDecayPerFrame: prepared.fuelDecayPerFrame,
         fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
         ...callbackAuraProvenance,
-        auraBefore: deepClone(prepared.auraBefore),
+        auraBefore: copyGeneratedAuraStates(prepared.auraBefore),
         auraApplied: [],
         auraConsumed: [],
-        auraAfter: deepClone(prepared.auraAfter),
+        auraAfter: copyGeneratedAuraStates(prepared.auraAfter),
         nextTickFrame: prepared.nextTickFrame,
         clockModel: burningClockModel,
         hitlagStatus: enemyHitlagStatus,
@@ -13394,10 +13474,14 @@ function simulateConfig(
         generation,
         prepared.fuelExpiresAtFrame
       );
+      return;
+      };
+      resolveQueuedBurningTick();
       continue;
     }
 
     if (event.type === "periodicReactionTick") {
+      const resolveQueuedPeriodicReactionTick = (): void => {
       const {
         targetId,
         generation,
@@ -13412,7 +13496,7 @@ function simulateConfig(
         !target ||
         auraEngine.isMechanicsTruncated()
       ) {
-        continue;
+        return;
       }
 
       let source: PeriodicReactionSourceSnapshot | undefined;
@@ -13540,7 +13624,7 @@ function simulateConfig(
           !activeSource ||
           activeSource.generation !== generation
         ) {
-          continue;
+          return;
         }
         const prepared = auraEngine.prepareElectroChargedTick(
           event.frame,
@@ -13582,7 +13666,7 @@ function simulateConfig(
           auraConsumed: prepared.auraConsumed,
           auraAfter: prepared.auraAfter
         });
-        if (prepared.operation === "stale") continue;
+        if (prepared.operation === "stale") return;
         if (prepared.operation === "stop") {
           periodicReactionLog.push({
             id: periodicReactionLog.length,
@@ -13614,7 +13698,7 @@ function simulateConfig(
           if (activeSource?.generation === generation) {
             activePeriodicReactionSources.delete(targetId);
           }
-          continue;
+          return;
         }
         if (prepared.operation === "tick-skipped") {
           periodicReactionLog.push({
@@ -13643,7 +13727,7 @@ function simulateConfig(
               prepared.waneListenerActive,
             ),
           });
-          continue;
+          return;
         }
         source = activeSource;
         auraBefore = prepared.auraBefore;
@@ -13659,7 +13743,7 @@ function simulateConfig(
           ? prepared.waneListenerActive === true
           : true;
       }
-      if (!source) continue;
+      if (!source) return;
 
       const periodicReactionLogId = periodicReactionLog.length;
       periodicReactionLog.push({
@@ -13713,10 +13797,14 @@ function simulateConfig(
           coexistenceExpiresAtFrame
         );
       }
+      return;
+      };
+      resolveQueuedPeriodicReactionTick();
       continue;
     }
 
     if (event.type === "periodicReactionWane") {
+      const resolveQueuedPeriodicReactionWane = (): void => {
       const {
         targetId,
         generation,
@@ -13733,7 +13821,7 @@ function simulateConfig(
         const activeSource =
           activePeriodicReactionSources.get(targetId);
         if (activeSource?.generation !== generation) {
-          continue;
+          return;
         }
       }
       const auraEngine = auraEngines?.get(targetId);
@@ -13743,7 +13831,7 @@ function simulateConfig(
         !target ||
         auraEngine.isMechanicsTruncated()
       ) {
-        continue;
+        return;
       }
       const result = generationBoundWane
         ? auraEngine.waneElectroCharged(
@@ -13759,7 +13847,7 @@ function simulateConfig(
         generationBoundWane &&
         result.operation === "stale"
       ) {
-        continue;
+        return;
       }
       if (auraV9Enabled) {
         syncPendingElectroChargedCleanupCadence({
@@ -13846,10 +13934,14 @@ function simulateConfig(
           result.coexistenceExpiresAtFrame
         );
       }
+      return;
+      };
+      resolveQueuedPeriodicReactionWane();
       continue;
     }
 
     if (event.type === "reactionAuraAttachment") {
+      const resolveQueuedReactionAuraAttachment = (): void => {
       if (!deferredSwirlAuraAttachmentEnabled) {
         throw new Error(
           "A deferred Swirl Aura attachment escaped the basic reaction scheduler v2 boundary."
@@ -13953,10 +14045,16 @@ function simulateConfig(
         auraConsumed: [],
         auraAfter: attachment.auraAfter
       });
+      return;
+      };
+      resolveQueuedReactionAuraAttachment();
       continue;
     }
 
+    // Give this hot dispatch its own bytecode budget without changing event scope,
+    // synchronous ordering, or the three exits that advance the outer queue.
     if (event.type === "reactionDamage") {
+      const resolveQueuedReactionDamage = (): void => {
       const {
         reaction,
         damageElement,
@@ -13989,7 +14087,13 @@ function simulateConfig(
       } = event.payload as ReactionDamageEventPayload;
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
-      if (!sourceActor || !reactionLog) continue;
+      if (!sourceActor || !reactionLog) return;
+      if((runtimeOptions[directHitStepWitnessSink] !== undefined || runtimeOptions[eventStepProtocol]) && targetingMode === 'electro-charged-nearby-wet') {
+        observedPropagation={frame:event.frame,eventPriority:event.priority,eventSequence:event.sequence,
+          reactionDamageLogId,sourceActorId:actorId,sourceTargetId,triggerDamageEventId,
+          allocationCount:intraEventSequence,operations:[]};
+        propagationStepEvents.push(observedPropagation);
+      }
       const burningRootInlineDeliveryState =
         burningRootInlineDeliveryByReactionDamageLogId.get(
           reactionDamageLogId
@@ -14130,7 +14234,7 @@ function simulateConfig(
                 eventPriority: event.priority,
                 eventSequence: event.sequence,
                 intraEventSequence:
-                  nextIntraEventSequence(),
+                  nextIntraEventSequence({kind:'propagation-candidate',reactionDamageLogId,targetId:target.id}),
                 reaction: "electroCharged",
                 reactions: ["electroCharged"],
                 primaryDamageEventId: null,
@@ -14209,7 +14313,8 @@ function simulateConfig(
                 radius
               },
               position,
-              target.hitboxRadius
+              target.hitboxRadius,
+              angularGeometry
             );
             return {
               ...base,
@@ -14275,7 +14380,7 @@ function simulateConfig(
             : null;
         if (selection.selectedPosition === null) {
           reactionLog.centerPosition = null;
-          continue;
+          return;
         }
         resolvedReactionCenterPosition = deepClone(
           selection.selectedPosition
@@ -14380,7 +14485,8 @@ function simulateConfig(
               radius
             },
             targetPosition,
-            target.hitboxRadius
+            target.hitboxRadius,
+            angularGeometry
           );
           spatialPlans.push({
             targetId: target.id,
@@ -14580,6 +14686,7 @@ function simulateConfig(
                         action.sourceAbilityId
                     })
               };
+            if(observedPropagation) observedPropagation.operations.push({operation:'observe-hit',sequence:intraEventSequence,hitResolutionLogId:targetResolutionId,targetId:plan.targetId});
             hitResolutionLog.push(targetResolution);
             reactionHitResolutionLogIds.push(targetResolutionId);
             reactionLog.hitResolutionLogIds.push(targetResolutionId);
@@ -14827,7 +14934,7 @@ function simulateConfig(
                 eventType: event.type,
                 eventPriority: event.priority,
                 eventSequence: event.sequence,
-                intraEventSequence: nextIntraEventSequence(),
+                intraEventSequence: nextIntraEventSequence(electroChargedPropagationAudit !== null ? {kind:'propagation-application',reactionDamageLogId,targetId:plan.targetId,damageEventId:pendingReactionDamageEventId} : undefined),
                 reaction:
                   electroChargedPropagationAudit !== null
                     ? "electroCharged"
@@ -15796,7 +15903,7 @@ function simulateConfig(
                 burningLog.icdHitIndex = null;
               }
               if (propagatedReactionAudit !== null) {
-                burningLog.auraBefore = deepClone(
+                burningLog.auraBefore = copyGeneratedAuraStates(
                   propagatedReactionAudit.auraBefore ?? []
                 );
                 burningLog.auraApplied = deepClone(
@@ -15805,7 +15912,7 @@ function simulateConfig(
                 burningLog.auraConsumed = deepClone(
                   propagatedReactionAudit.auraConsumed ?? []
                 );
-                burningLog.auraAfter = deepClone(
+                burningLog.auraAfter = copyGeneratedAuraStates(
                   propagatedReactionAudit.auraAfter ?? []
                 );
                 burningLog.applicationAllowed =
@@ -16229,6 +16336,9 @@ function simulateConfig(
           );
         }
       }
+      return;
+      };
+      resolveQueuedReactionDamage();
       continue;
     }
 
@@ -16237,6 +16347,7 @@ function simulateConfig(
         `Unhandled simulation event type "${event.type}".`
       );
     }
+    const resolveQueuedHit = (): void => {
     const {
       actorId,
       action,
@@ -16281,7 +16392,7 @@ function simulateConfig(
     const sourceActor = characters.get(actorId);
     const scalingOwner = characters.get(scalingOwnerId);
     const creditOwner = characters.get(creditOwnerId);
-    if (!sourceActor || !scalingOwner || !creditOwner) continue;
+    if (!sourceActor || !scalingOwner || !creditOwner) return;
     const hitId = hit.id ?? `${action.id}:hit-${hitIndex}`;
     const element = hit.element ?? scalingOwner.element;
     const targetId = targeting?.targetId ?? "enemy-0";
@@ -16348,7 +16459,7 @@ function simulateConfig(
       timeSeconds,
       eventPriority: event.priority,
       eventSequence: event.sequence,
-      intraEventSequence: nextIntraEventSequence(),
+      intraEventSequence: nextIntraEventSequence({kind:'hit-resolution',id:targetResolutionId}),
       cycle,
       sourceActorId: actorId,
       sourceActionId: action.id,
@@ -16453,7 +16564,7 @@ function simulateConfig(
         eventSequence: event.sequence,
         nextIntraEventSequence
       });
-      continue;
+      return;
     }
 
     const configuredDirectDamageGroupMultiplier = safeNumber(
@@ -16894,7 +17005,7 @@ function simulateConfig(
         eventType: event.type,
         eventPriority: event.priority,
         eventSequence: event.sequence,
-        intraEventSequence: nextIntraEventSequence(),
+        intraEventSequence: nextIntraEventSequence({kind:'aura-application',damageEventId:pendingDirectDamageEventId}),
         reaction: reactionAudit.reaction,
         reactions: reactionAudit.reactions,
         primaryDamageEventId: pendingDirectDamageEventId,
@@ -18018,7 +18129,13 @@ function simulateConfig(
       eventSequence: event.sequence,
       nextIntraEventSequence
     });
+    };
+    resolveQueuedHit();
   }
+
+  // Keep complete output construction and validation in a separate bytecode
+  // budget too; every check still runs synchronously before returning the result.
+  const finalizeSimulationResult = (): SimulationResult => {
 
   if (lunarMixedV2Runtime) {
     lunarMixedV2Runtime.finish(Math.round(config.duration * 60));
@@ -18794,6 +18911,13 @@ function simulateConfig(
       "single-target-v1 cannot emit Electro-Charged propagation candidate observations."
     );
   }
+  // Diagnostic observers receive detached values and cannot change production output.
+  // The explicit new protocol replays all witnesses before supplying exact positions;
+  // default and historical calls retain their original reference rules.
+  runtimeOptions[directHitStepWitnessSink]?.({events:deepClone(directHitStepEvents.filter(e=>e.allocationCount>0)),propagationEvents:deepClone(propagationStepEvents),result:deepClone(simulationResult)});
+  const eventStepPositions = runtimeOptions[eventStepProtocol]
+    ? verifiedStepPositions({events:directHitStepEvents.filter(e=>e.allocationCount>0),propagationEvents:propagationStepEvents,result:simulationResult})
+    : undefined;
   assertTrustedReactionDeliveryResultReferences({
     schemaVersion: simulationResult.schemaVersion,
     engineVersion: simulationResult.engineVersion,
@@ -18918,7 +19042,7 @@ function simulateConfig(
             simulationResult.targetStateTimeline
         }
       : {})
-  });
+  }, eventStepPositions);
   const hasElectroChargedCleanupAudit =
     simulationResult.reactionTaskLog.some(
       (task) => task.electroChargedCleanup !== null
@@ -19148,6 +19272,8 @@ function simulateConfig(
         }
   );
   return simulationResult;
+  };
+  return finalizeSimulationResult();
 }
 
 /** Read actual prefix transitions; never infer a reset from its probability or a final expiry. */

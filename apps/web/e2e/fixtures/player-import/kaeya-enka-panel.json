@@ -1,0 +1,42 @@
+{
+  "fixtureNotice": "SYNTHETIC Kaeya final panel; no real account",
+  "playerInfo": {},
+  "avatarInfoList": [
+    {
+      "avatarId": 10000015,
+      "propMap": {
+        "4001": {
+          "ival": "90",
+          "val": "90"
+        },
+        "1002": {
+          "val": "6"
+        }
+      },
+      "talentIdList": [
+        1,
+        2,
+        3
+      ],
+      "skillLevelMap": {
+        "10073": 10,
+        "10074": 10,
+        "10075": 10
+      },
+      "proudSkillExtraLevelMap": {
+        "1532": 3
+      },
+      "fightPropMap": {
+        "2000": 18000,
+        "2001": 1700,
+        "2002": 800,
+        "28": 0,
+        "20": 0.4,
+        "22": 1,
+        "23": 1.5,
+        "30": 0,
+        "46": 0.616
+      }
+    }
+  ]
+}

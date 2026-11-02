@@ -1,7 +1,19 @@
+import { renderFaruzanBurstInitialControls } from "./calculator-faruzan-burst-initial-controls";
+import { renderWandererPrimaryControls } from "./calculator-wanderer-primary-controls";
+import { renderDurinBurstControls } from "./calculator-durin-burst-controls";
+import { renderNicoleSkillInitialControls, updateNicoleSkillInitialControl } from "./calculator-nicole-skill-initial-controls";
+import {renderAlhaithamControls} from './calculator-alhaitham-controls';
+import {renderArlecchinoControls} from './calculator-arlecchino-controls';
+import {renderHutaoControls} from './calculator-hutao-controls';
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
 import { renderCoordinatedSchedule } from "./calculator-coordinated-schedule-controls";
 import { renderHeldLifecycleCastControls } from "./calculator-held-lifecycle-controls";
 import { renderFiniteFollowupCastControls } from "./calculator-finite-followup-controls";
+import {renderGamingControls} from './calculator-gaming-controls';
+import {renderKinichControls} from './calculator-kinich-controls';
+import {renderCynoControls} from './calculator-cyno-controls';
+import {renderKazuhaControls,applyKazuhaControl} from './calculator-kazuha-controls';
+import { renderXiaoControls } from "./calculator-xiao-controls";
 import { renderObservedEntityControls } from "./calculator-observed-entity-controls";
 import { renderMaleTravelerChargedControls } from "./calculator-traveler-male-charged-controls";
 import { renderPeriodicOrdinaryControls } from "./calculator-periodic-ordinary-controls";
@@ -127,13 +139,31 @@ function coordinatedControls(document: CalculatorDocument): string {
   }</div>${dehyaReposition ? `<details open><summary>重新放置前的领域记录</summary><div class="calculator-fields">${textField(group, "dehyaPrior.snapshotId", "前次领域快照标识", context.dehyaPrior?.snapshotId) + numberField(group, "dehyaPrior.snapshotFrame", "前次领域快照帧（相对本次施放，可为负值）", context.dehyaPrior?.snapshotFrame, { min: -100000, max: -1, integer: true }) + numberField(group, "dehyaPrior.remainingLifetimeFrames", "本次开始时前领域剩余寿命帧", context.dehyaPrior?.remainingLifetimeFrames, { min: 0, max: 100000, integer: true }) + numberField(group, "dehyaPrior.remainingCooldownFrames", "本次开始时前领域剩余触发冷却帧", context.dehyaPrior?.remainingCooldownFrames, { min: 0, max: 100000, integer: true })}</div></details>` : ""}${renderCoordinatedSchedule(document)}${accounting ? `<details open><summary>共同实际被动状态与已含份额</summary><div class="calculator-fields">${hitFields("sharedState", context.sharedState)}</div><p class="calculator-hint">只有明确稳定且未使用历史快照的命中可采用共同状态。已含份额明确为零才填 0；留空保留未知。${yelan ? "夜兰 Q 初击的基伤生命值取施放第 0 帧，其余进攻快照在第 76 帧；若两者不稳定，须另填第 0 帧的实际生命值，不能用第 76 帧快照替代。" : ""}</p></details><details><summary>逐击被动状态覆盖</summary>${document.hits.filter(hit => hit.kind === "ordinary").map(hit => `<fieldset><legend>${esc(hit.label)} · ${document.selectedHitIds.includes(hit.id) ? "已选" : "未选"}${hit.finalSnapshot ? " · 历史快照" : ""}</legend><div class="calculator-fields">${hitFields(`hitStates.${hit.id}`, context.hitStates?.[hit.id])}</div></fieldset>`).join("")}<p class="calculator-hint">逐击填写的字段覆盖共同值；历史最终快照需要自身对应的实际被动状态与已含份额。</p></details>` : ""}${events.length ? `<details><summary>当前日程生成的 ${events.length} 次命中</summary><div class="table-wrap"><table><thead><tr><th>命中</th><th>命中帧</th><th>触发事件</th><th>快照标识／帧</th></tr></thead><tbody>${events.map(({ hit, event }) => `<tr><td>${esc(hit.label)}</td><td>${event.frame}</td><td>${esc(event.trigger.eventId)} · ${event.trigger.frame}</td><td>${esc(event.snapshotId)} · ${event.snapshotFrame}</td></tr>`).join("")}</tbody></table></div></details>` : ""}<p class="calculator-hint">此入口计算明确日程下的一次施放。未知资格、冷却冲突与不支持条件会显示在依赖说明中；独立选取一击时，仍可保留未选后续的条件未知。</p></fieldset>`;
 }
 
+function durinControls(document: CalculatorDocument): string {
+  const game = document.gameContext, context = game?.durinSkill;
+  if (!context) return "";
+  const hits = document.hits.filter(hit => hit.kind === "ordinary" && document.selectedHitIds.includes(hit.id));
+  if (hits.length < 2 && game.constellation !== 2) return "";
+  return `<fieldset data-source-cast-controls="durin-skill"><legend>杜林 E · 本次命中条件</legend>` +
+    (hits.length > 1 ? state("durinSkill", "statsStableAcrossHits", "这几击的其余面板、装备和目标状态保持不变", context.statsStableAcrossHits) : "") +
+    (game.constellation === 2 ? hits.map(hit => `<div class="calculator-fields"><p class="calculator-full">${esc(hit.label)}</p>${state("durinSkill", `hitStates.${hit.id}.c2PyroBonusActive`, "本击的 C2 火伤增益仍在生效", context.hitStates?.[hit.id]?.c2PyroBonusActive)}${state("durinSkill", `hitStates.${hit.id}.c2PyroBonusIncluded`, "本击的增伤输入已经计入 C2 火伤", context.hitStates?.[hit.id]?.c2PyroBonusIncluded)}</div>`).join("") : "") +
+    `<p class="calculator-hint">C2需在Q持续期间触发相关反应，增益持续6秒；本页按每击实际状态计算，不从反应选项猜触发。</p></fieldset>`;
+}
+
 /** These controls record context only; all source formulas are rebuilt by sim-core. */
 export function renderSourceCastControls(document: CalculatorDocument): string {
-  return travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
+  if (document.gameContext?.nicoleSkillInitial) return renderNicoleSkillInitialControls(document);
+  if (document.gameContext?.wandererPrimary) return renderWandererPrimaryControls(document);
+  if (document.gameContext?.durinBurst) return renderDurinBurstControls(document);
+  if (document.gameContext?.faruzanBurstInitial) return renderFaruzanBurstInitialControls(document);
+  return renderAlhaithamControls(document) + renderArlecchinoControls(document) + renderHutaoControls(document) + renderKazuhaControls(document) + renderCynoControls(document) + renderKinichControls(document) + renderGamingControls(document) + renderXiaoControls(document) + durinControls(document) + travelerControls(document) + projectileControls(document) + periodicControls(document) + finiteControls(document) + coordinatedControls(document) + renderHeldLifecycleCastControls(document) + renderFiniteFollowupCastControls(document) + renderObservedEntityControls(document) + renderMaleTravelerChargedControls(document) + renderPeriodicOrdinaryControls(document) + renderIdleStanceControls(document) + renderEntityFollowupControls(document) + renderExtendedStanceControls(document) + renderMixedSourceControls(document) + renderNoellePlungeControls(document) + renderKachinaCastControls(document) + renderObservedPlungeControls(document);
 }
 
 /** Optional nested hit/shared maps are created only after the user supplies a value. */
 export function applySourceCastControl(document: CalculatorDocument, input: HTMLInputElement | HTMLSelectElement): void {
+  const nicolePath = input.dataset.sourceCastStateField ?? input.dataset.sourceCastValueField ?? input.dataset.field;
+  if (nicolePath && updateNicoleSkillInitialControl(document, nicolePath, input.value)) return;
+  if (applyKazuhaControl(document, input)) return;
   const path = input.dataset.sourceCastStateField ?? input.dataset.sourceCastEnumField ?? input.dataset.sourceCastValueField ?? input.dataset.sourceCastTextField ?? input.dataset.field!;
   const keys = path.split(".");
   const hitStateIndex = keys.indexOf("hitStates");

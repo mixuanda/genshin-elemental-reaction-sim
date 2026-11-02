@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HealthChangeDefinition, SimConfig } from "@genshin-dps-lab/schemas";
 import { simulate } from "../simulator";
+import { phaseCheckpointBlockers } from "../phase-checkpoint";
 import { simulateWithStartup } from "../simulation-analysis";
 import { makeConfig } from "./fixtures";
 
@@ -81,6 +82,18 @@ describe("complete deterministic health phase checkpoints", () => {
     expect(right[2]!.state.resourcesAndHp).toMatchObject({ hp: [{ currentHp: 9000 }] });
   });
 
+  it("rejects a health host missing actual Aura state independently of debug overrides", () => {
+    const config = fixture();
+    config.reactionEngine = { mode: "aura-v5" };
+    const capabilities = { healthActionStateAvailable: true, ordinaryAuraStateAvailable: true };
+    expect(phaseCheckpointBlockers(config, capabilities)).toEqual([]);
+    expect(phaseCheckpointBlockers(config, { ...capabilities, ordinaryAuraStateAvailable: false }))
+      .toEqual(["附着引擎含未导出的生命周期、反应和 ICD 私有状态。"]);
+    // The health-state rejection is independent, too: neither capability may stand in for the other.
+    expect(phaseCheckpointBlockers(config, { ...capabilities, healthActionStateAvailable: false }))
+      .toEqual(["动作治疗和生命消耗缺少完整已接受动作及待执行队列，不能据此证明稳态。"]);
+  });
+
   it("refuses truncated tails and unsupported Aura state while preserving the no-health checkpoint shape", () => {
     const short = simulate(repeatedRotation([consume(390), heal(391)], 12), { execution: { checkpointFrames: [600] } });
     expect(short.executionAudit!.phaseCheckpoints).toEqual([]);
@@ -89,8 +102,13 @@ describe("complete deterministic health phase checkpoints", () => {
     auraConfig.duration = 16;
     auraConfig.reactionEngine = { mode: "aura-v5" };
     const aura = simulate(auraConfig, { execution: { checkpointFrames: [120] } });
-    expect(aura.executionAudit!.checkpointCoverage.complete).toBe(false);
-    expect(aura.executionAudit!.checkpointCoverage.reasons.join("; ")).toContain("附着引擎");
+    expect(aura.executionAudit!.checkpointCoverage).toEqual({ complete: true, missingDimensions: [], reasons: [] });
+    expect(aura.executionAudit!.phaseCheckpoints[0]!.state.auras).toMatchObject({ targets: [{ targetId: "enemy-0" }] });
+    const unprovenAura = structuredClone(auraConfig);
+    unprovenAura.reactionEngine!.debugAllowReactionOverride = true;
+    const blocked = simulate(unprovenAura, { execution: { checkpointFrames: [120] } });
+    expect(blocked.executionAudit!.checkpointCoverage.complete).toBe(false);
+    expect(blocked.executionAudit!.checkpointCoverage.reasons.join("; ")).toContain("调试反应覆盖");
     const plain = repeatedRotation([]);
     delete plain.rotation[0]!.healthChanges;
     const baseline = simulate(plain, { execution: { checkpointFrames: [120] } });

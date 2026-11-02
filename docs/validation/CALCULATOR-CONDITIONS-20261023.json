@@ -1,0 +1,170 @@
+{
+  "schema": "gidps-bounded-calculator-acceptance/1",
+  "baseline": "fc733b32ce393b03422099efdcbb7718baacc2dd",
+  "branch": "cloud/player-import-integration-20261021",
+  "fullSuite": {
+    "historicalOnly": true,
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "rerun": false
+  },
+  "nativeRuns": 0,
+  "productionAttempted": false,
+  "formulaDataChanged": false,
+  "browser": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "platform": "linux",
+    "nativeRuns": 0,
+    "sourceInputs": "Controlled existing default panels and explicit contact declarations; not player measurements",
+    "results": [
+      {
+        "action": "Jean C0 complete Q",
+        "totals": {
+          "nonCritical": 9421.92,
+          "critical": 20728.224000000002,
+          "expected": 17336.3328
+        },
+        "unknownBlocked": true,
+        "falseStableBlocked": true,
+        "savedConditionsAndTotalsUnchanged": true
+      },
+      {
+        "action": "Kachina physical low plunge and selected collision",
+        "full": {
+          "nonCritical": 3411.7245000000003,
+          "critical": 7505.7939000000015,
+          "expected": 6277.57308
+        },
+        "single": {
+          "nonCritical": 1137.402,
+          "critical": 2502.2844000000005,
+          "expected": 2092.81968
+        },
+        "oldScheduleDependencyRemoved": true,
+        "draftHidesPreviousResult": true,
+        "savedConditionsAndTotalsUnchanged": true
+      }
+    ],
+    "errors": []
+  },
+  "editing": {
+    "status": "passed",
+    "typedCount": 12,
+    "contactControls": 12,
+    "invalidFractionPreserved": true,
+    "blankPreservedUnknown": true,
+    "errors": []
+  },
+  "evidence": [
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/classified-before.json",
+      "bytes": 9819,
+      "sha256": "248ae8c9e89f3d81c2c48251b2ebd871ffc3d2c1f4c1ed3f30a72ebb886cd2a0",
+      "tests": {
+        "numPassedTests": 7,
+        "numFailedTests": 4,
+        "numPendingTests": 0,
+        "numTotalTests": 11
+      }
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/workspace-drift-after.json",
+      "bytes": 5015,
+      "sha256": "d4fa2a17691cc2889e7e1b0a1f5271a088c9d5c046fdf868bcee78c8fc7e022a",
+      "tests": {
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 10,
+        "numTotalTests": 11
+      }
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/default-requirements-after.json",
+      "bytes": 14927,
+      "sha256": "6ace8853123309df2a1163e3efde0dc873df7cc5e9165cf151dc21cb45d48f45",
+      "tests": {
+        "numPassedTests": 31,
+        "numFailedTests": 1,
+        "numPendingTests": 0,
+        "numTotalTests": 32
+      }
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/default-plunge-after-import-fix.json",
+      "bytes": 5197,
+      "sha256": "7105d9e32c20aabf888cff9c1abe90e24216a32b6a44f9abd4a861990be0b132",
+      "tests": {
+        "numPassedTests": 11,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTests": 11
+      }
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/required-conditions-browser-before-focus-fix.log",
+      "bytes": 784,
+      "sha256": "1c4eded6d5e727fb2c6780b46181bffe928336cb81a1a60e46bb4dff85cf5126"
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/required-conditions-browser-before-contact-refresh.log",
+      "bytes": 18711,
+      "sha256": "b09a402b4b37c4d634989b6b93d1a62ca83dc61ec02998a7c2fde914255ea86b"
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/required-conditions-browser-final.log",
+      "bytes": 742,
+      "sha256": "36070ae8cde3fbf19fbbe88bc9a29d82d7fb30b3e55ed32322ac225b81b02e70"
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/browser-final/acceptance.json",
+      "bytes": 985,
+      "sha256": "a2a2fd7c118a8b9e220fb862f07f898653e3176e6de5c8d7ec4a8b9d7ecc8df7"
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/build-final.log",
+      "bytes": 8519,
+      "sha256": "08e9a340e5911dacc1aacbddab487e947fbd6978c6a125222e05770bc64c13c0"
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/required-conditions-browser-delivery.log",
+      "bytes": 774,
+      "sha256": "aa6958bb7f1abd84ee2df20cb58a9467d5b852d95c082bcc9f8caa09a22bb2cf"
+    },
+    {
+      "path": "/tmp/GIDPS-applicable-failures-20261023/browser-delivery/acceptance.json",
+      "bytes": 1025,
+      "sha256": "c8f905838bd8d45e45ad7f66df5b16388ca695588541dbaa93920eec8b5527ff"
+    }
+  ],
+  "limits": [
+    "Controlled conditional calculator cases, not game measurements",
+    "No real Windows execution",
+    "Jean finite C0 boundary branch only",
+    "Observed physical ATK plunge only; no invented contact geometry",
+    "No full-suite count inferred from focused differences"
+  ],
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/calculator-ui.ts",
+      "sha256": "8bc5784bbdb064eb66ae2d5c8587942390a86f0bc6130e0336678d57e449e493"
+    },
+    {
+      "path": "apps/web/src/calculator-required-controls.ts",
+      "sha256": "4539a7319186b44f783070eff09aaf12a306516f576dfba51e1649fbddeaa93e"
+    },
+    {
+      "path": "apps/web/src/calculator-requirements.ts",
+      "sha256": "525b6af785750a94153966f422fe0f29d4b3dcaf3acac805ae52d2e032e2898a"
+    },
+    {
+      "path": "packages/sim-core/src/observed-plunge-formulas.ts",
+      "sha256": "ba93ef3579f22d603bbab7febf767960df98bea26f26be758a4e5b7a0cd2bda8"
+    },
+    {
+      "path": "scripts/acceptance/required-conditions-browser.mjs",
+      "sha256": "161f894b8979ee91755528d53493351ef46f1360446401a15f6cc38f955433af"
+    }
+  ]
+}

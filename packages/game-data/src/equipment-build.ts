@@ -23,11 +23,15 @@ import type { EquipmentAdditiveBaseBonus, EquipmentCriticalBonus, EquipmentPendi
 import { hasArtifactRemainingRule, resolveArtifactRemainingEffects, SUPPORTED_ARTIFACT_REMAINING_IDS } from "./artifact-remaining-effects";
 import type { EquipmentPendingReactionEffect } from "./artifact-reaction-effects";
 
+export type CharacterLevelCap = 90 | 95 | 100;
+
 export interface EquipmentBuildInput {
   characterId: string;
   weaponId: string;
   level: number;
   ascension: number;
+  /** Explicit Masterless Stella Fortuna limit; omission retains ordinary progression. */
+  characterLevelCap?: CharacterLevelCap | undefined;
   weaponLevel: number;
   weaponAscension: number;
   refinement: number;
@@ -132,19 +136,24 @@ export function legalWeaponRefinements(weapon: WeaponCatalogEntry): number[] {
   return weapon.refinements.length ? weapon.refinements.map(entry => entry.rank) : [1];
 }
 
-export function equipmentLevelRange(entry: CharacterCatalogEntry | WeaponCatalogEntry, ascension: number): { min: number; max: number } {
+export function equipmentLevelRange(entry: CharacterCatalogEntry | WeaponCatalogEntry, ascension: number, characterLevelCap?: CharacterLevelCap): { min: number; max: number } {
   const promotion = entry.stats.promotion[ascension];
   if (!Number.isInteger(ascension) || !promotion) throw new Error(`${entry.name}没有突破阶段 ${ascension} 的来源数据。`);
   const min = ascension === 0 ? 1 : entry.stats.promotion[ascension - 1]!.maxlevel;
   const max = promotion.maxlevel;
   if (min === undefined || max === undefined) throw new Error(`${entry.name}缺少突破等级边界。`);
+  if (characterLevelCap !== undefined && ![90, 95, 100].includes(characterLevelCap)) throw new Error("角色解锁上限须为 90、95 或 100。");
+  if (characterLevelCap !== undefined && characterLevelCap > 90) {
+    if (!("avatarId" in entry) || ascension !== 6 || max !== 90) throw new Error("95/100 级解锁仅适用于已完成普通突破 6、常规上限 90 的角色；不适用于武器。");
+    return { min: 90, max: characterLevelCap };
+  }
   return { min, max };
 }
 
-function requireLevel(entry: CharacterCatalogEntry | WeaponCatalogEntry, level: number, ascension: number): void {
-  const range = equipmentLevelRange(entry, ascension);
+function requireLevel(entry: CharacterCatalogEntry | WeaponCatalogEntry, level: number, ascension: number, characterLevelCap?: CharacterLevelCap): void {
+  const range = equipmentLevelRange(entry, ascension, characterLevelCap);
   if (!Number.isInteger(level) || level < range.min || level > range.max) {
-    throw new Error(`${entry.name}突破 ${ascension} 的已收录等级范围为 ${range.min}–${range.max}；等级必须为整数。超过已收录突破上限的解锁条件尚未映射。`);
+    throw new Error(`${entry.name}突破 ${ascension} 的已收录等级范围为 ${range.min}–${range.max}；等级必须为整数。超过常规上限时，请明确填写已解锁的 95/100 级上限。`);
   }
 }
 
@@ -158,7 +167,7 @@ export function resolveEquipmentBuild(input: EquipmentBuildInput, dataset?: Equi
   const weapon = equipmentWeapons.find(entry => entry.id === input.weaponId);
   if (!character || !weapon) throw new Error("角色或武器不在当前固定来源目录中。");
   if (weapon.weaponType !== character.weaponType) throw new Error(`${character.name}不能装备${weapon.name}：武器类型不匹配。`);
-  requireLevel(character, input.level, input.ascension);
+  requireLevel(character, input.level, input.ascension, input.characterLevelCap);
   requireLevel(weapon, input.weaponLevel, input.weaponAscension);
   if (!legalWeaponRefinements(weapon).includes(input.refinement)) throw new Error(`${weapon.name}没有精炼 ${input.refinement} 的合法来源记录。`);
   if (!input.effectsDisabled) throw new Error("尚未映射全部角色与装备效果；请明确选择停用未实现效果，才能进行有条件的配装计算。");
@@ -224,6 +233,7 @@ export function resolveEquipmentBuild(input: EquipmentBuildInput, dataset?: Equi
   const assumptions = [
     `装备推导条件：C0、装备 ${artifacts.pieces.length} 件圣遗物；仅执行明确启用且已映射的装备条款，停用角色被动及未实现效果。`,
     `所用来源为${dataset?.channel === "preview" ? "隔离预览" : "已发布"}目录 ${equipmentDataSource.gameVersion}（${equipmentDataSource.releaseStatus}）；发布状态不等于数值与机制已独立验证。`,
+    ...(input.characterLevelCap !== undefined && input.characterLevelCap > 90 ? [`输入声明角色已解锁 Lv.${input.characterLevelCap}；保留普通突破 6 加成，使用固定来源的实际等级曲线，不插值；数值验证状态仍为暂定。`] : []),
     ...allEffects.flatMap(effect => effect.assumptions)
   ];
   const effectBlockers = [
@@ -233,6 +243,7 @@ export function resolveEquipmentBuild(input: EquipmentBuildInput, dataset?: Equi
   const metadata: EquipmentBuildMetadata = {
     bonusAccounting: "core-sourced-v1",
     characterId: input.characterId, weaponId: input.weaponId, level: input.level, ascension: input.ascension,
+    ...(input.characterLevelCap === undefined ? {} : { characterLevelCap: input.characterLevelCap }),
     weaponLevel: input.weaponLevel, weaponAscension: input.weaponAscension, refinement: input.refinement,
     sourceVersion: `${equipmentDataSource.sourceVersion};snapshot=${equipmentDataSource.snapshotId};${artifacts.sourceVersion}`, sourceRefs: [characterRef, weaponRef, formulaRef, `${sourceRoot}/src/data/curve/characters.json`, `${sourceRoot}/src/data/curve/weapons.json`, ...artifacts.sourceRefs, ...allEffects.flatMap(effect => effect.sourceRefs)], derivedStats,
     secondaryContributions: [], assumptions, effectBlockers, artifacts: artifacts.pieces,

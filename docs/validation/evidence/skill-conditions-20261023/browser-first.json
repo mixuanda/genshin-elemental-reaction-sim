@@ -1,0 +1,196 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/GIDPS-cloud/player-import-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "apps/web/e2e/calculator-conditional-character-inputs.spec.ts",
+      "--config",
+      "/tmp/GIDPS-skill-conditions-20261023/playwright.config.mjs",
+      "--workers",
+      "1",
+      "--reporter=json"
+    ],
+    "configFile": "/tmp/GIDPS-skill-conditions-20261023/playwright.config.mjs",
+    "rootDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "calculator-conditional-character-inputs.spec.ts",
+      "file": "calculator-conditional-character-inputs.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Kuki Q asks for cast HP in place, rejects the wrong branch and preserves a calculated twelve-hit file",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60165,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-conditional-character-inputs.spec.ts",
+                        "column": 12,
+                        "line": 40
+                      },
+                      "message": "Error: locator.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-calculator-inline-conditions]').locator('[data-field=\"gameContext.kukiDamage.burstHpRatioAtCast\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input min=\"0\" max=\"1\" value=\"\" step=\"any\" type=\"number\" placeholder=\"未知\" data-optional-number=\"\" data-kuki-number-field=\"\" data-field=\"gameContext.kukiDamage.burstHpRatioAtCast\"/>\u001b[22m\n\u001b[2m    - fill(\"0.500001\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    112 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m        - element is not visible\u001b[22m\n\u001b[2m      - retrying fill action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\n\n  38 |   expect(data.result.totals.nonCritical).toBeCloseTo(12 * .036048 * 20000 * .5 * .9, 8);\n  39 |   await panel.locator(\":scope > summary\").click();\n> 40 |   await hp.fill(\"0.500001\"); await hp.blur();\n     |            ^\n  41 |   data = await audit(page);\n  42 |   expect(data.result.status).toBe(\"blocked\"); expect(data.result.totals).toBeUndefined();\n  43 |   await expect(panel.locator(\"#calc-skill\")).toBeVisible();\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-conditional-character-inputs.spec.ts:40:12"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:54:34.424Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts/calculator-conditional-cha-d1fe6--calculated-twelve-hit-file/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6bf0c502500d10ee32fc-d3b43e65343fcea374c2",
+          "file": "calculator-conditional-character-inputs.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "Charlotte E exposes team count, then only the selected C2 hit; zero and unknown remain distinct on narrow screens",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60203,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-conditional-character-inputs.spec.ts",
+                        "column": 16,
+                        "line": 78
+                      },
+                      "message": "Error: locator.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-calculator-inline-conditions]').locator('input[data-charlotte-c2-hit]')\u001b[22m\n\u001b[2m    - locator resolved to <input min=\"0\" max=\"3\" step=\"1\" value=\"\" type=\"number\" placeholder=\"未知\" data-optional-number=\"\" data-charlotte-number-field=\"\" data-charlotte-c2-hit=\"charlotte-skill-press-complete-initial\" data-field=\"gameContext.charlotteSkill.c2HitStacks.charlotte-skill-press-complete-initial\"/>\u001b[22m\n\u001b[2m    - fill(\"\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    112 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m        - element is not visible\u001b[22m\n\u001b[2m      - retrying fill action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n\n\n  76 |   expect(data.result.totals.nonCritical).toBeCloseTo(.672 * 2000 * .5 * .9, 8);\n  77 |   await panel.locator(\":scope > summary\").click();\n> 78 |   await actual.fill(\"\"); await actual.blur();\n     |                ^\n  79 |   data = await audit(page);\n  80 |   expect(data.result.status).toBe(\"blocked\"); expect(data.result.totals).toBeUndefined();\n  81 |   await actual.fill(\"0\"); await actual.blur();\n    at /workspace/GIDPS-cloud/player-import-integration/apps/web/e2e/calculator-conditional-character-inputs.spec.ts:78:16"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:55:35.262Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts/calculator-conditional-cha-f9b3c--distinct-on-narrow-screens/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6bf0c502500d10ee32fc-05d415341572dab8de67",
+          "file": "calculator-conditional-character-inputs.spec.ts",
+          "line": 53,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T19:54:33.939Z",
+    "duration": 121849.54699999999,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

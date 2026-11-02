@@ -1,3 +1,4 @@
+import { CURRENT_RESULT_EXTENSIONS } from "./current-result-field-contract.test-helper";
 import { describe, expect, it } from "vitest";
 import {
   damageEventV142Schema,
@@ -821,7 +822,7 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
         (field) =>
           !Object.keys(simulationResultV152ValueSchema.shape).includes(field)
       )
-    ).toEqual(["executionAudit", "callbackRegistrationLog", "callbackDeliveryLog"]);
+    ).toEqual(CURRENT_RESULT_EXTENSIONS);
     expect(simulationResultSchema).toBe(simulationResultV153Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV152Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV151Schema);

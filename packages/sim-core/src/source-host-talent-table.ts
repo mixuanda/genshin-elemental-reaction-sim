@@ -3,6 +3,7 @@ import { expr, TraceBuilder, traceInput, type CalculationTraceNode, type Formula
 import { sourceHostTalentRegistry } from "./source-host-talent-tables.generated";
 import type { SourceHostDamageRequest } from "./source-host-wire";
 import { appendSourceHostTalentIndexTrace, sourceHostTalentIndexSourceSchema } from "./source-host-talent-index";
+import { sourceHostIansanSwiftTalentSemantics } from "./source-host-iansan-swift-talent-correction";
 
 export interface SourceHostTalentTableDefinition {
   tableId: string;
@@ -58,9 +59,10 @@ export function appendSourceHostTalentTableRead(builder: TraceBuilder, args: {
     throw new Error(`${label} 的天赋表读取者或读取时点与本击不匹配。`);
   if (Boolean(site.rangeSource) !== (read.rangeFrame !== undefined) || (read.rangeFrame !== undefined && read.rangeFrame > read.frame))
     throw new Error(`${label} 的循环取表时点与固定来源或倍率读取时点不匹配。`);
+  const semantics = sourceHostIansanSwiftTalentSemantics(read, commit, site);
   const source = `https://github.com/genshinsim/gcsim/blob/${commit}/${table.tablePath}#L${table.tableLine}`;
   const indexOrigins = new Map<number, string>();
-  const gaps: string[] = [];
+  const gaps: string[] = [...semantics?.explanationGaps ?? []];
   if (site.rangeSource) {
     const range = site.rangeSource;
     const rangeIndexId = `${nodeId}.rangeIndex`;
@@ -103,8 +105,8 @@ export function appendSourceHostTalentTableRead(builder: TraceBuilder, args: {
         sourceExpression: site.indexExpressions[index]! },
     })), {
       unit: "ratio", childIds: [...indexOrigins.values()],
-      sourceRefs: [source],
-      explanationKey: `用固定来源 ${table.tablePath} 中的 ${table.symbol} 表和本次实际索引重算。表值来自构建时的源码声明；读取记录只提供索引与原结果，不提供可替换的表。`,
+      sourceRefs: [source, ...semantics?.sourceRefs ?? []],
+      explanationKey: `用固定来源 ${table.tablePath} 中的 ${table.symbol} 表和本次实际索引重算。表值来自构建时的源码声明；读取记录只提供索引与原结果，不提供可替换的表。${semantics ? ` ${semantics.explanation}` : ""}`,
     });
   if (value !== read.value)
     throw new Error(`${label} 的天赋表查值 ${value} 与原生读取 ${read.value} 不同。`);

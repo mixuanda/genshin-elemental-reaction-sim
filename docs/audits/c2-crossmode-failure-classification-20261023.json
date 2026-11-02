@@ -1,0 +1,1658 @@
+{
+  "schema": "c2-crossmode-failure-classification-v1",
+  "repository": "mixuanda/genshin-elemental-reaction-sim",
+  "reviewedBaseline": "6cbc4f9e380420913833581f72fe95cc4967e479",
+  "scope": "Bounded first-failure classification plus one selected current test; not a full rerun, native run, new pass/fail total, or whole-product correctness claim.",
+  "historicalFullRun": {
+    "testedCommit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "pending": 1,
+    "total": 3276,
+    "sourceRef": "raw-full"
+  },
+  "classificationCounts": {
+    "demonstrated-implementation-error-in-original79": 0,
+    "unsupported-or-missing-evidence-or-timeout": 3,
+    "outdated-protocol-or-consumer-expectation": 52,
+    "frozen-golden": 24
+  },
+  "countsAreHistoricalFirstFailureClasses": true,
+  "resolvedOriginalTestNamesInExistingTargetedEvidence": [
+    "current SimulationResult reaction-formula root integrity accepts exact current results at both public and trusted boundaries",
+    "current SimulationResult reaction-formula root integrity rejects a coordinated 'aggravate' 'levelBaseDamage' rewrite",
+    "current SimulationResult reaction-formula root integrity rejects a coordinated Melt base rewrite",
+    "current SimulationResult reaction-formula root integrity rejects a coordinated Superconduct level-base rewrite"
+  ],
+  "currentSelectedTest": {
+    "name": "source-classified field-level character calculations blocks a drifted skill field without blocking the same character's independently matched normals",
+    "passed": 0,
+    "failed": 1,
+    "filteredNotSelected": 10,
+    "rawExitCode": 1,
+    "productionFilesChanged": false
+  },
+  "failures": [
+    {
+      "file": "packages/game-data/src/classified-hits.test.ts",
+      "name": "source-classified field-level character calculations cross-checks every supported level and keeps character-wide mechanics out of hit dependencies",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/11/assertionResults/0",
+      "firstFailure": "AssertionError: character:10000003:jean-burst-two-boundaries-complete-c0:talent-10: expected 'blocked' to be 'calculated' // Object.is equality",
+      "classification": "unsupported-or-missing-evidence-or-timeout",
+      "subtype": "explicit-combat-inputs-missing",
+      "firstFailureExplanation": "Jean complete burst fixture lacks completeCastConfirmed and statsStableAcrossHits; source scheduling does not prove all contacts occurred.",
+      "latestKnownStatus": "last-full-run-failed-at-required-inputs; no current positive scenario rerun",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-correspondence",
+        "consumer-audit"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/game-data/src/classified-hits.test.ts",
+      "name": "source-classified field-level character calculations blocks a drifted skill field without blocking the same character's independently matched normals",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/11/assertionResults/3",
+      "firstFailure": "AssertionError: expected { status: 'calculated', …(9) } to match object { status: 'blocked', …(1) }",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "mapping-and-equipment-consumers",
+      "firstFailureExplanation": "Old gameDataCatalog mutation no longer changes independent releasedRuntimeWorkspace. Explicit passed-workspace drift already blocks that skill without blocking independently matched normals.",
+      "latestKnownStatus": "failed-on-reviewed-6cbc4f9-at-original-line80",
+      "rerunInThisAudit": true,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "current-one-test",
+        "current-one-test-log",
+        "consumer-audit"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/game-data/src/classified-hits.test.ts",
+      "name": "source-classified field-level character calculations keeps traveler gender and element identity, blocking only the conflicting action components",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/11/assertionResults/8",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "mapping-and-equipment-consumers",
+      "firstFailureExplanation": "Old aether-anemo-burst mapping ID is absent after the explicit traveler-cross-aether-anemo-burst-c0 replacement; calculateDocument receives undefined. New mapping still requires trueMoonStoryBuffInactive evidence.",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/game-data/src/classified-hits.test.ts",
+      "name": "source-classified field-level character calculations keeps the new source revision explicit and verifies complete tick counts without claiming summon lifetimes",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/11/assertionResults/9",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "mapping-and-equipment-consumers",
+      "firstFailureExplanation": "Combined source test passed restored Skirk entries, then asks for removed unresolved Iansan preview ID. Current explicit-iansan-swift-resolved-v1 resolves the mechanic; restoring a false unresolved identity would be incorrect.",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/game-data/src/equipment-additional-effects.test.ts",
+      "name": "preserves boundary conflicts, attack filters, independent windows and explicit counts",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/13/assertionResults/27",
+      "firstFailure": "AssertionError: expected { …(15) } to match object { …(5) }",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "mapping-and-equipment-consumers",
+      "firstFailureExplanation": "Boundary/value assertions reach the final coverage-count assertion. Actual two/four/formula/reaction definitions are 53/48/46/6; old fixed expectation is 53/44/42/5. Independently verified definitions remain zero.",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/game-data/src/update-pipeline.test.ts",
+      "name": "independent data dimensions and scoped readiness does not declare the imported roster its own complete verified inventory",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/27/assertionResults/3",
+      "firstFailure": "AssertionError: expected [ { …(5) }, { …(5) } ] to deeply equal []",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "mapping-and-equipment-consumers",
+      "firstFailureExplanation": "Earlier assertions retain independent inventory and no active verified dataset. First failure expects previewSnapshots empty although two isolated Lunaris previews exist; neither is promoted to verified.",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/test-vectors/src/basic-reaction-scheduler-v151-golden.test.ts",
+      "name": "Basic reaction scheduler 1.51 Golden matches the reviewed legacy-immediate and V2 deferred mixed-Swirl vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/101/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/burning-reset-boundary-v149-golden.test.ts",
+      "name": "Burning reset boundary 1.49 Golden matches the reviewed v1/v2 Burning reset-boundary comparison vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/102/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/freeze-broken-attack-v152-golden.test.ts",
+      "name": "Freeze Broken attack 1.52 Golden matches the reviewed V1-empty and V2 positive-negative audit matrix",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/103/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/legacy-default-v148-golden.test.ts",
+      "name": "default 1.48 reaction-owned application Golden matches the exact default 120-second 1.48 baseline",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/105/assertionResults/3",
+      "firstFailure": "Error: Frozen Golden no longer matches the deterministic generated candidate.",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/test-vectors/src/legacy-default-v149-golden.test.ts",
+      "name": "default 1.49 reset-boundary Golden matches the exact default 120-second 1.49 baseline",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/106/assertionResults/2",
+      "firstFailure": "AssertionError: expected { …(9) } to deeply equal { …(9) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/test-vectors/src/legacy-default-v153-golden.test.ts",
+      "name": "default 1.53 callback-bus Golden matches the exact native default and V1.52 combat baseline",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/107/assertionResults/2",
+      "firstFailure": "Error: Frozen Golden no longer matches the deterministic generated candidate.",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/test-vectors/src/project-v150-to-v149.test.ts",
+      "name": "V1.50 to frozen V1.49 result projection losslessly rebuilds V1 enemy and player ReactionA decisions",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/108/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v150-to-v149.test.ts",
+      "name": "V1.50 to frozen V1.49 result projection fails closed for V2 enemy/player decisions and reset rows",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/108/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection projects an inactive V1 scheduler and rebuilds the exact V1.50 identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection projects an inactive V2 scheduler and rebuilds the exact V1.50 identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection discards V1 legacy-immediate rows and their reciprocal timeline links",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection fails closed whenever V2 produced scheduler rows",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/3",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection rejects a V2 1.51-only timeline event",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/4",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection rejects a V2 1.51-only timeline cause",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/5",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection rejects a V2 1.51-only timeline link",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/6",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection rejects a config/root scheduler policy mismatch before stripping identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/7",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection rejects an inactive V1 orphan scheduler timeline link before stripping it",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/8",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v151-to-v150.test.ts",
+      "name": "V1.51 to frozen V1.50 result projection rejects an inactive V2 forged scheduler-root hash before stripping it",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/109/assertionResults/9",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection projects an inactive V1 policy and rebuilds the exact V1.51 identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection projects an inactive V2 policy and rebuilds the exact V1.51 identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection projects an eligible V1 depletion only when its historical log stays empty",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection fails closed when V2 emitted any Freeze Broken callback semantics",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/3",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection rejects a V1 source carrying rows before any 1.52 proof is stripped",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/4",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection rejects a mismatched config/root policy before stripping identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/5",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection rejects an inactive V2 forged root before the root can be discarded",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/6",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection does not mutate the validated V1.52 source",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/7",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v152-to-v151.test.ts",
+      "name": "V1.52 to frozen V1.51 result projection preserves authored key order in unchanged historical nested wires",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/110/assertionResults/8",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+      "name": "V1.53 to frozen V1.52 result projection projects inactive callback-bus V1 with Freeze Broken V1 and rebuilds exact V1.52 identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/111/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+      "name": "V1.53 to frozen V1.52 result projection projects inactive callback-bus V1 with Freeze Broken V2 and rebuilds exact V1.52 identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/111/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+      "name": "V1.53 to frozen V1.52 result projection preserves a V2 audit-only Freeze Broken row under callback-bus V1",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/111/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+      "name": "V1.53 to frozen V1.52 result projection strips a damage-modifier capability while preserving its frozen plugin entry",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/111/assertionResults/3",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+      "name": "V1.53 to frozen V1.52 result projection does not mutate the validated V1.53 source",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/111/assertionResults/10",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/project-v153-to-v152.test.ts",
+      "name": "V1.53 to frozen V1.52 result projection preserves authored key order in unchanged historical nested wires",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/111/assertionResults/11",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/reaction-damage-group-reset-boundary-v150-golden.test.ts",
+      "name": "Reaction damage-group reset boundary 1.50 Golden matches the reviewed V2 Superconduct/Overload 29-frame-offset reset vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/112/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/test-vectors/src/reaction-owned-application-v148-golden.test.ts",
+      "name": "reaction-owned application 1.48 Golden matches the reviewed Burning and Swirl reaction-owned application vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/113/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/game-data/src/character-mappings/optimizer-adapter.test.ts",
+      "name": "Optimizer source additions through the shared calculator adapter executes and roundtrips every new action at levels 1 and 10 with fixed repository references",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/173/assertionResults/0",
+      "firstFailure": "AssertionError: character:10000100:kachina-plunge-low-with-collision:talent-1: expected 'blocked' to be 'calculated' // Object.is equality",
+      "classification": "unsupported-or-missing-evidence-or-timeout",
+      "subtype": "explicit-combat-inputs-missing",
+      "firstFailureExplanation": "Kachina plunge fixture lacks observed collision count/contact and no-external-infusion evidence; action name does not establish those inputs.",
+      "latestKnownStatus": "last-full-run-failed-at-required-inputs; no current positive scenario rerun",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-correspondence",
+        "consumer-audit"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/basic-reaction-scheduler-result-schema.test.ts",
+      "name": "1.51 basic-reaction scheduler public result schema keeps 1.50 strict against scheduler fields and timeline literals",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/208/assertionResults/4",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/burning-callback-delivery-golden.test.ts",
+      "name": "Burning callback delivery 1.44 Golden freezes callback provenance, registration-order attempts, backlinks, F+1 Overload, and deterministic identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/215/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/direct-damage-group-golden.test.ts",
+      "name": "1.46 ordinary direct-damage-group Golden matches the synthetic zero, switch, tail, and reset vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/251/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/direct-damage-group-golden.test.ts",
+      "name": "1.46 ordinary direct-damage-group Golden requires explicit creation and atomically refuses overwrite",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/251/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/electro-charged-cleanup-golden.test.ts",
+      "name": "aura-v8 Electro-Charged cleanup Golden keeps current identity separate while matching the frozen 1.40 F1 and Hitlag5-to-F6 semantics",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/256/assertionResults/0",
+      "firstFailure": "AssertionError: expected { version: { …(13) }, …(14) } to deeply equal { version: { …(13) }, …(14) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/electro-charged-global-cadence-golden.test.ts",
+      "name": "Aura-v9 Electro-Charged global cadence Golden freezes five deterministic long-Hitlag and global-cadence results with complete damage projections",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/258/assertionResults/0",
+      "firstFailure": "AssertionError: expected '9daa39af288673d176ac79fec976088690cbe…' to be '55a68ebbe1489118f65fbe65971a305555e5f…' // Object.is equality",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/electro-charged-propagation-golden.test.ts",
+      "name": "Electro-Charged nearby-Wet propagation Golden freezes the complete deterministic P5 fanout and source-only Aura lifecycle",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/259/assertionResults/0",
+      "firstFailure": "Error: Trusted reaction-delivery result reference validation failed: reactionDamageLog.0.triggerDamageEventId: direct Electro-Charged trigger requires one exact target-clock Aura-application timeline backlink",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "electro-charged-provenance",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "electro-charged-provenance"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/electro-charged.test.ts",
+      "name": "Electro-Charged simulation integration keeps a blocked queued restart tick as zero damage inside the target-local ReactionB window",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/262/assertionResults/24",
+      "firstFailure": "AssertionError: expected [ { …(20) } ] to deeply equal [ { …(20) } ]",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/elemental-application-icd-golden.test.ts",
+      "name": "1.47 elemental-application ICD Golden matches the synthetic shared-window, clamp, and reset vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/263/assertionResults/3",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/golden.test.ts",
+      "name": "Vanilla v0.1 golden compatibility matches the full default 120-second baseline",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/287/assertionResults/16",
+      "firstFailure": "AssertionError: expected 'b51eeb10e47ab503d2001dbc1a87564f28566…' to be 'be150b9be5f33d18ef8942fbb13693aaef47b…' // Object.is equality",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/golden.test.ts",
+      "name": "Burning aura-v4 provisional golden matches the fixed-gcsim-code-cross-check lifecycle and damage vector",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/287/assertionResults/17",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/quicken-bloom-task-order.test.ts",
+      "name": "aura-v7 queued Quicken to Bloom follow-up keeps the current identity separate and normalizes through the frozen 1.40, 1.39, 1.38, 1.37, and 1.36 task-order Goldens",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/324/assertionResults/0",
+      "firstFailure": "AssertionError: expected { …(4) } to deeply equal { …(4) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/quicken-bloom-task-order.test.ts",
+      "name": "aura-v7 queued Quicken to Bloom follow-up keeps non-Burning Quicken to Bloom in the core queue under target phase v1 and v2",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/324/assertionResults/1",
+      "firstFailure": "AssertionError: fifo/target-phase-v1: expected [ { id: +0, …(77) }, …(2) ] to deeply equal [ { id: +0, …(77) }, …(2) ]",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-formula-integrity.test.ts",
+      "name": "current SimulationResult reaction-formula root integrity accepts exact current results at both public and trusted boundaries",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/333/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "passed-after-protocol-separation-771f7b2: original-file11/11 plus immutable-legacy8/8",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "reaction-separation",
+        "reaction-separation-targeted"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-formula-integrity.test.ts",
+      "name": "current SimulationResult reaction-formula root integrity rejects a coordinated Superconduct level-base rewrite",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/333/assertionResults/1",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "passed-after-protocol-separation-771f7b2: original-file11/11 plus immutable-legacy8/8",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "reaction-separation",
+        "reaction-separation-targeted"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-formula-integrity.test.ts",
+      "name": "current SimulationResult reaction-formula root integrity rejects a coordinated Melt base rewrite",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/333/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "passed-after-protocol-separation-771f7b2: original-file11/11 plus immutable-legacy8/8",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "reaction-separation",
+        "reaction-separation-targeted"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-formula-integrity.test.ts",
+      "name": "current SimulationResult reaction-formula root integrity rejects a coordinated 'aggravate' 'levelBaseDamage' rewrite",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/333/assertionResults/3",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "passed-after-protocol-separation-771f7b2: original-file11/11 plus immutable-legacy8/8",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "reaction-separation",
+        "reaction-separation-targeted"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-matrix-golden.test.ts",
+      "name": "1.35 provisional reaction-matrix Golden freezes every baseline reaction vector, strict projection, and run identity",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/336/assertionResults/2",
+      "firstFailure": "AssertionError: frozen reaction vector melt: expected { …(10) } to match object { …(8) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-matrix-golden.test.ts",
+      "name": "current aura-v9 classic reaction release gate covers all 16 classic reaction classes and 24 non-none labels without Lunar scope",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/336/assertionResults/3",
+      "firstFailure": "AssertionError: expected 'a6a046e4cf9561171b9ee21c4f28add9e10d4…' to be '4ff615ccf2cff65f33837cb7a1c7bc9e2b1d2…' // Object.is equality",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/reaction-owned-application-result-integrity.test.ts",
+      "name": "current V1.53 reaction-owned application result integrity keeps the frozen V1.47 public and trusted contracts isolated from current V1.53 replay",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/339/assertionResults/2",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/shatter-recursive-delivery.test.ts",
+      "name": "recursive zero-delay Shatter delivery delivers the 'blunt Physical' Shatter child before its direct parent",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/348/assertionResults/0",
+      "firstFailure": "AssertionError: expected { identity: { …(7) }, …(6) } to strictly equal { identity: { …(7) }, …(6) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/shatter-recursive-delivery.test.ts",
+      "name": "recursive zero-delay Shatter delivery delivers the 'Geo' Shatter child before its direct parent",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/348/assertionResults/1",
+      "firstFailure": "AssertionError: expected { identity: { …(7) }, …(6) } to strictly equal { identity: { …(7) }, …(6) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/shatter-recursive-delivery.test.ts",
+      "name": "recursive zero-delay Shatter delivery preserves the nested Overload parent chain while delivering Shatter first",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/348/assertionResults/2",
+      "firstFailure": "AssertionError: expected { identity: { …(7) }, …(6) } to strictly equal { identity: { …(7) }, …(6) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/shatter-recursive-delivery.test.ts",
+      "name": "recursive zero-delay Shatter delivery consumes refrozen durability inside the 12-frame GCD without creating a second child",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/348/assertionResults/4",
+      "firstFailure": "AssertionError: expected { identity: { …(7) }, …(6) } to strictly equal { identity: { …(7) }, …(6) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/shatter-recursive-delivery.test.ts",
+      "name": "recursive zero-delay Shatter delivery does not recurse when blunt poise depletes Frozen first",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/348/assertionResults/5",
+      "firstFailure": "AssertionError: expected { identity: { …(7) }, …(6) } to strictly equal { identity: { …(7) }, …(6) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/shatter.test.ts",
+      "name": "Shatter simulation integration applies ReactionA first-two-in-30f after the independent 12-frame Shatter trigger GCD",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/349/assertionResults/6",
+      "firstFailure": "AssertionError: expected [ { …(20) }, { …(20) }, { …(20) } ] to deeply equal [ { …(20) }, { …(20) }, { …(20) } ]",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/simulation-result-schema.test.ts",
+      "name": "exact current 1.53 SimulationResult schema keeps persisted 1.42 and frozen 1.44-1.52 result identities separate",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/352/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/simulation-result-schema.test.ts",
+      "name": "exact current 1.53 SimulationResult schema keeps 71 required fields with optional timeline and execution capture",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/352/assertionResults/1",
+      "firstFailure": "Error: STACK_TRACE_ERROR",
+      "classification": "unsupported-or-missing-evidence-or-timeout",
+      "subtype": "unchanged-test-deadline",
+      "latestKnownStatus": "passed-in-existing-standalone-run; not rerun at6cbc4f9",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "full-diff",
+        "schema-isolated"
+      ]
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-phase-v3-formula-root.test.ts",
+      "name": "target-phase-v3 formula-root identity accepts the current identity and preserves the exact 1.44-1.49 callback semantics",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/389/assertionResults/0",
+      "firstFailure": "ZodError: [",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "historical-wire-flat-stat",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "historical-wire-flat-stat",
+      "flatStatWireRejection": true
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-reactable-phase-v2.test.ts",
+      "name": "target-phase-v2 target callback to Reactable.Tick ordering expires Frozen on target 0 at F176 before target 1 Burning tick 9",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/391/assertionResults/7",
+      "firstFailure": "AssertionError: expected { identity: { …(8) }, …(9) } to strictly equal { identity: { …(8) }, …(9) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-reactable-phase-v2.test.ts",
+      "name": "target-phase-v2 target callback to Reactable.Tick ordering expires Quicken on target 0 at F600 before target 1 Burning tick 9",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/391/assertionResults/8",
+      "firstFailure": "AssertionError: expected { identity: { …(8) }, …(9) } to strictly equal { identity: { …(8) }, …(9) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-reactable-phase-v2.test.ts",
+      "name": "target-phase-v2 target callback to Reactable.Tick ordering expires 0.5U Burning Fuel on target 0 at F61 before target 1 Burning tick 1",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/391/assertionResults/9",
+      "firstFailure": "AssertionError: expected { identity: { …(8) }, …(9) } to strictly equal { identity: { …(8) }, …(9) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-reactable-phase-v2.test.ts",
+      "name": "target-phase-v2 target callback to Reactable.Tick ordering expires EC coexistence before the later target callback while tick and wane stay global",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/391/assertionResults/10",
+      "firstFailure": "AssertionError: expected { identity: { …(8) }, …(9) } to strictly equal { identity: { …(8) }, …(9) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-reactable-phase-v2.test.ts",
+      "name": "target-phase-v2 target callback to Reactable.Tick ordering reprojects Frozen F176 to global F181 under H=5 without emitting the stale wake",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/391/assertionResults/12",
+      "firstFailure": "AssertionError: expected { identity: { …(8) }, …(9) } to strictly equal { identity: { …(8) }, …(9) }",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-state-timeline.test.ts",
+      "name": "core-owned target state timeline preserves the real direct-hit shatter sub-order before application",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/392/assertionResults/0",
+      "firstFailure": "AssertionError: expected [ { …(6) }, { …(6) }, { …(6) } ] to deeply equal [ { …(6) }, { …(6) }, { …(6) } ]",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/target-state-timeline.test.ts",
+      "name": "core-owned target state timeline keeps multi-target Burning tick/application pairs atomic",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/392/assertionResults/1",
+      "firstFailure": "AssertionError: expected [ 4, 7, 7, 6, 9, 9 ] to deeply equal [ 3, 5, 5, 4, 7, 7 ]",
+      "classification": "frozen-golden",
+      "subtype": "strict-frozen-identity-or-order",
+      "latestKnownStatus": "original-failure-preserved; prior finite field comparisons only; not rerun in this audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence",
+        "finite-numerical-audit"
+      ],
+      "inheritedCategory": "golden-order-and-identity"
+    },
+    {
+      "file": "packages/sim-core/src/__tests__/weapon-proc-calculator-weakpoint.test.ts",
+      "name": "calculates twenty standalone proc positions and preserves real CR while Messenger and resolved weak-point hits force actual critical damage",
+      "originalFullStatus": "failed",
+      "rawJsonPointer": "/testResults/400/assertionResults/0",
+      "firstFailure": "AssertionError: expected '独立追击来源条件：本次追击已经实际触发并命中所填目标；不需要队伍或轮转，也…' to contain '自动触发边界'",
+      "classification": "outdated-protocol-or-consumer-expectation",
+      "subtype": "mapping-and-equipment-consumers",
+      "firstFailureExplanation": "First failure is common automatic-trigger wording applied to Sword of Narzissenkreuz deterministic source lifecycle. Its deterministic explanation is valid; no damage assertion is changed or bypassed.",
+      "latestKnownStatus": "not-rerun-in-this-audit",
+      "rerunInThisAudit": false,
+      "evidenceRefs": [
+        "raw-full",
+        "previous-classification",
+        "previous-correspondence"
+      ],
+      "inheritedCategory": "mapping-and-equipment-consumers"
+    }
+  ],
+  "pending": [
+    {
+      "file": "apps/web/src/player-import-public-smoke.test.ts",
+      "name": "public response normalizes and reports individual panel gates",
+      "historicalStatus": "skipped",
+      "reason": "skipIf(!process.env.GIDPS_ENKA_RESPONSE); environment-gated offline replay; no network request or current rerun in this audit"
+    }
+  ],
+  "relatedOutsideOriginal79": [
+    {
+      "id": "wanderer-c2-nonQ-snapshot-leak",
+      "classification": "demonstrated-implementation-error",
+      "inOriginal79": false,
+      "originalReproduction": "Two original-compatible Go subcases fail got2,want0; five actual non-Q writes carry+2DmgP.",
+      "classicAtReviewedBaseline": "fixed in77a0d05/6f5600e; original Go negative now passes and six retained actual captures are audited",
+      "stellarAtReviewedBaseline": "same source pattern observed, but137 not registered/built/runtime-verified in this baseline; root owns the separate cross-mode work",
+      "evidenceRefs": [
+        "c2-before",
+        "c2-after",
+        "c2-build",
+        "c2-six-captures"
+      ]
+    },
+    {
+      "id": "v2-valid-source-input-salvage-after-result-rejection",
+      "classification": "demonstrated-implementation-error",
+      "inOriginal79": false,
+      "currentStatus": "fixed bycd7b32e; existing unit10/10 and latest results for seven distinct browser cases, not one seven-case green run; not rerun here",
+      "evidenceRefs": [
+        "v2-salvage",
+        "v2-salvage-doc"
+      ]
+    }
+  ],
+  "existingUserPathEvidence": {
+    "source": "/workspace/GIDPS-cloud/uid-team-20261022/full-final.json",
+    "testResults": {
+      "apps/web/src/imported-talent-evidence.test.ts": {
+        "passed": 14
+      },
+      "apps/web/src/player-import-handoff.test.ts": {
+        "passed": 9
+      },
+      "apps/web/src/project-document.test.ts": {
+        "passed": 10
+      },
+      "apps/web/src/source-host-model-limits.test.ts": {
+        "passed": 9
+      },
+      "packages/sim-core/src/__tests__/direct-hit-step-witness.test.ts": {
+        "passed": 45
+      },
+      "packages/sim-core/src/__tests__/event-step-execution-profile.test.ts": {
+        "passed": 3
+      }
+    },
+    "policy": "Existing full-run evidence only; overlapping groups are not added to manufacture a new total."
+  },
+  "sources": {
+    "raw-full": {
+      "path": "/workspace/GIDPS-cloud/uid-team-20261022/full-final.json",
+      "bytes": 1358200,
+      "sha256": "d43054c22d6c9b339b7e9c19a1d3c32541af258b2701bdb59cdd7d6fbef81a3a"
+    },
+    "full-diff": {
+      "path": "/workspace/GIDPS-cloud/uid-team-20261022/full-final-diff.json",
+      "bytes": 2081,
+      "sha256": "2bb5aec56cde237021d201de3945f9de5839b40ec219022bdf1546f1fa6db7fa"
+    },
+    "previous-classification": {
+      "path": "/workspace/GIDPS-cloud/failure-triage-20261022/failure-classification.json",
+      "bytes": 62296,
+      "sha256": "d56caad0a7e071b57e7ff2135f217c00f8b0629a213d2de670e0eabef6d113e4"
+    },
+    "previous-correspondence": {
+      "path": "/workspace/GIDPS-cloud/failure-triage-20261022/followup-78/remaining-78-correspondence.json",
+      "bytes": 50206,
+      "sha256": "c69b1e3a32a1ce076402bfbe69ccd83b44d0462b04cc61f605d279c55630b850"
+    },
+    "existing-userpaths": {
+      "path": "/workspace/GIDPS-cloud/failure-triage-20261022/followup-78/existing-user-path-evidence.json",
+      "bytes": 719,
+      "sha256": "cff86cd7b2ba3ed4c9fb2dd7a1d91ae19fca53bc736afef7b0be12cb9cbaaf39"
+    },
+    "finite-numerical-audit": {
+      "path": "/workspace/GIDPS-cloud/function-batch-20261022/numerical-audit/REPORT.zh-CN.md",
+      "bytes": 5187,
+      "sha256": "1aaa3aaf47f3975255fc7554a02d9b1a467b12d435777bfe7f3b3295d6458eb6"
+    },
+    "consumer-audit": {
+      "path": "docs/oss-preparation/CONSUMER-AUDIT-20261021.zh-CN.md",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "ab8591ca33aead86623ab7f1fc75d42d964a2ee6",
+      "bytes": 6867,
+      "sha256": "e4184b200457e81d5c08b3529429ee337a3d8feddfd7ff9034c4d269bad5733f"
+    },
+    "schema-isolated": {
+      "path": "/workspace/GIDPS-cloud/uid-team-20261022/schema-71-isolated.log",
+      "bytes": 7079,
+      "sha256": "8c1fd548ba08e90b5027c539d9c1a7b9cb241dbb3b0066410a012a9e4f4ebb2d"
+    },
+    "reaction-separation": {
+      "path": "docs/validation/reaction-formula-legacy-separation-evidence-20261023.json",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "cd0e7e44b7f1416093f6ddeaffada4a6fb0d5e4d",
+      "bytes": 4568,
+      "sha256": "f259cf889c8732dc03d8b3d5aee9dee4541e2882d335681e84d856ca8a390fed"
+    },
+    "reaction-separation-targeted": {
+      "path": "/tmp/GIDPS-old-failure-correctness-evidence-20261023/separated-final.json",
+      "bytes": 8208,
+      "sha256": "455082cb713d614850f521a7340dcb3227362af8300914d7aaed9e0a97ecac55"
+    },
+    "current-one-test": {
+      "path": "/tmp/GIDPS-c2-failure-classification-20261023/focused.json",
+      "bytes": 6144,
+      "sha256": "ae637528bbf875b0273e9495ad6a87b2d1193057d81724327010ce0b0ba4be9c"
+    },
+    "current-one-test-log": {
+      "path": "/tmp/GIDPS-c2-failure-classification-20261023/focused.log",
+      "bytes": 82,
+      "sha256": "2fdb79c069524bdd52eb203d351ff3fbf83b307c09bdae9da9b177ec716f9a38"
+    },
+    "c2-before": {
+      "path": "docs/audits/wanderer-burst-cycle-go-test-before.log",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "75afaf398e19d7a9311124ca6dc3ae0211f9009a",
+      "bytes": 655,
+      "sha256": "ae2f0e0012651cdf751a170afeca292dd7bf670341c49192b2b83225a8b3b99e"
+    },
+    "c2-after": {
+      "path": "docs/audits/wanderer-burst-cycle-go-test-after.log",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "6adf2b2c440a4adc849788a26f7a22a8c165302f",
+      "bytes": 770,
+      "sha256": "71681f97584fa8f380b34f2bbe4253610db96bd557f52b48ca90c2a9b02f5724"
+    },
+    "c2-build": {
+      "path": "docs/audits/wanderer-c2-classic-build-20261023.json",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "bbd5de8da3006d183a55fa158032b6506d7ad8ee",
+      "bytes": 4826,
+      "sha256": "87cbbcdc03af4c62bdf4545eda3293b1e4f032b280684d5583a95a6cd8c50c62"
+    },
+    "c2-six-captures": {
+      "path": "docs/audits/wanderer-burst-cycle-20261023.results.json",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "fdaad4c2aafb2930107c55f36b72529f2368a1a4",
+      "bytes": 10964,
+      "sha256": "34c4fc54555f4d4032bb0e7d0a112f7324351237f5137a9031f4bd9131f0852f"
+    },
+    "v2-salvage": {
+      "path": "/workspace/GIDPS-cloud/v2-input-salvage-evidence-20261022/FINAL.json",
+      "bytes": 1114,
+      "sha256": "1d0e97c422913e8996eb334a8db524c3db19d3651caac3525526bb24ba19f10a"
+    },
+    "v2-salvage-doc": {
+      "path": "docs/integration/V2-INPUT-SALVAGE-20261022.zh-CN.md",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "c3717e293820ed09dd959b585408726ba63541bc",
+      "bytes": 2424,
+      "sha256": "74ea2cb3b76cb26d864af3bd2621c5ac1a2a0b2fedb0b4a2280e5e0be01d9765"
+    },
+    "smoke-test-code": {
+      "path": "apps/web/src/player-import-public-smoke.test.ts",
+      "commit": "6cbc4f9e380420913833581f72fe95cc4967e479",
+      "gitBlobSha1": "0b22b78315ab864d47647af250f387062ab0a946",
+      "bytes": 1127,
+      "sha256": "407009508237212fa0dea9adcccbbbbfe354c9af7bf91f354954715a1ba5f2e0"
+    }
+  },
+  "fullSuiteRun": false,
+  "nativeSimulationRun": false,
+  "productionFilesChanged": [],
+  "goldenFilesChanged": [],
+  "historicalResultsChanged": [],
+  "flatStatWireRejection": {
+    "count": 45,
+    "unrecognizedKeyPaths": [
+      [
+        "runManifest",
+        "resolvedRuntimeOptions",
+        "flatStatBuffSemantics"
+      ],
+      [
+        "resolvedRuntimeOptions",
+        "flatStatBuffSemantics"
+      ]
+    ],
+    "policy": "Exact raw Zod issues retained in the source full report; source JSON pointers are in each row. No fields removed from a historical or current result."
+  }
+}

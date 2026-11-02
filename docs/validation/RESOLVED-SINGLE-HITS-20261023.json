@@ -1,0 +1,149 @@
+{
+  "schema": "gidps-resolved-single-hit-acceptance/1",
+  "baseline": "fcdf2e9897d14328c67c0b5443398edc39c8765e",
+  "branch": "cloud/player-import-integration-20261021",
+  "fullSuiteRerun": false,
+  "historicalFullSuite": {
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1
+  },
+  "nativeRuns": 0,
+  "productionAttempted": false,
+  "formulaDataChanged": false,
+  "browser": {
+    "status": "passed",
+    "browser": "154.0.8037.57",
+    "platform": "linux",
+    "nativeRuns": 0,
+    "controlledPanels": true,
+    "results": [
+      {
+        "action": "Iansan C0 Swift T10",
+        "initial": {
+          "nonCritical": 1497.87,
+          "critical": 3295.314,
+          "expected": 2756.0807999999997
+        },
+        "priorBuff": {
+          "nonCritical": 1647.657,
+          "critical": 3624.8454,
+          "expected": 3031.6888799999997
+        },
+        "actualZeroAccepted": true,
+        "unknownAccountingBlocked": true,
+        "unsupportedBurstFeedbackBlocked": true,
+        "multiDigitInputsPreserved": true,
+        "savedAndReopened": true
+      },
+      {
+        "action": "aether C0 anemo burst single hit",
+        "totals": {
+          "nonCritical": 1308.9599999999998,
+          "critical": 2879.712,
+          "expected": 2408.4863999999993
+        },
+        "unknownAndFalseBlocked": true,
+        "noFutureScheduleOrSnapshotRequired": true,
+        "savedAndReopened": true
+      },
+      {
+        "action": "lumine C0 anemo burst single hit",
+        "totals": {
+          "nonCritical": 1308.9599999999998,
+          "critical": 2879.712,
+          "expected": 2408.4863999999993
+        },
+        "unknownAndFalseBlocked": true,
+        "noFutureScheduleOrSnapshotRequired": true,
+        "savedAndReopened": true
+      }
+    ],
+    "errors": []
+  },
+  "evidence": [
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/before-browser.json",
+      "bytes": 1428,
+      "sha256": "29d1ff09019d8782410e996256201e7ee2777a1ab25edb481364c53394b92e1f"
+    },
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/traveler-before-browser.json",
+      "bytes": 392,
+      "sha256": "21c2d28cfa0b92423b0c735ad4adeac6be1ccd73d179f5736173e414905cc1aa"
+    },
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/default-registry-after.json",
+      "bytes": 10802,
+      "sha256": "c8e4ad56f2e759e19e83d93058b7cfc081c6b07506e0217da5eff7a4ac9288ee",
+      "tests": {
+        "numPassedTests": 25,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTests": 25
+      }
+    },
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/default-registry-after.log",
+      "bytes": 87,
+      "sha256": "40c91fa0ad612fe6ec1c13a6b99f9d76760ab85a3b856d624368edd4774bb72b"
+    },
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/browser/acceptance.json",
+      "bytes": 1313,
+      "sha256": "72bb75bb0a651ffeb7ab9b9fcf079fd16fac429be8bc59954b857be21a8052e3"
+    },
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/browser.log",
+      "bytes": 959,
+      "sha256": "978bae1b4631cc7e5c3a9b9ea9487d3920fb01f91e16b6fb7a297bbca666824a"
+    },
+    {
+      "path": "/tmp/GIDPS-traveler-iansan-20261023/build.log",
+      "bytes": 8519,
+      "sha256": "db3c98397091ecbca7d00b9b1c9afa07b1b7b371d895f247aa8cbdf00131ec47"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/calculator-iansan-requirements.ts",
+      "sha256": "e376a219ba9d6f5d00de93fd1d2d436595a5c4298ef366917103de0dd45684b8"
+    },
+    {
+      "path": "apps/web/src/calculator-traveler-cross-requirements.ts",
+      "sha256": "f25261efbd34fd41077d48c951c209cf6eeef09951be0753c56f68d31384a885"
+    },
+    {
+      "path": "apps/web/src/calculator-requirements.ts",
+      "sha256": "acc492fdd62fbd7cfc3e95dca72a5e95df56db23375c5953876b8b6057e17f35"
+    },
+    {
+      "path": "apps/web/src/calculator-hydro-resolved-controls.ts",
+      "sha256": "a2cf225cb885e11acc3111b53a9c647ad1941ce3ff7414f22d91d4f472ff21de"
+    },
+    {
+      "path": "apps/web/src/calculator-traveler-cross-entity-controls.ts",
+      "sha256": "0900c6751b5697404361d6579b3c5e9e83deb9f3e0b7a5bc3d62d91c0182f78b"
+    },
+    {
+      "path": "apps/web/src/calculator-ui.ts",
+      "sha256": "fb6d6ab6037884739fd9b8c37ba023c6e55bf98cf22b9bb69d6f0128d7e8f12d"
+    },
+    {
+      "path": "scripts/acceptance/resolved-single-hits-browser.mjs",
+      "sha256": "9dd8e1465d2f6bdeed60ba3642435f12485cabb5f57af53c5e9ee73b341fade0"
+    }
+  ],
+  "commands": {
+    "tests": "./node_modules/.bin/vitest run apps/web/src/calculator-iansan-requirements.test.ts apps/web/src/calculator-traveler-cross-requirements.test.ts --reporter=json --outputFile=/tmp/GIDPS-traveler-iansan-20261023/default-registry-after.json",
+    "browser": "node scripts/acceptance/resolved-single-hits-browser.mjs http://127.0.0.1:4205 /tmp/GIDPS-traveler-iansan-20261023/browser",
+    "build": "npm run build"
+  },
+  "limits": [
+    "Controlled panels, not game measurements",
+    "Anemo Traveler C0 single hit only",
+    "Iansan Q-ATK-feedback inactive branch only",
+    "No real Windows execution",
+    "No inferred full-suite total"
+  ]
+}

@@ -1,0 +1,158 @@
+diff --git a/pkg/core/player/player.go b/pkg/core/player/player.go
+--- a/pkg/core/player/player.go
++++ b/pkg/core/player/player.go
+@@ -58,4 +58,7 @@
+ 	DashLockout           bool
+ 
++	// Action whose constructor is currently reading attack-speed modifiers.
++	attackSpeedAction *action.Action
++
+ 	// last action
+ 	LastAction struct {
+diff --git a/pkg/core/player/exec.go b/pkg/core/player/exec.go
+--- a/pkg/core/player/exec.go
++++ b/pkg/core/player/exec.go
+@@ -194,5 +194,5 @@
+ 		invocationID = bridge.BeginAbilityInvocation(actor.Index(), actor.Base.Key.String(), t.String(), param, actor.Base.Cons, actor.Base.Ascension)
+ 	}
+-	info, err := f(param)
++	info, err := h.withAttackSpeedAction(t, param, f)
+ 	if bridge != nil {
+ 		queuedCallbacks, hasOnRemoved := info.SourceHostCallbackSummary()
+diff --git a/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go b/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go
+--- a/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go
++++ b/internal/weapons/catalyst/tulaytullahsremembrance/tulaytullahsremembrance.go
+@@ -5,5 +5,4 @@
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+-	"github.com/genshinsim/gcsim/pkg/core/action"
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+@@ -49,5 +48,5 @@
+ 		AffectedStat: attributes.NoStat,
+ 		Amount: func() []float64 {
+-			if c.Player.CurrentState() != action.NormalAttackState {
++			if !c.Player.NormalAttackSpeedApplies() {
+ 				return nil
+ 			}
+diff --git a/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go b/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go
+--- a/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go
++++ b/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go
+@@ -5,5 +5,4 @@
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+-	"github.com/genshinsim/gcsim/pkg/core/action"
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+@@ -61,5 +60,5 @@
+ 				AffectedStat: attributes.NoStat,
+ 				Amount: func() []float64 {
+-					if c.Player.CurrentState() != action.NormalAttackState {
++					if !c.Player.NormalAttackSpeedApplies() {
+ 						return nil
+ 					}
+diff --git a/pkg/core/player/attack_speed_action.go b/pkg/core/player/attack_speed_action.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/attack_speed_action.go
+@@ -0,0 +1,25 @@
++package player
++
++import "github.com/genshinsim/gcsim/pkg/core/action"
++
++// NormalAttackSpeedApplies uses the action being constructed for animation
++// stat reads. CurrentState still describes the running animation; changing it
++// before an action is accepted would also change removal hooks and events.
++// Reads made outside a constructor retain the running-animation predicate.
++func (h *Handler) NormalAttackSpeedApplies() bool {
++	if h.attackSpeedAction != nil {
++		return *h.attackSpeedAction == action.ActionAttack
++	}
++	return h.CurrentState() == action.NormalAttackState
++}
++
++func (h *Handler) withAttackSpeedAction(
++	t action.Action,
++	param map[string]int,
++	f func(map[string]int) (action.Info, error),
++) (action.Info, error) {
++	previous := h.attackSpeedAction
++	h.attackSpeedAction = &t
++	defer func() { h.attackSpeedAction = previous }()
++	return f(param)
++}
+diff --git a/pkg/core/player/attack_speed_action_test.go b/pkg/core/player/attack_speed_action_test.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/attack_speed_action_test.go
+@@ -0,0 +1,70 @@
++package player
++
++import (
++	"errors"
++	"testing"
++
++	"github.com/genshinsim/gcsim/pkg/core/action"
++)
++
++func TestAttackSpeedActionContext(t *testing.T) {
++	for _, next := range []action.Action{
++		action.ActionAttack, action.ActionCharge, action.ActionAim,
++		action.ActionLowPlunge, action.ActionHighPlunge,
++		action.ActionSkill, action.ActionBurst,
++	} {
++		t.Run(next.String(), func(t *testing.T) {
++			h := &Handler{}
++			h.LastAction.Type = action.ActionCharge
++			_, err := h.withAttackSpeedAction(next, nil, func(map[string]int) (action.Info, error) {
++				if got, want := h.NormalAttackSpeedApplies(), next == action.ActionAttack; got != want {
++					t.Fatalf("normal attack speed = %v, want %v", got, want)
++				}
++				if h.LastAction.Type != action.ActionCharge {
++					t.Fatal("context changed LastAction")
++				}
++				return action.Info{}, nil
++			})
++			if err != nil || h.attackSpeedAction != nil {
++				t.Fatal("context was not restored")
++			}
++		})
++	}
++}
++
++func TestAttackSpeedActionRestoresNestedError(t *testing.T) {
++	h := &Handler{}
++	failure := errors.New("ability rejected")
++	_, err := h.withAttackSpeedAction(action.ActionAttack, nil, func(map[string]int) (action.Info, error) {
++		_, innerErr := h.withAttackSpeedAction(action.ActionCharge, nil, func(map[string]int) (action.Info, error) {
++			if h.NormalAttackSpeedApplies() {
++				t.Fatal("normal attack speed leaked into charged attack")
++			}
++			return action.Info{}, failure
++		})
++		if !errors.Is(innerErr, failure) || !h.NormalAttackSpeedApplies() {
++			t.Fatal("outer normal-attack context was not restored after error")
++		}
++		return action.Info{}, innerErr
++	})
++	if !errors.Is(err, failure) || h.attackSpeedAction != nil {
++		t.Fatal("action context survived an error")
++	}
++}
++
++func TestAttackSpeedActionRestoresPanic(t *testing.T) {
++	h := &Handler{}
++	func() {
++		defer func() {
++			if recover() == nil {
++				t.Fatal("expected panic")
++			}
++		}()
++		_, _ = h.withAttackSpeedAction(action.ActionAttack, nil, func(map[string]int) (action.Info, error) {
++			panic("test")
++		})
++	}()
++	if h.attackSpeedAction != nil {
++		t.Fatal("action context survived panic")
++	}
++}

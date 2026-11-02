@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["./**/*.ts", "../../packages/player-import/**/*.ts"],
+  "exclude": ["./dist", "../../packages/player-import/**/*.test.ts"]
+}

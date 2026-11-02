@@ -46,3 +46,16 @@ describe("source-host scalar provenance", () => {
     expect(() => executeSourceHostScalarProvenance(receipt, { resistance: -0.2 })).toThrow(/不一致/);
   });
 });
+
+function resistanceReceipt(expiry:number,element:string,outcome:string){
+ const applied=outcome==='applied';const output=applied?-.3:.1;
+ return {version:'scalar-provenance-v1',reads:[{id:'resistance-boundary',kind:'resistance',frame:10,actorIndex:3,targetKey:1,element:'pyro',base:.1,sum:output,output,transforms:[],steps:[{index:0,key:'vvpyro',expiryBefore:expiry,expiryAfter:expiry,affectedByHitlag:true,element,closureOpaque:false,outcome,before:.1,delta:applied?-.4:null,after:output,dependencies:[]}]}]};
+}
+describe('native resistance expiry and element contract',()=>{
+ it.each([[11,'pyro','applied'],[10,'pyro','expired'],[9,'pyro','expired'],[11,'cryo','element-mismatch'],[10,'cryo','expired'],[-1,'pyro','expired']])('accepts actual branch expiry=%s element=%s outcome=%s',(expiry,element,outcome)=>{
+  expect(()=>executeSourceHostScalarProvenance(resistanceReceipt(expiry as number,element as string,outcome as string),{})).not.toThrow();
+ });
+ it.each([[10,'pyro','applied'],[9,'pyro','applied'],[11,'pyro','expired'],[11,'cryo','applied'],[11,'pyro','element-mismatch'],[10,'cryo','element-mismatch'],[-1,'pyro','applied']])('rejects contradictory branch expiry=%s element=%s outcome=%s',(expiry,element,outcome)=>{
+  expect(()=>executeSourceHostScalarProvenance(resistanceReceipt(expiry as number,element as string,outcome as string),{})).toThrow(/到期帧、元素与生效状态不一致/);
+ });
+});

@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "browser": "154.0.8037.57",
+  "platform": "linux",
+  "nativeRuns": 0,
+  "savedInput": "/tmp/GIDPS-iansan-120-evidence-20261023/legal-recharge/run.result.json",
+  "savedInputSha256": "46bd31ca0d7f577f8869c68c21776d86dd60c060a0f26bbe910e6c1d3fd3e466",
+  "exportedSha256": "42bbdca686c4782e73cd34ff25fc1a1394067167f2d4f9465e72d786526efdb9",
+  "wasmSha256": "237dd6b0c2ef45988a93f15fe1d2b7226c9a2b3ff8d1228b7a331fac9db1873c",
+  "frames": 7200,
+  "actualHits": 246,
+  "total": 798971.2144022143,
+  "byActor": {
+    "iansan": 189461.63667119577,
+    "kaeya": 609509.577731019
+  },
+  "frameCurve": true,
+  "cumulativeSteps": true,
+  "standaloneExplanation": true,
+  "applicationsAndEnergyUnchanged": true,
+  "desktopAndNarrow": true,
+  "errors": []
+}

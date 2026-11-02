@@ -1,0 +1,29 @@
+{
+  "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "files": [
+    {
+      "path": "internal/weapons/common/favonius.go",
+      "sha256": "a53c8ccfea9d4ed1831b7a5b9af301155dd8254c4e255df44a6dc10d1210e569",
+      "gitBlob": "512f6b7f8c003ec2655e96457cc27b833b534dae",
+      "bytes": 1536
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "sha256": "444bdc0a1578fcdf2b7371e48aa767138975903fb4ee8d956722f6c4f56b22ae",
+      "gitBlob": "6e45b47df855bde0f798600edeed00a44c8d8e1d",
+      "bytes": 11119
+    },
+    {
+      "path": "pkg/core/attributes/element.go",
+      "sha256": "c136657177344f5bf0af6db5c93f2db32c4ea1ccd73f4fcf8c4da7846a4a6198",
+      "gitBlob": "6b19bb896aa69e731634d0e0ee86a8c5a1650610",
+      "bytes": 911
+    },
+    {
+      "path": "pkg/core/player/character/character.go",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlob": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+    }
+  ]
+}

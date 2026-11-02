@@ -1,0 +1,129 @@
+{
+  "scope": "Classic only; fixed specified hypothetical team; no production deployment; Stellar not rebuilt or claimed fixed",
+  "patch": {
+    "path": "137-wanderer-c2-burst-snapshot-scope.patch",
+    "sha256": "19c751e7def20d6e1aaa4e8553001be449cb324fbaed8da045e80b6f25a843fa",
+    "size": 9512
+  },
+  "patchCommit": "77a0d05",
+  "source": {
+    "repository": "https://github.com/genshinsim/gcsim",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "verifiedBlobCount": 4021,
+    "exportedOnlyTrackedBlobs": true,
+    "preparation": {
+      "kind": "explicit-local-source",
+      "trackedBytesVerified": true
+    }
+  },
+  "toolchain": {
+    "version": "go version go1.25.0 linux/amd64",
+    "host": "linux-amd64",
+    "sourceUrl": "https://go.dev/dl/go1.25.0.linux-amd64.tar.gz",
+    "releaseMetadataUrl": "https://go.dev/dl/?mode=json&include=all",
+    "archive": {
+      "filename": "go1.25.0.linux-amd64.tar.gz",
+      "sha256": "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613",
+      "size": 59659213
+    },
+    "executableSha256": "b93cdfdbc72f1afc3f21498c80bf3d155a44a9b95e2d690c940511051574bc25"
+  },
+  "build": {
+    "target": "js/wasm",
+    "args": [
+      "build",
+      "-mod=readonly",
+      "-trimpath",
+      "-buildvcs=false",
+      "-o",
+      "<output>/source-host.wasm",
+      "./cmd/sourcehost"
+    ],
+    "goSumSha256": "8f7fb04fadedab87e6392f4eb7f236ab06dfecd4628e5a66504e3996b7e42fe6",
+    "moduleMode": "readonly",
+    "automaticToolchainDownload": false,
+    "moduleMetadataExtraction": "go1.25.0-runtime.modinfo-framing-from-wasm-bytes",
+    "simulatorExecuted": false,
+    "testsExecuted": false
+  },
+  "patchesPreserved": 149,
+  "totalPatches": 150,
+  "oldWasmSha256": "84553bc3a7391bac0c3de8d1c6b8cd0c0b411a91a26a6a65f97fa03358791194",
+  "newWasm": {
+    "path": "source-host.wasm",
+    "sha256": "3e5fc685e2743552b4be8f14533f75794092d88b7236166e0ac38103bed5a53e",
+    "size": 47084886
+  },
+  "executedBuildCommand": "GOMAXPROCS=2 node packages/source-host/scripts/build-source-host.mjs --cache-dir /tmp/GIDPS-wanderer-c2-build-20261023/cache --source-dir /workspace/GIDPS-cloud/source-build-cache/upstream/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/source --output-dir /tmp/GIDPS-wanderer-c2-build-20261023/dist --public-dir /workspace/GIDPS-cloud/player-import-integration/apps/web/public/source-host",
+  "buildLog": {
+    "path": "/tmp/GIDPS-wanderer-c2-build-20261023/build.log",
+    "bytes": 799,
+    "sha256": "0d8f690be624f43c5804c0d593ee040c281c8c1afef41427eff1f4fc47983665"
+  },
+  "nativeBaselineReceipt": {
+    "endedAt": "2026-10-23T11:31:26.896Z",
+    "inputSha256": "27e9d13b43a9aa8fc987a63ea36a5f689ab144bb8ce417304963148e3cf94e34",
+    "files": [
+      {
+        "name": "run.request.json",
+        "bytes": 3428,
+        "sha256": "27e9d13b43a9aa8fc987a63ea36a5f689ab144bb8ce417304963148e3cf94e34"
+      },
+      {
+        "name": "run.gcsl",
+        "bytes": 3001,
+        "sha256": "a6bf4f3c03c2fc6e477651e23b3d6cea87bef1536020ffc48c94c6f55f72206f"
+      },
+      {
+        "name": "run.native.json",
+        "bytes": 51291504,
+        "sha256": "4ce3d4b965754ee57cf60aa8dd9c853df6797c6a2fb960954df4c41cdbdf5503"
+      },
+      {
+        "name": "run.result.json",
+        "bytes": 51852932,
+        "sha256": "64b645c87a56c6d23a9d29678c139778134deb3d8c3b01fd83bc3e690d87e8ea"
+      },
+      {
+        "name": "run.curve.json",
+        "bytes": 252777,
+        "sha256": "acdd8d52ecc67cdae333c6bc1192825d71743fbc4b7f52fc809c8629c970b474"
+      },
+      {
+        "name": "run.summary.json",
+        "bytes": 4714,
+        "sha256": "a094083edff1917b07504707b0ac3a96f90b3d6be591462628e3101dd0e7717d"
+      }
+    ]
+  },
+  "baselineSummary": {
+    "seed": "20261022",
+    "hits": 619,
+    "totalDamage": 29329602.14168498,
+    "dps": 244413.35118070815,
+    "phaseFrames": [
+      1,
+      1322,
+      2524,
+      3845,
+      5166,
+      6368
+    ]
+  },
+  "independentAudit": {
+    "path": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/corrected-baseline-audit.json",
+    "bytes": 26871,
+    "sha256": "5a2f5d1f1c4bcc6439226ed5075b087b8a50936904a20869f00e7055196004b1"
+  },
+  "changedDamageHits": 5,
+  "unchangedQHits": 15,
+  "unchangedC6ParentsChecked": 129,
+  "energyAndAbilityInvocationsUnchanged": true,
+  "claimLimits": [
+    "Full 120-second fixed-seed run, not statistical expectation or steady state.",
+    "Original saved native capture is retained without rewriting.",
+    "The prior full-suite 3196 pass /79 fail /1 skip baseline was not rerun or declared cleared."
+  ],
+  "auditAmendment": "The post-build independent audit was extended with explicit C4 Electro qualification; the original capture and compiled artifact did not change."
+}

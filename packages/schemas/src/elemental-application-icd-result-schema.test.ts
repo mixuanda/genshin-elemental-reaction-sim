@@ -1,3 +1,4 @@
+import { CURRENT_RESULT_EXTENSIONS } from "./current-result-field-contract.test-helper";
 import { describe, expect, it } from "vitest";
 import {
   elementalApplicationIcdDecisionV147Schema,
@@ -330,7 +331,7 @@ describe("elemental-application ICD result leaf schema", () => {
       currentTopLevelFields.filter(
         (field) => !v152TopLevelFields.includes(field)
       )
-    ).toEqual(["executionAudit", "callbackRegistrationLog", "callbackDeliveryLog"]);
+    ).toEqual(CURRENT_RESULT_EXTENSIONS);
     expect(
       v152TopLevelFields.filter(
         (field) => !currentTopLevelFields.includes(field)

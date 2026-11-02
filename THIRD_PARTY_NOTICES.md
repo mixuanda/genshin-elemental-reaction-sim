@@ -4,7 +4,7 @@
 
 - Project: [genshinsim/gcsim](https://github.com/genshinsim/gcsim)
 - Documentation: [docs.gcsim.app](https://docs.gcsim.app/)
-- License: MIT
+- License: MIT for the pinned Classic b4ae769 source described below; the separate Stellar a7 host is AGPL-3.0-or-later.
 - Copyright: Copyright (c) 2021 genshinsim
 - Included license: [`third_party/licenses/gcsim-MIT.txt`](./third_party/licenses/gcsim-MIT.txt)
 
@@ -40,11 +40,24 @@ This project uses gcsim as a product and testing reference:
 The level 1–100 transformative-reaction base-damage numeric table in
 `packages/sim-core/src/formulas.ts` is reproduced from that fixed commit's
 `pkg/core/combat/reaction.dm.go` and is covered by the included MIT license.
-No Go source or character implementation was copied. The TypeScript Aura,
+The earlier TypeScript-only scope did not include a Go host. The current repository also contains patched Go/WASM source hosts; that earlier no-copy statement does not describe the current tree. The TypeScript Aura,
 ICD, reaction scheduling, particle, Ability Blueprint, and Durin audit
 implementations were written independently against the pinned behavior
 oracles. Any later reused code or substantial data portions must retain the
 applicable copyright and MIT license text.
+
+`packages/game-data/sources/kazuha-burst/source/` also retains ten unmodified
+Kazuha reference Go files from the pinned b4 and a7 revisions. Their
+[path-level notice and license texts](packages/game-data/sources/kazuha-burst/source/README.md)
+preserve b4's MIT terms and a7's AGPL-3.0-or-later / prior-MIT notices. They are
+source evidence for the direct-Q calculation, not an additional shipped WASM
+host. The manifest records exact file identities.
+
+## Separate Stellar Go/WASM host
+
+The `packages/source-host/stellar-overlay/` and `apps/web/public/source-host-stellar/` host uses pinned gcsim revision `a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd`. Its source is AGPL-3.0-or-later, with a separate notice for prior MIT contributions. Preserve the [AGPL text](apps/web/public/source-host-stellar/licenses/gcsim-AGPL-3.0-or-later.txt), prior-contribution notices, Go notices and linked dependency notices alongside this artifact. This is separate from the Classic b4 host's MIT attribution.
+
+The [Stellar build documentation](packages/source-host/stellar-overlay/README.md) identifies archived source verification and the isolated overlay. A release still needs an audit of corresponding modified source, build materials and the actual distribution/serving boundary. This notice does not select a new license for original project code or certify the entire repository for redistribution. See the [license-boundary draft](docs/oss-preparation/LICENSE-BOUNDARIES.zh-CN.md).
 
 ## Enka.Network
 
@@ -82,3 +95,35 @@ pinned by `package-lock.json`. The generated records remain
 `verificationStatus: "provisional"` and `simulationStatus: "metadata-only"`
 because community/datamined numbers do not by themselves verify frames, ICD,
 Aura, target rules, particles, snapshots or special mechanics.
+
+## fdlibm angular algorithms
+
+`packages/reaction-formulas/src/deterministic-angular.ts` adapts the sine,
+cosine, pi/2 reduction, arctangent and quadrant algorithms from
+[fdlibm 5.3](https://netlib.org/fdlibm/readme). The original notice is retained
+in that source file. Source URLs and SHA-256 values are recorded in
+[`docs/validation/fdlibm-angular-sources.json`](./docs/validation/fdlibm-angular-sources.json).
+The web distribution includes the notice at
+[`apps/web/public/licenses/fdlibm-Sun.txt`](./apps/web/public/licenses/fdlibm-Sun.txt).
+This entry does not change the repository's root licence.
+
+Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+
+Developed at SunSoft, a Sun Microsystems, Inc. business.
+Permission to use, copy, modify, and distribute this
+software is freely granted, provided that this notice
+is preserved.
+
+## Zod runtime validation
+
+- Project: [colinhacks/zod](https://github.com/colinhacks/zod)
+- Pinned npm package: `zod@4.6.6`
+- Published source revision: `284243fb0d6532665afdc9239188773bb624f73c`
+- License: MIT; unchanged from the previously pinned `4.4.3` package.
+- Copyright: Copyright (c) 2025 Colin McDonnell
+- Web distribution notice: [`apps/web/public/licenses/zod-MIT.txt`](./apps/web/public/licenses/zod-MIT.txt)
+
+The package provides runtime configuration and saved-result validation. Its
+copyright and permission notice are retained with the web artifact. This
+dependency update does not change the repository's root licence or the
+separate Classic and Stellar engine licence scopes.

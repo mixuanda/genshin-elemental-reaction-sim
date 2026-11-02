@@ -1,0 +1,458 @@
+{
+  "kaeya": {
+    "characterId": "character:10000015",
+    "weaponId": "weapon:11306",
+    "level": 90,
+    "ascension": 6,
+    "weaponLevel": 90,
+    "weaponAscension": 6,
+    "refinement": 1,
+    "effectsDisabled": true,
+    "artifacts": [
+      {
+        "slot": "flower",
+        "setId": "artifact-set:15001",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "hp",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "plume",
+        "setId": "artifact-set:15002",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "atk",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "sands",
+        "setId": "artifact-set:15003",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "eleMas",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "goblet",
+        "setId": "artifact-set:15007",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "physical_dmg_",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "circlet",
+        "setId": "artifact-set:15008",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "atk_",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "barbara": {
+    "characterId": "character:10000014",
+    "weaponId": "weapon:14303",
+    "level": 90,
+    "ascension": 6,
+    "weaponLevel": 90,
+    "weaponAscension": 6,
+    "refinement": 1,
+    "effectsDisabled": true,
+    "artifacts": [
+      {
+        "slot": "flower",
+        "setId": "artifact-set:15001",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "hp",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "plume",
+        "setId": "artifact-set:15002",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "atk",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "sands",
+        "setId": "artifact-set:15003",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "eleMas",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "goblet",
+        "setId": "artifact-set:15007",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "physical_dmg_",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "circlet",
+        "setId": "artifact-set:15008",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "atk_",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "noelle": {
+    "characterId": "character:10000034",
+    "weaponId": "weapon:12303",
+    "level": 90,
+    "ascension": 6,
+    "weaponLevel": 90,
+    "weaponAscension": 6,
+    "refinement": 1,
+    "effectsDisabled": true,
+    "artifacts": [
+      {
+        "slot": "flower",
+        "setId": "artifact-set:15001",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "hp",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "plume",
+        "setId": "artifact-set:15002",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "atk",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "sands",
+        "setId": "artifact-set:15003",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "eleMas",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "goblet",
+        "setId": "artifact-set:15007",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "physical_dmg_",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "slot": "circlet",
+        "setId": "artifact-set:15008",
+        "rarity": 5,
+        "level": 0,
+        "mainStat": "atk_",
+        "initialSubstats": 3,
+        "substats": [
+          {
+            "stat": "critRate_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "critDMG_",
+            "rolls": [
+              0
+            ]
+          },
+          {
+            "stat": "enerRech_",
+            "rolls": [
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

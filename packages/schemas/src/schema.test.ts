@@ -18058,6 +18058,8 @@ describe("versioned config schema", () => {
           hitGroupId: "hydro-origin-group",
           targetId: "enemy-0",
           frame: 10,
+          eventPriority: scheduled.eventPriority,
+          eventSequence: scheduled.eventSequence,
           element: "hydro",
           reaction: "bloom",
           reactionAudit: {
@@ -18077,6 +18079,14 @@ describe("versioned config schema", () => {
     expect(dendroCoreResultReferencesSchema.parse(references).totalDamage).toBe(
       123,
     );
+    // Current scheduling must preserve both parts of the origin queue tuple.
+    for (const field of ["eventPriority", "eventSequence"] as const) {
+      const forged = structuredClone(references);
+      forged.damageEvents[0]![field] += 1;
+      expect(() => dendroCoreResultReferencesSchema.parse(forged)).toThrow(
+        /current Bloom scheduling must inherit the actual origin damage\/task queue tuple/,
+      );
+    }
     const frozen131: any = structuredClone(references);
     frozen131.schemaVersion = DENDRO_CORE_SCHEMA_VERSION;
     frozen131.engineVersion = DENDRO_CORE_ENGINE_VERSION;
@@ -18140,6 +18150,8 @@ describe("versioned config schema", () => {
       creditOwnerId: "pyro-owner",
       hitGroupId: "pyro-action:pyro-hit:0",
       frame: 50,
+      eventPriority: 3,
+      eventSequence: 10,
       element: "pyro",
       reaction: "none",
       reactionAudit: { bloomReactions: [] },
@@ -18176,6 +18188,8 @@ describe("versioned config schema", () => {
     const hitResolution = {
       id: 0,
       frame: 50,
+      eventPriority: coreContact.eventPriority,
+      eventSequence: coreContact.eventSequence,
       sourceActorId: "pyro-owner",
       sourceActionId: "pyro-action",
       hitId: "pyro-hit",
@@ -18194,6 +18208,18 @@ describe("versioned config schema", () => {
     expect(() =>
       dendroCoreResultReferencesSchema.parse(contactReferences),
     ).not.toThrow();
+    for (const field of ["eventPriority", "eventSequence"] as const) {
+      const forgedHit = structuredClone(contactReferences);
+      forgedHit.hitResolutionLog[0]![field] += 1;
+      expect(() => dendroCoreResultReferencesSchema.parse(forgedHit)).toThrow(
+        /core-contact hit resolution does not match/,
+      );
+      const forgedDamage = structuredClone(contactReferences);
+      forgedDamage.damageEvents[1]![field] += 1;
+      expect(() => dendroCoreResultReferencesSchema.parse(forgedDamage)).toThrow(
+        /core-contact trigger does not match its damage-event provenance/,
+      );
+    }
     expect(() =>
       dendroCoreResultReferencesSchema.parse({
         ...contactReferences,

@@ -5,6 +5,8 @@ import { proveEnergyCapacityFailure, proveAllSuccessTimelineFailure, type ErInde
 export type { ErIndependentFailureProof } from "./er-independent-failure";
 import { actionPendingHorizonTicks, abilityPendingHorizonTicks } from "./action-pending-horizon";
 import { hasRandomWeaponProc } from "./weapon-proc";
+import { assertSimulationAnalysisSupported, getSimulationAnalysisCapability } from "./simulation-analysis-capability";
+export { getSimulationAnalysisCapability } from "./simulation-analysis-capability";
 
 export interface DamageWindow {
   startTick: number;
@@ -234,6 +236,11 @@ export function solveEnergyRecharge(config: SimConfig, options: ErSearchOptions,
   const costAbilities = new Set(config.timeline.abilities.filter((ability) => ability.actorId === options.actorId && (ability.energyCost ?? 0) > 0).map((ability) => ability.id));
   const requestedCostCommandIndices = config.timeline.commands.flatMap((command, index) => "abilityId" in command && costAbilities.has(command.abilityId) ? [index] : []);
   if (requestedCostCommandIndices.length === 0) { response.reasons.push("该角色没有待执行的耗能动作；最小ER问题未定义。"); return response; }
+  const capability = getSimulationAnalysisCapability(config);
+  if (!capability.supported) {
+    response.reasons.push(`[${capability.code}] ${capability.message}`);
+    return response;
+  }
   const baseline = structuredClone(config);
   let independentProof: ErIndependentFailureProof | undefined;
   let lastRun: SimulationResult | undefined;
@@ -479,7 +486,9 @@ export function repeatLegalTimelineForDuration(input: SimConfig, durationSeconds
   if (!input.timeline) return { ...structuredClone(input), duration: durationSeconds };
   // Delayed SetCD and shared serial charges require actual accepted actions;
   // weapon resets also depend on prior hits. Resolve this reference only once.
-  const execution = getRuntimeSkillCooldownActors(input).size > 0 ? simulate(input, runtimeOptions).timelineExecution! : compileLegalTimeline(input).execution;
+  const needsRuntimeTemplate = getRuntimeSkillCooldownActors(input).size > 0;
+  if (needsRuntimeTemplate) assertSimulationAnalysisSupported(input);
+  const execution = needsRuntimeTemplate ? simulate(input, runtimeOptions).timelineExecution! : compileLegalTimeline(input).execution;
   const cycleTicks = Math.round(input.cycleLength * 60);
   const totalTicks = Math.round(durationSeconds * 60);
   if (execution.failures.some(failure => failure.code !== "INSUFFICIENT_ENERGY")) throw new Error("原循环存在失败指令，不能把它声明为合法重复模板。");
@@ -519,6 +528,7 @@ export function simulateWithStartup(config: SimConfig, startupPolicy: Simulation
     startup: { policy: structuredClone(startupPolicy), warmupTicks: 0, observationTicks, measurementStartTick: 0,
       measurementEndTick: observationTicks, simulationTicks: observationTicks, energyAtMeasurementStart: null, startupActionCount: 0 }, reasons: [] };
   try {
+    assertSimulationAnalysisSupported(config);
     if (Math.abs(config.duration * 60 - observationTicks) > 1e-8) throw new Error("观察窗口必须落在60 FPS整帧边界。");
     let input = structuredClone(config);
     let options = { ...runtimeOptions };

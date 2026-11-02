@@ -1,0 +1,49 @@
+{
+  "environment": {
+    "GOROOT": "/workspace/GIDPS-cloud/source-build-cache/go1.25.0/linux-amd64/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GO111MODULE": "on",
+    "GOMODCACHE": "/workspace/GIDPS-cloud/source-build-cache/modules",
+    "GOCACHE": "/workspace/GIDPS-cloud/source-build-cache/go-build",
+    "GOMAXPROCS": "2",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "CGO_ENABLED": "0"
+  },
+  "commands": [
+    {
+      "label": "before",
+      "cwd": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/go-source-before",
+      "args": [
+        "/workspace/GIDPS-cloud/source-build-cache/go1.25.0/linux-amd64/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "./internal/characters/wanderer",
+        "-run",
+        "^TestWandererC2RejectsNonQ$",
+        "-count=1",
+        "-v"
+      ],
+      "exitCode": 1
+    },
+    {
+      "label": "after",
+      "cwd": "/tmp/GIDPS-wanderer-burst-cycle-evidence-20261023/go-source",
+      "args": [
+        "/workspace/GIDPS-cloud/source-build-cache/go1.25.0/linux-amd64/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "./internal/characters/wanderer",
+        "-run",
+        "^TestWandererC2(RejectsNonQ|Snapshot)",
+        "-count=1",
+        "-v"
+      ],
+      "exitCode": 0
+    }
+  ]
+}

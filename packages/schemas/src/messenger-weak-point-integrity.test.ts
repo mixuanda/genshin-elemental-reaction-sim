@@ -56,5 +56,13 @@ it("proves explicit Messenger weak points, independent guaranteed critical damag
   const contradictory = structuredClone(config);
   contradictory.timeline!.abilities[0]!.hits![0]!.critEligible = false;
   expect(simConfigSchema.safeParse(contradictory).success).toBe(false);
-  expect(weaponProcWeaponIdSchema.options).toHaveLength(13);
+  // The three later fixed-source runtimes have dedicated delivery/replay
+  // tests. Assert the exact whitelist, not the pre-expansion count alone.
+  expect(weaponProcWeaponIdSchema.options).toEqual([
+    "halberd", "ashgravendrinkinghorn", "sequenceofsolitude",
+    "filletblade", "prototypearchaic", "snowtombedstarsilver", "dragonspinespear", "frostbearer",
+    "flute", "debateclub", "crescentpike", "endoftheline", "messenger",
+    "theviridescenthunt", "swordofnarzissenkreuz", "eyeofperception",
+  ]);
+  expect(weaponProcWeaponIdSchema.safeParse("unreviewed-weapon").success).toBe(false);
 });

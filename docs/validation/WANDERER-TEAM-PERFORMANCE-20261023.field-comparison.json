@@ -1,0 +1,73 @@
+{
+  "sameFields": [
+    "taskLifecycle",
+    "lifecycleObservationFrame",
+    "statusInstances",
+    "pendingAttackStages",
+    "attackObservations",
+    "abilityInvocations",
+    "abilityProducers",
+    "ownedGenerators",
+    "ownedGeneratorTriggers",
+    "ownedEntities",
+    "ownedEntityTriggers",
+    "ownedEntityProducers",
+    "shieldInstances",
+    "shieldHooks",
+    "shieldProducers",
+    "hitCallbackBatches",
+    "hitCallbacks",
+    "eventRegistrations",
+    "eventEmissions",
+    "eventListenerCalls",
+    "eventProducers",
+    "attackDispatchCompletions",
+    "protocol",
+    "sourceCommit",
+    "observationWindow",
+    "targetScene",
+    "randomness",
+    "config",
+    "seed",
+    "phaseObservation",
+    "calculations",
+    "executionMode",
+    "initialEnergy",
+    "startupState",
+    "applications",
+    "playerApplications",
+    "drainApplications",
+    "energyApplications",
+    "healingApplications",
+    "result",
+    "capabilities",
+    "executionArtifact",
+    "schemaVersion",
+    "formulaVersion",
+    "verification",
+    "explanationStatus",
+    "explanationGaps"
+  ],
+  "differentFields": [
+    "phaseObservations",
+    "logs"
+  ],
+  "phaseFrames": {
+    "before": [
+      1,
+      1322,
+      2643,
+      3964,
+      5285,
+      6606
+    ],
+    "after": [
+      1,
+      1322,
+      2643,
+      3964,
+      5285,
+      6606
+    ]
+  }
+}

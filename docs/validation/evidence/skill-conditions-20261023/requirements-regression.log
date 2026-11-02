@@ -1,0 +1,18 @@
+
+ RUN  v4.1.10 /workspace/GIDPS-cloud/player-import-integration
+
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > links actual C4 missing fields and resumes the existing calculator after explicit answers 70ms
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > gates constellation fields, keeps false known, and ignores unselected-hit omissions 12ms
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > asks for historical base ATK only when a manual-panel C4 difference needs it 19ms
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > links C6 actual categories and accounting while leaving the source-derived Q category automatic 14ms
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > links the existing shared-panel controls without changing an actual unstable condition 30ms
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > reports missing rendered controls and preserves unknown dependencies precisely 3ms
+ ✓ apps/web/src/calculator-requirements.test.ts > calculator missing fields to existing controls > allows another exact adapter and never matches a control from a blocker sentence 2ms
+ ✓ apps/web/src/calculator-requirements.test.ts > Durin C2 condition controls > maps actual missing state to the rendered controls without choosing an answer 10ms
+ ✓ apps/web/src/calculator-requirements.test.ts > Durin C2 condition controls > asks for stability only across selected hits and does not borrow other hits' answers 2ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  19:57:26
+   Duration  18.21s (transform 13.54s, setup 0ms, import 17.93s, tests 165ms, environment 0ms)
+

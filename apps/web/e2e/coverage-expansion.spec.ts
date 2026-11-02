@@ -1,3 +1,4 @@
+import { revealControl } from "./release-ui-helpers";
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
@@ -9,26 +10,27 @@ async function audit(page: Page): Promise<{ document: CalculatorDocument; result
 
 async function downloadJson<T>(page: Page, selector: string): Promise<T> {
   const pending = page.waitForEvent("download");
-  await page.locator(selector).click();
+  await (await revealControl(page.locator(selector))).click();
   return JSON.parse(await readFile((await (await pending).path())!, "utf8")) as T;
 }
 
 async function selectCompleteAction(page: Page, characterId: string, label: string, skillId: string): Promise<void> {
-  await page.locator("#calc-character").selectOption(characterId);
+  await (await revealControl(page.locator("#calc-character"))).selectOption(characterId);
   await expect(page.locator("#calc-skill")).toBeEnabled();
   const value = await page.locator("#calc-skill option").filter({ hasText: label }).getAttribute("value");
-  await page.locator("#calc-skill").selectOption(value!);
-  await page.locator("#calc-talent-level").fill("1");
-  await page.locator("#calc-talent-level").press("Tab");
+  await (await revealControl(page.locator("#calc-skill"))).selectOption(value!);
+  await (await revealControl(page.locator("#calc-talent-level"))).fill("1");
+  await (await revealControl(page.locator("#calc-talent-level"))).press("Tab");
+  await expect(page.locator("#calc-skill")).toBeEnabled();
   await expect.poll(async () => (await audit(page)).document.gameContext!.effectiveTalentLevel).toBe(1);
-  await page.locator("#calc-constellation").selectOption("0");
-  await page.locator("#calc-ascension").selectOption("6");
+  await (await revealControl(page.locator("#calc-constellation"))).selectOption("0");
+  await (await revealControl(page.locator("#calc-ascension"))).selectOption("6");
   for (const [field, value] of Object.entries({ atk: 1000, hp: 10000, em: 0, critRate: 0.5, critDamage: 1 })) {
-    await page.locator(`[data-field="build.stats.${field}"]`).fill(String(value));
+    await (await revealControl(page.locator(`[data-field="build.stats.${field}"]`))).fill(String(value));
   }
-  await page.locator('[data-field="characterLevel"]').fill("90");
-  await page.locator('[data-field="enemy.level"]').fill("90");
-  await page.locator('[data-field="enemy.resistance"]').fill("0.1");
+  await (await revealControl(page.locator('[data-field="characterLevel"]'))).fill("90");
+  await (await revealControl(page.locator('[data-field="enemy.level"]'))).fill("90");
+  await (await revealControl(page.locator('[data-field="enemy.resistance"]'))).fill("0.1");
   const selected = await audit(page);
   expect(selected.document.gameContext).toMatchObject({ skillId, constellation: 0, scopeCoverage: "complete-cast" });
   expect(selected.document.scope).toBe("one-cast");
@@ -82,47 +84,47 @@ test("Four sourced complete casts work independently and Baizhu retains one expl
   await hp.fill("");
   expect((await audit(page)).result.status).toBe("blocked");
   await hp.fill("0.5");
-  await page.locator("#calc-scope").selectOption("single-hit");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("single-hit");
   const lastHitId = threshold.document.hits[2]!.id;
-  await page.locator(`[data-hit-id="${lastHitId}"]`).check();
+  await (await revealControl(page.locator(`[data-hit-id="${lastHitId}"]`))).check();
   const single = await audit(page);
   expect(single.result.status).toBe("calculated");
   expect(single.result.includedHitIds).toEqual([lastHitId]);
   expect(single.result.totals!.nonCritical).toBeCloseTo(1000 * 0.792 * 1.25 * 0.5 * 0.9, 9);
   const bonusTrace = single.result.hits[0]!.trace.find(node => node.id === "customDamageBonus")!;
   const explanation = page.locator('#calc-results [data-detail-id="customDamageBonus"]');
-  await explanation.locator(":scope > summary").click();
+  await (await revealControl(explanation.locator(":scope > summary"))).click();
   await expect(explanation.locator(".trace-substitution")).toBeVisible();
   await expect(explanation.locator(".trace-substitution")).toContainText(bonusTrace.substitution);
-  await page.locator("#calc-scope").selectOption("one-cast");
+  await (await revealControl(page.locator("#calc-scope"))).selectOption("one-cast");
   expect((await audit(page)).result.totals).toEqual(threshold.result.totals);
 
   // Explicit final bonus already contains A1: the shared formula must add zero to every hit.
-  for (let index = 0; index < 3; index += 1) await page.locator(`[data-field="hits.${index}.damageBonus"]`).fill("0.25");
-  await page.locator("#calc-baizhu-a1-included").selectOption("1");
+  for (let index = 0; index < 3; index += 1) await (await revealControl(page.locator(`[data-field="hits.${index}.damageBonus"]`))).fill("0.25");
+  await (await revealControl(page.locator("#calc-baizhu-a1-included"))).selectOption("1");
   const included = await audit(page);
   expect(included.result.totals).toEqual(threshold.result.totals);
   expect(included.result.hits.map(hit => hit.trace.find(node => node.id === "customDamageBonus")!.result!.value)).toEqual([0, 0, 0]);
 
   // Replace those explicit manual bonuses before deriving a fresh equipment panel.
-  for (let index = 0; index < 3; index += 1) await page.locator(`[data-field="hits.${index}.damageBonus"]`).fill("0");
-  await page.locator("#calc-baizhu-a1-included").selectOption("0");
-  await page.locator('[data-equipment="weapon"]').selectOption("weapon:14301");
-  await page.locator('[data-equipment="weaponEffectsEnabled"]').uncheck();
-  await page.locator('[data-equipment="effectsDisabled"]').check();
-  await page.locator("[data-equipment-apply]").click();
+  for (let index = 0; index < 3; index += 1) await (await revealControl(page.locator(`[data-field="hits.${index}.damageBonus"]`))).fill("0");
+  await (await revealControl(page.locator("#calc-baizhu-a1-included"))).selectOption("0");
+  await (await revealControl(page.locator('[data-equipment="weapon"]'))).selectOption("weapon:14301");
+  await (await revealControl(page.locator('[data-equipment="weaponEffectsEnabled"]'))).uncheck();
+  await (await revealControl(page.locator('[data-equipment="effectsDisabled"]'))).check();
+  await (await revealControl(page.locator("[data-equipment-apply]"))).click();
   const equipment = await audit(page);
   expect(equipment.document.build.mode).toBe("equipment-derived");
   expect(equipment.result.status).toBe("calculated");
   expect(equipment.document.gameContext!.baizhuSkill).toEqual({ activeHpRatioAtCast: 0.5, a1IncludedInPanel: false });
   expect(equipment.result.hits.map(hit => hit.trace.find(node => node.id === "customDamageBonus")!.result!.value)).toEqual([0.25, 0.25, 0.25]);
-  await page.locator("#calc-build-mode").selectOption("manual-final");
+  await (await revealControl(page.locator("#calc-build-mode"))).selectOption("manual-final");
   const final = await audit(page);
   expect(final.document.build.mode).toBe("manual-final");
   expect(final.document.gameContext!.baizhuSkill).toEqual(equipment.document.gameContext!.baizhuSkill);
   expect(final.result.totals).toEqual(equipment.result.totals);
   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
-  await page.locator("#calc-import").setInputFiles({ name: "baizhu-complete-cast-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
+  await (await revealControl(page.locator("#calc-import"))).setInputFiles({ name: "baizhu-complete-cast-final.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)) });
   await expect(page.locator("#calc-character-status")).toContainText("已载入文件中的计算文档");
   const restored = await audit(page);
   expect(restored.document.gameContext).toEqual(final.document.gameContext);

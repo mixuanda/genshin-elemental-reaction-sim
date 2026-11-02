@@ -1,5 +1,6 @@
 import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
 import { finiteFollowupTemplates } from "../../../packages/game-data/src/character-mappings/finite-followup-mappings";
+import { getFaruzanEPanelDeclarationHitIds } from "./calculator-faruzan-panel-declaration";
 
 type OrdinaryHit = Extract<CalculatorDocument["hits"][number], { kind: "ordinary" }>;
 const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!);
@@ -76,7 +77,9 @@ export function renderFiniteFollowupCastControls(document: CalculatorDocument): 
     explanation = `本次只归属 Q 状态中的一次 E${endseer ? "与三道渡荒之雷" : "冥祭"}，不代表整个 Q 普攻轮转。主击与渡荒之雷在第 28 帧取进攻面板；突破 4 的渡荒之雷加算基伤另读取 E 起手精通，为每道 2.5 × 起手 EM，不能用第 28 帧面板反推。裁定的 35% 增伤只给末途真眼主击，不给三道雷。共同精通已含声明与逐击已含份额分别保留；历史完整快照必须已经包含 Q 的 100 精通。`;
   }
 
-  const accounting = cast.characterSlug === "faruzan" || cast.characterSlug === "cyno" ? `<div data-finite-followup-hit-accounting><p class="calculator-hint">逐击填写当前输入已经包含的同一来源份额。未知留空，明确未含才填 0；增伤与减抗用小数，0.35 表示 35%。核心计算实际份额减已含份额，旧效果失效时也能扣回。只缺未选命中的条件不妨碍独立单击。</p>${ordinaryHits.map(hit => {
+  const panelDeclaration = getFaruzanEPanelDeclarationHitIds(document).length
+    ? `<button type="button" data-action="faruzan-e-panel-excludes-own-effects" data-faruzan-e-panel-declaration>声明：未计入本人Q增伤、突破天赋追加伤害与减抗</button><p class="calculator-hint">仅为当前已选且没有历史快照的命中声明；确认后，这三项已含份额改为0。请按实际面板声明。</p>` : "";
+  const accounting = cast.characterSlug === "faruzan" || cast.characterSlug === "cyno" ? `<div data-finite-followup-hit-accounting><p class="calculator-hint">逐击填写当前输入已经包含的同一来源份额。未知留空，明确未含才填 0；增伤与减抗用小数，0.35 表示 35%。核心计算实际份额减已含份额，旧效果失效时也能扣回。只缺未选命中的条件不妨碍独立单击。</p>${panelDeclaration}${ordinaryHits.map(hit => {
     const values = context.hitStates?.[hit.id] ?? {}, key = `hitStates.${hit.id}`;
     const role = cast.hits.find(definition => definition.id === hit.id)!.role;
     let fields = "", hint = "";

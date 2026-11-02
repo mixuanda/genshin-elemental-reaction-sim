@@ -30,6 +30,28 @@ describe("ordinary equipment base additions and hit-specific critical stats",()=
     expect(calculateDocument(final).totals).toEqual(calculated.totals);
     for(const hit of final.hits){if(hit.kind!=="ordinary")throw Error();expect(restoreCalculatorHitEquipmentInputs(hit).additiveBaseDamage).toBe(37);expect(hit.finalizedEquipmentEffects?.every(effect=>effect.sourceRefs[0]?.startsWith("synthetic:"))).toBe(true);}
     expect(calculateDocument(final).hits[0]!.trace.find(node=>node.id==="finalizedEquipmentEffect.2")).toMatchObject({status:"not-applicable",result:{value:360},sourceRefs:["synthetic:em-add"]});
+    for (const [index, result] of calculateDocument(final).hits.entries()) {
+      const converted = final.hits[index]!;
+      if (converted.kind !== "ordinary") throw Error();
+      const records = converted.finalizedEquipmentEffects!;
+      const audit = result.trace.filter(node => node.id.startsWith("finalizedEquipmentEffect."));
+      expect(audit).toHaveLength(records.length);
+      expect(new Set(audit.map(node => node.id)).size).toBe(records.length);
+      expect(audit.map(node => node.result?.value)).toEqual(records.map(record => record.amount));
+      expect(audit.every(node => node.status === "not-applicable")).toBe(true);
+    }
+    // Current panel changes cannot re-apply contributions already captured per hit.
+    const changedPanel = structuredClone(final);
+    if (changedPanel.build.mode === "equipment-derived") throw Error();
+    changedPanel.build.stats.atk = 99999;
+    changedPanel.build.stats.em = 99999;
+    const changedResults = calculateDocument(changedPanel);
+    const capturedIndices = final.hits.flatMap((hit, index) => hit.kind === "ordinary" && hit.finalSnapshot ? [index] : []);
+    expect(capturedIndices.length).toBeGreaterThan(0);
+    for (const index of capturedIndices) {
+      expect(changedResults.hits[index]!.expected).toBe(calculated.hits[index]!.expected);
+      expect(changedResults.hits[index]!.nonCritical).toBe(calculated.hits[index]!.nonCritical);
+    }
     const finalNormal=final.hits[0]!;if(finalNormal.kind!=="ordinary")throw Error();
     finalNormal.additiveBaseDamage+=11;
     expect(restoreCalculatorHitEquipmentInputs(finalNormal).additiveBaseDamage).toBe(48);

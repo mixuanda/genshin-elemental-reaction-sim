@@ -1,0 +1,242 @@
+{
+  "schema": "gidps-core-user-acceptance/1",
+  "createdUtc": "2026-10-23T19:44:20.270634+00:00",
+  "baseline": "c17031d73e8cca1d2308453107e7a7e70557746f",
+  "implementedAt": "97bf55f9d6493e339cbb00eb60be9166398a60ed",
+  "branch": "cloud/player-import-integration-20261021",
+  "productionQueried": false,
+  "productionDeploymentAttempted": false,
+  "libraryUploadAttempted": false,
+  "fullRegressionRun": false,
+  "dynamicCacheExpanded": false,
+  "historicalFullRun": {
+    "commit": "924edf672b1e9c49f0316a79e36f0b5cde5e337b",
+    "passed": 3196,
+    "failed": 79,
+    "skipped": 1,
+    "currentHeadStatus": "not-run; do not subtract local successes"
+  },
+  "currentFixes": [
+    {
+      "id": "specified-party-zero-moonsign",
+      "commit": "860091394546c48ef34186e973a3ae770f6573ed",
+      "inOriginal79": false,
+      "tests": "6/6 selected Moonsign unit cases; original 2 regressions failed before fix"
+    },
+    {
+      "id": "special-panel-readonly-entry",
+      "commit": "856feaf73ee7841459d5f9450d680391f85c3dba",
+      "inOriginal79": false,
+      "tests": "desktop/narrow browser; accessible without ordinary simulation"
+    },
+    {
+      "id": "special-capture-provenance-loss",
+      "commit": "97bf55f9d6493e339cbb00eb60be9166398a60ed",
+      "inOriginal79": false,
+      "tests": "unchanged nonzero damage/negative checks plus exact original JSON roundtrip; refresh and a later new Stellar run do not export the previous Lunar file"
+    }
+  ],
+  "focusedTests": {
+    "moonsignUnit": {
+      "passed": 6,
+      "failed": 0
+    },
+    "nonzeroBrowser": {
+      "passed": 1,
+      "failed": 0,
+      "durationMs": 19571,
+      "scope": "one existing case covering lunar-bloom 3 events, roundtrip, +1 damage rejection, retained original and Stellar capture/calculator"
+    },
+    "qualificationBrowser": {
+      "status": "passed",
+      "gitHead": "856feaf73ee7841459d5f9450d680391f85c3dba",
+      "applicationPatchSha256": "a160fd5f6825d02851be4168167f05838e4a81e67f8f5a258d108a6169d327e6",
+      "browser": "154.0.8037.57",
+      "scope": "Specified party qualification 0 and rejection without an enabler; separate one-grant empty-axis input roundtrip, no invented character attacks; not a new native 120-second sample.",
+      "identities": [
+        {
+          "id": "wanderer",
+          "name": "流浪者",
+          "element": "anemo",
+          "level": 100,
+          "energyMax": 60
+        },
+        {
+          "id": "faruzan",
+          "name": "珐露珊",
+          "element": "anemo",
+          "level": 90,
+          "energyMax": 80
+        },
+        {
+          "id": "nicole",
+          "name": "妮可",
+          "element": "pyro",
+          "level": 90,
+          "energyMax": 60
+        },
+        {
+          "id": "durin",
+          "name": "杜林",
+          "element": "pyro",
+          "level": 90,
+          "energyMax": 70
+        }
+      ],
+      "specifiedPartyAutomaticMoonsign": 0,
+      "noEnablerRunRejected": true,
+      "qualifiedInputAutomaticMoonsign": 1,
+      "actualSpecialDamageEvents": 0,
+      "savedRequestAndCompleteResultExactlyPreserved": true,
+      "completeJsonAndProvenancePreserved": true,
+      "originalFileUnchanged": true,
+      "reopenedOrigin": "capture",
+      "accessibleAfterReadOnlyImportWithoutOrdinarySimulation": true,
+      "desktopAndNarrowEntryVisible": true,
+      "captureSha256": "37408caa67dbb583d1db3b90f6f84018483258329b8b2523b1891fce998e6be8",
+      "reopenedSha256": "37408caa67dbb583d1db3b90f6f84018483258329b8b2523b1891fce998e6be8",
+      "errors": []
+    },
+    "earlierAttempts": [
+      {
+        "report": "evidence/core-user-acceptance-20261023/nonzero-special-before.json",
+        "outcome": "expected new exact provenance assertion fails before production fix"
+      },
+      {
+        "report": "evidence/core-user-acceptance-20261023/nonzero-special-build-overlap.json",
+        "outcome": "same test failed while build overlapped: tampered capture replay still running at unchanged 5000ms wait; retained as failed, isolated rerun passed unchanged"
+      }
+    ],
+    "build": {
+      "completed": true,
+      "checks": [
+        "workspace resolution",
+        "TypeScript noEmit",
+        "Vite"
+      ],
+      "viteSeconds": 4.84,
+      "warningsRetained": true
+    },
+    "otherNineNavigationAdaptedE2eFiles": "not run; not counted as passing"
+  },
+  "retainedRealTeamEvidence": {
+    "currentTurnNewNativeRun": false,
+    "seed": 20261022,
+    "seconds": 120,
+    "fps": 60,
+    "frames": 7200,
+    "hits": 610,
+    "totalDamage": 27069474.337322712,
+    "dps": 225578.9528110226,
+    "latestRetainedClickToPaintMs": 30450.5,
+    "newPerformanceMeasurement": false,
+    "notMeanOrSteadyState": true,
+    "strictAcrossRunWholeArchive": "still fails logs and phase order; original order and diagnostics retained",
+    "report": "docs/validation/WANDERER-TEAM-VALIDATION-PERFORMANCE-20261023.zh-CN.md"
+  },
+  "old79Audit": "docs/audits/core-path-old79-20261023.json",
+  "all79OriginalFailureRecordsExactlyRetained": true,
+  "remainingLimits": [
+    "full roster mechanisms not complete",
+    "unverified fixed-source frame and collision assumptions not invented",
+    "95/100 import evidence retained from previous commits, no new real UID trial here",
+    "no actual account-login flow validated in this thread",
+    "no real multiple-trial mean time-series curve",
+    "about 30-second real page wait remains",
+    "production and Library upload remain paused after prior refusal"
+  ],
+  "lastKnownProductionRecord": {
+    "codeCommit": "d70fce7c2a52ef296f468f0a4e4cabd94683379a",
+    "deploymentId": "dpl_9Rae52nXM3FJ6dXAu8Uu5eByCJpH",
+    "recheckedThisTurn": false
+  },
+  "repositoryEvidence": [
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/build.log",
+      "bytes": 8638,
+      "sha256": "1d1305e390aea04b04ee8817ee5eb46803179542ad88e74c23486d880b04cf4a"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/moonsign-after.log",
+      "bytes": 1408,
+      "sha256": "76328c77c96594ea78494eb4d58dc374a95a0e028e7812f1df7a2321fff662b1"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/moonsign-before.log",
+      "bytes": 3762,
+      "sha256": "09bd04976defca1605e332089f88396a088971c99b0687925bdacc7703bee29f"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/nonzero-special-after.json",
+      "bytes": 3211,
+      "sha256": "f759beb3b98ab463fa996c856beac69c6f23d701545c5a5d73b98c1fe170a024"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/nonzero-special-before.json",
+      "bytes": 15556,
+      "sha256": "b271848aa3f4036879030f95bc5650766b12e197d61b0812f09e8652e2e3c80c"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/nonzero-special-build-overlap.json",
+      "bytes": 9198,
+      "sha256": "641c35a6800e53d5977abeb19210c1cb2674c428d7e8274f621554f086219836"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/provenance-before-differences.json",
+      "bytes": 2763,
+      "sha256": "cc6dad85c287b4adc986e5aeb0516be607887a60e0909fe0802a25cc071adc68"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/qualification-and-provenance-browser.json",
+      "bytes": 1544,
+      "sha256": "2815be12a55e9cd9aa6b509dbbf8a0bfaa6a87425c883644a68667864452ee37"
+    },
+    {
+      "path": "docs/validation/evidence/core-user-acceptance-20261023/special-entry-before.json",
+      "bytes": 313,
+      "sha256": "917945643d423de9efa5827d904a284ac37101e85c4b7ec93edf500600c178ad"
+    },
+    {
+      "path": "docs/audits/core-path-old79-20261023.json",
+      "bytes": 291748,
+      "sha256": "351c86dbcf292fb21663b49620d655a726e2b98aefcfe438cf24b3d664841393"
+    },
+    {
+      "path": "docs/audits/core-path-old79-20261023.zh-CN.md",
+      "bytes": 5575,
+      "sha256": "3d8cf3a012e2647e0e8b5be7d03f5a4e57490bf929d0e0b4097f82bdde1d3ade"
+    },
+    {
+      "path": "docs/audits/moonsign-specified-party-source-20261023.json",
+      "bytes": 19635,
+      "sha256": "bb7ba5b772d37486cceeb58432b29a2fdee4c1f7d2261335259585b57209f46d"
+    }
+  ],
+  "localOnlyArtifacts": [
+    {
+      "path": "/tmp/GIDPS-core-acceptance-20261023/moonsign/browser-provenance-fixed/runner-start.json",
+      "bytes": 295,
+      "sha256": "28ca2d0e9e28b9dce1b4498d9a805c9b83385a1e8e59ffc6c0a9af1f49782a28"
+    },
+    {
+      "path": "/tmp/GIDPS-core-acceptance-20261023/moonsign/browser-provenance-fixed/one-grant-identity-only-capture.json",
+      "bytes": 35275,
+      "sha256": "37408caa67dbb583d1db3b90f6f84018483258329b8b2523b1891fce998e6be8"
+    },
+    {
+      "path": "/tmp/GIDPS-core-acceptance-20261023/moonsign/browser-provenance-fixed/one-grant-identity-only-reopened.json",
+      "bytes": 35275,
+      "sha256": "37408caa67dbb583d1db3b90f6f84018483258329b8b2523b1891fce998e6be8"
+    },
+    {
+      "path": "/tmp/GIDPS-core-acceptance-20261023/moonsign/browser-provenance-fixed/one-grant-readonly.png",
+      "bytes": 556108,
+      "sha256": "fc1ad3472b280689cb1c935ac9c1cad45ee43d8faaabe0ea2a2e913e07322d17"
+    },
+    {
+      "path": "/tmp/GIDPS-core-acceptance-20261023/moonsign/browser-provenance-fixed/one-grant-narrow.png",
+      "bytes": 56483,
+      "sha256": "0f6e386f17d0bdd91fd5acf9cd819b2bb2aca989dece3c19a946e5f90ef94aab"
+    }
+  ]
+}

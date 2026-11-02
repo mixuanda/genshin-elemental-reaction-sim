@@ -1,0 +1,208 @@
+{
+  "schema": "gidps-skill-conditions-acceptance/1",
+  "createdUtc": "2026-10-23T20:04:22.900374+00:00",
+  "baseline": "3bcfc715185cabc2b63f490f3f5bf96e2216d5ab",
+  "codeHead": "1b2789f93730d875046cfaf9e282a54823f29e75",
+  "branch": "cloud/player-import-integration-20261021",
+  "fixes": [
+    {
+      "commit": "9d8ff63dbc9fd6c35bcdd0c71887629e399ffe41",
+      "scope": [
+        "Kuki existing E C0-C6 conditions; Q 7/12 conditional HP; C6 EM accounting",
+        "Charlotte existing press/hold E C0-C5; A4 party count; selected-hit C2 accounting"
+      ]
+    },
+    {
+      "commit": "1b2789f93730d875046cfaf9e282a54823f29e75",
+      "scope": [
+        "Neuvillette C0 existing two E actions only; per-hit HP/A4 accounting; actual ascension and full-cast stability"
+      ]
+    }
+  ],
+  "tested": {
+    "focusedDistinctUnitCases": 25,
+    "files": [
+      {
+        "path": "apps/web/src/calculator-conditional-cast-requirements.test.ts",
+        "passed": 6
+      },
+      {
+        "path": "apps/web/src/calculator-requirements.test.ts",
+        "passed": 9
+      },
+      {
+        "path": "apps/web/src/calculator-projectile-requirements.test.ts",
+        "passed": 10
+      }
+    ],
+    "browserCasesPassed": 3,
+    "browserReportsAreSeparateRuns": true,
+    "browserFile": "apps/web/e2e/calculator-conditional-character-inputs.spec.ts",
+    "browserCoverage": [
+      "Kuki 50% HP accepted; mismatched >50% low-HP branch blocked; original calculated document roundtrip",
+      "Charlotte narrow390; full mark0 count; selected C2 zero accepted and missing rejected; roundtrip",
+      "Neuvillette C0 independent E; HP/A4 inputs visible; no repeated A4; missing HP blocked; roundtrip"
+    ],
+    "buildPassed": true,
+    "buildIncludesWorkspaceAndTypes": true,
+    "viteBuildSeconds": 3.58,
+    "fullRegressionRun": false,
+    "native120SecondsRun": false
+  },
+  "earlierFailedRuns": [
+    {
+      "file": "conditional-before.log",
+      "result": "5 new original registry assertions fail before adapter registration; 6th ascension case added later"
+    },
+    {
+      "file": "browser-first.json",
+      "result": "2 test-navigation timeouts after successful calculations: blindly toggling an already-open answered-condition details closed it; helper now opens only when closed; numeric/rejection assertions unchanged"
+    },
+    {
+      "file": "typecheck-conditional.log",
+      "result": "TS2379 in new projectile test helper passed explicit undefined for an optional property; fixed with conditional property spread; strict compiler settings unchanged"
+    }
+  ],
+  "untouched": [
+    "game-data coefficients",
+    "source formula core",
+    "Go and WASM",
+    "event frame scheduling",
+    "legacy saved results",
+    "Golden expectations",
+    "dynamic caches",
+    "production deployment",
+    "Library upload",
+    "authentication and credentials"
+  ],
+  "numericEvidence": {
+    "inputKind": "explicit editable teaching panels, no player UID or legal artifact build claimed",
+    "kukiQLevel1At50Percent": {
+      "hp": 20000,
+      "hits": 12,
+      "coefficientPerHit": 0.036048,
+      "nonCritical": 3893.1839999999993
+    },
+    "charlotteELevel1Press": {
+      "atk": 2000,
+      "nonFontaineTeammates": 0,
+      "hits": 5,
+      "nonCritical": 2016.0
+    },
+    "charlotteC2SelectedFirstHitAtZero": {
+      "atk": 2000,
+      "actualC2Stacks": 0,
+      "includedC2Stacks": 0,
+      "nonCritical": 604.8000000000001
+    },
+    "neuvilletteELevel10": {
+      "hp": 20000,
+      "actualHpRatio": 0.5,
+      "a4Bonus": 0.12,
+      "coefficient": 0.231552,
+      "nonCritical": 2334.0441600000004,
+      "sameAfterIncludedBonusAccounting": true
+    }
+  },
+  "remaining": [
+    "No new roster-wide or high-constellation models added",
+    "Neuvillette Q and charged attack are outside this adapter scope",
+    "Charlotte C6 remains explicitly unsupported by existing E model",
+    "Kuki C4 extra attacks, healing/HP drain and C6 trigger clocks not added",
+    "No automatic party-count inference without a supplied full party",
+    "Kuki E 8/10-ring actions remain explicit choices; actual constellation checks are not bypassed",
+    "Confirmed next gap: Faruzan C0 finite-followup E has existing controls but no inline requirement adapter; not fixed here",
+    "No new performance benchmark; retained actual team page about30 seconds",
+    "Historical full3196/79/1 unchanged; no current whole-suite status",
+    "Production and Library uploads remain paused"
+  ],
+  "repositoryEvidence": [
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/browser-after.json",
+      "bytes": 4362,
+      "sha256": "01164c17569addd6f721c1afa728a87f4ffdba54300e8b7c55b0bfbfc4af0151"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/browser-first.json",
+      "bytes": 10248,
+      "sha256": "1577f9a10a16095dc5880c6bf4739a43f463daac39819c11d93b1eb0ca5def23"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/build.log",
+      "bytes": 8638,
+      "sha256": "0c6fbf7cc413250d7aec8b585b6ef7ae4b466aee6cfab97d05ce1198eb500ab7"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/conditional-after.log",
+      "bytes": 1422,
+      "sha256": "fb222b6c3de03e39e842a6ca6c0a49456fea9eb563275bf2f93331c2d4ed53d0"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/conditional-before.log",
+      "bytes": 6880,
+      "sha256": "1b3da58c2007ebed4ff32e6a0916a956fc8b9a5a34e946d614adc7d47eeeb530"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/conditional-final.log",
+      "bytes": 1681,
+      "sha256": "4a36052b1e89b4a316210d1662aee5f5a0b4d8a9a42889596703d75ec933178e"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/neuvillette-browser.json",
+      "bytes": 3360,
+      "sha256": "6905d2960c7b16291a153123d4b8ff5271edc88b4734752143162eec3047683f"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/projectile-final.log",
+      "bytes": 2277,
+      "sha256": "615203c49c016b4d655de5792d143df204d827971e806a4d1d0697c226fd00f5"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/requirements-regression.log",
+      "bytes": 1906,
+      "sha256": "21f8ecf4eb24ab910927fdf04e57a48a3001733962467c3ee8faf43f5875b2ed"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/typecheck-after-helper-fix.log",
+      "bytes": 426,
+      "sha256": "a335af3d948aa795f09046e2e7e7a6d2e7fc3b42cb557030c183a51c175f75a4"
+    },
+    {
+      "path": "docs/validation/evidence/skill-conditions-20261023/typecheck-conditional.log",
+      "bytes": 1069,
+      "sha256": "11835b36aa8d2e5d53357335426711cef44634589d9209d60fdbda66f87efa9e"
+    }
+  ],
+  "localOnlyArtifacts": [
+    {
+      "path": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts/calculator-conditional-cha-d1fe6--calculated-twelve-hit-file/kuki-explicit-hp.png",
+      "bytes": 1053999,
+      "sha256": "cbcd92ac0ec3c64c6041c9f74be6b6fb59edb15bc4036fc696ecccba1cb19312"
+    },
+    {
+      "path": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts/calculator-conditional-cha-d1fe6--calculated-twelve-hit-file/kuki-q.calculator.json",
+      "bytes": 89995,
+      "sha256": "8d5669a6ca8d6d3768100157c56d305f445c36eeeb8951666ae18b62f397d23b"
+    },
+    {
+      "path": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts/calculator-conditional-cha-f9b3c--distinct-on-narrow-screens/charlotte-e.calculator.json",
+      "bytes": 52197,
+      "sha256": "932b26f0a028c017c6f8750f2fadbbf01b5ea737b39cd98c4ba05adcfa590cf9"
+    },
+    {
+      "path": "/tmp/GIDPS-skill-conditions-20261023/browser-artifacts/calculator-conditional-cha-f9b3c--distinct-on-narrow-screens/charlotte-selected-c2.png",
+      "bytes": 604220,
+      "sha256": "9a3182c604b1041fef0cf1265115d94a65210b107430912f04eb5f1bf87d5ca6"
+    },
+    {
+      "path": "/tmp/GIDPS-skill-conditions-20261023/neuvillette-browser-artifacts/calculator-conditional-cha-5dec5-quiring-a-whole-future-cast/neuvillette-e-a4.png",
+      "bytes": 620900,
+      "sha256": "2f1063fdca7e38edb9c6356636a7f55abf8bfffecc5d727adede60d155b68efb"
+    },
+    {
+      "path": "/tmp/GIDPS-skill-conditions-20261023/neuvillette-browser-artifacts/calculator-conditional-cha-5dec5-quiring-a-whole-future-cast/neuvillette-e.calculator.json",
+      "bytes": 13357,
+      "sha256": "95a969a7694423815f61b6bf5c9f769bdbeced68a6164163537b1c5dd82394dd"
+    }
+  ]
+}
