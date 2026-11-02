@@ -34,7 +34,7 @@ jobs:
       - run: npm run build
       # Retain the calculator suite and include the strict cross-runtime replay
       # cases. Per-test limits and the existing 20-minute job limit are intact.
-      - run: GIDPS_PREBUILT=1 npm run test:e2e:calculator -- apps/web/e2e/angular-geometry-replay.spec.ts --reporter=line,./scripts/calculator-progress-reporter.mjs
+      - run: GIDPS_PREBUILT=1 npm run test:e2e:calculator -- apps/web/e2e/angular-geometry-replay.spec.ts --workers=1 --reporter=line,./scripts/calculator-progress-reporter.mjs
       - name: Preserve sanitized calculator progress
         if: always()
         uses: actions/upload-artifact@v4
